@@ -1,42 +1,44 @@
 /*
-**	Command & Conquer(tm)
-**	Copyright 2025 Electronic Arts Inc.
+**      Command & Conquer(tm)
+**      Copyright 2025 Electronic Arts Inc.
 **
-**	This program is free software: you can redistribute it and/or modify
-**	it under the terms of the GNU General Public License as published by
-**	the Free Software Foundation, either version 3 of the License, or
-**	(at your option) any later version.
+**      This program is free software: you can redistribute it and/or modify
+**      it under the terms of the GNU General Public License as published by
+**      the Free Software Foundation, either version 3 of the License, or
+**      (at your option) any later version.
 **
-**	This program is distributed in the hope that it will be useful,
-**	but WITHOUT ANY WARRANTY; without even the implied warranty of
-**	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-**	GNU General Public License for more details.
+**      This program is distributed in the hope that it will be useful,
+**      but WITHOUT ANY WARRANTY; without even the implied warranty of
+**      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**      GNU General Public License for more details.
 **
-**	You should have received a copy of the GNU General Public License
-**	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**      You should have received a copy of the GNU General Public License
+**      along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* $Header:   F:\projects\c&c\vcs\code\watcom.h_v   2.13   16 Oct 1995 16:45:58   JOE_BOSTIC  $ */
-/*********************************************************************************************** 
- ***              C O N F I D E N T I A L  ---  W E S T W O O D  S T U D I O S               *** 
- *********************************************************************************************** 
- *                                                                                             * 
- *                 Project Name : Command & Conquer                                            * 
- *                                                                                             * 
- *                    File Name : WATCOM.H                                                     * 
- *                                                                                             * 
- *                   Programmer : Joe L. Bostic                                                * 
- *                                                                                             * 
- *                   Start Date : 03/12/95                                                     * 
- *                                                                                             * 
- *                  Last Update : March 12, 1995 [JLB]                                         * 
- *                                                                                             * 
- *---------------------------------------------------------------------------------------------* 
- * Functions:                                                                                  * 
+/* $Header:   F:\\projects\\c&c\\vcs\\code\\watcom.h_v   2.13   16 Oct 1995 16:45:58   JOE_BOSTIC  $ */
+/***********************************************************************************************
+ ***              C O N F I D E N T I A L  ---  W E S T W O O D  S T U D I O S               ***
+ ***********************************************************************************************
+ *                                                                                             *
+ *                 Project Name : Command & Conquer                                            *
+ *                                                                                             *
+ *                    File Name : WATCOM.H                                                     *
+ *                                                                                             *
+ *                   Programmer : Joe L. Bostic                                                *
+ *                                                                                             *
+ *                   Start Date : 03/12/95                                                     *
+ *                                                                                             *
+ *                  Last Update : March 12, 1995 [JLB]                                         *
+ *                                                                                             *
+ *---------------------------------------------------------------------------------------------*
+ * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #ifndef WATCOM_H
 #define WATCOM_H
+
+#if defined(__WATCOMC__)
 
 // Turn all warnings into errors.
 #pragma warning * 0
@@ -73,5 +75,13 @@
 
 // Turns off "expression with side effect in sizeof()". This is needed if memchecker is used.
 #pragma warning 472 9
+
+#elif defined(__GNUC__)
+
+// GCC: treat all warnings as errors and silence unused parameter warnings.
+#pragma GCC diagnostic error "-Wall"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
+#endif
 
 #endif

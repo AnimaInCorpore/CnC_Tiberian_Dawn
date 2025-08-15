@@ -42,74 +42,76 @@
 Map (screen) class heirarchy.
 
  MapeditClass (most derived class) -- scenario editor
-        ³
+        Â³
    MouseClass -- handles mouse animation and display control
-        ³
+        Â³
   ScrollClass -- map scroll handler
-        ³
+        Â³
     HelpClass -- pop-up help text handler
-        ³
+        Â³
      TabClass -- file folder tab screen mode control dispatcher
-        ³
+        Â³
  SidebarClass -- displays and controls construction list sidebar
-        ³
+        Â³
    PowerClass -- display power production/consumption bargraph
-        ³
+        Â³
    RadarClass -- displays and controls radar map
-        ³
+        Â³
  DisplayClass -- general tactical map display handler
-        ³
+        Â³
      MapClass -- general tactical map data handler
-        ³
+        Â³
  GScreenClass (pure virtual base class) -- generic screen control
 
                           AbstractClass
-                                  ³
-                                  ³
-                                  ³
-                                  ³
+                                  Â³
+                                  Â³
+                                  Â³
+                                  Â³
                             ObjectClass
-                                  ³
-       ÚÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄ¿
-   AnimClass  ³  TemplateClass    ³        ÃÄ FuseClass     ³    TerrainClass
-              ³                   ³        ÃÄ FlyClass      ³
-              ³                   ³  BulletClass            ³
+                                  Â³
+       ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã…Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+   AnimClass  Â³  TemplateClass    Â³        ÃƒÃ„ FuseClass     Â³    TerrainClass
+              Â³                   Â³        ÃƒÃ„ FlyClass      Â³
+              Â³                   Â³  BulletClass            Â³
        OverlayClass        MissionClass               SmudgeClass
-                                  ³
+                                  Â³
                              RadioClass
-                                  ³
-                                  ÃÄ CrewClass
-                                  ÃÄ FlasherClass
-                                  ÃÄ StageClass
-                                  ÃÄ CargoClass
+                                  Â³
+                                  ÃƒÃ„ CrewClass
+                                  ÃƒÃ„ FlasherClass
+                                  ÃƒÃ„ StageClass
+                                  ÃƒÃ„ CargoClass
                             TechnoClass
-                                  ³
-         ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+                                  Â³
+         ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„ÃÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
      FootClass                                         BuildingClass
-         ³
-         ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-    DriveClass  InfantryClass         ÃÄ FlyClass
-         ³                      AircraftClass
+         Â³
+         ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+    DriveClass  InfantryClass         ÃƒÃ„ FlyClass
+         Â³                      AircraftClass
    TurretClass
-         ³
+         Â³
    TarComClass
-         ³
+         Â³
      UnitClass
 
 
                             AbstractTypeClass
-                                    ³
+                                    Â³
                               ObjectTypeClass
-                                    ³
-             ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-             ³                      ³            ³                 ³
-       TechnoTypeClass              ³            ³                 ³
-             ³                BulletTypeClass    ³                 ³
-             ³                           TemplateTypeClass         ³
-    ÚÄÄÄÄÄÄÄÄÁÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿             TerrainTypeClass
-    ³              ³           ³              ³
-UnitTypeClass      ³   BuildingTypeClass      ³
-                   ³                  InfantryTypeClass
+                                    Â³
+             ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã…Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+             Â³                      Â³            Â³                 Â³
+       TechnoTypeClass              Â³            Â³                 Â³
+             Â³                BulletTypeClass    Â³                 Â³
+             Â³                           TemplateTypeClass         Â³
+    ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„ÃÃ„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿             TerrainTypeClass
+    Â³              Â³           Â³              Â³
+UnitTypeClass      Â³   BuildingTypeClass      Â³
+#if defined(__WATCOMC__) || defined(__GNUC__)
+#include        "watcom.h"
+#endif
            AircraftTypeClass
 #endif
 
