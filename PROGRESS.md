@@ -11,6 +11,8 @@ The table below records every legacy source/header that already has a modern cou
 | `VECTOR.CPP` | `src/VECTOR.cpp` | Boolean vector utilities rewritten around clear helpers and `std::memcpy`. |
 | `LINK.CPP` | `src/LINK.cpp` | Doubly linked helper now uses `nullptr` checks and RAII-friendly removal. |
 | `LAYER.CPP` | `src/LAYER.cpp` | Layer manager handles sorting and save/load helpers with portable pointer coding. |
+| `RADIO.CPP` | `src/RADIO.cpp` | Radio messaging logic wrapped in portable helpers with `nullptr`-safe contact handling. |
+| `TAB.CPP` | `src/TAB.cpp` | Sidebar tab UI now lives in `src/` with `nullptr` guards and cleaned text drawing helpers. |
 | `ABSTRACT.H` | `src/include/legacy/abstract.h` | Lowercase mirror retained so `#include "abstract.h"` works on case-sensitive hosts. |
 | `COMPAT.H` | `src/include/legacy/compat.h` | Palette/buffer macros and legacy globals wrapped in portable defaults. |
 | `DEFINES.H` | `src/include/legacy/defines.h` | Lowercase mirror preserving gameplay feature toggles until modernization. |
