@@ -115,9 +115,11 @@ template<class T> inline T operator ~(T t1)
 **	The shape flags are likely to be "or"ed together and other such bitwise
 **	manipulations. These instatiated operator templates allow this.
 */
+#if 0
 inline ShapeFlags_Type operator |(ShapeFlags_Type, ShapeFlags_Type);
 inline ShapeFlags_Type operator &(ShapeFlags_Type, ShapeFlags_Type);
 inline ShapeFlags_Type operator ~(ShapeFlags_Type);
+#endif
 
 
 void Set_Bit(void * array, int bit, int value);

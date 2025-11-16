@@ -11,6 +11,41 @@ class BufferClass;
 using KeyNumType = int;
 using KeyASCIIType = int;
 
+// Simplified EGA palette constants used throughout the legacy UI code.
+constexpr unsigned BLACK = 0;
+constexpr unsigned BLUE = 1;
+constexpr unsigned GREEN = 2;
+constexpr unsigned CYAN = 3;
+constexpr unsigned RED = 4;
+constexpr unsigned MAGENTA = 5;
+constexpr unsigned BROWN = 6;
+constexpr unsigned LTGREY = 7;
+constexpr unsigned DKGREY = 8;
+constexpr unsigned LTBLUE = 9;
+constexpr unsigned LTGREEN = 10;
+constexpr unsigned LTCYAN = 11;
+constexpr unsigned LTRED = 12;
+constexpr unsigned LTMAGENTA = 13;
+constexpr unsigned YELLOW = 14;
+constexpr unsigned WHITE = 15;
+
+constexpr unsigned TBLACK = BLACK;
+constexpr unsigned TBLUE = BLUE;
+constexpr unsigned TGREEN = GREEN;
+constexpr unsigned TCYAN = CYAN;
+constexpr unsigned TRED = RED;
+constexpr unsigned TMAGENTA = MAGENTA;
+constexpr unsigned TBROWN = BROWN;
+constexpr unsigned TLTGREY = LTGREY;
+constexpr unsigned TDKGREY = DKGREY;
+constexpr unsigned TLTBLUE = LTBLUE;
+constexpr unsigned TLTGREEN = LTGREEN;
+constexpr unsigned TLTCYAN = LTCYAN;
+constexpr unsigned TLTRED = LTRED;
+constexpr unsigned TLTMAGENTA = LTMAGENTA;
+constexpr unsigned TYELLOW = YELLOW;
+constexpr unsigned TWHITE = WHITE;
+
 #ifndef BuffType
 #define BuffType BufferClass
 #endif

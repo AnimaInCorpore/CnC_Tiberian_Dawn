@@ -40,6 +40,8 @@
 
 #include "vector.h"
 
+class FileClass;
+
 /**************************************************************************
 **	This is a block memory managment handler. It is used when memory is to
 **	be treated as a series of blocks of fixed size. This is similar to an

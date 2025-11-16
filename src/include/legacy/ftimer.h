@@ -87,5 +87,15 @@ class TCountDownTimerClass {
 		long DelayTime;			// Ticks remaining before countdown timer expires.
 };
 
+class CountDownTimerClass : public TCountDownTimerClass {
+ public:
+  CountDownTimerClass(int /*mode*/ = 0, long delay = 0) : TCountDownTimerClass(delay) {}
+
+  void Set(long set) { TCountDownTimerClass::Set(set); }
+  long Time() const { return TCountDownTimerClass::Time(); }
+  void Clear() { TCountDownTimerClass::Clear(); }
+  bool Expired() const { return TCountDownTimerClass::Expired(); }
+};
+
 
 #endif

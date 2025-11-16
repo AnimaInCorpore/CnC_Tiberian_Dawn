@@ -42,74 +42,74 @@
 Map (screen) class heirarchy.
 
  MapeditClass (most derived class) -- scenario editor
-        ³
+        
    MouseClass -- handles mouse animation and display control
-        ³
+        
   ScrollClass -- map scroll handler
-        ³
+        
     HelpClass -- pop-up help text handler
-        ³
+        
      TabClass -- file folder tab screen mode control dispatcher
-        ³
+        
  SidebarClass -- displays and controls construction list sidebar
-        ³
+        
    PowerClass -- display power production/consumption bargraph
-        ³
+        
    RadarClass -- displays and controls radar map
-        ³
+        
  DisplayClass -- general tactical map display handler
-        ³
+        
      MapClass -- general tactical map data handler
-        ³
+        
  GScreenClass (pure virtual base class) -- generic screen control
 
                           AbstractClass
-                                  ³
-                                  ³
-                                  ³
-                                  ³
+                                  
+                                  
+                                  
+                                  
                             ObjectClass
-                                  ³
-       ÚÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄ¿
-   AnimClass  ³  TemplateClass    ³        ÃÄ FuseClass     ³    TerrainClass
-              ³                   ³        ÃÄ FlyClass      ³
-              ³                   ³  BulletClass            ³
+                                  
+       Ä¿
+   AnimClass    TemplateClass             FuseClass         TerrainClass
+                                          FlyClass      
+                                   BulletClass            
        OverlayClass        MissionClass               SmudgeClass
-                                  ³
+                                  
                              RadioClass
-                                  ³
-                                  ÃÄ CrewClass
-                                  ÃÄ FlasherClass
-                                  ÃÄ StageClass
-                                  ÃÄ CargoClass
+                                  
+                                   CrewClass
+                                   FlasherClass
+                                   StageClass
+                                   CargoClass
                             TechnoClass
-                                  ³
-         ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+                                  
+         Ä¿
      FootClass                                         BuildingClass
-         ³
-         ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-    DriveClass  InfantryClass         ÃÄ FlyClass
-         ³                      AircraftClass
+         
+         Ä¿
+    DriveClass  InfantryClass          FlyClass
+                               AircraftClass
    TurretClass
-         ³
+         
    TarComClass
-         ³
+         
      UnitClass
 
 
                             AbstractTypeClass
-                                    ³
+                                    
                               ObjectTypeClass
-                                    ³
-             ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-             ³                      ³            ³                 ³
-       TechnoTypeClass              ³            ³                 ³
-             ³                BulletTypeClass    ³                 ³
-             ³                           TemplateTypeClass         ³
-    ÚÄÄÄÄÄÄÄÄÁÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿             TerrainTypeClass
-    ³              ³           ³              ³
-UnitTypeClass      ³   BuildingTypeClass      ³
-                   ³                  InfantryTypeClass
+                                    
+             Ä¿
+                                                                
+       TechnoTypeClass                                           
+                             BulletTypeClass                     
+                                        TemplateTypeClass         
+    Ä¿             TerrainTypeClass
+                                           
+UnitTypeClass         BuildingTypeClass      
+                                     InfantryTypeClass
            AircraftTypeClass
 #endif
 
@@ -246,18 +246,21 @@ CELL Coord_Cell(COORDINATE coord);
 #include	"logic.h"
 #include	"queue.h"
 #include	"event.h"
-#include "base.h"				// defines the AI's pre-built base
-#include "ipxmgr.h"
-#include	"combuf.h"
-#include	"connect.h"
-#include	"connmgr.h"
-#include	"noseqcon.h"
-#include "msglist.h"
-#include	"nullconn.h"
-#include	"nullmgr.h"
-#include "phone.h"
-#include "loaddlg.h"
-#include	"ipxaddr.h"
+
+// Networking/UI maintenance headers are omitted for the initial modern port.
+// They will be reinstated once those subsystems are migrated.
+//#include "base.h"
+//#include "ipxmgr.h"
+//#include	"combuf.h"
+//#include	"connect.h"
+//#include	"connmgr.h"
+//#include	"noseqcon.h"
+//#include "msglist.h"
+//#include	"nullconn.h"
+//#include	"nullmgr.h"
+//#include "phone.h"
+//#include "loaddlg.h"
+//#include	"ipxaddr.h"
 /****************************************************************************
 **	This is a "node", used for the lists of available games & players.  The
 **	'Game' structure is used for games; the 'Player' structure for players.
