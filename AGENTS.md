@@ -39,6 +39,9 @@ This document aggregates the work discussed so far for producing a modern, build
 - Replace Watcom/Borland-specific types (`WORD`, `movmem`, `near`, `i86.h`) with `<cstdint>` typedefs, guarded legacy constants, and portable helpers.
 - Mirror original filenames inside the new include tree so every legacy `*.H` has a modern counterpart and diffing stays simple.
 - Once the shared headers compile, migrate translation units that only depend on the ported interfaces to reduce churn.
+- Keep legacy header copies lowercase inside `src/include/legacy/` so `#include "function.h"` continues to work on case-sensitive systems, and gate DOS/Greenleaf/VQA-only includes behind `#if defined(_WIN32)` to avoid pulling in missing SDKs during cross-platform builds.
+- Avoid dragging unrelated dependencies into the modern headers; prefer forward declarations and narrow includes so future translation units can opt into only what they need.
+- Leave third-party subsystems (Greenleaf modem stack, HMI/VQA, DirectX shims) stubbed or excluded for now; plan to replace them with portable equivalents after the core headers and translation units compile cleanly.
 
 ## Outstanding Investigations
 - Confirm which of the remaining assembly sources (e.g., `PAGFAULT.ASM`, `IPXREAL.ASM`) are still needed for special builds.
