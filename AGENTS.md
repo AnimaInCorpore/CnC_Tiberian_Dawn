@@ -4,9 +4,14 @@ This document aggregates the work discussed so far for producing a modern, build
 
 ## Goals
 - Compile the legacy Watcom/Borland codebase with a modern GNU C++ compiler (baseline: `g++` 6.x using `-std=gnu++14`).
-- Replace missing third‑party dependencies (DirectX 5 SDK, GCL, HMI/SOS) with portable equivalents suitable for desktop and eventual WebAssembly targets.
+- Replace missing third-party dependencies (DirectX 5 SDK, GCL, HMI/SOS) with portable equivalents suitable for desktop and eventual WebAssembly targets.
 - Enable cross-platform builds via CMake and prepare for Emscripten/WebGPU/WebAudio/WebSockets backends.
 - Preserve the behavior of the original Win32 build and treat that configuration as canonical; headers and compatibility shims should expose Windows-style types/defines even when compiling on non-Windows hosts.
+
+## Scope Constraints
+- The modernized codebase only targets the 32-bit Windows build path. Remove or ignore legacy DOS, Win16, segmented memory, or compiler-specific (`__WATCOMC__`, Borland) conditionals as files are ported.
+- `#ifdef` branches that were present solely for non-Win32 configurations should be collapsed to the Win32 behavior to keep the code paths consistent with the canonical build.
+- Future portability layers (SDL/Emscripten) build on the Win32 behavior; do not reintroduce DOS/16-bit branches when refactoring headers or translation units.
 
 ## High-Level Steps
 1. **Directory Layout**
