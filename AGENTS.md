@@ -39,6 +39,7 @@ This document aggregates the work discussed so far for producing a modern, build
 5. **Documentation & Validation**
    - Document build prerequisites and porting status (`README`/`BUILD.md` updates).
    - Add automated builds/tests where possible to detect regressions.
+   - Keep `PROGRESS.md` up to date with the table of migrated files (legacy name, new path, and notes) whenever a source/header is ported.
 
 ## Header Modernization Strategy
 - Prioritize porting umbrella headers (e.g., `COMPAT.H`, `DEFINES.H`, `TYPE.H`, `REAL.H`, `WATCOM.H`, `WWFILE.H`, `FUNCTION.H`, `EXTERNS.H`) into `src/include` before touching many translation units.
