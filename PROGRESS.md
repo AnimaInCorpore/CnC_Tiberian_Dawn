@@ -13,6 +13,8 @@ The table below records every legacy source/header that already has a modern cou
 | `LAYER.CPP` | `src/LAYER.cpp` | Layer manager handles sorting and save/load helpers with portable pointer coding. |
 | `RADIO.CPP` | `src/RADIO.cpp` | Radio messaging logic wrapped in portable helpers with `nullptr`-safe contact handling. |
 | `TAB.CPP` | `src/TAB.cpp` | Sidebar tab UI now lives in `src/` with `nullptr` guards and cleaned text drawing helpers. |
+| `TOGGLE.CPP` | `src/TOGGLE.cpp` | Windows-style toggle gadget refactored with explicit hover handling and sticky state flow. |
+| `TXTLABEL.CPP` | `src/TXTLABEL.cpp` | Text label gadget retained the quirky format print path with optional clipping width tracking. |
 | `ABSTRACT.H` | `src/include/legacy/abstract.h` | Lowercase mirror retained so `#include "abstract.h"` works on case-sensitive hosts. |
 | `COMPAT.H` | `src/include/legacy/compat.h` | Palette/buffer macros and legacy globals wrapped in portable defaults. |
 | `DEFINES.H` | `src/include/legacy/defines.h` | Lowercase mirror preserving gameplay feature toggles until modernization. |
