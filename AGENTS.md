@@ -15,6 +15,7 @@ This document aggregates the work discussed so far for producing a modern, build
 
 2. **Modern Toolchain Bring-Up**
    - Audit the code for Watcom extensions (non‑standard pragmas, near/far keywords, inline assembly) and replace or guard them.
+   - Preserve the original data type widths (e.g., 8/16/32-bit ints) when refactoring; matching the legacy assumptions is critical for eventual backports to low-memory or 16-bit-oriented systems like Amiga/Atari ST.
    - Stub or reimplement missing libraries:
      - DirectDraw/DirectSound → SDL2 rendering/audio backends for portable desktop builds.
      - Greenleaf Communications (GCL) networking → SDL_net or standard sockets.
@@ -32,6 +33,12 @@ This document aggregates the work discussed so far for producing a modern, build
 5. **Documentation & Validation**
    - Document build prerequisites and porting status (`README`/`BUILD.md` updates).
    - Add automated builds/tests where possible to detect regressions.
+
+## Header Modernization Strategy
+- Prioritize porting umbrella headers (e.g., `COMPAT.H`, `DEFINES.H`, `TYPE.H`, `REAL.H`, `WATCOM.H`, `WWFILE.H`, `FUNCTION.H`, `EXTERNS.H`) into `src/include` before touching many translation units.
+- Replace Watcom/Borland-specific types (`WORD`, `movmem`, `near`, `i86.h`) with `<cstdint>` typedefs, guarded legacy constants, and portable helpers.
+- Mirror original filenames inside the new include tree so every legacy `*.H` has a modern counterpart and diffing stays simple.
+- Once the shared headers compile, migrate translation units that only depend on the ported interfaces to reduce churn.
 
 ## Outstanding Investigations
 - Confirm which of the remaining assembly sources (e.g., `PAGFAULT.ASM`, `IPXREAL.ASM`) are still needed for special builds.
