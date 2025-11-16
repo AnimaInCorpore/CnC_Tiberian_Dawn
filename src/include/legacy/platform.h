@@ -57,8 +57,4 @@ using UCHAR = unsigned char;
 #endif
 
 // Helper macros for explicit fallthrough markers when porting old switch logic.
-#if defined(__clang__) || defined(__GNUC__)
 #define CNC_LEGACY_FALLTHROUGH __attribute__((fallthrough))
-#else
-#define CNC_LEGACY_FALLTHROUGH ((void)0)
-#endif

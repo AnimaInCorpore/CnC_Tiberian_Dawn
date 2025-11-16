@@ -115,16 +115,9 @@ UnitTypeClass      ³   BuildingTypeClass      ³
 
 /*
 **	The "bool" integral type was defined by the C++ committee in
-**	November of '94. Modern compilers already include this type, but keep
-**	the legacy guard for reference builds.
+**	November of '94. The modern port always compiles as C++, so we rely
+**	on the standard language definition instead of rolling our own guard.
 */
-#ifndef TRUE_FALSE_DEFINED
-#if !defined(__cplusplus)
-enum {false=0,true=1};
-typedef int bool;
-#endif
-#define TRUE_FALSE_DEFINED
-#endif	//TRUE_FALSE_DEFINED
 
 #include "windows_compat.h"
 
@@ -163,20 +156,6 @@ typedef struct {
 #include <cstring>
 #include <new>
 
-#if defined(_WIN32)
-#include <mem.h>
-#include <dos.h>
-#include <direct.h>
-#include <process.h>
-#endif
-
-/*
-**	VQ player specific includes.
-*/
-#if defined(_WIN32)
-#include <vqa32/vqaplay.h>
-#include <vqa32/vqafile.h>
-#endif
 
 extern bool GameActive;
 extern long LParam;
@@ -190,14 +169,6 @@ extern long LParam;
 #include "special.h"
 #include	"defines.h"
 
-
-/*
-**	Greenleaf specific includes.
-*/
-#if defined(_WIN32)
-#include <modem.h>
-#include <fast.h>
-#endif
 
 
 extern long Frame;
@@ -501,13 +472,7 @@ void *Conquer_Build_Translucent_Table(void const *palette, TLucentType const *co
 /*
 **	KEYFBUFF.ASM
 */
-#ifdef __cplusplus
-extern "C" {
-#endif
-long __cdecl Buffer_Frame_To_Page(int x, int y, int w, int h, void *Buffer, GraphicViewPortClass &view, int flags, ...);
-#ifdef __cplusplus
-}
-#endif
+extern "C" long __cdecl Buffer_Frame_To_Page(int x, int y, int w, int h, void *Buffer, GraphicViewPortClass &view, int flags, ...);
 
 /*
 **	KEYFRAME.CPP
@@ -662,17 +627,13 @@ void Special_Dialog(void);
 /*
 **	SUPPORT.ASM
 */
-#ifdef	__cplusplus
 extern "C" {
-#endif
 void __cdecl Remove_From_List(void **list, int *index, void * ptr);
 void * __cdecl Conquer_Build_Fading_Table(void const *palette, void *dest, int color, int frac);
 void __cdecl Fat_Put_Pixel(int x, int y, int color, int size, GraphicViewPortClass &);
 void __cdecl strtrim(char *buffer);
 long __cdecl Get_EAX( void );
-#ifdef	__cplusplus
 }
-#endif
 
 /*
 **	TARCOM.CPP

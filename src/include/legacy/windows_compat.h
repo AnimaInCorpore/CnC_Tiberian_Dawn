@@ -6,17 +6,8 @@
 
 // The modern port mirrors the original Win32 release. Even when building on
 // non-Windows platforms we provide compatible typedefs so legacy source code
-// that expects _WIN32 semantics still compiles.
-#ifndef CNC_TD_TARGET_WIN32
-#define CNC_TD_TARGET_WIN32 1
-#endif
-
-#if defined(_WIN32)
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
-#else
+// that expects Win32 semantics still compiles. We always use the lightweight
+// shims below so the build never depends on platform-specific headers.
 using HWND = void*;
 using HANDLE = void*;
 using HINSTANCE = void*;
@@ -112,8 +103,6 @@ struct RECT {
   long right;
   long bottom;
 };
-
-#endif  // !_WIN32
 
 #ifndef LOWORD
 #define LOWORD(l) (static_cast<unsigned>(reinterpret_cast<std::uintptr_t>(l)) & 0xFFFF)
