@@ -16,8 +16,8 @@ This document aggregates the work discussed so far for producing a modern, build
 2. **Modern Toolchain Bring-Up**
    - Audit the code for Watcom extensions (non‑standard pragmas, near/far keywords, inline assembly) and replace or guard them.
    - Stub or reimplement missing libraries:
-     - DirectDraw/DirectSound → temporary SDL2 or similar desktop abstractions (later WebGPU/WebAudio).
-     - Greenleaf Communications (GCL) networking → standard sockets/WebSockets rewrite.
+     - DirectDraw/DirectSound → SDL2 rendering/audio backends for portable desktop builds.
+     - Greenleaf Communications (GCL) networking → SDL_net or standard sockets.
      - HMI SOS audio → modern audio mixer.
    - Identify the four assembly modules required by the existing build (`WINASM`, `KEYFBUFF`, `SUPPORT`, `TXTPRNT` plus `mmx.obj`) and plan C/C++ replacements or intrinsics where practical.
 
@@ -26,11 +26,8 @@ This document aggregates the work discussed so far for producing a modern, build
    - Provide configurable options for native desktop builds vs. Emscripten.
 
 4. **Web Path Preparation**
-   - After native builds succeed, configure Emscripten to emit WebAssembly, replacing platform APIs with:
-     - WebGPU for rendering.
-     - WebAudio for audio mixing.
-     - DOM/Gamepad APIs for input.
-     - WebSockets/WebRTC for networking.
+   - After the SDL-backed native build succeeds, configure Emscripten to emit WebAssembly.
+   - Use SDL’s Emscripten support as the portability layer, or swap in WebGPU/WebAudio/WebSockets equivalents if higher performance or finer control is required.
 
 5. **Documentation & Validation**
    - Document build prerequisites and porting status (`README`/`BUILD.md` updates).
