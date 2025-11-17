@@ -243,6 +243,7 @@ CELL Coord_Cell(COORDINATE coord);
 #include	"factory.h"			// Production manager class.
 #include "intro.h"
 #include "ending.h"
+#include "vqa.h"
 #include	"logic.h"
 #include	"queue.h"
 #include	"event.h"
@@ -260,7 +261,7 @@ CELL Coord_Cell(COORDINATE coord);
 //#include	"nullmgr.h"
 //#include "phone.h"
 //#include "loaddlg.h"
-//#include	"ipxaddr.h"
+#include "ipxaddr.h"
 /****************************************************************************
 **	This is a "node", used for the lists of available games & players.  The
 **	'Game' structure is used for games; the 'Player' structure for players.
@@ -287,6 +288,10 @@ typedef struct NodeNameTag {
 
 extern int Get_CD_Drive(void);
 extern void Fatal(char const *message, ...);
+int Desired_Facing256(int x1, int y1, int x2, int y2);
+int Desired_Facing8(int x1, int y1, int x2, int y2);
+char const *Extract_String(char const *table, int index);
+void __cdecl Prog_End(void);
 
 
 /*
@@ -568,6 +573,7 @@ void Add_CRC(unsigned long *crc, unsigned long val);
 **	RAND.CPP
 */
 int Sim_IRandom(int minval, int maxval);
+int IRandom(int minval, int maxval);
 int Sim_Random(void);
 
 /*

@@ -13,14 +13,14 @@ class FileClass {
   virtual char const* Set_Name(char const* filename) = 0;
   virtual int Create() = 0;
   virtual int Delete() = 0;
-  virtual int Is_Available(bool forced = false) = 0;
+  virtual int Is_Available(int forced = false) = 0;
   virtual int Is_Open() const = 0;
   virtual int Open(char const* filename, int rights = READ) = 0;
   virtual int Open(int rights = READ) = 0;
-  virtual std::size_t Read(void* buffer, std::size_t size) = 0;
+  virtual long Read(void* buffer, long size) = 0;
   virtual long Seek(long pos, int dir = SEEK_CUR) = 0;
   virtual long Size() = 0;
-  virtual std::size_t Write(void const* buffer, std::size_t size) = 0;
+  virtual long Write(void const* buffer, long size) = 0;
   virtual void Close() = 0;
 
   operator char const*() const { return File_Name(); }

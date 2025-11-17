@@ -56,6 +56,10 @@ int Sim_IRandom(int minval, int maxval) {
   return minval + scaled;
 }
 
+int IRandom(int minval, int maxval) {
+  return Sim_IRandom(minval, maxval);
+}
+
 void Set_Sim_Random_Index(std::uint8_t index) {
   reinterpret_cast<unsigned char&>(SimRandIndex) = index;
 }

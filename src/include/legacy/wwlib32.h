@@ -12,6 +12,14 @@ class CountDownTimerClass;
 class WinTimerClass;
 class FileClass;
 
+// Legacy keyboard constants used throughout the UI code.
+constexpr int KN_NONE = 0x0000;
+constexpr int KN_LMOUSE = 0x0100;
+constexpr int KN_RMOUSE = 0x0101;
+constexpr int KN_RLSE_BIT = 0x2000;
+constexpr int KN_SPACE = 0x0020;
+constexpr int KN_ESC = 0x001B;
+
 // Legacy graphic buffer flags used by the Westwood runtime.
 enum GBC_Enum : std::uint32_t {
   GBC_NONE = 0,

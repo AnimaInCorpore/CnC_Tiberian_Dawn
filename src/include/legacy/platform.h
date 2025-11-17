@@ -3,6 +3,63 @@
 #include <cstddef>
 #include <cstdint>
 
+// Classic Watcom/MSVCRT-style path constants expected by the legacy code.
+#ifndef _MAX_PATH
+#define _MAX_PATH 260
+#endif
+#ifndef _MAX_FNAME
+#define _MAX_FNAME 256
+#endif
+#ifndef _MAX_EXT
+#define _MAX_EXT 256
+#endif
+#ifndef _MAX_DIR
+#define _MAX_DIR 256
+#endif
+#ifndef _MAX_DRIVE
+#define _MAX_DRIVE 3
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef MAKEWORD
+#define MAKEWORD(low, high) \
+  (static_cast<std::uint16_t>(((static_cast<std::uint16_t>(low) & 0x00FFu) | \
+                               ((static_cast<std::uint16_t>(high) & 0x00FFu) << 8))))
+#endif
+
+#ifndef MAKELONG
+#define MAKELONG(low, high) \
+  (static_cast<std::uint32_t>(((static_cast<std::uint32_t>(low) & 0x0000FFFFul)) | \
+                              ((static_cast<std::uint32_t>(high) & 0x0000FFFFul) << 16)))
+#endif
+
+#ifndef MAKE_LONG
+#define MAKE_LONG(high, low) MAKELONG((low), (high))
+#endif
+
+#ifndef LOWORD
+#define LOWORD(value) (static_cast<std::uint16_t>((static_cast<std::uint32_t>(value)) & 0xFFFFu))
+#endif
+
+#ifndef HIWORD
+#define HIWORD(value) \
+  (static_cast<std::uint16_t>((static_cast<std::uint32_t>(value) >> 16) & 0xFFFFu))
+#endif
+
+#ifndef LOW_WORD
+#define LOW_WORD(value) LOWORD(value)
+#endif
+
+#ifndef HIGH_WORD
+#define HIGH_WORD(value) HIWORD(value)
+#endif
+
 // Basic Win16/Watcom compatible typedefs used throughout the legacy codebase.
 #ifndef CNC_TD_LEGACY_WORD_DEFINED
 using WORD = std::uint16_t;

@@ -1,3 +1,6 @@
+#include <cstdint>
+#include <limits>
+
 #include "function.h"
 #include "layer.h"
 #include "object.h"
@@ -90,7 +93,9 @@ void LayerClass::Code_Pointers() {
 
 void LayerClass::Decode_Pointers() {
   for (int i = 0; i < Count(); ++i) {
-    TARGET target = reinterpret_cast<TARGET>((*this)[i]);
+    std::uintptr_t encoded = reinterpret_cast<std::uintptr_t>((*this)[i]);
+    TARGET target =
+        static_cast<TARGET>(encoded & std::numeric_limits<TARGET>::max());
     (*this)[i] = As_Object(target);
     Check_Ptr((*this)[i], __FILE__, __LINE__);
   }

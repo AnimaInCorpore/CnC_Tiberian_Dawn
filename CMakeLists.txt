@@ -15,6 +15,7 @@ add_library(td_port STATIC
   src/LINK.cpp
   src/RADIO.cpp
   src/RAND.cpp
+  src/WWLIB.cpp
   src/TAB.cpp
   src/TOGGLE.cpp
   src/TXTLABEL.cpp

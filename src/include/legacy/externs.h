@@ -50,7 +50,15 @@
 #include	"credits.h"
 #include	"goptions.h"
 #include	"options.h"
-#include	"infantry.H"
+#include	"infantry.h"
+#include "vqa.h"
+
+class PhoneEntryClass;
+class MessageListClass;
+class IPXManagerClass;
+class BaseClass;
+class GetCDClass;
+class NullModemClass;
 
 #ifdef JAPANESE
 extern bool ForceEnglish;
