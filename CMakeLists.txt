@@ -16,11 +16,14 @@ add_library(td_port STATIC
   src/COLRLIST.cpp
   src/LAYER.cpp
   src/LINK.cpp
+  src/MOUSEHELP.cpp
   src/RADIO.cpp
   src/RAND.cpp
+  src/SCROLL.cpp
   src/SHAPEBTN.cpp
   src/SLIDER.cpp
   src/TAB.cpp
+  src/TEXTBTN.cpp
   src/TOGGLE.cpp
   src/TXTLABEL.cpp
   src/VECTOR.cpp

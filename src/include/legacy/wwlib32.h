@@ -70,10 +70,19 @@ class GraphicViewPortClass {
 
   void Fill_Rect(int x1, int y1, int x2, int y2, int color);
   void Draw_Line(int x1, int y1, int x2, int y2, int color);
+  void Draw_Rect(int x1, int y1, int x2, int y2, int color);
 
   int Get_Width() const;
   int Get_Height() const;
   GraphicBufferClass* Get_Graphic_Buffer() const;
+};
+
+class WWMouseClass {
+ public:
+  void Draw_Mouse(GraphicViewPortClass* page);
+  void Erase_Mouse(GraphicViewPortClass* page, bool force);
+  void Clear_Cursor_Clip();
+  void Set_Cursor_Clip();
 };
 
 // The runtime keeps a "current" drawing surface that UI widgets reference.

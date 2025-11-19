@@ -415,6 +415,10 @@ void Window_Box(WindowNumberType window, BoxStyleEnum style);
 void Fancy_Text_Print(char const *text, unsigned x, unsigned y, unsigned fore, unsigned back, TextPrintType flag, ...);
 void Fancy_Text_Print(int text, unsigned x, unsigned y, unsigned fore, unsigned back, TextPrintType flag, ...);
 void Simple_Text_Print(char const *text, unsigned x, unsigned y, unsigned fore, unsigned back, TextPrintType flag);
+int String_Pixel_Width(char const* text);
+int Char_Pixel_Width(int value);
+extern int FontHeight;
+extern int FontYSpacing;
 
 /*
 **	DISPLAY.CPP

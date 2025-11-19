@@ -124,6 +124,7 @@ The table below records every legacy source/header that already has a modern cou
 | `SCORE.H` | `src/include/legacy/score.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `SCREEN.H` | `src/include/legacy/screen.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `SCROLL.H` | `src/include/legacy/scroll.h` | Lowercase mirror retained for Linux-friendly includes. |
+| `SCROLL.CPP` | `src/SCROLL.cpp` | Map edge scrolling now clamps the virtual cursor, honors inertia, and keeps the mouse override logic intact. |
 | `SEQCONN.H` | `src/include/legacy/seqconn.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `SESSION.H` | `src/include/legacy/session.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `SHAPEBTN.H` | `src/include/legacy/shapebtn.h` | Lowercase mirror retained for Linux-friendly includes. |
@@ -144,6 +145,7 @@ The table below records every legacy source/header that already has a modern cou
 | `TERRAIN.H` | `src/include/legacy/terrain.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `TEXTBLIT.H` | `src/include/legacy/textblit.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `TEXTBTN.H` | `src/include/legacy/textbtn.h` | Lowercase mirror retained for Linux-friendly includes. |
+| `TEXTBTN.CPP` | `src/TEXTBTN.cpp` | Text buttons resize around the assigned label, draw Windows-style boxes, and respect the green gradient flags. |
 | `THEME.H` | `src/include/legacy/theme.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `TOGGLE.H` | `src/include/legacy/toggle.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `TRIGGER.H` | `src/include/legacy/trigger.h` | Lowercase mirror retained for Linux-friendly includes. |
