@@ -14,6 +14,7 @@ add_library(td_port STATIC
   src/CHECKBOX.cpp
   src/CHEKLIST.cpp
   src/COLRLIST.cpp
+  src/GAUGE.cpp
   src/LAYER.cpp
   src/LINK.cpp
   src/MOUSEHELP.cpp

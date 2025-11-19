@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 
 class BufferClass;
 class GraphicBufferClass;
@@ -56,14 +57,19 @@ using ShapeFlags_Type = std::uint32_t;
 #endif
 
 // Compatibility shim for the original Westwood 2D viewport wrapper. The modern
-// port only needs the method declarations so the migrated translation units can
-// compile; the actual definitions will arrive together with the future renderer
-// port.
+// implementation uses a light-weight software surface so UI gadgets can start
+// rendering again while the final renderer is still in flight.
 class GraphicViewPortClass {
  public:
   GraphicViewPortClass();
   GraphicViewPortClass(GraphicBufferClass* buffer, int x, int y, int width, int height);
+  GraphicViewPortClass(GraphicViewPortClass&&) noexcept;
+  GraphicViewPortClass& operator=(GraphicViewPortClass&&) noexcept;
   ~GraphicViewPortClass();
+  GraphicViewPortClass(const GraphicViewPortClass&) = delete;
+  GraphicViewPortClass& operator=(const GraphicViewPortClass&) = delete;
+
+  void Configure(GraphicBufferClass* buffer, int x, int y, int width, int height);
 
   bool Lock();
   void Unlock();
@@ -71,18 +77,39 @@ class GraphicViewPortClass {
   void Fill_Rect(int x1, int y1, int x2, int y2, int color);
   void Draw_Line(int x1, int y1, int x2, int y2, int color);
   void Draw_Rect(int x1, int y1, int x2, int y2, int color);
+  void Put_Pixel(int x, int y, int color);
+  int Get_Pixel(int x, int y) const;
+  bool Contains(int x, int y) const;
 
+  int Get_XPos() const;
+  int Get_YPos() const;
   int Get_Width() const;
   int Get_Height() const;
   GraphicBufferClass* Get_Graphic_Buffer() const;
+
+ private:
+  struct Impl;
+  std::unique_ptr<Impl> impl_;
 };
 
 class WWMouseClass {
  public:
+  WWMouseClass();
+  WWMouseClass(GraphicViewPortClass* page, int width, int height);
+  WWMouseClass(WWMouseClass&&) noexcept;
+  WWMouseClass& operator=(WWMouseClass&&) noexcept;
+  ~WWMouseClass();
+  WWMouseClass(const WWMouseClass&) = delete;
+  WWMouseClass& operator=(const WWMouseClass&) = delete;
+
   void Draw_Mouse(GraphicViewPortClass* page);
   void Erase_Mouse(GraphicViewPortClass* page, bool force);
   void Clear_Cursor_Clip();
   void Set_Cursor_Clip();
+
+ private:
+  struct Impl;
+  std::unique_ptr<Impl> impl_;
 };
 
 // The runtime keeps a "current" drawing surface that UI widgets reference.
@@ -106,5 +133,6 @@ int Key_Down(int key);
 
 int Get_Mouse_X();
 int Get_Mouse_Y();
+void Update_Mouse_Position(int x, int y);
 
 void Set_Font_Palette_Range(void const* palette, int first, int count);

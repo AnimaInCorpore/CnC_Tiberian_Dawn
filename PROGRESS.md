@@ -18,6 +18,7 @@ The table below records every legacy source/header that already has a modern cou
 | `CHECKBOX.CPP` | `src/CHECKBOX.cpp` | Checkbox gadget draws the interior using the shared box helpers and keeps mouse flicker hidden. |
 | `CHEKLIST.CPP` | `src/CHEKLIST.cpp` | Check list delegates selection to `ListClass` then toggles the inline checkmark unless read-only. |
 | `COLRLIST.CPP` | `src/COLRLIST.cpp` | Color-aware list tracks a parallel color vector and draws selected entries using the requested style. |
+| `GAUGE.CPP` | `src/GAUGE.cpp` | Gauge widgets now render their fill/tri-color bars via the modern viewport helpers and honor sticky mouse drags. |
 | `SHAPEBTN.CPP` | `src/SHAPEBTN.cpp` | Shape buttons wrap the common `ToggleClass` flow and pick the correct frame for disabled/pressed/reflect modes. |
 | `SLIDER.CPP` | `src/SLIDER.cpp` | Slider gadget now owns its plus/minus peers, recalculates thumb geometry, and handles clicks outside the thumb area. |
 | `ABSTRACT.H` | `src/include/legacy/abstract.h` | Lowercase mirror retained so `#include "abstract.h"` works on case-sensitive hosts. |

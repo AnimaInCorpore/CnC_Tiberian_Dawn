@@ -28,6 +28,7 @@ constexpr unsigned LTCYAN = 11;
 constexpr unsigned LTRED = 12;
 constexpr unsigned LTMAGENTA = 13;
 constexpr unsigned YELLOW = 14;
+constexpr unsigned PINK = LTMAGENTA;
 constexpr unsigned WHITE = 15;
 constexpr unsigned PURPLE = LTMAGENTA;
 constexpr unsigned GRAY = GREY;
