@@ -21,6 +21,7 @@ constexpr unsigned MAGENTA = 5;
 constexpr unsigned BROWN = 6;
 constexpr unsigned LTGREY = 7;
 constexpr unsigned DKGREY = 8;
+constexpr unsigned GREY = LTGREY;
 constexpr unsigned LTBLUE = 9;
 constexpr unsigned LTGREEN = 10;
 constexpr unsigned LTCYAN = 11;
@@ -29,6 +30,11 @@ constexpr unsigned LTMAGENTA = 13;
 constexpr unsigned YELLOW = 14;
 constexpr unsigned WHITE = 15;
 constexpr unsigned PURPLE = LTMAGENTA;
+constexpr unsigned GRAY = GREY;
+constexpr unsigned DKGRAY = DKGREY;
+constexpr unsigned LTGRAY = LTGREY;
+constexpr unsigned DKGREEN = GREEN;
+constexpr unsigned DKBLUE = BLUE;
 
 constexpr unsigned TBLACK = BLACK;
 constexpr unsigned TBLUE = BLUE;
@@ -142,13 +148,6 @@ typedef enum MenuIndexType {
 #define HIDDENBIT 1
 #define LN_MAXDOUBLE 7.0978E+2
 #define LN_MINDOUBLE -7.0840E+2
-
-#define DKGREEN GREEN
-#define DKBLUE BLUE
-#define GRAY GREY
-#define DKGREY GREY
-#define DKGRAY GREY
-#define LTGRAY LTGREY
 
 void Stuff_Key_Num(int value);
 

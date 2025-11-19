@@ -419,6 +419,10 @@ void Simple_Text_Print(char const *text, unsigned x, unsigned y, unsigned fore, 
 /*
 **	DISPLAY.CPP
 */
+void Hide_Mouse(void);
+void Show_Mouse(void);
+void Conditional_Hide_Mouse(int left, int top, int right, int bottom);
+void Conditional_Show_Mouse(void);
 
 /*
 **	ENDING.CPP

@@ -11,15 +11,20 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(td_port STATIC
+  src/CHECKBOX.cpp
+  src/CHEKLIST.cpp
+  src/COLRLIST.cpp
   src/LAYER.cpp
   src/LINK.cpp
   src/RADIO.cpp
   src/RAND.cpp
-  src/WWLIB.cpp
+  src/SHAPEBTN.cpp
+  src/SLIDER.cpp
   src/TAB.cpp
   src/TOGGLE.cpp
   src/TXTLABEL.cpp
   src/VECTOR.cpp
+  src/WWLIB.cpp
 )
 
 target_include_directories(td_port

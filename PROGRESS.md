@@ -15,6 +15,11 @@ The table below records every legacy source/header that already has a modern cou
 | `TAB.CPP` | `src/TAB.cpp` | Sidebar tab UI now lives in `src/` with `nullptr` guards and cleaned text drawing helpers. |
 | `TOGGLE.CPP` | `src/TOGGLE.cpp` | Windows-style toggle gadget refactored with explicit hover handling and sticky state flow. |
 | `TXTLABEL.CPP` | `src/TXTLABEL.cpp` | Text label gadget retained the quirky format print path with optional clipping width tracking. |
+| `CHECKBOX.CPP` | `src/CHECKBOX.cpp` | Checkbox gadget draws the interior using the shared box helpers and keeps mouse flicker hidden. |
+| `CHEKLIST.CPP` | `src/CHEKLIST.cpp` | Check list delegates selection to `ListClass` then toggles the inline checkmark unless read-only. |
+| `COLRLIST.CPP` | `src/COLRLIST.cpp` | Color-aware list tracks a parallel color vector and draws selected entries using the requested style. |
+| `SHAPEBTN.CPP` | `src/SHAPEBTN.cpp` | Shape buttons wrap the common `ToggleClass` flow and pick the correct frame for disabled/pressed/reflect modes. |
+| `SLIDER.CPP` | `src/SLIDER.cpp` | Slider gadget now owns its plus/minus peers, recalculates thumb geometry, and handles clicks outside the thumb area. |
 | `ABSTRACT.H` | `src/include/legacy/abstract.h` | Lowercase mirror retained so `#include "abstract.h"` works on case-sensitive hosts. |
 | `COMPAT.H` | `src/include/legacy/compat.h` | Palette/buffer macros and legacy globals wrapped in portable defaults. |
 | `DEFINES.H` | `src/include/legacy/defines.h` | Lowercase mirror preserving gameplay feature toggles until modernization. |
