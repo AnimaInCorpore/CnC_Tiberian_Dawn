@@ -1,5 +1,6 @@
 #include "function.h"
 #include "edit.h"
+#include "wwlib32.h"
 
 #include <algorithm>
 #include <cctype>
@@ -127,7 +128,9 @@ void EditClass::Draw_Text(char const* text) {
       (static_cast<int>(String_Pixel_Width(text)) +
        String_Pixel_Width(kCursorGlyph)) < (Width - 2);
 
-  const bool use_grad_font = false;
+  const void* current_font = Get_Current_Font();
+  const void* grad_font = Get_Gradient_Font_6();
+  const bool use_grad_font = (grad_font != nullptr && current_font == grad_font);
   if (use_grad_font) {
     TextPrintType draw_flags = TextFlags;
     if (has_focus) {

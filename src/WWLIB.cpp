@@ -105,6 +105,8 @@ struct MouseClip {
 
 MousePosition g_mouse_position;
 MouseClip g_mouse_clip;
+void const* g_current_font = nullptr;
+void const* g_grad_font6 = nullptr;
 }  // namespace
 
 class GraphicBufferClass {
@@ -604,6 +606,24 @@ void WWKeyboardClass::Message_Handler(HWND, unsigned int, WPARAM, LPARAM) {}
 
 WWKeyboardClass Kbd;
 WWKeyboardClass* _Kbd = &Kbd;
+
+void const* Set_Current_Font(void const* font) {
+  const void* previous = g_current_font;
+  g_current_font = font;
+  return previous;
+}
+
+void const* Get_Current_Font() {
+  return g_current_font;
+}
+
+void Set_Gradient_Font_6(void const* font) {
+  g_grad_font6 = font;
+}
+
+void const* Get_Gradient_Font_6() {
+  return g_grad_font6;
+}
 
 int Get_Mouse_X() {
   return g_mouse_position.x;

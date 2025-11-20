@@ -11,6 +11,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(td_port STATIC
+  src/PlatformInput.cpp
   src/CHECKBOX.cpp
   src/CHEKLIST.cpp
   src/COLRLIST.cpp
@@ -48,6 +49,14 @@ target_compile_definitions(td_port
     STRICT=1
     _CRT_SECURE_NO_WARNINGS
 )
+
+option(TD_PORT_USE_SDL2 "Enable SDL2-backed input helpers" OFF)
+
+if(TD_PORT_USE_SDL2)
+  find_package(SDL2 REQUIRED)
+  target_link_libraries(td_port PRIVATE SDL2::SDL2)
+  target_compile_definitions(td_port PUBLIC TD_PORT_USE_SDL2)
+endif()
 
 if(MSVC)
   target_compile_options(td_port PRIVATE /W4 /permissive-)

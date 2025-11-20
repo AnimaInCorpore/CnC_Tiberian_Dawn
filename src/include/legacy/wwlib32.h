@@ -167,6 +167,11 @@ void Update_Mouse_Position(int x, int y);
 
 void Set_Font_Palette_Range(void const* palette, int first, int count);
 
+void const* Set_Current_Font(void const* font);
+void const* Get_Current_Font();
+void Set_Gradient_Font_6(void const* font);
+void const* Get_Gradient_Font_6();
+
 struct PlatformMouseState {
   int x = 0;
   int y = 0;
