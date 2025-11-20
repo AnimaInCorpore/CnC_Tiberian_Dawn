@@ -17,6 +17,9 @@ int MouseQX = 0;
 int MouseQY = 0;
 }
 
+int FontHeight = 0;
+int FontYSpacing = 0;
+
 namespace {
 constexpr double kTau = 6.28318530717958647692;
 constexpr char kEmptyString[] = "";
@@ -623,6 +626,25 @@ void Set_Gradient_Font_6(void const* font) {
 
 void const* Get_Gradient_Font_6() {
   return g_grad_font6;
+}
+
+void Platform_Set_Fonts(const void* current_font, const void* gradient_font6,
+                        int font_height, int font_y_spacing) {
+  FontHeight = font_height;
+  FontYSpacing = font_y_spacing;
+
+  if (current_font) {
+    Set_Current_Font(current_font);
+  }
+  if (gradient_font6) {
+    Set_Gradient_Font_6(gradient_font6);
+    if (!current_font) {
+      Set_Current_Font(gradient_font6);
+    }
+  }
+  if (!g_grad_font6 && g_current_font) {
+    g_grad_font6 = g_current_font;
+  }
 }
 
 int Get_Mouse_X() {

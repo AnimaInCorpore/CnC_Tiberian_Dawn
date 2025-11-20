@@ -171,6 +171,8 @@ void const* Set_Current_Font(void const* font);
 void const* Get_Current_Font();
 void Set_Gradient_Font_6(void const* font);
 void const* Get_Gradient_Font_6();
+void Platform_Set_Fonts(const void* current_font, const void* gradient_font6,
+                        int font_height, int font_y_spacing);
 
 struct PlatformMouseState {
   int x = 0;

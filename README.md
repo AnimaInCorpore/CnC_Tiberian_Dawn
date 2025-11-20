@@ -29,6 +29,16 @@ This produces the static library `build/libtd_port.a` (or `td_port.lib` on MSVC)
 ### Legacy Watcom/Borland pipeline (reference only)
 Recreate the original toolchain, obtain DirectX 5 SDK, GCL, and HMI SOS, then wire the shipped make/project files (`BFILE.MAK`, `CONQUER.LNT`, etc.) back together. This path is currently incomplete: missing libraries and platform-specific assembly sources must be restored manually.
 
+## Runtime scaffolding
+- Fonts: after you deserialize the font blobs, call `Platform_Set_Fonts(..., font_height, font_y_spacing)` (or `Set_Current_Font`/`Set_Gradient_Font_6` directly) so widgets take the gradient font path for caret/label rendering.
+- SDL input: configure CMake with `-DTD_PORT_USE_SDL2=ON` and forward every `SDL_Event` to `Platform_Handle_Sdl_Event`:
+  ```cpp
+  SDL_Event event;
+  while (SDL_PollEvent(&event)) {
+    Platform_Handle_Sdl_Event(event);
+  }
+  ```
+
 ## Documentation
 - `AGENTS.md` & `PROGRESS.md` describe the porting guidelines and per-file migration status.
 - `LICENSE.md` contains the GPLv3-based license and additional terms from EA.
