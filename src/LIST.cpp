@@ -16,6 +16,9 @@ int ClampIndex(int value, int min_value, int max_value) {
   }
   return value;
 }
+
+constexpr int kKnUp = 0x4800;
+constexpr int kKnDown = 0x5000;
 }  // namespace
 
 ListClass::ListClass(int id, int x, int y, int w, int h, TextPrintType flags,
@@ -107,10 +110,10 @@ int ListClass::Action(unsigned flags, KeyNumType& key) {
   }
 
   if ((flags & KEYBOARD) != 0) {
-    if (key == KN_UP) {
+    if (key == kKnUp) {
       Step_Selected_Index(-1);
       key = KN_NONE;
-    } else if (key == KN_DOWN) {
+    } else if (key == kKnDown) {
       Step_Selected_Index(1);
       key = KN_NONE;
     } else {

@@ -7,9 +7,13 @@
 
 namespace {
 constexpr char kCursorGlyph[] = "_";
+constexpr int kVirtualKeyBit = 0x0100;
+constexpr KeyASCIIType kAsciiReturn = '\r';
+constexpr KeyASCIIType kAsciiBackspace = 0x08;
 
 bool Has_Mouse_Button_Release(unsigned flags) {
-  return (flags & (LEFTRELEASE | RIGHTRELEASE)) != 0;
+  return (flags &
+          (GadgetClass::LEFTRELEASE | GadgetClass::RIGHTRELEASE)) != 0;
 }
 }  // namespace
 
@@ -25,11 +29,9 @@ EditClass::EditClass(int id, char* text, int max_len, TextPrintType flags, int x
       Height = FontHeight + 2;
     }
     if (w == -1) {
-      if (Length > 0) {
-        Width = String_Pixel_Width(String) + 6;
-      } else {
-        Width = ((Char_Pixel_Width('X') + FontXSpacing) * (MaxLength + 1)) + 2;
-      }
+      const int baseline =
+          (Length > 0) ? String_Pixel_Width(String) : Char_Pixel_Width('X') * (MaxLength + 1);
+      Width = baseline + 6;
     }
   }
   IsReadOnly = 0;
@@ -88,18 +90,18 @@ int EditClass::Action(unsigned flags, KeyNumType& key) {
     } else {
       const KeyASCIIType ascii =
           static_cast<KeyASCIIType>(Keyboard::To_ASCII(key) & 0x00FF);
-      const bool numeric_vk = (key & WWKEY_VK_BIT) && ascii >= '0' && ascii <= '9';
+      const bool numeric_vk = (key & kVirtualKeyBit) && ascii >= '0' && ascii <= '9';
 
       if (numeric_vk) {
-        key &= ~WWKEY_VK_BIT;
+        key &= ~kVirtualKeyBit;
         if (!Has_Mouse_Button_Release(flags) && Handle_Key(ascii)) {
           flags &= ~KEYBOARD;
           key = KN_NONE;
         }
       } else {
         const bool printable =
-            ((key & WWKEY_VK_BIT) == 0 && ascii >= ' ' && ascii <= 127);
-        const bool special = (key == KN_RETURN || key == KN_BACKSPACE);
+            ((key & kVirtualKeyBit) == 0 && ascii >= ' ' && ascii <= 127);
+        const bool special = (ascii == kAsciiReturn || ascii == kAsciiBackspace);
         if ((printable || special) && !Has_Mouse_Button_Release(flags) &&
             Handle_Key(Keyboard::To_ASCII(key))) {
           flags &= ~KEYBOARD;
@@ -125,7 +127,8 @@ void EditClass::Draw_Text(char const* text) {
       (static_cast<int>(String_Pixel_Width(text)) +
        String_Pixel_Width(kCursorGlyph)) < (Width - 2);
 
-  if (FontPtr == GradFont6Ptr) {
+  const bool use_grad_font = false;
+  if (use_grad_font) {
     TextPrintType draw_flags = TextFlags;
     if (has_focus) {
       draw_flags = static_cast<TextPrintType>(draw_flags | TPF_BRIGHT_COLOR);
@@ -152,10 +155,10 @@ bool EditClass::Handle_Key(KeyASCIIType ascii) {
   switch (ascii) {
     case 0:
       return true;
-    case KA_RETURN:
+    case kAsciiReturn:
       Clear_Focus();
       return false;
-    case KA_BACKSPACE:
+    case kAsciiBackspace:
       if (Length > 0) {
         --Length;
         String[Length] = '\0';
