@@ -45,7 +45,7 @@
 | `COMQUEUE.CPP` | | To be ported. |
 | `CONFDLG.CPP` | | To be ported. |
 | `CONNECT.CPP` | | To be ported. |
-| `CONQUER.CPP` | | To be ported. |
+| `CONQUER.CPP` | `src/CONQUER.cpp` | Ported to src/, replaced NULL with nullptr, and disabled platform-specific code (DOS, Windows API, DDE, IPX). |
 | `CONST.CPP` | | To be ported. |
 | `CONTROL.CPP` | | To be ported. |
 | `COORD.CPP` | | To be ported. |
@@ -138,7 +138,7 @@
 | `SMUDGE.CPP` | | To be ported. |
 | `SOUNDDLG.CPP` | | To be ported. |
 | `SPECIAL.CPP` | | To be ported. |
-| `STARTUP.CPP` | | To be ported. |
+| `STARTUP.CPP` | `src/STARTUP.cpp` | Win32 entry path rebuilt with portable Win32 shims and simplified video/audio setup so the modern build can drive `Main_Game`. |
 | `STATS.CPP` | | To be ported. |
 | `SUPER.CPP` | | To be ported. |
 | `TARCOM.CPP` | | To be ported. |

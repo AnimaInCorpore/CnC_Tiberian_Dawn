@@ -90,6 +90,41 @@ using FARPROC = void (*)();
 #define INVALID_HANDLE_VALUE reinterpret_cast<HANDLE>(-1)
 #endif
 
+// Lightweight Win32-style dialog constants used by the legacy launch path.
+#ifndef MB_OK
+#define MB_OK 0x00000000L
+#endif
+#ifndef MB_YESNO
+#define MB_YESNO 0x00000004L
+#endif
+#ifndef MB_ICONEXCLAMATION
+#define MB_ICONEXCLAMATION 0x00000030L
+#endif
+#ifndef MB_ICONQUESTION
+#define MB_ICONQUESTION 0x00000020L
+#endif
+#ifndef MB_ICONSTOP
+#define MB_ICONSTOP 0x00000010L
+#endif
+
+#ifndef IDOK
+#define IDOK 1
+#endif
+#ifndef IDYES
+#define IDYES 6
+#endif
+#ifndef IDNO
+#define IDNO 7
+#endif
+
+#ifndef SW_RESTORE
+#define SW_RESTORE 9
+#endif
+
+#ifndef WM_DESTROY
+#define WM_DESTROY 0x0002
+#endif
+
 using DLGPROC = BOOL (*)(HWND, UINT, WPARAM, LPARAM);
 
 struct POINT {

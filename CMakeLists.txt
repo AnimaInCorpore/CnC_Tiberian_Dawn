@@ -26,6 +26,7 @@ add_library(td_port STATIC
   src/SCROLL.cpp
   src/SHAPEBTN.cpp
   src/SLIDER.cpp
+  src/STARTUP.cpp
   src/TAB.cpp
   src/TEXTBTN.cpp
   src/TOGGLE.cpp
