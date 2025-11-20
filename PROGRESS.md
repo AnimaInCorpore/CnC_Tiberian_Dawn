@@ -11,6 +11,7 @@ The table below records every legacy source/header that already has a modern cou
 | `VECTOR.CPP` | `src/VECTOR.cpp` | Boolean vector utilities rewritten around clear helpers and `std::memcpy`. |
 | `LINK.CPP` | `src/LINK.cpp` | Doubly linked helper now uses `nullptr` checks and RAII-friendly removal. |
 | `LAYER.CPP` | `src/LAYER.cpp` | Layer manager handles sorting and save/load helpers with portable pointer coding. |
+| `LIST.CPP` | `src/LIST.cpp` | List gadget clamps indices, wires the scroll peers, and manages slider state in pure C++. |
 | `RADIO.CPP` | `src/RADIO.cpp` | Radio messaging logic wrapped in portable helpers with `nullptr`-safe contact handling. |
 | `TAB.CPP` | `src/TAB.cpp` | Sidebar tab UI now lives in `src/` with `nullptr` guards and cleaned text drawing helpers. |
 | `TOGGLE.CPP` | `src/TOGGLE.cpp` | Windows-style toggle gadget refactored with explicit hover handling and sticky state flow. |
@@ -18,6 +19,7 @@ The table below records every legacy source/header that already has a modern cou
 | `CHECKBOX.CPP` | `src/CHECKBOX.cpp` | Checkbox gadget draws the interior using the shared box helpers and keeps mouse flicker hidden. |
 | `CHEKLIST.CPP` | `src/CHEKLIST.cpp` | Check list delegates selection to `ListClass` then toggles the inline checkmark unless read-only. |
 | `COLRLIST.CPP` | `src/COLRLIST.cpp` | Color-aware list tracks a parallel color vector and draws selected entries using the requested style. |
+| `EDIT.CPP` | `src/EDIT.cpp` | Edit control rebuilt with explicit focus handling, read-only guards, and caret drawing driven by the modern viewport helpers. |
 | `GAUGE.CPP` | `src/GAUGE.cpp` | Gauge widgets now render their fill/tri-color bars via the modern viewport helpers and honor sticky mouse drags. |
 | `SHAPEBTN.CPP` | `src/SHAPEBTN.cpp` | Shape buttons wrap the common `ToggleClass` flow and pick the correct frame for disabled/pressed/reflect modes. |
 | `SLIDER.CPP` | `src/SLIDER.cpp` | Slider gadget now owns its plus/minus peers, recalculates thumb geometry, and handles clicks outside the thumb area. |

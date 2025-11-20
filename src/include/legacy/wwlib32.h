@@ -4,10 +4,12 @@
 #include <cstdint>
 #include <memory>
 
+#include "windows_compat.h"
+
 class BufferClass;
 class GraphicBufferClass;
-class WWKeyboardClass;
 class WWMouseClass;
+struct PlatformMouseState;
 class TimerClass;
 class CountDownTimerClass;
 class WinTimerClass;
@@ -112,6 +114,34 @@ class WWMouseClass {
   std::unique_ptr<Impl> impl_;
 };
 
+class WWKeyboardClass {
+ public:
+  WWKeyboardClass();
+  WWKeyboardClass(WWKeyboardClass&&) noexcept;
+  WWKeyboardClass& operator=(WWKeyboardClass&&) noexcept;
+  ~WWKeyboardClass();
+  WWKeyboardClass(const WWKeyboardClass&) = delete;
+  WWKeyboardClass& operator=(const WWKeyboardClass&) = delete;
+
+  int Get();
+  int Check() const;
+  void Clear();
+  void Stuff(int key);
+  bool Down(int key) const;
+  void Message_Handler(HWND hwnd, unsigned int message, WPARAM wparam, LPARAM lparam);
+
+  int MouseQX = 0;
+  int MouseQY = 0;
+
+ private:
+  struct Impl;
+  std::unique_ptr<Impl> impl_;
+
+  friend struct PlatformMouseState;
+  friend void Platform_Update_Mouse_State(const PlatformMouseState& state);
+  friend void Platform_Queue_Key_Event(int key, bool pressed);
+};
+
 // The runtime keeps a "current" drawing surface that UI widgets reference.
 extern GraphicViewPortClass* LogicPage;
 GraphicViewPortClass* Set_Logic_Page(GraphicViewPortClass& page);
@@ -136,3 +166,13 @@ int Get_Mouse_Y();
 void Update_Mouse_Position(int x, int y);
 
 void Set_Font_Palette_Range(void const* palette, int first, int count);
+
+struct PlatformMouseState {
+  int x = 0;
+  int y = 0;
+  bool left_button_down = false;
+  bool right_button_down = false;
+};
+
+void Platform_Update_Mouse_State(const PlatformMouseState& state);
+void Platform_Queue_Key_Event(int key, bool pressed);

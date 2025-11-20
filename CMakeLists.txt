@@ -14,8 +14,10 @@ add_library(td_port STATIC
   src/CHECKBOX.cpp
   src/CHEKLIST.cpp
   src/COLRLIST.cpp
+  src/EDIT.cpp
   src/GAUGE.cpp
   src/LAYER.cpp
+  src/LIST.cpp
   src/LINK.cpp
   src/MOUSEHELP.cpp
   src/RADIO.cpp

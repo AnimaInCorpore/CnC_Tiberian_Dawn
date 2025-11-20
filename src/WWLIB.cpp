@@ -1,6 +1,7 @@
 #include "wwlib32.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -9,6 +10,12 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <unordered_set>
+
+extern "C" {
+int MouseQX = 0;
+int MouseQY = 0;
+}
 
 namespace {
 constexpr double kTau = 6.28318530717958647692;
@@ -20,6 +27,63 @@ constexpr int kMcgaWidth = 320;
 constexpr int kMcgaHeight = 200;
 constexpr std::uint8_t kMouseOutlineColor = 0xF0;
 constexpr std::uint8_t kMouseCenterColor = 0xFF;
+constexpr std::size_t kKeyQueueSize = 64;
+
+int Normalize_Key(int key) {
+  return key & ~KN_RLSE_BIT;
+}
+
+std::uint8_t NormalizeAscii(int key) {
+  return static_cast<std::uint8_t>(Normalize_Key(key) & 0xFF);
+}
+
+struct KeyQueue {
+  void Push(int key) {
+    buffer_[tail_] = key;
+    tail_ = (tail_ + 1) % buffer_.size();
+    if (count_ == buffer_.size()) {
+      head_ = (head_ + 1) % buffer_.size();
+    } else {
+      ++count_;
+    }
+  }
+
+  int Pop() {
+    if (count_ == 0) {
+      return KN_NONE;
+    }
+    const int value = buffer_[head_];
+    head_ = (head_ + 1) % buffer_.size();
+    --count_;
+    return value;
+  }
+
+  int Peek() const {
+    if (count_ == 0) {
+      return KN_NONE;
+    }
+    return buffer_[head_];
+  }
+
+  void Clear() {
+    head_ = 0;
+    tail_ = 0;
+    count_ = 0;
+  }
+
+ private:
+  std::array<int, kKeyQueueSize> buffer_{};
+  std::size_t head_ = 0;
+  std::size_t tail_ = 0;
+  std::size_t count_ = 0;
+};
+
+void Sync_Mouse_Event_Position(WWKeyboardClass& keyboard, int x, int y) {
+  keyboard.MouseQX = x;
+  keyboard.MouseQY = y;
+  MouseQX = x;
+  MouseQY = y;
+}
 
 template <typename T>
 T ClampValue(T value, T low, T high) {
@@ -449,6 +513,98 @@ void WWMouseClass::Set_Cursor_Clip() {
   Update_Mouse_Position(Get_Mouse_X(), Get_Mouse_Y());
 }
 
+struct WWKeyboardClass::Impl {
+  void Set_Key_State(int key, bool pressed) {
+    key = Normalize_Key(key);
+    if (pressed) {
+      held_keys.insert(key);
+    } else {
+      held_keys.erase(key);
+    }
+  }
+
+  bool Is_Key_Down(int key) const {
+    key = Normalize_Key(key);
+    return held_keys.find(key) != held_keys.end();
+  }
+
+  void Queue_Mouse_Button(int key, bool pressed, WWKeyboardClass& owner, int x, int y) {
+    bool* state_flag = nullptr;
+    if (key == KN_LMOUSE) {
+      state_flag = &left_button_down;
+    } else if (key == KN_RMOUSE) {
+      state_flag = &right_button_down;
+    }
+    if (state_flag && *state_flag == pressed) {
+      return;
+    }
+    if (state_flag) {
+      *state_flag = pressed;
+    }
+    Sync_Mouse_Event_Position(owner, x, y);
+    const int event = pressed ? key : (key | KN_RLSE_BIT);
+    key_queue.Push(event);
+    Set_Key_State(key, pressed);
+  }
+
+  KeyQueue key_queue;
+  bool left_button_down = false;
+  bool right_button_down = false;
+  std::unordered_set<int> held_keys;
+};
+
+WWKeyboardClass::WWKeyboardClass() : impl_(std::make_unique<Impl>()) {}
+
+WWKeyboardClass::WWKeyboardClass(WWKeyboardClass&&) noexcept = default;
+
+WWKeyboardClass& WWKeyboardClass::operator=(WWKeyboardClass&&) noexcept = default;
+
+WWKeyboardClass::~WWKeyboardClass() = default;
+
+int WWKeyboardClass::Get() {
+  if (!impl_) {
+    return KN_NONE;
+  }
+  return impl_->key_queue.Pop();
+}
+
+int WWKeyboardClass::Check() const {
+  if (!impl_) {
+    return KN_NONE;
+  }
+  return impl_->key_queue.Peek();
+}
+
+void WWKeyboardClass::Clear() {
+  if (!impl_) {
+    return;
+  }
+  impl_->key_queue.Clear();
+  impl_->held_keys.clear();
+  impl_->left_button_down = false;
+  impl_->right_button_down = false;
+}
+
+void WWKeyboardClass::Stuff(int key) {
+  if (!impl_) {
+    return;
+  }
+  impl_->key_queue.Push(key);
+  impl_->Set_Key_State(key, (key & KN_RLSE_BIT) == 0);
+}
+
+bool WWKeyboardClass::Down(int key) const {
+  if (!impl_) {
+    return false;
+  }
+  return impl_->Is_Key_Down(key);
+}
+
+void WWKeyboardClass::Message_Handler(HWND, unsigned int, WPARAM, LPARAM) {}
+
+WWKeyboardClass Kbd;
+WWKeyboardClass* _Kbd = &Kbd;
+
 int Get_Mouse_X() {
   return g_mouse_position.x;
 }
@@ -464,6 +620,51 @@ void Update_Mouse_Position(int x, int y) {
   }
   g_mouse_position.x = x;
   g_mouse_position.y = y;
+}
+
+int Get_Key_Num() {
+  return Kbd.Get();
+}
+
+int Check_Key_Num() {
+  return Kbd.Check();
+}
+
+int KN_To_KA(int key) {
+  return static_cast<int>(NormalizeAscii(key));
+}
+
+void Clear_KeyBuffer() {
+  Kbd.Clear();
+}
+
+void Stuff_Key_Num(int key) {
+  Kbd.Stuff(key);
+}
+
+int Key_Down(int key) {
+  return Kbd.Down(key) ? 1 : 0;
+}
+
+void Platform_Update_Mouse_State(const PlatformMouseState& state) {
+  Update_Mouse_Position(state.x, state.y);
+  if (!Kbd.impl_) {
+    return;
+  }
+  Kbd.impl_->Queue_Mouse_Button(KN_LMOUSE, state.left_button_down, Kbd, state.x,
+                                state.y);
+  Kbd.impl_->Queue_Mouse_Button(KN_RMOUSE, state.right_button_down, Kbd, state.x,
+                                state.y);
+}
+
+void Platform_Queue_Key_Event(int key, bool pressed) {
+  if (!Kbd.impl_) {
+    return;
+  }
+  const int normalized = Normalize_Key(key);
+  const int event = pressed ? normalized : (normalized | KN_RLSE_BIT);
+  Kbd.impl_->key_queue.Push(event);
+  Kbd.impl_->Set_Key_State(normalized, pressed);
 }
 
 int Desired_Facing256(int x1, int y1, int x2, int y2) {
