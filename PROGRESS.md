@@ -1,9 +1,6 @@
-# Porting Progress
-
-The table below records every legacy source/header that already has a modern counterpart under `src/`. Update it whenever new files are migrated so the porting backlog stays visible.
-
 | Legacy file | Modern path | Notes |
 | --- | --- | --- |
+| `GLOBALS.CPP` | `src/GLOBALS.cpp` | Ported to src/, replaced NULL with nullptr, and disabled legacy networking code. |
 | `FTIMER.H` | `src/FTIMER.h` | Countdown timer helper rewritten with `#pragma once` and the global `Frame` counter. |
 | `RAND.H` | `src/RAND.h` | Random helper declarations cleaned up to use `<cstdint>` types. |
 | `RAND.CPP` | `src/RAND.cpp` | Random lookup table logic now relies on standard headers and explicit scaling. |
@@ -23,6 +20,145 @@ The table below records every legacy source/header that already has a modern cou
 | `GAUGE.CPP` | `src/GAUGE.cpp` | Gauge widgets now render their fill/tri-color bars via the modern viewport helpers and honor sticky mouse drags. |
 | `SHAPEBTN.CPP` | `src/SHAPEBTN.cpp` | Shape buttons wrap the common `ToggleClass` flow and pick the correct frame for disabled/pressed/reflect modes. |
 | `SLIDER.CPP` | `src/SLIDER.cpp` | Slider gadget now owns its plus/minus peers, recalculates thumb geometry, and handles clicks outside the thumb area. |
+| `SCROLL.CPP` | `src/SCROLL.cpp` | Map edge scrolling now clamps the virtual cursor, honors inertia, and keeps the mouse override logic intact. |
+| `TEXTBTN.CPP` | `src/TEXTBTN.cpp` | Text buttons resize around the assigned label, draw Windows-style boxes, and respect the green gradient flags. |
+| `AADATA.CPP` | | To be ported. |
+| `ABSTRACT.CPP` | | To be ported. |
+| `ADATA.CPP` | | To be ported. |
+| `AIRCRAFT.CPP` | | To be ported. |
+| `ALLOC.CPP` | | To be ported. |
+| `ANIM.CPP` | | To be ported. |
+| `AUDIO.CPP` | | To be ported. |
+| `BASE.CPP` | | To be ported. |
+| `BBDATA.CPP` | | To be ported. |
+| `BDATA.CPP` | | To be ported. |
+| `BUILDING.CPP` | | To be ported. |
+| `BULLET.CPP` | | To be ported. |
+| `CARGO.CPP` | | To be ported. |
+| `CCDDE.CPP` | | To be ported. |
+| `CCFILE.CPP` | | To be ported. |
+| `CDATA.CPP` | | To be ported. |
+| `CDFILE.CPP` | | To be ported. |
+| `CELL.CPP` | | To be ported. |
+| `COMBAT.CPP` | | To be ported. |
+| `COMBUF.CPP` | | To be ported. |
+| `COMQUEUE.CPP` | | To be ported. |
+| `CONFDLG.CPP` | | To be ported. |
+| `CONNECT.CPP` | | To be ported. |
+| `CONQUER.CPP` | | To be ported. |
+| `CONST.CPP` | | To be ported. |
+| `CONTROL.CPP` | | To be ported. |
+| `COORD.CPP` | | To be ported. |
+| `CREDITS.CPP` | | To be ported. |
+| `CREW.CPP` | | To be ported. |
+| `DDE.CPP` | | To be ported. |
+| `DEBUG.CPP` | | To be ported. |
+| `DESCDLG.CPP` | | To be ported. |
+| `DIAL8.CPP` | | To be ported. |
+| `DIALOG.CPP` | | To be ported. |
+| `DISPLAY.CPP` | | To be ported. |
+| `DOOR.CPP` | | To be ported. |
+| `DPMI.CPP` | | To be ported. |
+| `DRIVE.CPP` | | To be ported. |
+| `ENDING.CPP` | | To be ported. |
+| `EVENT.CPP` | | To be ported. |
+| `EXPAND.CPP` | | To be ported. |
+| `FACING.CPP` | | To be ported. |
+| `FACTORY.CPP` | | To be ported. |
+| `FIELD.CPP` | | To be ported. |
+| `FINDPATH.CPP` | | To be ported. |
+| `FLASHER.CPP` | | To be ported. |
+| `FLY.CPP` | | To be ported. |
+| `FOOT.CPP` | | To be ported. |
+| `FUSE.CPP` | | To be ported. |
+| `GADGET.CPP` | | To be ported. |
+| `GAMEDLG.CPP` | | To be ported. |
+| `GOPTIONS.CPP` | | To be ported. |
+| `GSCREEN.CPP` | | To be ported. |
+| `HDATA.CPP` | | To be ported. |
+| `HEAP.CPP` | | To be ported. |
+| `HELP.CPP` | | To be ported. |
+| `HOUSE.CPP` | | To be ported. |
+| `IDATA.CPP` | | To be ported. |
+| `INFANTRY.CPP` | | To be ported. |
+| `INI.CPP` | | To be ported. |
+| `INIT.CPP` | `src/INIT.cpp` | Ported to src/, replaced NULL with nullptr, and disabled platform-specific code (DOS, DDE, Winsock). |
+| `INTERNET.CPP` | | To be ported. |
+| `INTERPAL.CPP` | | To be ported. |
+| `INTRO.CPP` | | To be ported. |
+| `IOMAP.CPP` | | To be ported. |
+| `IOOBJ.CPP` | | To be ported. |
+| `IPX.CPP` | | To be ported. |
+| `IPX95.CPP` | | To be ported. |
+| `IPXADDR.CPP` | | To be ported. |
+| `IPXCONN.CPP` | | To be ported. |
+| `IPXGCONN.CPP` | | To be ported. |
+| `IPXMGR.CPP` | | To be ported. |
+| `JSHELL.CPP` | | To be ported. |
+| `KEYFRAME.CPP` | | To be ported. |
+| `LOADDLG.CPP` | | To be ported. |
+| `LOGIC.CPP` | | To be ported. |
+| `MAP.CPP` | | To be ported. |
+| `MAPEDDLG.CPP` | | To be ported. |
+| `MAPEDIT.CPP` | | To be ported. |
+| `MAPEDPLC.CPP` | | To be ported. |
+| `MAPEDSEL.CPP` | | To be ported. |
+| `MAPEDTM.CPP` | | To be ported. |
+| `MAPSEL.CPP` | | To be ported. |
+| `MENUS.CPP` | | To be ported. |
+| `MISSION.CPP` | | To be ported. |
+| `MIXFILE.CPP` | | To be ported. |
+| `MONOC.CPP` | | To be ported. |
+| `MOUSE.CPP` | | To be ported. |
+| `MPLAYER.CPP` | | To be ported. |
+| `MSGBOX.CPP` | | To be ported. |
+| `MSGLIST.CPP` | | To be ported. |
+| `NETDLG.CPP` | | To be ported. |
+| `NOSEQCON.CPP` | | To be ported. |
+| `NULLCONN.CPP` | | To be ported. |
+| `NULLDLG.CPP` | | To be ported. |
+| `NULLMGR.CPP` | | To be ported. |
+| `OBJECT.CPP` | | To be ported. |
+| `ODATA.CPP` | | To be ported. |
+| `OPTIONS.CPP` | | To be ported. |
+| `OVERLAY.CPP` | | To be ported. |
+| `PACKET.CPP` | | To be ported. |
+| `POWER.CPP` | | To be ported. |
+| `PROFILE.CPP` | | To be ported. |
+| `QUEUE.CPP` | | To be ported. |
+| `RADAR.CPP` | | To be ported. |
+| `RAWFILE.CPP` | | To be ported. |
+| `REINF.CPP` | | To be ported. |
+| `SAVELOAD.CPP` | | To be ported. |
+| `SCENARIO.CPP` | | To be ported. |
+| `SCORE.CPP` | | To be ported. |
+| `SDATA.CPP` | | To be ported. |
+| `SEQCONN.CPP` | | To be ported. |
+| `SIDEBAR.CPP` | | To be ported. |
+| `SMUDGE.CPP` | | To be ported. |
+| `SOUNDDLG.CPP` | | To be ported. |
+| `SPECIAL.CPP` | | To be ported. |
+| `STARTUP.CPP` | | To be ported. |
+| `STATS.CPP` | | To be ported. |
+| `SUPER.CPP` | | To be ported. |
+| `TARCOM.CPP` | | To be ported. |
+| `TARGET.CPP` | | To be ported. |
+| `TCPIP.CPP` | | To be ported. |
+| `TDATA.CPP` | | To be ported. |
+| `TEAM.CPP` | | To be ported. |
+| `TEAMTYPE.CPP` | | To be ported. |
+| `TECHNO.CPP` | | To be ported. |
+| `TEMP.CPP` | | To be ported. |
+| `TEMPLATE.CPP` | | To be ported. |
+| `TERRAIN.CPP` | | To be ported. |
+| `THEME.CPP` | | To be ported. |
+| `TRIGGER.CPP` | | To be ported. |
+| `TURRET.CPP` | | To be ported. |
+| `UDATA.CPP` | | To be ported. |
+| `UNIT.CPP` | | To be ported. |
+| `UTRACKER.CPP` | | To be ported. |
+| `VISUDLG.CPP` | | To be ported. |
+| `WINSTUB.CPP` | | To be ported. |
 | `ABSTRACT.H` | `src/include/legacy/abstract.h` | Lowercase mirror retained so `#include "abstract.h"` works on case-sensitive hosts. |
 | `COMPAT.H` | `src/include/legacy/compat.h` | Palette/buffer macros and legacy globals wrapped in portable defaults. |
 | `DEFINES.H` | `src/include/legacy/defines.h` | Lowercase mirror preserving gameplay feature toggles until modernization. |
@@ -127,7 +263,6 @@ The table below records every legacy source/header that already has a modern cou
 | `SCORE.H` | `src/include/legacy/score.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `SCREEN.H` | `src/include/legacy/screen.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `SCROLL.H` | `src/include/legacy/scroll.h` | Lowercase mirror retained for Linux-friendly includes. |
-| `SCROLL.CPP` | `src/SCROLL.cpp` | Map edge scrolling now clamps the virtual cursor, honors inertia, and keeps the mouse override logic intact. |
 | `SEQCONN.H` | `src/include/legacy/seqconn.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `SESSION.H` | `src/include/legacy/session.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `SHAPEBTN.H` | `src/include/legacy/shapebtn.h` | Lowercase mirror retained for Linux-friendly includes. |
@@ -148,7 +283,6 @@ The table below records every legacy source/header that already has a modern cou
 | `TERRAIN.H` | `src/include/legacy/terrain.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `TEXTBLIT.H` | `src/include/legacy/textblit.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `TEXTBTN.H` | `src/include/legacy/textbtn.h` | Lowercase mirror retained for Linux-friendly includes. |
-| `TEXTBTN.CPP` | `src/TEXTBTN.cpp` | Text buttons resize around the assigned label, draw Windows-style boxes, and respect the green gradient flags. |
 | `THEME.H` | `src/include/legacy/theme.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `TOGGLE.H` | `src/include/legacy/toggle.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `TRIGGER.H` | `src/include/legacy/trigger.h` | Lowercase mirror retained for Linux-friendly includes. |
