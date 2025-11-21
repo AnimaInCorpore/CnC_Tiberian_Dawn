@@ -26,17 +26,17 @@ add_library(td_port STATIC
   src/SCROLL.cpp
   src/SHAPEBTN.cpp
   src/SLIDER.cpp
-  src/STARTUP.cpp
+  src/GAME.cpp
   src/TAB.cpp
   src/TEXTBTN.cpp
   src/TOGGLE.cpp
   src/TXTLABEL.cpp
   src/VECTOR.cpp
-  src/WWLIB.cpp
 )
 
 target_include_directories(td_port
   PUBLIC
+    /opt/homebrew/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/src/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src/include/legacy
@@ -44,20 +44,34 @@ target_include_directories(td_port
 
 target_compile_definitions(td_port
   PRIVATE
-    _WIN32
     WIN32_LEAN_AND_MEAN
     NOMINMAX
     STRICT=1
     _CRT_SECURE_NO_WARNINGS
 )
 
-option(TD_PORT_USE_SDL2 "Enable SDL2-backed input helpers" OFF)
+option(TD_PORT_USE_SDL2 "Enable SDL2-backed input helpers" ON)
 
 if(TD_PORT_USE_SDL2)
   find_package(SDL2 REQUIRED)
   target_link_libraries(td_port PRIVATE SDL2::SDL2)
   target_compile_definitions(td_port PUBLIC TD_PORT_USE_SDL2)
 endif()
+
+if(WIN32)
+  target_sources(td_port PRIVATE src/WWLIB.cpp)
+  target_compile_definitions(td_port PRIVATE _WIN32)
+else()
+  add_executable(cnc_tiberian_dawn
+    src/main.cpp
+  )
+  target_link_libraries(cnc_tiberian_dawn PRIVATE td_port)
+endif()
+
+
+
+
+
 
 if(MSVC)
   target_compile_options(td_port PRIVATE /W4 /permissive-)

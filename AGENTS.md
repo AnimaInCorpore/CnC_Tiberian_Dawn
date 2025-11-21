@@ -1,58 +1,48 @@
-# Porting Plan – Command & Conquer (Tiberian Dawn)
+# Agent Porting Guide: Command & Conquer (Tiberian Dawn)
 
-This document aggregates the work discussed so far for producing a modern, buildable port of the released Command & Conquer source.
+This guide directs the process of porting the original Command & Conquer source code to a modern, cross-platform build system.
 
-## Goals
-- Compile the legacy Watcom/Borland codebase with a modern GNU C++ compiler (baseline: `g++` 6.x using `-std=gnu++14`).
-- Replace missing third-party dependencies (DirectX 5 SDK, GCL, HMI/SOS) with portable equivalents suitable for desktop and eventual WebAssembly targets.
-- Enable cross-platform builds via CMake and prepare for Emscripten/WebGPU/WebAudio/WebSockets backends.
-- Preserve the behavior of the original Win32 build and treat that configuration as canonical; headers and compatibility shims should expose Windows-style types/defines even when compiling on non-Windows hosts.
+## Primary Objective
+Translate the legacy C++ codebase to compile with modern tools (`g++`, `CMake`) while preserving original game logic and behavior. The end-goal is a platform-independent application using SDL for hardware abstraction.
 
-## Scope Constraints
-- The modernized codebase only targets the 32-bit Windows build path. Remove or ignore legacy DOS, Win16, segmented memory, or compiler-specific (`__WATCOMC__`, Borland) conditionals as files are ported.
-- `#ifdef` branches that were present solely for non-Win32 configurations should be collapsed to the Win32 behavior to keep the code paths consistent with the canonical build.
-- Future portability layers (SDL/Emscripten) build on the Win32 behavior; do not reintroduce DOS/16-bit branches when refactoring headers or translation units.
+## Core Principles
+1.  **Preserve Original Behavior:** The Win32 build is the canonical reference. All ported code must function identically to the original.
+2.  **Platform Independence:** Use SDL to replace all direct hardware calls (Graphics, Audio, Input, Networking). Avoid platform-specific code outside of the SDL implementation layer.
+3.  **Modern Tooling:** The codebase must build with `g++` (or a compatible compiler) and `CMake`.
+4.  **Clean Codebase:** Remove all legacy code paths for DOS, Win16, and segmented memory. The target is a flat 32/64-bit memory model.
 
-## High-Level Steps
-1. **Directory Layout**
-   - Introduce a `src/` hierarchy and migrate each translation unit as it is modernized.
-   - Keep original `*.CPP`, `*.H`, and `*.ASM` files as reference during the port.
-   - Maintain filename parity inside `src/`; every original source should gain an equivalent modernized counterpart (e.g., `src/TOGGLE.cpp` mirrors `TOGGLE.CPP`) to simplify diffing and tracking progress.
+## Porting Workflow
 
-2. **Modern Toolchain Bring-Up**
-   - Audit the code for Watcom extensions (non‑standard pragmas, near/far keywords, inline assembly) and replace or guard them.
-   - Preserve the original data type widths (e.g., 8/16/32-bit ints) when refactoring; matching the legacy assumptions is critical for eventual backports to low-memory or 16-bit-oriented systems like Amiga/Atari ST.
-   - Stub or reimplement missing libraries:
-     - DirectDraw/DirectSound → SDL2 rendering/audio backends for portable desktop builds.
-     - Greenleaf Communications (GCL) networking → SDL_net or standard sockets.
-     - HMI SOS audio → modern audio mixer.
-   - Identify the four assembly modules required by the existing build (`WINASM`, `KEYFBUFF`, `SUPPORT`, `TXTPRNT` plus `mmx.obj`) and plan C/C++ replacements or intrinsics where practical.
+### 1. File Migration and Modernization
+- For each file (`*.CPP`, `*.H`, `*.ASM`):
+    1.  Copy the file to a `src/` directory, using a lowercase filename (e.g., `AIRCRAFT.CPP` -> `src/aircraft.cpp`).
+    2.  Convert the file to a modern C++ translation unit.
+    3.  Update include paths to reflect the new `src/` structure.
+    4.  Replace legacy compiler specifics (e.g., Watcom pragmas, `__far`, `__near`) with standard C++ or portable wrappers.
+    5.  Replace non-standard library calls with modern equivalents (e.g., `<cstdint>` types, `<cstring>` functions).
+    6.  Refactor assembly code (`.ASM`) into C/C++ functions.
 
-3. **CMake Scaffolding**
-   - Create a root `CMakeLists.txt` targeting the migrated `src/` files.
-   - Provide configurable options for native desktop builds vs. Emscripten.
+### 2. Dependency Replacement
+- **Graphics:** Replace all DirectDraw calls with the SDL2 rendering API.
+- **Audio:** Replace DirectSound and HMI/SOS calls with the SDL2 audio API.
+- **Networking:** Replace Greenleaf (GCL) and IPX calls with SDL_net or standard sockets.
+- **Input:** Replace DirectInput and low-level keyboard/mouse hooks with the SDL2 event system.
 
-4. **Web Path Preparation**
-   - After the SDL-backed native build succeeds, configure Emscripten to emit WebAssembly.
-   - Use SDL’s Emscripten support as the portability layer, or swap in WebGPU/WebAudio/WebSockets equivalents if higher performance or finer control is required.
+### 3. Build System
+- Maintain a root `CMakeLists.txt`.
+- As each file is ported and moved to `src/`, add it to the `CMakeLists.txt` build targets.
+- The build should produce a single executable.
 
-5. **Documentation & Validation**
-   - Document build prerequisites and porting status (`README`/`BUILD.md` updates).
-   - Add automated builds/tests where possible to detect regressions.
-   - Keep `PROGRESS.md` up to date with the table of migrated files (legacy name, new path, and notes) whenever a source/header is ported.
+### 4. Verification
+- The game must compile and run after each major module is ported.
+- Gameplay and behavior should be frequently compared against the original Win32 version to check for regressions.
 
-## Header Modernization Strategy
-- Prioritize porting umbrella headers (e.g., `COMPAT.H`, `DEFINES.H`, `TYPE.H`, `REAL.H`, `WATCOM.H`, `WWFILE.H`, `FUNCTION.H`, `EXTERNS.H`) into `src/include` before touching many translation units.
-- Replace Watcom/Borland-specific types (`WORD`, `movmem`, `near`, `i86.h`) with `<cstdint>` typedefs, guarded legacy constants, and portable helpers.
-- Mirror original filenames inside the new include tree so every legacy `*.H` has a modern counterpart and diffing stays simple.
-- Once the shared headers compile, migrate translation units that only depend on the ported interfaces to reduce churn.
-- Keep legacy header copies lowercase inside `src/include/legacy/` so `#include "function.h"` continues to work on case-sensitive systems, and gate DOS/Greenleaf/VQA-only includes behind `#if defined(_WIN32)` to avoid pulling in missing SDKs during cross-platform builds.
-- Avoid dragging unrelated dependencies into the modern headers; prefer forward declarations and narrow includes so future translation units can opt into only what they need.
-- Leave third-party subsystems (Greenleaf modem stack, HMI/VQA, DirectX shims) stubbed or excluded for now; plan to replace them with portable equivalents after the core headers and translation units compile cleanly.
+## Task Checklist (High-Level)
+- [ ] **Setup:** Create `src/` directory and `CMakeLists.txt`.
+- [ ] **Headers:** Port all `.H` files to `src/include/`, modernizing types and removing legacy conditionals.
+- [ ] **Core Logic:** Port `.CPP` files, starting with those with fewest dependencies.
+- [ ] **Assembly:** Re-implement all `.ASM` files in C++.
+- [ ] **SDL Integration:** Implement graphics, audio, and input backends using SDL.
+- [ ] **Build & Test:** Continuously build and test the application.
 
-## Outstanding Investigations
-- Confirm which of the remaining assembly sources (e.g., `PAGFAULT.ASM`, `IPXREAL.ASM`) are still needed for special builds.
-- Locate or recreate the proprietary “core engine” libraries referenced in the README (sourced from the Red Alert release).
-- Determine long-term replacements for palette-based rendering and other 90s-era assumptions before finalizing the WebGPU backend.
-
-This file should evolve as tasks are completed or new blockers are discovered.
+This document serves as the primary directive. Follow this plan systematically.
