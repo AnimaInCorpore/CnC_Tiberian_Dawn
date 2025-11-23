@@ -233,7 +233,12 @@ class DynamicVectorClass : public VectorClass<T> {
 
   virtual int ID(T const& object) const override {
     for (int index = 0; index < ActiveCount; ++index) {
-      if ((*this)[index] == object) {
+      // Some legacy types expose non-const equality operators; drop constness
+      // on the operands so we can dispatch to those implementations without
+      // forcing widespread signature churn during the port.
+      auto& element = const_cast<T&>((*this)[index]);
+      auto& target = const_cast<T&>(object);
+      if (element == target) {
         return index;
       }
     }

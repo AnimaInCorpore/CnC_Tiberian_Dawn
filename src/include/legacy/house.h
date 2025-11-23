@@ -45,6 +45,10 @@
 #include "super.h"
 #include "wwfile.h"
 
+// Forward declarations for fixed-point helpers used by inline accessors.
+unsigned Cardinal_To_Fixed(unsigned base, unsigned cardinal);
+unsigned Fixed_To_Cardinal(unsigned base, unsigned fixed);
+
 //extern "C" {
 //unsigned Cardinal_To_Fixed(unsigned base, unsigned cardinal);
 //}

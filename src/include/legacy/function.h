@@ -391,8 +391,8 @@ short const *  Coord_Spillage_List(COORDINATE coord, int maxsize);
 **	COORDA.CPP
 */
 //extern "C" {
-//unsigned Cardinal_To_Fixed(unsigned base, unsigned cardinal);
-//unsigned Fixed_To_Cardinal(unsigned base, unsigned fixed);
+unsigned Cardinal_To_Fixed(unsigned base, unsigned cardinal);
+unsigned Fixed_To_Cardinal(unsigned base, unsigned fixed);
 //}
 
 /*
