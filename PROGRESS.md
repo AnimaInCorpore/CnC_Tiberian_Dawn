@@ -22,9 +22,9 @@
 | `SLIDER.CPP` | `src/SLIDER.cpp` | Slider gadget now owns its plus/minus peers, recalculates thumb geometry, and handles clicks outside the thumb area. |
 | `SCROLL.CPP` | `src/SCROLL.cpp` | Map edge scrolling now clamps the virtual cursor, honors inertia, and keeps the mouse override logic intact. |
 | `TEXTBTN.CPP` | `src/TEXTBTN.cpp` | Text buttons resize around the assigned label, draw Windows-style boxes, and respect the green gradient flags. |
-| `AADATA.CPP` | | To be ported. |
+| `AADATA.CPP` | `src/aadata.cpp` | Ported to src/, replaced NULL with nullptr, `stricmp` with `strcasecmp`, `sprintf` and `_makepath` with `std::string` manipulation, and updated include path for `function.h`. |
+| `ADATA.CPP` | `src/adata.cpp` | Ported to src/, updated include to the legacy shim, and replaced `_makepath` with `std::string` construction for SHP lookup. |
 | `ABSTRACT.CPP` | | To be ported. |
-| `ADATA.CPP` | | To be ported. |
 | `AIRCRAFT.CPP` | | To be ported. |
 | `ALLOC.CPP` | | To be ported. |
 | `ANIM.CPP` | | To be ported. |

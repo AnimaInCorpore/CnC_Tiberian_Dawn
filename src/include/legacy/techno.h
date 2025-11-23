@@ -47,6 +47,7 @@
 #include	"bullet.h"
 #include	"door.h"
 #include	"crew.h"
+#include "facing.h"
 
 /****************************************************************************
 **	This is the common data between building and units.

@@ -32,6 +32,8 @@ char const* RadioClass::Messages[RADIO_COUNT] = {
     "Take this punch! You... You...",
     "Fancy a little fisticuffs, eh?"};
 
+long RadioClass::DefaultRadioParam = 0;
+
 #ifdef CHEAT_KEYS
 void RadioClass::Debug_Dump(MonoClass* mono) const {
   mono->Set_Cursor(34, 5);

@@ -93,6 +93,7 @@
 #define GADGET_H
 
 #include "link.h"
+#include "compat.h"
 
 class ControlClass;
 

@@ -37,6 +37,9 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
+#include "compat.h"
+#include "special.h"
+
 
 /**********************************************************************
 **	If defined, then the advanced balancing features will be enabled

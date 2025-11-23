@@ -38,6 +38,7 @@
 #ifndef TYPE_H
 #define TYPE_H
 
+#include <cstring>
 #include	"mission.h"
 #include	"target.h"
 
@@ -223,6 +224,7 @@ class HouseTypeClass {
 class AbstractTypeClass
 {
 	public:
+		virtual ~AbstractTypeClass();
 
 		/*
 		**	This is the internal control name of the object. This name does
@@ -263,6 +265,7 @@ class AbstractTypeClass
 class ObjectTypeClass : public AbstractTypeClass
 {
 	public:
+		virtual ~ObjectTypeClass();
 
 		/*
 		**	Is this object squashable by heavy vehicles?  If it is, then the vehicle
@@ -386,6 +389,7 @@ class ObjectTypeClass : public AbstractTypeClass
 class TechnoTypeClass : public ObjectTypeClass
 {
 	public:
+		virtual ~TechnoTypeClass();
 
 		/*
 		**	If this object can serve as a good leader for a group selected

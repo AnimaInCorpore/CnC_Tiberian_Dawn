@@ -79,8 +79,8 @@ class TerrainClass : public ObjectClass, public StageClass
 		**	combat purposes.
 		*/
 		virtual COORDINATE Center_Coord(void) const;
-		virtual COORDINATE Render_Coord(void) const {return Coord;};
-		virtual COORDINATE Sort_Y(void) const {return Coord_Add(Coord, Class->CenterBase);};
+		virtual COORDINATE Render_Coord(void) const {return Center_Coord();};
+		virtual COORDINATE Sort_Y(void) const {return Coord_Add(Center_Coord(), Class->CenterBase);};
 		virtual COORDINATE Target_Coord(void) const {return Sort_Y();};
 
 		/*

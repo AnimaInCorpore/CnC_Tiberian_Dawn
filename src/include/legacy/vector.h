@@ -62,6 +62,8 @@
 
 #include <stdlib.h>
 #include <stddef.h>
+#include "defines.h"
+#include "jshell.h"
 
 
 /**************************************************************************

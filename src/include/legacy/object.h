@@ -40,6 +40,7 @@
 
 #include	"abstract.h"
 #include "target.h"
+#include "monoc.h"
 
 class ObjectClass;
 class TechnoClass;

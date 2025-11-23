@@ -40,6 +40,7 @@
 
 #include	"radio.h"
 #include	"fly.h"
+#include	"foot.h"
 #include	"target.h"
 
 

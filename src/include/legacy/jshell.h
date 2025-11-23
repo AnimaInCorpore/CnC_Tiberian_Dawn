@@ -38,6 +38,8 @@
 #ifndef JSHELL_H
 #define JSHELL_H
 
+#include "wwlib32.h"
+
 /*
 **	Interface class to the keyboard. This insulates the game from library vagaries. Most
 **	notable being the return values are declared as "int" in the library whereas C&C

@@ -56,7 +56,7 @@ class TemplateClass : public ObjectClass
 		static void operator delete(void *ptr);
 		TemplateClass(void);
 		TemplateClass(TemplateType type, CELL pos=-1);
-		virtual ~TemplateClass(void) {if (GameActive) TemplateClass::Limbo();};
+		virtual ~TemplateClass(void) = default;
 		operator TemplateType(void) const {return Class->Type;};
 		virtual RTTIType What_Am_I(void) const {return RTTI_TEMPLATE;};
 

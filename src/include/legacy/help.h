@@ -43,6 +43,7 @@
 class HelpClass: public TabClass
 {
 	public:
+		virtual ~HelpClass();
 		HelpClass(void);
 
 		/*

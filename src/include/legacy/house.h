@@ -41,6 +41,9 @@
 #include	"type.h"
 #include	"region.h"
 #include	"vector.h"
+#include "utracker.h"
+#include "super.h"
+#include "wwfile.h"
 
 //extern "C" {
 //unsigned Cardinal_To_Fixed(unsigned base, unsigned cardinal);
@@ -567,4 +570,3 @@ class HouseClass {
 		TCountDownTimerClass SpeakMaxedDelay;
 };
 #endif
-

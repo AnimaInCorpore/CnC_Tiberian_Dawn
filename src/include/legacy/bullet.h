@@ -41,6 +41,8 @@
 #include "object.h"
 #include	"fly.h"
 #include	"fuse.h"
+#include "wwfile.h"
+#include "facing.h"
 
 
 class BulletClass :	public ObjectClass,
@@ -74,7 +76,7 @@ class BulletClass :	public ObjectClass,
 		static void operator delete(void *ptr);
 		BulletClass(void);
 		BulletClass(BulletType id);
-		virtual ~BulletClass(void) {if (GameActive) BulletClass::Limbo();};
+		virtual ~BulletClass(void) = default;
 		virtual RTTIType What_Am_I(void) const {return RTTI_BULLET;};
 
 		/*---------------------------------------------------------------------

@@ -36,7 +36,11 @@
 
 #include "legacy/function.h"
 #include "legacy/windows_compat.h"
+#include "legacy/connect.h"
+#include "legacy/base.h"
+#include "legacy/msglist.h"
 #include <cstddef>
+#include "legacy/getcd.h"
 
 #ifdef JAPANESE
 bool ForceEnglish = false;

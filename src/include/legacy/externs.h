@@ -39,6 +39,10 @@
 #define EXTERNS_H
 
 #include	"cell.h"
+#include	"getcd.h"
+#include	"nullmodem_stub.h"
+#include	"wintimer_stub.h"
+#include	"mmx_stub.h"
 
 #ifdef SCENARIO_EDITOR
 #include	"mapedit.h"
@@ -388,6 +392,7 @@ extern WWKeyboardClass	Kbd;
 extern WWKeyboardClass* _Kbd;
 extern int In_Debugger;
 extern WWMouseClass	*WWMouse;
+extern WinTimerClass	*WindowsTimer;
 extern HANDLE hInstance;
 extern int AllDone;
 extern "C" bool MMXAvailable;

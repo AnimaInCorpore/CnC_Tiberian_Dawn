@@ -45,6 +45,7 @@
 class SidebarClass: public PowerClass
 {
 	public:
+		virtual ~SidebarClass() = default;
 		/*
 		**	These constants are used to control the sidebar rendering. They are instantiated
 		**	as enumerations since C++ cannot use "const" in this context.

@@ -142,7 +142,7 @@ class FixedIHeapClass : public FixedHeapClass
 {
 	public:
 		FixedIHeapClass(int size) : FixedHeapClass(size) {};
-		virtual ~FixedIHeapClass(void) {};
+		virtual ~FixedIHeapClass(void);
 
 		virtual int Set_Heap(int count, void * buffer=0);
 		virtual void * Allocate(void);

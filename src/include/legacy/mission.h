@@ -40,6 +40,7 @@
 
 #include "object.h"
 #include "target.h"
+#include "ftimer.h"
 
 class MonoClass;
 
@@ -71,7 +72,7 @@ class MissionClass : public ObjectClass
 		**	Constructors, Destructors, and overloaded operators.
 		*/
 		MissionClass(void);
-		virtual ~MissionClass(void) {};
+		virtual ~MissionClass(void);
 
 		/*---------------------------------------------------------------------
 		**	Member function prototypes.

@@ -10,6 +10,7 @@ class RadioClass : public MissionClass {
   RadioMessageType LastMessage = RADIO_STATIC;
   RadioClass* Radio = nullptr;
   static char const* Messages[RADIO_COUNT];
+  static long DefaultRadioParam;
 
  public:
   RadioClass() = default;
@@ -21,8 +22,8 @@ class RadioClass : public MissionClass {
 
   virtual RadioMessageType Receive_Message(RadioClass* from, RadioMessageType message,
                                            long& param);
-  virtual RadioMessageType Transmit_Message(RadioMessageType message, long& param = LParam,
-                                            RadioClass* to = nullptr);
+  virtual RadioMessageType Transmit_Message(RadioMessageType message, long& param = DefaultRadioParam,
+                                             RadioClass* to = nullptr);
   virtual RadioMessageType Transmit_Message(RadioMessageType message, RadioClass* to);
 #ifdef CHEAT_KEYS
   virtual void Debug_Dump(MonoClass* mono) const;

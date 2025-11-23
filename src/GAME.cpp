@@ -2,6 +2,11 @@
 #include "legacy/ccdde.h"
 #include "legacy/windows_compat.h"
 #include "legacy/wwlib32.h"
+#include "legacy/msgbox.h"
+#include "legacy/msgbox.h"
+#include "legacy/audio_stub.h"
+#include "legacy/wwalloc.h"
+#include "legacy/error_stub.h"
 
 #include <array>
 #include <cctype>
@@ -15,12 +20,11 @@
 
 bool Read_Private_Config_Struct(char* profile, NewConfigType* config);
 void Delete_Swap_Files(void);
-void Print_Error_End_Exit(char* string);
-void Print_Error_Exit(char* string);
+
 void Read_Setup_Options(RawFileClass* config_file);
 void Check_Use_Compressed_Shapes(void);
 int Ram_Free();
-int Disk_Space_Available();
+unsigned long Disk_Space_Available();
 void Main_Game(int argc, char* argv[]);
 void Prog_End();
 
@@ -70,10 +74,8 @@ void Game_Startup(int argc, char* argv[]) {
 	Check_Use_Compressed_Shapes();
 
 	if (Disk_Space_Available() < INIT_FREE_DISK_SPACE) {
-		const int reply = MessageBox(nullptr,
-		                             "Warning - you are critically low on free disk space for virtual memory and save games. Do you want to play C&C anyway?",
-		                             "Command & Conquer", 0);
-		if (reply == 0) {
+		const int reply = CCMessageBox().Process("Warning - you are critically low on free disk space for virtual memory and save games. Do you want to play C&C anyway?", "Yes", "No");
+		if (reply != 0) { // If "No" is chosen (meaning reply is not 0), then return. Assuming "Yes" is 0.
 			return;
 		}
 	}
@@ -117,7 +119,7 @@ void Game_Startup(int argc, char* argv[]) {
 		MouseInstalled = TRUE;
 
 		CCDebugString("C&C95 - Reading CONQUER.INI.\n");
-		char* buffer = static_cast<char*>(Alloc(64000, 0));
+		char* buffer = static_cast<char*>(Alloc(64000, MEM_NORMAL));
 		if (buffer) {
 			cfile.Read(buffer, cfile.Size());
 			buffer[cfile.Size()] = '\0';

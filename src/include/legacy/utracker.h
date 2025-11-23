@@ -1,3 +1,6 @@
+// Minimal include guard for multiple inclusion safety.
+#pragma once
+
 /*
 **	Command & Conquer(tm)
 **	Copyright 2025 Electronic Arts Inc.
@@ -68,7 +71,6 @@ class	UnitTrackerClass {
 		int	InNetworkFormat;
 
 };
-
 
 
 

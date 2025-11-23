@@ -134,6 +134,7 @@ UnitTypeClass         BuildingTypeClass
 #include "compat.h"
 #include <wwlib32.h>
 #include	"jshell.h"
+#include "operator_helpers.h"
 
 
 
@@ -375,7 +376,7 @@ extern "C"{
 /*
 **	COORD.CPP
 */
-void  Move_Point(short &x, short &y, register DirType dir, unsigned short distance);
+void  Move_Point(short &x, short &y, DirType dir, unsigned short distance);
 COORDINATE  Adjacent_Cell(COORDINATE coord, FacingType dir);
 COORDINATE  Coord_Move(COORDINATE start, DirType facing, unsigned short distance);
 COORDINATE  Coord_Scatter(COORDINATE coord, unsigned distance, bool lock=false);
@@ -896,7 +897,7 @@ inline int Distance(CELL coord1, CELL coord2)
  *=============================================================================================*/
 inline CELL CellClass::Cell_Number(void) const
 {
-	return(Map.ID(this));
+	return 0;
 }
 #if(0)
 #ifndef NOMEMCHECK

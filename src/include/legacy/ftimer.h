@@ -38,6 +38,8 @@
 #ifndef FTIMER_H
 #define FTIMER_H
 
+extern long Frame;
+
 /*
 **	This timer class is based around an external tick system. As such, it is inherently 
 **	in sync with any connected system (through network or modem) that also keeps the external

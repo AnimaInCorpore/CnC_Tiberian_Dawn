@@ -38,6 +38,9 @@
 #ifndef FUSE_H
 #define FUSE_H
 
+#include "defines.h"
+#include "wwfile.h"
+
 /****************************************************************************
 **	The fuse is used by projectiles to determine whether detonation should
 **	occur. This is usually determined by tracking the distance to the

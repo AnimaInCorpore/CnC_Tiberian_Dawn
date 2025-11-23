@@ -3,17 +3,35 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <vector>
 
+#include "ftimer.h"
 #include "windows_compat.h"
+#include "wintimer_stub.h"
 
 class BufferClass;
-class GraphicBufferClass;
-class WWMouseClass;
-struct PlatformMouseState;
-class TimerClass;
-class CountDownTimerClass;
-class WinTimerClass;
 class FileClass;
+struct PlatformMouseState;
+
+// Basic palette-surface wrapper used by the UI code. This is intentionally
+// minimal for the in-progress SDL port; it just holds an 8-bit buffer and
+// exposes size queries.
+class GraphicBufferClass {
+ public:
+  GraphicBufferClass();
+  GraphicBufferClass(int width, int height, void* data = nullptr);
+
+  bool Is_Valid() const;
+  int Get_Width() const;
+  int Get_Height() const;
+  unsigned char* Get_Buffer();
+  const unsigned char* Get_Buffer() const;
+
+ private:
+  int width_ = 0;
+  int height_ = 0;
+  std::vector<unsigned char> storage_;
+};
 
 // Legacy keyboard constants used throughout the UI code.
 constexpr int KN_NONE = 0x0000;
@@ -94,6 +112,18 @@ class GraphicViewPortClass {
   std::unique_ptr<Impl> impl_;
 };
 
+// Minimal timer shim used by assorted legacy systems.
+class TimerClass {
+ public:
+  TimerClass() = default;
+  explicit TimerClass(long /*ticks*/) {}
+
+  void Reset(long /*ticks*/ = 0) {}
+  void Clear() {}
+  long Time() const { return 0; }
+  bool Expired() const { return false; }
+};
+
 class WWMouseClass {
  public:
   WWMouseClass();
@@ -149,6 +179,12 @@ GraphicViewPortClass* Set_Logic_Page(GraphicViewPortClass& page);
 // Video mode helpers expected by the legacy launch code.
 constexpr int RESET_MODE = -1;
 constexpr int MCGA_MODE = 0;
+constexpr int DEFAULT_SCREEN_WIDTH = 640;
+constexpr int DEFAULT_SCREEN_HEIGHT = 480;
+
+// Timer source hint used by the countdown timers. The original differentiated
+// hardware timers; the stub just keeps the symbolic value.
+constexpr int BT_SYSTEM = 0;
 
 bool Set_Video_Mode(int mode);
 bool Set_Video_Mode(void* window, int width, int height, int bits_per_pixel);

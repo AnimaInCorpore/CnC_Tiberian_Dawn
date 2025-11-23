@@ -58,6 +58,7 @@
 class ControlClass : public GadgetClass
 {
 	public:
+		virtual ~ControlClass();
 		ControlClass(unsigned id, int x, int y, int w, int h, unsigned flags=LEFTPRESS|RIGHTPRESS, int sticky=false);
 //		static ControlClass * Create_One_Of(unsigned id, int x, int y, int w, int h, unsigned flags=LEFTPRESS|RIGHTPRESS, int sticky=false);
 
@@ -86,4 +87,3 @@ class ControlClass : public GadgetClass
 };
 
 #endif
-

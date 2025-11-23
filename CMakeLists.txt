@@ -1,80 +1,41 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.10)
 
-project(TiberianDawn LANGUAGES CXX)
+project(CnC_Tiberian_Dawn CXX)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# The legacy code relies on GNU extensions (designated in the porting brief),
-# so keep them enabled instead of forcing -std=c++14.
-set(CMAKE_CXX_EXTENSIONS ON)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# --- SDL2 ---
+# SDL2 is the portability layer for the ported code. If SDL2 is not present
+# locally, install it via your package manager before configuring.
+find_package(SDL2 REQUIRED)
 
-add_library(td_port STATIC
-  src/PlatformInput.cpp
-  src/CHECKBOX.cpp
-  src/CHEKLIST.cpp
-  src/COLRLIST.cpp
-  src/EDIT.cpp
-  src/GAUGE.cpp
-  src/LAYER.cpp
-  src/LIST.cpp
-  src/LINK.cpp
-  src/MOUSEHELP.cpp
-  src/RADIO.cpp
-  src/RAND.cpp
-  src/SCROLL.cpp
-  src/SHAPEBTN.cpp
-  src/SLIDER.cpp
-  src/GAME.cpp
-  src/TAB.cpp
-  src/TEXTBTN.cpp
-  src/TOGGLE.cpp
-  src/TXTLABEL.cpp
-  src/VECTOR.cpp
-)
+# --- Source Files ---
+file(GLOB_RECURSE SOURCES "src/*.cpp")
 
-target_include_directories(td_port
-  PUBLIC
-    /opt/homebrew/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/include/legacy
-)
+# --- Executable ---
+add_executable(cnc_tiberian_dawn ${SOURCES})
 
-target_compile_definitions(td_port
+# --- Includes / Defines ---
+target_include_directories(
+  cnc_tiberian_dawn
   PRIVATE
-    WIN32_LEAN_AND_MEAN
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/include/legacy
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/include
+    ${SDL2_INCLUDE_DIRS}
+)
+
+target_compile_definitions(
+  cnc_tiberian_dawn
+  PRIVATE
     NOMINMAX
     STRICT=1
+    TD_PORT_USE_SDL2
+    WIN32_LEAN_AND_MEAN
     _CRT_SECURE_NO_WARNINGS
+    SCENARIO_EDITOR
 )
 
-option(TD_PORT_USE_SDL2 "Enable SDL2-backed input helpers" ON)
-
-if(TD_PORT_USE_SDL2)
-  find_package(SDL2 REQUIRED)
-  target_link_libraries(td_port PRIVATE SDL2::SDL2)
-  target_compile_definitions(td_port PUBLIC TD_PORT_USE_SDL2)
-endif()
-
-if(WIN32)
-  target_sources(td_port PRIVATE src/WWLIB.cpp)
-  target_compile_definitions(td_port PRIVATE _WIN32)
-else()
-  add_executable(cnc_tiberian_dawn
-    src/main.cpp
-  )
-  target_link_libraries(cnc_tiberian_dawn PRIVATE td_port)
-endif()
-
-
-
-
-
-
-if(MSVC)
-  target_compile_options(td_port PRIVATE /W4 /permissive-)
-else()
-  target_compile_options(td_port PRIVATE -Wall -Wextra -Wpedantic)
-endif()
+# --- Link Libraries ---
+target_link_libraries(cnc_tiberian_dawn PRIVATE ${SDL2_LIBRARIES})

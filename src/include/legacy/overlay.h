@@ -56,7 +56,7 @@ class OverlayClass : public ObjectClass
 		static void operator delete(void *ptr);
 		OverlayClass(void);
 		OverlayClass(OverlayType type, CELL pos=-1, HousesType = HOUSE_NONE);
-		virtual ~OverlayClass(void) {if (GameActive) OverlayClass::Limbo();};
+		virtual ~OverlayClass(void) = default;
 		operator OverlayType(void) const {return Class->Type;};
 		virtual RTTIType What_Am_I(void) const {return RTTI_OVERLAY;};
 
