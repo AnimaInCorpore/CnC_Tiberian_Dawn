@@ -38,6 +38,34 @@
 #ifndef EXTERNS_H
 #define EXTERNS_H
 
+#include <cstddef>
+#include "vector.h"
+
+class LogicClass;
+class ScoreClass;
+class MixFileClass;
+class ThemeClass;
+class SmudgeClass;
+class OverlayClass;
+template <class T>
+class TFixedIHeapClass;
+template <class T, int N>
+class QueueClass;
+class EventClass;
+class CCFileClass;
+class IPXAddressClass;
+class GraphicBufferClass;
+class GraphicViewPortClass;
+class TimerClass;
+class WWKeyboardClass;
+class WWMouseClass;
+#ifndef NODENAMETYPE_DECLARED
+struct NodeNameTag;
+typedef struct NodeNameTag NodeNameType;
+#endif
+#ifndef HANDLE
+using HANDLE = void*;
+#endif
 #include	"cell.h"
 #include	"getcd.h"
 #include	"nullmodem_stub.h"

@@ -1,4 +1,5 @@
 #include "legacy/defines.h"
+#include "legacy/externs.h"
 #include "RAND.h"
 
 #include <cmath>
@@ -9,12 +10,10 @@
 **  originally split between COORD.CPP and COORDA.ASM.
 */
 
-namespace {
-
 void Move_Point(short& x, short& y, DirType dir, unsigned short distance);
 
-extern unsigned char const Facing8[256];
-extern unsigned char const Pixel2Lepton[24];
+namespace {
+
 constexpr int ICON_PIXEL_W = 24;
 inline int Coord_X(COORDINATE coord) { return static_cast<short>(coord); }
 inline int Coord_Y(COORDINATE coord) {
@@ -142,18 +141,17 @@ COORDINATE Coord_Scatter(COORDINATE coord, unsigned distance, bool lock) {
   return newcoord;
 }
 
+CELL Coord_Cell(COORDINATE coord) {
+  return static_cast<CELL>(Coord_YCell(coord) * MAP_CELL_W +
+                           Coord_XCell(coord));
+}
+
 void Move_Point(short& x, short& y, DirType dir, unsigned short distance) {
   constexpr double kTwoPi = 6.28318530717958647692;
-  const double radians =
-      (static_cast<int>(dir) - 64) * (kTwoPi / 256.0);
+  const double radians = (static_cast<int>(dir) - 64) * (kTwoPi / 256.0);
   const double dx = std::cos(radians) * static_cast<double>(distance);
   const double dy = std::sin(radians) * static_cast<double>(distance);
 
   x = static_cast<short>(std::lround(static_cast<double>(x) + dx));
   y = static_cast<short>(std::lround(static_cast<double>(y) + dy));
-}
-
-CELL Coord_Cell(COORDINATE coord) {
-  return static_cast<CELL>(Coord_YCell(coord) * MAP_CELL_W +
-                           Coord_XCell(coord));
 }

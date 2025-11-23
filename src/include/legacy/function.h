@@ -280,6 +280,7 @@ typedef struct NodeNameTag {
 		} Player;
 	};
 } NodeNameType;
+#define NODENAMETYPE_DECLARED 1
 
 
 #include	"externs.h"
