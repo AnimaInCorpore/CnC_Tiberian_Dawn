@@ -1,4 +1,5 @@
 #include "function.h"
+#include "mapedit.h"
 #include "tab.h"
 
 const void* TabClass::TabShape = nullptr;

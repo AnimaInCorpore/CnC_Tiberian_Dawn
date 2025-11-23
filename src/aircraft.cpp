@@ -1,5 +1,6 @@
 #include "aircraft.h"
 #include "function.h"
+#include "mapedit.h"
 
 void * AircraftClass::VTable;
 

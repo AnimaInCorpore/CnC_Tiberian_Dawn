@@ -44,9 +44,6 @@
 #include	"wintimer_stub.h"
 #include	"mmx_stub.h"
 
-#ifdef SCENARIO_EDITOR
-#include	"mapedit.h"
-#endif
 #include	"techno.h"
 #include	"type.h"
 #include	"building.h"
@@ -129,6 +126,9 @@ extern CELL							Views[4];
 extern GameOptionsClass 		Options;
 
 extern LogicClass 				Logic;
+
+class MapEditClass;
+class MouseClass;
 #ifdef SCENARIO_EDITOR
 extern MapEditClass 				Map;
 #else

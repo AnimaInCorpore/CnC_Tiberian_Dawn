@@ -217,7 +217,6 @@ CELL Coord_Cell(COORDINATE coord);
 #include	"sidebar.h"
 #include	"tab.h"
 #include	"help.h"
-#include	"mouse.h"
 //#include	"mapedit.h"
 #include	"help.h"
 #include	"target.h"
@@ -225,7 +224,6 @@ CELL Coord_Cell(COORDINATE coord);
 #include	"team.h"				// Team objects.
 #include	"teamtype.h"		// Team type objects.
 #include	"trigger.h"			// Trigger event objects.
-#include	"mapedit.h"			// ???
 #include	"abstract.h"
 #include "object.h"
 #include "mission.h"
