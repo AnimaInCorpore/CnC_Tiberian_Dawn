@@ -1,4 +1,4 @@
-#include "VECTOR.h"
+#include "vector.h"
 
 #include <cstring>
 

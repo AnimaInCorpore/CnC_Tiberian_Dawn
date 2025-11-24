@@ -1,4 +1,4 @@
-#include "RAND.h"
+#include "rand.h"
 
 #include <algorithm>
 #include <cstdint>

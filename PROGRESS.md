@@ -1,27 +1,27 @@
 | Legacy file | Modern path | Notes |
 | --- | --- | --- |
-| `GLOBALS.CPP` | `src/GLOBALS.cpp` | Ported to src/, replaced NULL with nullptr, and disabled legacy networking code. |
-| `FTIMER.H` | `src/FTIMER.h` | Countdown timer helper rewritten with `#pragma once` and the global `Frame` counter. |
-| `RAND.H` | `src/RAND.h` | Random helper declarations cleaned up to use `<cstdint>` types. |
-| `RAND.CPP` | `src/RAND.cpp` | Random lookup table logic now relies on standard headers and explicit scaling. |
-| `VECTOR.H` | `src/VECTOR.h` | Vector template modernized with RAII allocation and portable guards. |
-| `VECTOR.CPP` | `src/VECTOR.cpp` | Boolean vector utilities rewritten around clear helpers and `std::memcpy`. |
-| `LINK.CPP` | `src/LINK.cpp` | Doubly linked helper now uses `nullptr` checks and RAII-friendly removal. |
-| `LAYER.CPP` | `src/LAYER.cpp` | Layer manager handles sorting and save/load helpers with portable pointer coding. |
-| `LIST.CPP` | `src/LIST.cpp` | List gadget clamps indices, wires the scroll peers, and manages slider state in pure C++. |
-| `RADIO.CPP` | `src/RADIO.cpp` | Radio messaging logic wrapped in portable helpers with `nullptr`-safe contact handling. |
-| `TAB.CPP` | `src/TAB.cpp` | Sidebar tab UI now lives in `src/` with `nullptr` guards and cleaned text drawing helpers. |
-| `TOGGLE.CPP` | `src/TOGGLE.cpp` | Windows-style toggle gadget refactored with explicit hover handling and sticky state flow. |
-| `TXTLABEL.CPP` | `src/TXTLABEL.cpp` | Text label gadget retained the quirky format print path with optional clipping width tracking. |
-| `CHECKBOX.CPP` | `src/CHECKBOX.cpp` | Checkbox gadget draws the interior using the shared box helpers and keeps mouse flicker hidden. |
-| `CHEKLIST.CPP` | `src/CHEKLIST.cpp` | Check list delegates selection to `ListClass` then toggles the inline checkmark unless read-only. |
-| `COLRLIST.CPP` | `src/COLRLIST.cpp` | Color-aware list tracks a parallel color vector and draws selected entries using the requested style. |
-| `EDIT.CPP` | `src/EDIT.cpp` | Edit control rebuilt with explicit focus handling, read-only guards, and caret drawing driven by the modern viewport helpers. |
-| `GAUGE.CPP` | `src/GAUGE.cpp` | Gauge widgets now render their fill/tri-color bars via the modern viewport helpers and honor sticky mouse drags. |
-| `SHAPEBTN.CPP` | `src/SHAPEBTN.cpp` | Shape buttons wrap the common `ToggleClass` flow and pick the correct frame for disabled/pressed/reflect modes. |
-| `SLIDER.CPP` | `src/SLIDER.cpp` | Slider gadget now owns its plus/minus peers, recalculates thumb geometry, and handles clicks outside the thumb area. |
-| `SCROLL.CPP` | `src/SCROLL.cpp` | Map edge scrolling now clamps the virtual cursor, honors inertia, and keeps the mouse override logic intact. |
-| `TEXTBTN.CPP` | `src/TEXTBTN.cpp` | Text buttons resize around the assigned label, draw Windows-style boxes, and respect the green gradient flags. |
+| `GLOBALS.CPP` | `src/globals.cpp` | Ported to src/, replaced NULL with nullptr, and disabled legacy networking code. |
+| `FTIMER.H` | `src/ftimer.h` | Countdown timer helper rewritten with `#pragma once` and the global `Frame` counter. |
+| `RAND.H` | `src/rand.h` | Random helper declarations cleaned up to use `<cstdint>` types. |
+| `RAND.CPP` | `src/rand.cpp` | Random lookup table logic now relies on standard headers and explicit scaling. |
+| `VECTOR.H` | `src/vector.h` | Vector template modernized with RAII allocation and portable guards. |
+| `VECTOR.CPP` | `src/vector.cpp` | Boolean vector utilities rewritten around clear helpers and `std::memcpy`. |
+| `LINK.CPP` | `src/link.cpp` | Doubly linked helper now uses `nullptr` checks and RAII-friendly removal. |
+| `LAYER.CPP` | `src/layer.cpp` | Layer manager handles sorting and save/load helpers with portable pointer coding. |
+| `LIST.CPP` | `src/list.cpp` | List gadget clamps indices, wires the scroll peers, and manages slider state in pure C++. |
+| `RADIO.CPP` | `src/radio.cpp` | Radio messaging logic wrapped in portable helpers with `nullptr`-safe contact handling. |
+| `TAB.CPP` | `src/tab.cpp` | Sidebar tab UI now lives in `src/` with `nullptr` guards and cleaned text drawing helpers. |
+| `TOGGLE.CPP` | `src/toggle.cpp` | Windows-style toggle gadget refactored with explicit hover handling and sticky state flow. |
+| `TXTLABEL.CPP` | `src/txtlabel.cpp` | Text label gadget retained the quirky format print path with optional clipping width tracking. |
+| `CHECKBOX.CPP` | `src/checkbox.cpp` | Checkbox gadget draws the interior using the shared box helpers and keeps mouse flicker hidden. |
+| `CHEKLIST.CPP` | `src/cheklist.cpp` | Check list delegates selection to `ListClass` then toggles the inline checkmark unless read-only. |
+| `COLRLIST.CPP` | `src/colrlist.cpp` | Color-aware list tracks a parallel color vector and draws selected entries using the requested style. |
+| `EDIT.CPP` | `src/edit.cpp` | Edit control rebuilt with explicit focus handling, read-only guards, and caret drawing driven by the modern viewport helpers. |
+| `GAUGE.CPP` | `src/gauge.cpp` | Gauge widgets now render their fill/tri-color bars via the modern viewport helpers and honor sticky mouse drags. |
+| `SHAPEBTN.CPP` | `src/shapebtn.cpp` | Shape buttons wrap the common `ToggleClass` flow and pick the correct frame for disabled/pressed/reflect modes. |
+| `SLIDER.CPP` | `src/slider.cpp` | Slider gadget now owns its plus/minus peers, recalculates thumb geometry, and handles clicks outside the thumb area. |
+| `SCROLL.CPP` | `src/scroll.cpp` | Map edge scrolling now clamps the virtual cursor, honors inertia, and keeps the mouse override logic intact. |
+| `TEXTBTN.CPP` | `src/textbtn.cpp` | Text buttons resize around the assigned label, draw Windows-style boxes, and respect the green gradient flags. |
 | `AADATA.CPP` | `src/aadata.cpp` | Ported to src/, replaced NULL with nullptr, `stricmp` with `strcasecmp`, `sprintf` and `_makepath` with `std::string` manipulation, and updated include path for `function.h`. |
 | `ADATA.CPP` | `src/adata.cpp` | Ported to src/, updated include to the legacy shim, and replaced `_makepath` with `std::string` construction for SHP lookup. |
 | `ABSTRACT.CPP` | | To be ported. |
@@ -45,7 +45,7 @@
 | `COMQUEUE.CPP` | | To be ported. |
 | `CONFDLG.CPP` | | To be ported. |
 | `CONNECT.CPP` | | To be ported. |
-| `CONQUER.CPP` | `src/CONQUER.cpp` | Ported to src/, replaced NULL with nullptr, and disabled platform-specific code (DOS, Windows API, DDE, IPX). |
+| `CONQUER.CPP` | `src/conquer.cpp` | Ported to src/, replaced NULL with nullptr, and disabled platform-specific code (DOS, Windows API, DDE, IPX). |
 | `CONST.CPP` | | To be ported. |
 | `CONTROL.CPP` | | To be ported. |
 | `COORD.CPP` | | To be ported. |
@@ -82,7 +82,7 @@
 | `IDATA.CPP` | | To be ported. |
 | `INFANTRY.CPP` | | To be ported. |
 | `INI.CPP` | | To be ported. |
-| `INIT.CPP` | `src/INIT.cpp` | Ported to src/, replaced NULL with nullptr, and disabled platform-specific code (DOS, DDE, Winsock). |
+| `INIT.CPP` | `src/init.cpp` | Ported to src/, replaced NULL with nullptr, and disabled platform-specific code (DOS, DDE, Winsock). |
 | `INTERNET.CPP` | | To be ported. |
 | `INTERPAL.CPP` | | To be ported. |
 | `INTRO.CPP` | | To be ported. |
@@ -138,7 +138,7 @@
 | `SMUDGE.CPP` | | To be ported. |
 | `SOUNDDLG.CPP` | | To be ported. |
 | `SPECIAL.CPP` | | To be ported. |
-| `STARTUP.CPP` | `src/STARTUP.cpp` | Win32 entry path rebuilt with portable Win32 shims and simplified video/audio setup so the modern build can drive `Main_Game`. |
+| `STARTUP.CPP` | `src/startup.cpp` | Win32 entry path rebuilt with portable Win32 shims and simplified video/audio setup so the modern build can drive `Main_Game`. |
 | `STATS.CPP` | | To be ported. |
 | `SUPER.CPP` | | To be ported. |
 | `TARCOM.CPP` | | To be ported. |

@@ -1,6 +1,6 @@
 #include <SDL2/SDL.h>
 #include "platform_input.h"
-#include "GAME.h"
+#include "game.h"
 
 void Game_Startup(int argc, char* argv[]);
 void Game_Shutdown(void);

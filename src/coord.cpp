@@ -1,6 +1,6 @@
 #include "legacy/defines.h"
 #include "legacy/externs.h"
-#include "RAND.h"
+#include "rand.h"
 
 #include <cmath>
 #include <cstdint>
