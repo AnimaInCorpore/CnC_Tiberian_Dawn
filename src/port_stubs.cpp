@@ -30,11 +30,7 @@ int Bound(int value, int min, int max) {
   return value;
 }
 
-void CCDebugString(char const* string) {
-  if (string) {
-    std::fputs(string, stderr);
-  }
-}
+void CCDebugString(char* string) { std::fputs(string ? string : "", stderr); }
 
 void Mono_Clear_Screen() {}
 

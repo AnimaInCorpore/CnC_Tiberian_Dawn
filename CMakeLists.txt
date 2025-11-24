@@ -14,6 +14,11 @@ find_package(SDL2 REQUIRED)
 
 # --- Source Files ---
 file(GLOB_RECURSE SOURCES "src/*.cpp")
+list(REMOVE_ITEM SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/gameplay_class_stubs.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/gadget_control_stub.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/legacy_vtables.cpp
+)
 
 # --- Library with all ported sources ---
 add_library(td_port STATIC ${SOURCES})
@@ -40,7 +45,7 @@ target_compile_definitions(
 
 # --- Optional executable (disabled by default until more gameplay code is ported) ---
 if(TD_BUILD_EXE)
-  add_executable(cnc_tiberian_dawn ${SOURCES})
+  add_executable(cnc_tiberian_dawn src/main.cpp)
   target_link_libraries(cnc_tiberian_dawn PRIVATE td_port ${SDL2_LIBRARIES})
   target_include_directories(
     cnc_tiberian_dawn

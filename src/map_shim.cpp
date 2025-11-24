@@ -1,5 +1,5 @@
 #include "legacy/map_shim.h"
-#include "legacy/real.h"
+#include "legacy/function.h"
 
 MapStubClass::MapStubClass()
     : PendingHouse(HOUSE_NONE),
