@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -26,6 +27,7 @@ class GraphicBufferClass {
   int Get_Height() const;
   unsigned char* Get_Buffer();
   const unsigned char* Get_Buffer() const;
+  void Clear() { std::fill(storage_.begin(), storage_.end(), 0); }
 
  private:
   int width_ = 0;

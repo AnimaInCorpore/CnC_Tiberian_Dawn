@@ -723,7 +723,7 @@ inline COORDINATE XYP_Coord(int x,int y) {return XY_Coord(Pixel_To_Lepton(x), Pi
 inline char const * Text_String(int string) {return(Extract_String(SystemStrings, string));};
 
 
-template<class T> inline T Random_Picky(T a, T b, char *sfile, int line)
+template<class T> inline T Random_Picky(T a, T b, char const *sfile, int line)
 {
 	sfile = sfile;
 	line = line;

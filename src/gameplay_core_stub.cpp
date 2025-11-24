@@ -17,8 +17,6 @@ void MapClass::Init_Cells(void) {}
 
 ObjectClass* MapClass::Close_Object(COORDINATE) const { return nullptr; }
 
-void MapClass::Detach(ObjectClass*) {}
-
 int MapClass::Cell_Region(CELL) { return 0; }
 
 int MapClass::Cell_Threat(CELL, HousesType) { return 0; }
@@ -39,7 +37,7 @@ void MapClass::Overlap_Up(CELL, ObjectClass*) {}
 
 bool MapClass::Read_Binary(char const*, unsigned long*) { return false; }
 
-bool MapClass::Write_Binary(char const*, unsigned long*) { return false; }
+bool MapClass::Write_Binary(char const*) { return false; }
 
 bool MapClass::Place_Random_Crate(void) { return false; }
 

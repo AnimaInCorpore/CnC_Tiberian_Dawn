@@ -38,8 +38,13 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include	"map.h"
-#include	"layer.h"
+#include "map.h"
+#include "layer.h"
+
+class HouseClass;
+class ObjectClass;
+class ObjectTypeClass;
+class TechnoClass;
 
 
 #define	ICON_PIXEL_W	 		24

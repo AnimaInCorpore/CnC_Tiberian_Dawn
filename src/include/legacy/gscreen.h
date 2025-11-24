@@ -38,8 +38,12 @@
 #ifndef GSCREEN_H
 #define GSCREEN_H
 
-#include	"function.h"
-#include	"cell.h"
+#include "compat.h"
+#include "defines.h"
+#include "vector.h"
+#include "gadget.h"
+#include "cell.h"
+#include <wwlib32.h>
 
 class GScreenClass : public VectorClass<CellClass>
 {
