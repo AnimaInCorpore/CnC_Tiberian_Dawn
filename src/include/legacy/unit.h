@@ -178,7 +178,7 @@ class UnitClass :	public TarComClass
 		*/
 		static void  Read_INI(char *buffer);
 		static void  Write_INI(char *buffer);
-		static char *INI_Name(void) {return "UNITS";};
+		static constexpr const char *INI_Name(void) {return "UNITS";};
 		bool  Load(FileClass & file);
 		bool  Save(FileClass & file);
 		virtual void Code_Pointers(void);
