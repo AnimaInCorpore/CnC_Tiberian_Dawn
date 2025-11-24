@@ -82,6 +82,10 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #include	"function.h"
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+#include <cstdlib>
 
 
 int const InfantryClass::HumanShape[32] = {0,0,7,7,7,7,6,6,6,6,5,5,5,5,5,4,4,4,3,3,3,3,2,2,2,2,1,1,1,1,1,0};
@@ -402,7 +406,7 @@ ResultType InfantryClass::Take_Damage(int & damage, int distance, WarheadType wa
 	if (damage && res != RESULT_DESTROYED && *this == INFANTRY_E4) {
 		damage = 5;
 		ResultType newres = FootClass::Take_Damage(damage, distance, warhead, source);
-		res = MAX(res, newres);
+		res = std::max(res, newres);
 	}
 
 	if (res == RESULT_NONE) return(res);
@@ -504,7 +508,7 @@ ResultType InfantryClass::Take_Damage(int & damage, int distance, WarheadType wa
 	**	When infantry gets hit, it gets scared.
 	*/
 	if (res != RESULT_DESTROYED) {
-		COORDINATE c4 = (source) ? source->Coord : NULL;
+		COORDINATE c4 = (source) ? source->Coord : 0;
 		if (source) {
 			Scatter(c4);
 		}
@@ -535,7 +539,7 @@ ResultType InfantryClass::Take_Damage(int & damage, int distance, WarheadType wa
 			} else {
 				int morefear = FEAR_ANXIOUS;
 				if (Health_Ratio() > 0x0080) morefear /= 4;
-				Fear = MIN((int)Fear + morefear, FEAR_MAXIMUM);
+				Fear = std::min(static_cast<int>(Fear) + morefear, FEAR_MAXIMUM);
 			}
 #ifdef BOXING
 		}
@@ -598,7 +602,7 @@ void InfantryClass::Draw_It(int x, int y, WindowNumberType window)
 	if (doit == DO_NOTHING) doit = DO_STAND_READY;
 
 	shapenum = Class->DoControls[doit].Count;
-	shapenum = Fetch_Stage() % MAX(shapenum, 1);
+	shapenum = Fetch_Stage() % std::max(shapenum, 1);
 	if (Class->DoControls[doit].Jump) {
 		shapenum += facenum * Class->DoControls[doit].Jump;
 	}
@@ -640,7 +644,7 @@ void InfantryClass::Draw_It(int x, int y, WindowNumberType window)
 void InfantryClass::Per_Cell_Process(bool center)
 {
 	Validate();
-	CellClass *cellptr = &Map[Coord_Cell(Coord)];
+	auto* cellptr = &Map[Coord_Cell(Coord)];
 
 	/*
 	**	If the infantry unit is entering a cell that contains the building it is trying to
@@ -1525,7 +1529,7 @@ MoveType InfantryClass::Can_Enter_Cell(CELL cell, FacingType ) const
 	if (IsLocked && !IsALoaner && !ScenarioInit && !Map.In_Radar(cell)) {
 		return(MOVE_NO);
 	}
-	CellClass * cellptr = &Map[cell];
+	auto* cellptr = &Map[cell];
 
 	/*
 	**	Walls are considered impassable for infantry UNLESS the wall has a hole
@@ -1793,7 +1797,7 @@ FireErrorType InfantryClass::Can_Fire(TARGET target, int which) const
 	*/
 	if (!Special.IsDefenderAdvantage && IsDriving) {
 		int diff = PrimaryFacing.Difference(Direction(TarCom));
-		if (ABS(diff) >= 32) {
+		if (std::abs(diff) >= 32) {
 			return(FIRE_MOVING);
 		}
 	}
@@ -1868,7 +1872,7 @@ void InfantryClass::Random_Animate(void)
 		**		"When in darkness or in doubt, run in circles, scream, and shout!"
 		*/
 		if (Class->IsFraidyCat && !House->IsHuman && Fear > FEAR_ANXIOUS) {
-			Scatter(NULL, true);
+			Scatter(0, true);
 			return;
 		}
 
@@ -1886,7 +1890,7 @@ void InfantryClass::Random_Animate(void)
 			}
 		}
 
-		switch (Random_Picky((int)0, (int)55, (char*)NULL, (int)0)) {
+		switch (Random_Picky((int)0, (int)55, (char*)nullptr, (int)0)) {
 			case 10:
 				Do_Action(DO_SALUTE1);
 				break;
@@ -1944,7 +1948,7 @@ void InfantryClass::Random_Animate(void)
 			case 8:
 			case 9:
 				if (!House->IsHuman && Class->IsFraidyCat) {
-					Scatter(NULL, true);
+					Scatter(0, true);
 				}
 				break;
 		}
@@ -2273,7 +2277,7 @@ bool InfantryClass::Limbo(void)
 BulletClass * InfantryClass::Fire_At(TARGET target, int which)
 {
 	Validate();
-	BulletClass * bullet = NULL;
+	BulletClass * bullet = nullptr;
 	WeaponTypeClass const * weapon = (which == 0) ? &Weapons[Class->Primary] : &Weapons[Class->Secondary];
 
 	IsFiring = false;
@@ -2357,7 +2361,7 @@ bool InfantryClass::Unlimbo(COORDINATE coord, DirType facing)
 	**	Make sure that the infantry start in a legal position on the map.
 	*/
 	coord = Map[Coord_Cell(coord)].Closest_Free_Spot(coord, ScenarioInit);
-	if (coord == NULL) {
+	if (coord == 0) {
 		return(false);
 	}
 
@@ -2878,14 +2882,14 @@ void InfantryClass::Read_INI(char *buffer)
 	/*------------------------------------------------------------------------
 	Read the entire INFANTRY INI section into HIDBUF
 	------------------------------------------------------------------------*/
-	WWGetPrivateProfileString(INI_Name(), NULL, NULL, tbuffer, ShapeBufferSize-len, buffer);
+	WWGetPrivateProfileString(INI_Name(), nullptr, nullptr, tbuffer, ShapeBufferSize - len, buffer);
 
 	while (*tbuffer != '\0') {
 
 		/*
 		**	Get an infantry entry
 		*/
-		WWGetPrivateProfileString(INI_Name(), tbuffer, NULL, buf, sizeof(buf)-1, buffer);
+		WWGetPrivateProfileString(INI_Name(), tbuffer, nullptr, buf, sizeof(buf) - 1, buffer);
 
 		/*
 		**	1st token: house name.
@@ -2916,7 +2920,7 @@ void InfantryClass::Read_INI(char *buffer)
 					/*
 					**	5th token: cell sub-location.
 					*/
-					coord = Coord_Add(coord & 0xFF00FF00L, StoppingCoordAbs[atoi(strtok(NULL, ","))]);
+					coord = Coord_Add(coord & 0xFF00FF00L, StoppingCoordAbs[atoi(strtok(nullptr, ","))]);
 
 					/*
 					**	Fetch the mission and facing.
@@ -2982,9 +2986,9 @@ void InfantryClass::Write_INI(char *buffer)
 	**	First, clear out all existing infantry data from the ini file.
 	*/
 	tbuffer = buffer + strlen(buffer) + 2;
-	WWGetPrivateProfileString(INI_Name(), NULL, NULL, tbuffer, ShapeBufferSize-strlen(buffer), buffer);
+	WWGetPrivateProfileString(INI_Name(), nullptr, nullptr, tbuffer, ShapeBufferSize - strlen(buffer), buffer);
 	while (*tbuffer != '\0') {
-		WWWritePrivateProfileString(INI_Name(), tbuffer, NULL, buffer);
+		WWWritePrivateProfileString(INI_Name(), tbuffer, nullptr, buffer);
 		tbuffer += strlen(tbuffer)+1;
 	}
 
@@ -2997,8 +3001,8 @@ void InfantryClass::Write_INI(char *buffer)
 		infantry = Infantry.Ptr(index);
 		if (!infantry->IsInLimbo) {
 
-			sprintf(uname, "%03d", index);
-			sprintf(buf, "%s,%s,%d,%u,%d,%s,%d,%s",
+			std::snprintf(uname, sizeof(uname), "%03d", index);
+			std::snprintf(buf, sizeof(buf), "%s,%s,%d,%u,%d,%s,%d,%s",
 					infantry->House->Class->IniName,
 					infantry->Class->IniName,
 					infantry->Health_Ratio(),

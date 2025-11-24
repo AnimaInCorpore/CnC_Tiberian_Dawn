@@ -872,7 +872,7 @@ bool ObjectClass::Render(bool forced)
 			**	relative, so add the window's x-coord to 'x'.
 			*/
 			if (Debug_Map && Trigger) {
-				Fancy_Text_Print(Trigger->Get_Name(), x + (WinX<<3), y, PINK, TBLACK, TPF_CENTER | TPF_NOSHADOW | TPF_6POINT);
+				Fancy_Text_Print(Trigger->Get_Name(), x, y, PINK, TBLACK, TPF_CENTER | TPF_NOSHADOW | TPF_6POINT);
 			}
 #endif
 
@@ -1504,4 +1504,3 @@ short const * ObjectClass::Overlap_List(void) const {return(Class_Of().Overlap_L
 BuildingClass * ObjectClass::Who_Can_Build_Me(bool intheory, bool legal) const {return(Class_Of().Who_Can_Build_Me(intheory, legal, Owner()));};
 unsigned ObjectClass::Health_Ratio(void) const {return(Cardinal_To_Fixed(Class_Of().MaxStrength, Strength));};
 int ObjectClass::Full_Name(void) const {return Class_Of().Full_Name();};
-

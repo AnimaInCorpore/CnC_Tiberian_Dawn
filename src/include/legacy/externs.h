@@ -155,13 +155,8 @@ extern GameOptionsClass 		Options;
 
 extern LogicClass 				Logic;
 
-class MapEditClass;
-class MouseClass;
-#ifdef SCENARIO_EDITOR
-extern MapEditClass 				Map;
-#else
-extern MouseClass 				Map;
-#endif
+class MapStubClass;
+extern MapStubClass 				Map;
 extern ScoreClass 				Score;
 extern MonoClass 					MonoArray[MonoClass::MAX_MONO_PAGES];
 extern MixFileClass *			ScoreMix;
@@ -228,7 +223,7 @@ extern unsigned char *		OriginalPalette;
 extern int						EndCountDown;
 extern bool						GameActive;
 extern bool						SpecialFlag;
-extern bool						ScenarioInit;
+extern int						ScenarioInit;
 extern long						TutorFlags[2];
 extern HouseClass *			PlayerPtr;
 extern unsigned char *		BlackPalette;

@@ -211,6 +211,7 @@ CELL Coord_Cell(COORDINATE coord);
 #include	"house.h"
 #include	"gscreen.h"
 #include	"map.h"
+#include	"map_shim.h"
 #include	"display.h"
 #include	"radar.h"
 #include	"power.h"
@@ -306,7 +307,7 @@ int Sound_Effect(VocType voc, VolType volume, int variation=1, signed short panv
 void Speak(VoxType voice);
 void Speak_AI(void);
 void Stop_Speaking(void);
-void Sound_Effect(VocType voc, COORDINATE coord=NULL, int variation=1);
+void Sound_Effect(VocType voc, COORDINATE coord=0, int variation=1);
 bool Is_Speaking(void);
 
 /*
@@ -338,6 +339,8 @@ char const *Name_From_Source(SourceType source);
 FacingType KN_To_Facing(int input);
 void const *Get_Radar_Icon(void const *shapefile, int shapenum, int frames, int zoomfactor);
 void CC_Draw_Shape(void const * shapefile, int shapenum, int x, int y, WindowNumberType window, ShapeFlags_Type flags, void const * fadingdata=0, void const * ghostdata=0);
+void* Add_Long_To_Pointer(void* ptr, long offset);
+void Buffer_To_Page(int x, int y, int width, int height, void const* src, GraphicBufferClass& dest);
 void Go_Editor(bool flag);
 long MixFileHandler(VQAHandle *vqa, long action, void *buffer, long nbytes);
 
@@ -350,7 +353,7 @@ void Heap_Dump_Check( char *string );
 void Dump_Heap_Pointers( void );
 unsigned long Disk_Space_Available(void);
 
-void Validate_Error(char *name);
+void Validate_Error(char const *name);
 void const * Hires_Retrieve(char *name);
 int Get_Resolution_Factor(void);
 
@@ -631,6 +634,8 @@ void Map_Selection(void);
 void Bit_It_In_Scale(int x, int y, int w, int h, GraphicBufferClass *src, GraphicBufferClass *dest, GraphicViewPortClass *seen , int delay=0, int dagger=0);
 void Bit_It_In(int x, int y, int w, int h, GraphicBufferClass *src, GraphicBufferClass *dest, int delay=0, int dagger=0);
 void Call_Back_Delay(int time);
+void Delay(int ticks);
+void Shake_Screen(int shakes);
 int Alloc_Object(ScoreAnimClass *obj);
 extern GraphicBufferClass *PseudoSeenBuff;
 

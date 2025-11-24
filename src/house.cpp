@@ -100,6 +100,7 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #include <algorithm>
+#include <cstdio>
 #include <cstring>
 #include "function.h"
 #include "legacy/base.h"
@@ -130,7 +131,7 @@ int HouseClass::Validate(void) const
 
 	num = Houses.ID(this);
 	if (num < 0 || num >= HOUSE_COUNT) {
-		Validate_Error(const_cast<char*>("HOUSE"));
+		Validate_Error("HOUSE");
 		return (0);
 	}
 	else
@@ -1878,7 +1879,7 @@ void HouseClass::Make_Ally(HousesType house)
 				}
 			}
 
-			sprintf(buffer, Text_String(TXT_HAS_ALLIED), Name, HouseClass::As_Pointer(house)->Name);
+			std::snprintf(buffer, sizeof(buffer), Text_String(TXT_HAS_ALLIED), Name, HouseClass::As_Pointer(house)->Name);
 			Messages.Add_Message(buffer, MPlayerTColors[RemapColor], TPF_6PT_GRAD|TPF_USE_GRAD_PAL|TPF_FULLSHADOW, 1200, 0, 0);
 			Map.Flag_To_Redraw(false);
 		}
@@ -1915,7 +1916,7 @@ void HouseClass::Make_Enemy(HousesType house)
 		if ((Debug_Flag || GameToPlay != GAME_NORMAL) && !ScenarioInit) {
 			char buffer[80];
 
-			sprintf(buffer, Text_String(TXT_AT_WAR), Name, enemy->Name);
+			std::snprintf(buffer, sizeof(buffer), Text_String(TXT_AT_WAR), Name, enemy->Name);
 			Messages.Add_Message(buffer, MPlayerTColors[RemapColor], TPF_6PT_GRAD|TPF_USE_GRAD_PAL|TPF_FULLSHADOW, 600, 0, 0);
 			Map.Flag_To_Redraw(false);
 		}
@@ -2209,9 +2210,9 @@ ProdFailType HouseClass::Suspend_Production(RTTIType type)
 	**	Tell the sidebar that it needs to be redrawn because of this.
 	*/
 	if (PlayerPtr == this) {
-		Map.SidebarClass::IsToRedraw = true;
-		Map.SidebarClass::Column[0].IsToRedraw = true;
-		Map.SidebarClass::Column[1].IsToRedraw = true;
+		Map.IsToRedraw = true;
+		Map.Column[0].IsToRedraw = true;
+		Map.Column[1].IsToRedraw = true;
 		Map.Flag_To_Redraw(false);
 	}
 
@@ -3681,7 +3682,7 @@ void HouseClass::MPlayer_Defeated(void)
 		/*.....................................................................
 		Pop up a message showing that I was defeated
 		.....................................................................*/
-		sprintf(txt,Text_String(TXT_PLAYER_DEFEATED), MPlayerName);
+		std::snprintf(txt, sizeof(txt), Text_String(TXT_PLAYER_DEFEATED), MPlayerName);
 		Messages.Add_Message(txt, MPlayerTColors[MPlayerColorIdx], TPF_6PT_GRAD|TPF_USE_GRAD_PAL|TPF_FULLSHADOW, 600, 0, 0);
 		Map.Flag_To_Redraw(false);
 
@@ -3691,12 +3692,12 @@ void HouseClass::MPlayer_Defeated(void)
 		If it wasn't me, find out who was defeated
 		------------------------------------------------------------------------*/
 		if (IsHuman) {
-			sprintf(txt, Text_String(TXT_PLAYER_DEFEATED), Text_String(TXT_UNKNOWN));
+			std::snprintf(txt, sizeof(txt), Text_String(TXT_PLAYER_DEFEATED), Text_String(TXT_UNKNOWN));
 			id = 0;
 			for (i = 0; i < MPlayerCount; i++) {
 				house = MPlayerHouses[i];
 				if (HouseClass::As_Pointer(house) == this) {
-					sprintf (txt,Text_String(TXT_PLAYER_DEFEATED), MPlayerNames[i]);
+					std::snprintf(txt, sizeof(txt), Text_String(TXT_PLAYER_DEFEATED), MPlayerNames[i]);
 					id = MPlayerID[i];
 				}
 			}

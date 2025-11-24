@@ -17,7 +17,8 @@ int IPXConnClass::Configured = 0;
 int IPXConnClass::SocketOpen = 0;
 int IPXConnClass::Listening = 0;
 
-IPXConnClass::IPXConnClass(int, int, int, unsigned short, IPXAddressClass* address, int id, char* name) {
+IPXConnClass::IPXConnClass(int numsend, int numreceive, int maxlen, unsigned short magicnum, IPXAddressClass* address, int id, char* name)
+    : NonSequencedConnClass(numsend, numreceive, maxlen, magicnum, 0, 0, 0) {
 	if (address) {
 		Address = *address;
 	}

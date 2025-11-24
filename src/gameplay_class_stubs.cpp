@@ -240,3 +240,61 @@ FootClass::FootClass() : TechnoClass(), Speed(0) {}
 FootClass::FootClass(HousesType house) : TechnoClass(house), Speed(0) {}
 FootClass::~FootClass() = default;
 bool FootClass::Unlimbo(COORDINATE, DirType) { return true; }
+void FootClass::Sell_Back(int) {}
+int FootClass::Offload_Tiberium_Bail(void) { return 0; }
+void FootClass::Detach(TARGET, bool) {}
+void FootClass::Detach_All(bool) {}
+void FootClass::Assign_Mission(MissionType) {}
+int FootClass::Mission_Enter(void) { return 0; }
+int FootClass::Mission_Move(void) { return 0; }
+int FootClass::Mission_Capture(void) { return 0; }
+int FootClass::Mission_Attack(void) { return 0; }
+int FootClass::Mission_Guard(void) { return 0; }
+int FootClass::Mission_Hunt(void) { return 0; }
+int FootClass::Mission_Timed_Hunt(void) { return 0; }
+int FootClass::Mission_Guard_Area(void) { return 0; }
+void FootClass::Per_Cell_Process(bool) {}
+void FootClass::Approach_Target(void) {}
+void FootClass::Set_Speed(int) {}
+void FootClass::Override_Mission(MissionType, TARGET, TARGET) {}
+bool FootClass::Restore_Mission(void) { return false; }
+void FootClass::Code_Pointers(void) {}
+void FootClass::Decode_Pointers(void) {}
+int FootClass::Rescue_Mission(TARGET) { return 0; }
+void FootClass::Stun(void) {}
+bool FootClass::Mark(MarkType) { return false; }
+MoveType FootClass::Can_Enter_Cell(CELL, FacingType) const { return MOVE_OK; }
+void FootClass::Active_Click_With(ActionType, ObjectClass*) {}
+void FootClass::Active_Click_With(ActionType, short) {}
+bool FootClass::Start_Driver(COORDINATE&) { return false; }
+
+HelpClass::~HelpClass() = default;
+HelpClass::HelpClass() : HelpX(0), HelpY(0), HelpWidth(0), Cost(0), X(0), Y(0), DrawX(0), DrawY(0), Width(0), Text(0), IsRight(0) {}
+void HelpClass::Init_Clear(void) {}
+void HelpClass::Draw_It(bool) {}
+void HelpClass::AI(KeyNumType&, int, int) {}
+bool HelpClass::Scroll_Map(DirType, int& distance, bool) { distance = 0; return false; }
+void HelpClass::Set_Tactical_Position(COORDINATE) {}
+void HelpClass::Help_Text(int, int, int, int, bool, int) {}
+void HelpClass::Set_Cost(int) {}
+short const* HelpClass::Overlap_List(void) const { return nullptr; }
+void HelpClass::Code_Pointers(void) {}
+void HelpClass::Decode_Pointers(void) {}
+
+MonoClass::MonoClass() = default;
+MonoClass::~MonoClass() = default;
+void MonoClass::Set_Cursor(int, int) {}
+void MonoClass::Text_Print(char const*, int, int, char) {}
+void MonoClass::Print(char const*) {}
+void MonoClass::Printf(char const*, ...) {}
+
+TarComClass::~TarComClass() = default;
+void TarComClass::AI(void) {}
+void TarComClass::Code_Pointers(void) {}
+void TarComClass::Decode_Pointers(void) {}
+
+void TeamClass::Suspend_Teams(int) {}
+bool TeamClass::Remove(FootClass*, int) { return false; }
+void TeamClass::Detach(TARGET, bool) {}
+
+int OptionsClass::Normalize_Delay(int delay) const { return delay; }

@@ -167,11 +167,11 @@ class IPXManagerClass : public ConnManClass
 		/*.....................................................................
 		Initialization routines.
 		.....................................................................*/
-		int Init (void);
+		void Init (void);
 		int Is_IPX(void);
 		virtual void Set_Timing (unsigned long retrydelta, unsigned long maxretries,
 			unsigned long timeout);
-		void Set_Bridge(NetNumType bridge);
+		bool Set_Bridge(IPXAddressClass* address);
 
 		/*.....................................................................
 		These routines control creation of the "Connections" (data queues) for
@@ -188,8 +188,7 @@ class IPXManagerClass : public ConnManClass
 		/*.....................................................................
 		This is how the application sends & receives messages.
 		.....................................................................*/
-		int Send_Global_Message (void *buf, int buflen, int ack_req = 0,
-			IPXAddressClass *address = NULL);
+		int Send_Global_Message (void *buf, int buflen, IPXAddressClass *address = nullptr, int ack_req = 0);
 		int Get_Global_Message (void *buf, int *buflen, IPXAddressClass *address,
 			unsigned short *product_id);
 

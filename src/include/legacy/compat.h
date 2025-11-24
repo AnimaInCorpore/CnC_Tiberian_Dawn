@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <string>
+#include <cstdio>
 
 #include "platform.h"
 
@@ -64,6 +66,7 @@ constexpr unsigned TWHITE = WHITE;
 
 extern long _ShapeBufferSize;
 extern char* _ShapeBuffer;
+extern bool OverlappedVideoBlits;
 
 #ifndef ShapeBufferSize
 #define ShapeBufferSize _ShapeBufferSize
@@ -103,6 +106,23 @@ extern char* _ShapeBuffer;
 extern unsigned char* Palette;
 extern unsigned char MDisabled;
 extern WORD Hard_Error_Occured;
+extern int WindowList[][8];
+
+enum WindowListIndex {
+  WINDOWX,
+  WINDOWY,
+  WINDOWWIDTH,
+  WINDOWHEIGHT,
+  WINDOWCURSORCOLOR,
+  WINDOWBKCOLOR,
+  WINDOWCURSORX,
+  WINDOWCURSORY
+};
+
+inline void Mem_Copy(void* dest, const void* src, std::size_t count) {
+  if (!dest || !src || count == 0) return;
+  std::memmove(dest, src, count);
+}
 
 typedef enum MenuIndexType {
   MENUX,
@@ -131,10 +151,18 @@ typedef enum MenuIndexType {
 #define DMINEXP -307
 #define FMINEXP -37
 
+#ifndef MAXDOUBLE
 #define MAXDOUBLE 1.797693E+308
+#endif
+#ifndef MAXFLOAT
 #define MAXFLOAT 3.37E+38F
+#endif
+#ifndef MINDOUBLE
 #define MINDOUBLE 2.225074E-308
+#endif
+#ifndef MINFLOAT
 #define MINFLOAT 8.43E-37F
+#endif
 
 #define DSIGNIF 53
 #define FSIGNIF 24
@@ -149,6 +177,20 @@ typedef enum MenuIndexType {
 #define HIDDENBIT 1
 #define LN_MAXDOUBLE 7.0978E+2
 #define LN_MINDOUBLE -7.0840E+2
+
+#ifndef ABS
+#define ABS(x) (((x) >= 0) ? (x) : -(x))
+#endif
+
+#ifndef MAX
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef MIN
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#endif
+
+bool Confine_Rect(int* x, int* y, int width, int height, int max_width, int max_height);
 
 void Stuff_Key_Num(int value);
 

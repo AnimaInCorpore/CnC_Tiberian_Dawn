@@ -68,12 +68,15 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #include	"function.h"
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <algorithm>
 
 //void const * RadarClass::CoverShape;
 RadarClass::TacticalClass RadarClass::RadarButton;
 
-void const * RadarClass::RadarAnim = NULL;
+void const * RadarClass::RadarAnim = nullptr;
 
 static bool FullRedraw = false;
 
@@ -343,7 +346,8 @@ void RadarClass::Draw_It(bool forced)
 		if (Special.IsJurassic && AreThingiesEnabled) {
 			strcpy(name, "RADAR.JP");
 		} else {
-			_makepath(name, NULL, NULL, "RADAR", HouseTypeClass::As_Reference(PlayerPtr->ActLike).Suffix);
+			_makepath(name, nullptr, nullptr, "RADAR",
+			          HouseTypeClass::As_Reference(PlayerPtr->ActLike).Suffix);
 		}
 		RadarAnim = Hires_Retrieve(name);
 		_house = PlayerPtr->ActLike;
@@ -680,7 +684,7 @@ void RadarClass::Zoom_Mode(CELL cell)
 	if ( !IsZoomed ) {
 		int xfactor			= RadIWidth / MapCellWidth;
 		int yfactor			= RadIHeight / MapCellHeight;
-		ZoomFactor			= MIN(xfactor,yfactor);
+		ZoomFactor			= std::min(xfactor,yfactor);
 		map_c_width			= MapCellWidth;
 		map_c_height      = MapCellHeight;
 	} else {
@@ -692,8 +696,8 @@ void RadarClass::Zoom_Mode(CELL cell)
 	/*
 	** Make sure we do not show more cell then are on the map.
 	*/
-	map_c_width			= MIN(map_c_width, 62);
-	map_c_height		= MIN(map_c_height, 62);
+	map_c_width			= std::min(map_c_width, 62);
+	map_c_height		= std::min(map_c_height, 62);
 
 	/*
 	** Find the amount of remainder because this will let us calculate
@@ -1114,8 +1118,8 @@ void RadarClass::Cell_XY_To_Radar_Pixel(int cellx, int celly, int &x, int &y)
 #pragma argsused
 void RadarClass::Radar_Cursor(int forced)
 {
-	static 					_last_pos = -1;
-	static 					_last_frame = -1;
+	static int _last_pos = -1;
+	static int _last_frame = -1;
 	GraphicViewPortClass 	*oldpage;
 	int						x1, y1, x2, y2;
 	/*
@@ -1224,7 +1228,9 @@ void RadarClass::Radar_Cursor(int forced)
 		Show_Mouse();
 	}
 #endif
-	Set_Logic_Page(oldpage);
+	if (oldpage) {
+		Set_Logic_Page(*oldpage);
+	}
 	_last_pos = tac_cell;
 	_last_frame = SpecialRadarFrame;
 	RadarCursorRedraw = FALSE;
@@ -1267,7 +1273,9 @@ void RadarClass::Radar_Anim(void)
 	CC_Draw_Shape(RadarAnim, RadarAnimFrame, RadX, RadY+1, WINDOW_MAIN, SHAPE_NORMAL);
 
 	Flag_To_Redraw(false);
-	Set_Logic_Page(oldpage);
+	if (oldpage) {
+		Set_Logic_Page(*oldpage);
+	}
 }
 
 
@@ -1403,10 +1411,10 @@ int RadarClass::TacticalClass::Action(unsigned flags, KeyNumType & key)
 		y = Get_Mouse_Y();
 	}
 
-	int result = Map.RadarClass::Click_In_Radar(x, y, false);
+	int result = Map.Click_In_Radar(x, y, false);
 
 	if (result == 1) {
-		cell = Map.RadarClass::Click_Cell_Calc(x, y);
+		cell = Map.Click_Cell_Calc(x, y);
 		if (cell != -1) {
 			shadow	= (!Map[cell].IsVisible && !Debug_Unshroud);
 			cellx	   = 12;
@@ -1445,7 +1453,7 @@ int RadarClass::TacticalClass::Action(unsigned flags, KeyNumType & key)
 
 					default:
 						action = ACTION_NONE;
-						object = NULL;
+						object = nullptr;
 						break;
 				}
 
@@ -1456,7 +1464,7 @@ int RadarClass::TacticalClass::Action(unsigned flags, KeyNumType & key)
 				**/
 				if (action == ACTION_NONE) {
 					if (object && object->IsSelected) {
-						object = NULL;
+						object = nullptr;
 					} else {
 						action = ACTION_NOMOVE;
 					}
@@ -1492,7 +1500,7 @@ int RadarClass::TacticalClass::Action(unsigned flags, KeyNumType & key)
 
 				if (flags & LEFTPRESS) {
 
-					cell = Map.RadarClass::Click_Cell_Calc(x, y);
+					cell = Map.Click_Cell_Calc(x, y);
 					if (cell != -1) {
 						int cellx = Cell_X(cell);
 						int celly = Cell_Y(cell);
@@ -1504,7 +1512,7 @@ int RadarClass::TacticalClass::Action(unsigned flags, KeyNumType & key)
 						shadow = (!Map[cell].IsVisible && !Debug_Unshroud);
 						Map.Set_Tactical_Position(Cell_Coord(cell));
 						cell = Coord_Cell(Map.DesiredTacticalCoord);
-						Map.DisplayClass::IsToRedraw = true;
+						Map.IsToRedraw = true;
 						//Map.Flag_To_Redraw(false);
 						Map.Flag_To_Redraw(true);
 						Map.SpecialRadarFrame = 4;
@@ -1636,7 +1644,7 @@ void RadarClass::Set_Radar_Position(CELL cell)
 					GraphicBufferClass temp_surface;
 					temp_surface.Init((RadarWidth + 16) & 0xfffffff0,
 											(RadarHeight + 16) & 0xfffffff0,
-											NULL, 0, (GBC_Enum) GBC_VIDEOMEM);
+											nullptr, 0, (GBC_Enum) GBC_VIDEOMEM);
 
 					HidPage.Blit(temp_surface, (((radx < 0) ? -radx : 0) * ZoomFactor) + RadX + RadOffX + BaseX,
 														(((rady < 0) ? -rady : 0) * ZoomFactor) + RadY + RadOffY + BaseY,
@@ -1917,7 +1925,7 @@ void RadarClass::Draw_Names(void)
 		**	If the house is non-human, generate the message
 		*/
 		if (!ptr->IsHuman) {
-			sprintf(txt,"%s", Text_String(TXT_COMPUTER));
+			std::snprintf(txt, sizeof(txt), "%s", Text_String(TXT_COMPUTER));
 		} else {
 
 			/*
@@ -1928,7 +1936,7 @@ void RadarClass::Draw_Names(void)
 			id = Build_MPlayerID (c_idx,ptr->ActLike);
 			for (i = 0; i < MPlayerCount; i++) {
 				if (id == MPlayerID[i]) {
-					sprintf(txt,"%s",MPlayerNames[i]);
+					std::snprintf(txt, sizeof(txt), "%s", MPlayerNames[i]);
 					break;
 				}
 			}
@@ -1949,7 +1957,7 @@ void RadarClass::Draw_Names(void)
 				kills += ptr->UnitsKilled[h];
 				kills += ptr->BuildingsKilled[h];
 			}
-			sprintf(txt, "%2d", kills);
+			std::snprintf(txt, sizeof(txt), "%2d", kills);
 			Fancy_Text_Print (txt, RadX + RadOffX + RadIWidth - 2, y,
 				color, BLACK, style | TPF_RIGHT);
 

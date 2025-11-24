@@ -44,6 +44,17 @@ GraphicBufferClass::GraphicBufferClass() = default;
 GraphicBufferClass::GraphicBufferClass(int width, int height, void* /*data*/)
     : width_(width), height_(height), storage_(static_cast<std::size_t>(width) * height, 0) {}
 
+void GraphicBufferClass::Init(int width, int height, void* /*data*/, int, GBC_Enum) {
+  width_ = width;
+  height_ = height;
+  storage_.assign(static_cast<std::size_t>(width) * height, 0);
+}
+
+void GraphicBufferClass::Blit(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width,
+                              int height) const {
+  dest.Blit(*this, src_x, src_y, dst_x, dst_y, width, height);
+}
+
 bool GraphicBufferClass::Is_Valid() const { return width_ > 0 && height_ > 0; }
 
 int GraphicBufferClass::Get_Width() const { return width_; }
@@ -53,6 +64,23 @@ int GraphicBufferClass::Get_Height() const { return height_; }
 unsigned char* GraphicBufferClass::Get_Buffer() { return storage_.empty() ? nullptr : storage_.data(); }
 
 const unsigned char* GraphicBufferClass::Get_Buffer() const { return storage_.empty() ? nullptr : storage_.data(); }
+
+void GraphicBufferClass::Scale(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y,
+                               int width, int height, int xscale, int yscale, int, char*) {
+  (void)xscale;
+  (void)yscale;
+  const auto* buffer = Get_Buffer();
+  if (!buffer) return;
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      const int source_x = src_x + x;
+      const int source_y = src_y + y;
+      if (source_x < 0 || source_y < 0 || source_x >= width_ || source_y >= height_) continue;
+      const int color = buffer[source_y * width_ + source_x];
+      dest.Put_Pixel(dst_x + x, dst_y + y, color);
+    }
+  }
+}
 
 // --- GraphicViewPortClass ---------------------------------------------------
 struct GraphicViewPortClass::Impl : ViewPortImpl {};
@@ -83,6 +111,16 @@ bool GraphicViewPortClass::Lock() {
 
 void GraphicViewPortClass::Unlock() { impl_->locked = false; }
 
+void GraphicViewPortClass::Clear() {
+  auto* buffer = impl_->buffer ? impl_->buffer->Get_Buffer() : nullptr;
+  if (!buffer) return;
+  for (int y = impl_->y; y < impl_->y + impl_->height; ++y) {
+    for (int x = impl_->x; x < impl_->x + impl_->width; ++x) {
+      Put_Pixel(x, y, 0);
+    }
+  }
+}
+
 void GraphicViewPortClass::Fill_Rect(int x1, int y1, int x2, int y2, int color) {
   (void)x1;
   (void)y1;
@@ -101,6 +139,11 @@ void GraphicViewPortClass::Draw_Line(int x1, int y1, int x2, int y2, int color) 
 
 void GraphicViewPortClass::Draw_Rect(int x1, int y1, int x2, int y2, int color) {
   Fill_Rect(x1, y1, x2, y2, color);
+}
+
+void GraphicViewPortClass::Remap(int x, int y, int width, int height, const unsigned char* table) {
+  (void)table;
+  Fill_Rect(x, y, x + width - 1, y + height - 1, 0);
 }
 
 void GraphicViewPortClass::Put_Pixel(int x, int y, int color) {
@@ -132,6 +175,55 @@ int GraphicViewPortClass::Get_YPos() const { return impl_->y; }
 int GraphicViewPortClass::Get_Width() const { return impl_->width; }
 int GraphicViewPortClass::Get_Height() const { return impl_->height; }
 GraphicBufferClass* GraphicViewPortClass::Get_Graphic_Buffer() const { return impl_->buffer; }
+bool GraphicViewPortClass::Get_IsDirectDraw() const { return false; }
+
+void GraphicViewPortClass::Blit(const GraphicBufferClass& src, int src_x, int src_y, int dst_x, int dst_y,
+                                int width, int height) {
+  auto* dest_buffer = impl_->buffer ? impl_->buffer->Get_Buffer() : nullptr;
+  const auto* src_buffer = src.Get_Buffer();
+  if (!dest_buffer || !src_buffer) return;
+
+  for (int y = 0; y < height; ++y) {
+    const int source_y = src_y + y;
+    const int dest_y = dst_y + y - impl_->y;
+    if (source_y < 0 || dest_y < 0 || source_y >= src.Get_Height() || dest_y >= impl_->height) continue;
+    for (int x = 0; x < width; ++x) {
+      const int source_x = src_x + x;
+      const int dest_x = dst_x + x - impl_->x;
+      if (source_x < 0 || dest_x < 0 || source_x >= src.Get_Width() || dest_x >= impl_->width) continue;
+      dest_buffer[dest_y * impl_->buffer->Get_Width() + dest_x] = src_buffer[source_y * src.Get_Width() + source_x];
+    }
+  }
+}
+
+void GraphicViewPortClass::Blit(const GraphicViewPortClass& src, int src_x, int src_y, int dst_x, int dst_y,
+                                int width, int height) {
+  const auto* src_buffer = src.Get_Graphic_Buffer() ? src.Get_Graphic_Buffer()->Get_Buffer() : nullptr;
+  if (!src_buffer) return;
+  if (!impl_->buffer) return;
+  GraphicBufferClass* src_storage = src.Get_Graphic_Buffer();
+  for (int y = 0; y < height; ++y) {
+    const int source_y = src_y + y - src.Get_YPos();
+    const int dest_y = dst_y + y - impl_->y;
+    if (source_y < 0 || dest_y < 0 || source_y >= src_storage->Get_Height() || dest_y >= impl_->height) continue;
+    for (int x = 0; x < width; ++x) {
+      const int source_x = src_x + x - src.Get_XPos();
+      const int dest_x = dst_x + x - impl_->x;
+      if (source_x < 0 || dest_x < 0 || source_x >= src_storage->Get_Width() || dest_x >= impl_->width) continue;
+      impl_->buffer
+          ->Get_Buffer()[dest_y * impl_->buffer->Get_Width() + dest_x] =
+          src_buffer[source_y * src_storage->Get_Width() + source_x];
+    }
+  }
+}
+
+void GraphicViewPortClass::Blit(const GraphicViewPortClass& src, int dst_x, int dst_y) {
+  Blit(src, src.Get_XPos(), src.Get_YPos(), dst_x, dst_y, src.Get_Width(), src.Get_Height());
+}
+
+void GraphicViewPortClass::Blit(const GraphicViewPortClass& src) {
+  Blit(src, src.Get_XPos(), src.Get_YPos(), src.Get_XPos(), src.Get_YPos(), src.Get_Width(), src.Get_Height());
+}
 
 // --- WWMouseClass -----------------------------------------------------------
 struct WWMouseClass::Impl {};
@@ -180,8 +272,9 @@ void WWKeyboardClass::Message_Handler(HWND /*hwnd*/, unsigned int /*message*/, W
 GraphicViewPortClass* LogicPage = nullptr;
 
 GraphicViewPortClass* Set_Logic_Page(GraphicViewPortClass& page) {
+  GraphicViewPortClass* previous = LogicPage;
   LogicPage = &page;
-  return LogicPage;
+  return previous;
 }
 
 bool Set_Video_Mode(int /*mode*/) { return true; }

@@ -79,12 +79,12 @@ void TabClass::AI(KeyNumType& input, int x, int y) {
 }
 
 void TabClass::Set_Active(int select) {
-  switch (select) {
+ switch (select) {
     case 0:
       Queue_Options();
       break;
     case 1:
-      Map.SidebarClass::Activate(-1);
+      Map.Activate(-1);
       break;
     default:
       break;

@@ -36,6 +36,7 @@
 
 #include "legacy/function.h"
 #include "legacy/mapedit.h"
+#include "legacy/map_shim.h"
 #include "legacy/windows_compat.h"
 #include "legacy/connect.h"
 #include "legacy/base.h"
@@ -280,11 +281,7 @@ ThemeClass Theme;
 /***************************************************************************
 **	This is the main control class for the map.
 */
-#ifdef SCENARIO_EDITOR
-MapEditClass Map;
-#else
-MouseClass Map;
-#endif
+MapStubClass Map;
 
 /**************************************************************************
 **	The running game score is handled by this class (and member functions).
@@ -327,7 +324,7 @@ char ScenarioName[_MAX_FNAME+_MAX_EXT];	// name of scenario
 int CarryOverMoney;						// Carry over money from last scenario.
 int CarryOverPercent;					// Carry over money percentage control.
 int CarryOverCap;							// Maxmimum carry over money allowed.
-bool ScenarioInit;
+int ScenarioInit = 0;
 bool SpecialFlag = false;
 
 

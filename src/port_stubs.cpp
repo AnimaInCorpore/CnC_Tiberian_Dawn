@@ -4,10 +4,12 @@
 #include "legacy/windows_compat.h"
 
 #include <cmath>
+#include <chrono>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <thread>
 
 // Basic font metrics used by the UI code.
 int FontHeight = 8;
@@ -20,6 +22,7 @@ NullModemClass NullModem;
 // Shape buffer placeholders.
 long _ShapeBufferSize = 512 * 1024;
 char* _ShapeBuffer = nullptr;
+bool OverlappedVideoBlits = false;
 
 int Bound(int value, int min, int max) {
   if (value < min) return min;
@@ -27,7 +30,7 @@ int Bound(int value, int min, int max) {
   return value;
 }
 
-void CCDebugString(char* string) {
+void CCDebugString(char const* string) {
   if (string) {
     std::fputs(string, stderr);
   }
@@ -88,13 +91,26 @@ int Distance_Coord(COORDINATE coord1, COORDINATE coord2) {
   return static_cast<int>(std::sqrt(static_cast<double>(dx * dx + dy * dy)));
 }
 
+void Delay(int ticks) {
+  if (ticks <= 0) return;
+  std::this_thread::sleep_for(std::chrono::milliseconds(ticks));
+}
+
+void* Add_Long_To_Pointer(void* ptr, long offset) {
+  return static_cast<unsigned char*>(ptr) + offset;
+}
+
+void Buffer_To_Page(int, int, int, int, void const*, GraphicBufferClass&) {}
+
+void Shake_Screen(int) {}
+
 bool Queue_Options() { return false; }
 
 char const* Extract_String(char const* text, int) { return text; }
 
 void const* Hires_Retrieve(char*) { return nullptr; }
 
-void Validate_Error(char*) {}
+void Validate_Error(char const*) {}
 
 bool Parse_Command_Line(int, char**) { return true; }
 
@@ -137,6 +153,28 @@ ObjectClass* As_Object(TARGET) { return nullptr; }
 BuildingClass* As_Building(TARGET) { return nullptr; }
 
 void Draw_Box(int, int, int, int, BoxStyleEnum, bool) {}
+
+bool Confine_Rect(int* x, int* y, int width, int height, int max_width, int max_height) {
+  if (!x || !y) return false;
+  bool adjusted = false;
+  const int max_x = MAX(0, max_width - width);
+  const int max_y = MAX(0, max_height - height);
+  if (*x < 0) {
+    *x = 0;
+    adjusted = true;
+  } else if (*x > max_x) {
+    *x = max_x;
+    adjusted = true;
+  }
+  if (*y < 0) {
+    *y = 0;
+    adjusted = true;
+  } else if (*y > max_y) {
+    *y = max_y;
+    adjusted = true;
+  }
+  return adjusted;
+}
 
 void Conquer_Init_Fonts() {}
 

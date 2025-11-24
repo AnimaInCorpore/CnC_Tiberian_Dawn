@@ -1,6 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
+#include <cstdio>
+#include <cstring>
 
 #include "platform.h"
 
@@ -148,3 +151,19 @@ struct RECT {
 #ifndef MAKELONG
 #define MAKELONG(low, high) ((static_cast<std::uint32_t>(high) << 16) | ((low) & 0xFFFF))
 #endif
+
+inline void _makepath(char* buffer, const char* drive, const char* dir, const char* fname, const char* ext) {
+  if (!buffer) return;
+  std::string path;
+  if (drive) path += drive;
+  if (dir) {
+    path += dir;
+    if (!path.empty() && path.back() != '/' && path.back() != '\\') path.push_back('/');
+  }
+  if (fname) path += fname;
+  if (ext) path += ext;
+  if (path.size() >= MAX_PATH) {
+    path.resize(MAX_PATH - 1);
+  }
+  std::snprintf(buffer, MAX_PATH, "%s", path.c_str());
+}

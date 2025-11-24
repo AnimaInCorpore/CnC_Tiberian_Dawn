@@ -13,6 +13,8 @@
 class BufferClass;
 class FileClass;
 struct PlatformMouseState;
+class GraphicViewPortClass;
+enum GBC_Enum : std::uint32_t;
 
 // Basic palette-surface wrapper used by the UI code. This is intentionally
 // minimal for the in-progress SDL port; it just holds an 8-bit buffer and
@@ -21,6 +23,8 @@ class GraphicBufferClass {
  public:
   GraphicBufferClass();
   GraphicBufferClass(int width, int height, void* data = nullptr);
+  void Init(int width, int height, void* data = nullptr, int = 0, GBC_Enum flags = GBC_Enum{});
+  void Blit(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width, int height) const;
 
   bool Is_Valid() const;
   int Get_Width() const;
@@ -28,6 +32,8 @@ class GraphicBufferClass {
   unsigned char* Get_Buffer();
   const unsigned char* Get_Buffer() const;
   void Clear() { std::fill(storage_.begin(), storage_.end(), 0); }
+  void Scale(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width,
+             int height, int xscale, int yscale, int = 0, char* = nullptr);
 
  private:
   int width_ = 0;
@@ -42,6 +48,12 @@ constexpr int KN_RMOUSE = 0x0101;
 constexpr int KN_RLSE_BIT = 0x2000;
 constexpr int KN_SPACE = 0x0020;
 constexpr int KN_ESC = 0x001B;
+constexpr int KN_LSHIFT = 0x002A;
+constexpr int KN_RSHIFT = 0x0036;
+constexpr int KN_LCTRL = 0x001D;
+constexpr int KN_RCTRL = 0x011D;
+constexpr int KN_LALT = 0x0038;
+constexpr int KN_RALT = 0x0138;
 
 // Legacy graphic buffer flags used by the Westwood runtime.
 enum GBC_Enum : std::uint32_t {
@@ -96,9 +108,11 @@ class GraphicViewPortClass {
   bool Lock();
   void Unlock();
 
+  void Clear();
   void Fill_Rect(int x1, int y1, int x2, int y2, int color);
   void Draw_Line(int x1, int y1, int x2, int y2, int color);
   void Draw_Rect(int x1, int y1, int x2, int y2, int color);
+  void Remap(int x, int y, int width, int height, const unsigned char* table);
   void Put_Pixel(int x, int y, int color);
   int Get_Pixel(int x, int y) const;
   bool Contains(int x, int y) const;
@@ -108,6 +122,11 @@ class GraphicViewPortClass {
   int Get_Width() const;
   int Get_Height() const;
   GraphicBufferClass* Get_Graphic_Buffer() const;
+  bool Get_IsDirectDraw() const;
+  void Blit(const GraphicBufferClass& src, int src_x, int src_y, int dst_x, int dst_y, int width, int height);
+  void Blit(const GraphicViewPortClass& src, int src_x, int src_y, int dst_x, int dst_y, int width, int height);
+  void Blit(const GraphicViewPortClass& src, int dst_x, int dst_y);
+  void Blit(const GraphicViewPortClass& src);
 
  private:
   struct Impl;

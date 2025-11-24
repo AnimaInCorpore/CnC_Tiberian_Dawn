@@ -97,6 +97,8 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #include	"function.h"
+#include <cstdio>
+#include <cstring>
 
 /*
 ** This contains the value of the Virtual Function Table Pointer
@@ -547,7 +549,7 @@ FireErrorType UnitClass::Can_Fire(TARGET target, int which) const
 				nonconst = (UnitClass *)this;
 				nonconst->Set_Rate(Options.Normalize_Delay(2));
 				nonconst->Set_Stage(0);
-				IsFiring = true;
+				nonconst->IsFiring = true;
 				cf = FIRE_BUSY;
 			} else {
 				if (Fetch_Stage() < 4) cf = FIRE_BUSY;
@@ -1737,7 +1739,7 @@ void UnitClass::Per_Cell_Process(bool center)
 	/*
 	**	Destroy any crushable wall that is driven over by a tracked vehicle.
 	*/
-	CellClass * cellptr = &Map[cell];
+	MapCellStub* cellptr = &Map[cell];
 	if (center && Class->Speed == SPEED_TRACK && cellptr->Overlay != OVERLAY_NONE) {
 		OverlayTypeClass const * optr = &OverlayTypeClass::As_Reference(cellptr->Overlay);
 
@@ -2167,7 +2169,7 @@ bool UnitClass::Harvesting(void)
 {
 	Validate();
 	CELL	cell = Coord_Cell(Coord);
-	CellClass * ptr = &Map[cell];
+	MapCellStub* ptr = &Map[cell];
 
 	/*
 	**	Keep waiting if still heading toward a spot to harvest.
@@ -2236,7 +2238,7 @@ int UnitClass::Mission_Unload(void)
 		case UNIT_APC:
 			switch (Status) {
 				case INITIAL_CHECK:
-					dir = Desired_Load_Dir(NULL, cell);
+					dir = Desired_Load_Dir(nullptr, cell);
 					if (How_Many() && cell != 0) {
 						Do_Turn(dir);
 						Status = MANEUVERING;
@@ -2664,7 +2666,7 @@ MoveBitType UnitClass::Blocking_Object(TechnoClass const *techno, CELL cell) con
 	** There are some extra checks we need to make if the techno is a unit
 	*/
 	bool unit = (techno->What_Am_I() == RTTI_INFANTRY || techno->What_Am_I() == RTTI_UNIT);
-	CellClass const * cellptr = &Map[cell];
+	MapCellStub const* cellptr = &Map[cell];
 
 	if (House->Is_Ally(techno)) {
 
@@ -2769,7 +2771,7 @@ MoveBitType UnitClass::Blocking_Object(TechnoClass const *techno, CELL cell) con
 MoveType UnitClass::Can_Enter_Cell(CELL cell, FacingType ) const
 {
 	Validate();
-	CellClass const * cellptr = &Map[cell];
+	MapCellStub const* cellptr = &Map[cell];
 
 	if ((unsigned)cell >= MAP_CELL_TOTAL) return(MOVE_NO);
 
@@ -3439,10 +3441,10 @@ void UnitClass::Read_INI(char *buffer)
 	len = strlen(buffer) + 2;
 	tbuffer = buffer + len;
 
-	WWGetPrivateProfileString(INI_Name(), NULL, NULL, tbuffer, ShapeBufferSize-len, buffer);
+	WWGetPrivateProfileString(INI_Name(), nullptr, nullptr, tbuffer, ShapeBufferSize - len, buffer);
 	while (*tbuffer != '\0') {
 
-		WWGetPrivateProfileString(INI_Name(), tbuffer, NULL, buf, sizeof(buf)-1, buffer);
+		WWGetPrivateProfileString(INI_Name(), tbuffer, nullptr, buf, sizeof(buf) - 1, buffer);
 		inhouse = HouseTypeClass::From_Name(strtok(buf, ","));
 		if (inhouse != HOUSE_NONE) {
 			classid = UnitTypeClass::From_Name(strtok(NULL, ","));
@@ -3531,9 +3533,9 @@ void UnitClass::Write_INI(char *buffer)
 	**	First, clear out all existing unit data from the ini file.
 	*/
 	tbuffer = buffer + strlen(buffer) + 2;
-	WWGetPrivateProfileString(INI_Name(), NULL, NULL, tbuffer, ShapeBufferSize-strlen(buffer), buffer);
+	WWGetPrivateProfileString(INI_Name(), nullptr, nullptr, tbuffer, ShapeBufferSize - strlen(buffer), buffer);
 	while (*tbuffer != '\0') {
-		WWWritePrivateProfileString(INI_Name(), tbuffer, NULL, buffer);
+		WWWritePrivateProfileString(INI_Name(), tbuffer, nullptr, buffer);
 		tbuffer += strlen(tbuffer)+1;
 	}
 
@@ -3546,8 +3548,8 @@ void UnitClass::Write_INI(char *buffer)
 		unit = Units.Ptr(index);
 		if (!unit->IsInLimbo && unit->IsActive) {
 
-			sprintf(uname, "%03d", index);
-			sprintf(buf, "%s,%s,%d,%u,%d,%s,%s",
+			std::snprintf(uname, sizeof(uname), "%03d", index);
+			std::snprintf(buf, sizeof(buf), "%s,%s,%d,%u,%d,%s,%s",
 				unit->House->Class->IniName,
 				unit->Class->IniName,
 				unit->Health_Ratio(),
@@ -3744,7 +3746,7 @@ DirType UnitClass::Desired_Load_Dir(ObjectClass * passenger, CELL & moveto) cons
 		if (passenger) {
 			value = (passenger->Can_Enter_Cell(cellnum) == MOVE_OK || Coord_Cell(passenger->Coord) == cellnum) ? 128 : -128;
 		} else {
-			CellClass * cell = &Map[cellnum];
+			MapCellStub* cell = &Map[cellnum];
 			if (Ground[cell->Land_Type()].Cost[SPEED_FOOT] == 0 || cell->Flag.Occupy.Building || cell->Flag.Occupy.Vehicle || cell->Flag.Occupy.Monolith || (cell->Flag.Composite & 0x01F) == 0x01F) {
 				value = -128;
 			} else {

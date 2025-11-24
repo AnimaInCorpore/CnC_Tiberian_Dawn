@@ -98,6 +98,10 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #include	"function.h"
+#include "legacy/base.h"
+
+#include <algorithm>
+#include <cstdlib>
 
 
 enum SAMState {
@@ -575,11 +579,11 @@ void BuildingClass::Draw_It(int x, int y, WindowNumberType window)
 							if (!Class->IsSimpleDamage) {
 								int last1 = Class->Anims[BSTATE_IDLE].Start + Class->Anims[BSTATE_IDLE].Count;
 								int last2 = Class->Anims[BSTATE_ACTIVE].Start + Class->Anims[BSTATE_ACTIVE].Count;
-								int largest = MAX(last1, last2);
+								int largest = std::max(last1, last2);
 								last2 = Class->Anims[BSTATE_AUX1].Start + Class->Anims[BSTATE_AUX1].Count;
-								largest = MAX(largest, last2);
+								largest = std::max(largest, last2);
 								last2 = Class->Anims[BSTATE_AUX2].Start + Class->Anims[BSTATE_AUX2].Count;
-								largest = MAX(largest, last2);
+								largest = std::max(largest, last2);
 
 								shapenum += largest;
 							} else {
@@ -1352,7 +1356,7 @@ bool BuildingClass::Unlimbo(COORDINATE coord, DirType dir)
 		}
 
 		if (IsOwnedByPlayer) {
-			Map.PowerClass::IsToRedraw = true;
+			Map.IsToRedraw = true;
 			Map.Flag_To_Redraw(false);
 		}
 		return(true);
@@ -2337,7 +2341,7 @@ bool BuildingClass::Limbo(void)
 		House->Adjust_Drain(-Class->Drain);
 		House->Adjust_Capacity(-Class->Capacity, true);
 		if (House == PlayerPtr) {
-			Map.PowerClass::IsToRedraw = true;
+			Map.IsToRedraw = true;
 			Map.Flag_To_Redraw(false);
 		}
 
@@ -2940,7 +2944,7 @@ void BuildingClass::Read_INI(char *buffer)
 			b = new BuildingClass(classid, bhouse);
 			if (b) {
 				if (b->Unlimbo(Cell_Coord(cell), facing)) {
-					strength = MIN(strength, 0x100);
+					strength = std::min(strength, 0x100);
 					strength = Fixed_To_Cardinal(b->Class->MaxStrength, strength);
 					b->Strength = strength;
 					b->IsALemon = false;
@@ -3007,8 +3011,8 @@ void BuildingClass::Write_INI(char *buffer)
 		building = Buildings.Ptr(index);
 		if (!building->IsInLimbo) {
 
-			sprintf(uname, "%03d", index);
-			sprintf(buf, "%s,%s,%d,%u,%d,%s",
+			snprintf(uname, sizeof(uname), "%03d", index);
+			snprintf(buf, sizeof(buf), "%s,%s,%d,%u,%d,%s",
 				building->House->Class->IniName,
 				building->Class->IniName,
 				building->Health_Ratio(),
@@ -3117,7 +3121,7 @@ FireErrorType BuildingClass::Can_Fire(TARGET target, int which) const
 			}
 
 			int diff = PrimaryFacing.Difference(Direction(TarCom));
-			if (ABS(diff) > 8) {
+			if (std::abs(diff) > 8) {
 				return(FIRE_FACING);
 			}
 		}
@@ -3214,7 +3218,7 @@ bool BuildingClass::Captured(HouseClass * newowner)
 		}
 
 		if (House == PlayerPtr) {
-			Map.PowerClass::IsToRedraw = true;
+			Map.IsToRedraw = true;
 			Map.Flag_To_Redraw(false);
 		}
 

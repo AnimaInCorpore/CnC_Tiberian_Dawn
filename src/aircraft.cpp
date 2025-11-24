@@ -2,6 +2,9 @@
 #include "function.h"
 #include "mapedit.h"
 
+#include <cstdio>
+#include <cstring>
+
 void * AircraftClass::VTable;
 
 #ifdef CHEAT_KEYS
@@ -215,9 +218,10 @@ void AircraftClass::Write_INI(char *buffer)
 	char	*tbuffer;
 
 	tbuffer = buffer + strlen(buffer) + 2;
-	WWGetPrivateProfileString(INI_Name(), NULL, NULL, tbuffer, ShapeBufferSize-strlen(buffer), buffer);
+	WWGetPrivateProfileString(INI_Name(), nullptr, nullptr, tbuffer,
+	                          ShapeBufferSize - strlen(buffer), buffer);
 	while (*tbuffer != '\0') {
-		WWWritePrivateProfileString(INI_Name(), tbuffer, NULL, buffer);
+		WWWritePrivateProfileString(INI_Name(), tbuffer, nullptr, buffer);
 		tbuffer += strlen(tbuffer)+1;
 	}
 
@@ -227,8 +231,8 @@ void AircraftClass::Write_INI(char *buffer)
 		unit = Aircraft.Ptr(index);
 		if (!unit->IsInLimbo) {
 
-			sprintf(uname, "%03d", index);
-			sprintf(buf, "%s,%s,%d,%u,%d,%s",
+			std::snprintf(uname, sizeof(uname), "%03d", index);
+			std::snprintf(buf, sizeof(buf), "%s,%s,%d,%u,%d,%s",
 				unit->House->Class->IniName,
 				unit->Class->IniName,
 				unit->Health_Ratio(),
