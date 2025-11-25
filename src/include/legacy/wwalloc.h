@@ -18,6 +18,8 @@
 
 /* $Header:   F:\projects\c&c\vcs\code\wwalloc.h_v   2.18   16 Oct 1995 16:47:52   JOE_BOSTIC  $ */
 
+#include "platform.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,4 +67,3 @@ extern unsigned long __cdecl MaxRam;		// Record of total allocated at worst case
 #ifdef __cplusplus
 }
 #endif
-

@@ -244,3 +244,60 @@ void AircraftClass::Write_INI(char *buffer)
 		}
 	}
 }
+
+// --- Stubbed behavior for unported routines -------------------------------------------------
+
+AircraftClass::~AircraftClass() = default;
+
+int AircraftClass::Mission_Attack() { return 0; }
+int AircraftClass::Mission_Unload() { return 0; }
+int AircraftClass::Mission_Hunt() { return 0; }
+int AircraftClass::Mission_Retreat() { return 0; }
+int AircraftClass::Mission_Move() { return 0; }
+int AircraftClass::Mission_Enter() { return 0; }
+int AircraftClass::Mission_Guard() { return 0; }
+int AircraftClass::Mission_Guard_Area() { return 0; }
+int AircraftClass::Threat_Range(int) const { return 0; }
+int AircraftClass::Rearm_Delay(bool) const { return 0; }
+MoveType AircraftClass::Can_Enter_Cell(CELL, FacingType) const { return MOVE_OK; }
+LayerType AircraftClass::In_Which_Layer() const { return LAYER_GROUND; }
+ActionType AircraftClass::What_Action(ObjectClass*) const { return ACTION_NONE; }
+ActionType AircraftClass::What_Action(CELL) const { return ACTION_NONE; }
+DirType AircraftClass::Desired_Load_Dir(ObjectClass*, CELL&) const { return DIR_N; }
+int AircraftClass::Pip_Count() const { return 0; }
+TARGET AircraftClass::Good_Fire_Location(TARGET) const { return 0; }
+bool AircraftClass::Cell_Seems_Ok(CELL, bool) const { return true; }
+DirType AircraftClass::Pose_Dir() const { return DIR_N; }
+TARGET AircraftClass::Good_LZ() const { return 0; }
+DirType AircraftClass::Fire_Direction() const { return DIR_N; }
+bool AircraftClass::Is_LZ_Clear(TARGET) const { return true; }
+TARGET AircraftClass::New_LZ(TARGET) const { return 0; }
+COORDINATE AircraftClass::Sort_Y() const { return Coord; }
+COORDINATE AircraftClass::Fire_Coord(int) const { return Coord; }
+COORDINATE AircraftClass::Target_Coord() const { return Coord; }
+int AircraftClass::Exit_Object(TechnoClass*) { return 0; }
+bool AircraftClass::Mark(MarkType) { return true; }
+short const* AircraftClass::Overlap_List() const { return nullptr; }
+void AircraftClass::Set_Speed(int) {}
+void AircraftClass::Active_Click_With(ActionType, ObjectClass*) {}
+void AircraftClass::Active_Click_With(ActionType, CELL) {}
+void AircraftClass::Player_Assign_Mission(MissionType, TARGET, TARGET) {}
+void AircraftClass::Response_Select() {}
+void AircraftClass::Response_Move() {}
+void AircraftClass::Response_Attack() {}
+bool AircraftClass::Process_Landing() { return true; }
+int AircraftClass::Process_Fly_To(bool) { return 0; }
+ResultType AircraftClass::Take_Damage(int& damage, int, WarheadType, TechnoClass*) {
+	damage = 0;
+	return RESULT_NONE;
+}
+void AircraftClass::Code_Pointers() {}
+void AircraftClass::Decode_Pointers() {}
+void AircraftClass::Enter_Idle_Mode(bool) {}
+RadioMessageType AircraftClass::Receive_Message(RadioClass*, RadioMessageType message, long&) { return message; }
+void AircraftClass::AI() {}
+BulletClass* AircraftClass::Fire_At(TARGET, int) { return nullptr; }
+void AircraftClass::Scatter(COORDINATE, bool) {}
+#ifdef CHEAT_KEYS
+void AircraftClass::Debug_Dump(MonoClass*) const {}
+#endif

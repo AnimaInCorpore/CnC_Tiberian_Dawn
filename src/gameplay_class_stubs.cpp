@@ -16,14 +16,6 @@
 
 HousesType HouseTypeClass::From_Name(char const*) { return HOUSE_NONE; }
 
-HouseClass* HouseClass::As_Pointer(HousesType) { return nullptr; }
-
-unsigned char const* HouseClass::Remap_Table(bool, bool) const {
-  return RemapNone;
-}
-
-bool HouseClass::Can_Build(AircraftType, HousesType) const { return false; }
-
 MessageListClass::MessageListClass() = default;
 MessageListClass::~MessageListClass() = default;
 
@@ -100,15 +92,32 @@ void SidebarClass::Draw_It(bool) {}
 void SidebarClass::Init_IO(void) {}
 bool SidebarClass::Activate(int) { return false; }
 void SidebarClass::One_Time(void) {}
+void SidebarClass::Code_Pointers(void) {}
+void SidebarClass::Decode_Pointers(void) {}
+
+SidebarClass::StripClass::SelectClass::SelectClass()
+    : ControlClass(0, 0, 0, 0, 0), Strip(nullptr), Index(0) {}
+int SidebarClass::StripClass::SelectClass::Action(unsigned, KeyNumType&) { return 0; }
+
+SidebarClass::StripClass::StripClass() = default;
+bool SidebarClass::StripClass::Add(RTTIType, int) { return false; }
+bool SidebarClass::StripClass::Abandon_Production(int) { return false; }
+bool SidebarClass::StripClass::Scroll(bool) { return false; }
+bool SidebarClass::StripClass::AI(KeyNumType&, int, int) { return false; }
+void SidebarClass::StripClass::Draw_It(bool) {}
+void SidebarClass::StripClass::One_Time(int) {}
+void SidebarClass::StripClass::Init_Clear() {}
+void SidebarClass::StripClass::Init_IO(int) {}
+void SidebarClass::StripClass::Init_Theater(TheaterType) {}
+bool SidebarClass::StripClass::Recalc() { return false; }
+void SidebarClass::StripClass::Activate() {}
+void SidebarClass::StripClass::Deactivate() {}
+void SidebarClass::StripClass::Flag_To_Redraw() {}
+bool SidebarClass::StripClass::Factory_Link(int, RTTIType, int) { return false; }
+void const* SidebarClass::StripClass::Get_Special_Cameo(int) { return nullptr; }
 
 void TabClass::Code_Pointers(void) {}
 void TabClass::Decode_Pointers(void) {}
-
-RadarClass::RadarClass() = default;
-CELL RadarClass::Click_Cell_Calc(int, int) { return 0; }
-void RadarClass::Set_Map_Dimensions(int, int, int, int) {}
-void RadarClass::Set_Tactical_Position(COORDINATE) {}
-bool RadarClass::Map_Cell(CELL, HouseClass*) { return false; }
 
 void RadioClass::Code_Pointers(void) {}
 void RadioClass::Decode_Pointers(void) {}
@@ -239,6 +248,7 @@ ThemeType ThemeClass::From_Name(char const*) { return THEME_NONE; }
 FootClass::FootClass() : TechnoClass(), Speed(0) {}
 FootClass::FootClass(HousesType house) : TechnoClass(house), Speed(0) {}
 FootClass::~FootClass() = default;
+bool FootClass::Basic_Path() { return false; }
 bool FootClass::Unlimbo(COORDINATE, DirType) { return true; }
 void FootClass::Sell_Back(int) {}
 int FootClass::Offload_Tiberium_Bail(void) { return 0; }
@@ -267,6 +277,19 @@ MoveType FootClass::Can_Enter_Cell(CELL, FacingType) const { return MOVE_OK; }
 void FootClass::Active_Click_With(ActionType, ObjectClass*) {}
 void FootClass::Active_Click_With(ActionType, short) {}
 bool FootClass::Start_Driver(COORDINATE&) { return false; }
+bool FootClass::Stop_Driver() { return true; }
+void FootClass::Assign_Destination(TARGET) {}
+bool FootClass::Limbo() { return true; }
+bool FootClass::Can_Demolish() const { return false; }
+COORDINATE FootClass::Sort_Y() const { return Coord; }
+COORDINATE FootClass::Likely_Coord() const { return Coord; }
+ResultType FootClass::Take_Damage(int& damage, int, WarheadType, TechnoClass*) {
+  damage = 0;
+  return RESULT_NONE;
+}
+RadioMessageType FootClass::Receive_Message(RadioClass*, RadioMessageType message, long&) { return message; }
+void FootClass::Death_Announcement(TechnoClass const*) const {}
+TARGET FootClass::Greatest_Threat(ThreatType) const { return 0; }
 
 HelpClass::~HelpClass() = default;
 HelpClass::HelpClass() : HelpX(0), HelpY(0), HelpWidth(0), Cost(0), X(0), Y(0), DrawX(0), DrawY(0), Width(0), Text(0), IsRight(0) {}

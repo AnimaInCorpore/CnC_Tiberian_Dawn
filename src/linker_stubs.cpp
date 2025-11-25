@@ -47,9 +47,6 @@
 bool IsTheaterShape = false;
 IPXManagerClass Ipx(0, 0, 0, 0, 0, 0);
 
-WWKeyboardClass Kbd{};
-WWKeyboardClass* _Kbd = &Kbd;
-
 void const* WarFactoryOverlay = nullptr;
 
 static constexpr unsigned char kIdentityRemap[256] = {
@@ -356,34 +353,6 @@ void OptionsClass::Set_Brightness(int) {}
 int OptionsClass::Get_Brightness() const { return 0; }
 void OptionsClass::Set_Color(int) {}
 
-// --- Sidebar ------------------------------------------------------------------------------
-
-SidebarClass::SidebarClass() = default;
-void SidebarClass::Code_Pointers() {}
-void SidebarClass::Decode_Pointers() {}
-
-SidebarClass::StripClass::SelectClass::SelectClass()
-    : ControlClass(0, 0, 0, 0, 0), Strip(nullptr), Index(0) {}
-int SidebarClass::StripClass::SelectClass::Action(unsigned, KeyNumType&) { return 0; }
-
-SidebarClass::StripClass::StripClass()
-    : ObjectWidth(0), ObjectHeight(0), StripWidth(0), LeftEdgeOffset(0), ButtonSpacingOffset(0) {}
-bool SidebarClass::StripClass::Add(RTTIType, int) { return false; }
-bool SidebarClass::StripClass::Abandon_Production(int) { return false; }
-bool SidebarClass::StripClass::Scroll(bool) { return false; }
-bool SidebarClass::StripClass::AI(KeyNumType&, int, int) { return false; }
-void SidebarClass::StripClass::Draw_It(bool) {}
-void SidebarClass::StripClass::One_Time(int) {}
-void SidebarClass::StripClass::Init_Clear() {}
-void SidebarClass::StripClass::Init_IO(int) {}
-void SidebarClass::StripClass::Init_Theater(TheaterType) {}
-bool SidebarClass::StripClass::Recalc() { return false; }
-void SidebarClass::StripClass::Activate() {}
-void SidebarClass::StripClass::Deactivate() {}
-void SidebarClass::StripClass::Flag_To_Redraw() {}
-bool SidebarClass::StripClass::Factory_Link(int, RTTIType, int) { return false; }
-void const* SidebarClass::StripClass::Get_Special_Cameo(int) { return nullptr; }
-
 // --- Object / Techno / Unit ------------------------------------------------------------------
 
 void ObjectClass::Code_Pointers() {}
@@ -394,81 +363,6 @@ void TechnoClass::Decode_Pointers() {}
 
 void UnitClass::Code_Pointers() {}
 void UnitClass::Decode_Pointers() {}
-
-// --- Foot ------------------------------------------------------------------------------------
-
-FootClass::FootClass()
-    : IsInitiated(0),
-      IsNewNavCom(0),
-      IsPlanningToLook(0),
-      IsDeploying(0),
-      IsFiring(0),
-      IsRotating(0),
-      IsDriving(0),
-      IsUnloading(0),
-      Speed(0),
-      ArchiveTarget(0),
-      NavCom(0),
-      SuspendedNavCom(0),
-      Team(nullptr),
-      Group(0),
-      Member(nullptr),
-      PathDelay(PATH_DELAY),
-      TryTryAgain(0),
-      BaseAttackTimer(PATH_DELAY),
-      HeadToCoord(0) {}
-
-FootClass::~FootClass() = default;
-
-FootClass::FootClass(HousesType) : FootClass() {}
-
-bool FootClass::Basic_Path() { return false; }
-RadioMessageType FootClass::Receive_Message(RadioClass*, RadioMessageType message, long&) { return message; }
-bool FootClass::Can_Demolish() const { return false; }
-COORDINATE FootClass::Sort_Y() const { return Coord_Add(Coord, 0); }
-COORDINATE FootClass::Likely_Coord() const { return Coord; }
-bool FootClass::Start_Driver(COORDINATE& headto) {
-  HeadToCoord = headto;
-  return true;
-}
-bool FootClass::Stop_Driver() { return true; }
-void FootClass::Assign_Destination(TARGET) {}
-bool FootClass::Unlimbo(COORDINATE, DirType) { return true; }
-bool FootClass::Limbo() { return true; }
-bool FootClass::Mark(MarkType) { return true; }
-void FootClass::Active_Click_With(ActionType, ObjectClass*) {}
-void FootClass::Active_Click_With(ActionType, CELL) {}
-void FootClass::Stun() {}
-ResultType FootClass::Take_Damage(int& damage, int, WarheadType, TechnoClass*) {
-  damage = 0;
-  return RESULT_DESTROYED;
-}
-void FootClass::Death_Announcement(TechnoClass const*) const {}
-void FootClass::Sell_Back(int) {}
-int FootClass::Offload_Tiberium_Bail() { return 0; }
-TARGET FootClass::Greatest_Threat(ThreatType) const { return 0; }
-void FootClass::Detach(TARGET, bool) {}
-void FootClass::Detach_All(bool) {}
-void FootClass::Assign_Mission(MissionType) {}
-int FootClass::Mission_Enter() { return 0; }
-int FootClass::Mission_Move() { return 0; }
-int FootClass::Mission_Capture() { return 0; }
-int FootClass::Mission_Attack() { return 0; }
-int FootClass::Mission_Guard() { return 0; }
-int FootClass::Mission_Hunt() { return 0; }
-int FootClass::Mission_Timed_Hunt() { return 0; }
-int FootClass::Mission_Guard_Area() { return 0; }
-void FootClass::Per_Cell_Process(bool) {}
-void FootClass::Approach_Target() {}
-void FootClass::Set_Speed(int) {}
-MoveType FootClass::Can_Enter_Cell(CELL, FacingType) const { return MOVE_OK; }
-int FootClass::Optimize_Moves(PathType*, MoveType) { return 0; }
-void FootClass::Override_Mission(MissionType, TARGET, TARGET) {}
-bool FootClass::Restore_Mission() { return true; }
-void FootClass::Code_Pointers() {}
-void FootClass::Decode_Pointers() {}
-
-// --- Drive -----------------------------------------------------------------------------------
 
 DriveClass::DriveClass()
     : FootClass(),
@@ -662,18 +556,6 @@ TextLabelClass* MessageListClass::Add_Message(char*, int, TextPrintType, int, un
 TeamTypeClass const* TeamTypeClass::Suggested_New_Team(HouseClass*, long, long, bool) { return nullptr; }
 TeamClass* TeamTypeClass::Create_One_Of() const { return nullptr; }
 
-// --- Type system -----------------------------------------------------------------------------
-
-AbstractTypeClass::AbstractTypeClass(int name, char const* ini) {
-  Name = name;
-  Set_Name(ini);
-}
-
-RTTIType AbstractTypeClass::What_Am_I() const { return RTTI_NONE; }
-COORDINATE AbstractTypeClass::Coord_Fixup(COORDINATE coord) const { return coord; }
-int AbstractTypeClass::Full_Name() const { return Name; }
-unsigned short AbstractTypeClass::Get_Ownable() const { return 0; }
-
 BuildingTypeClass const* const BuildingTypeClass::Pointers[STRUCT_COUNT] = {nullptr};
 BuildingTypeClass const& BuildingTypeClass::As_Reference(StructType type) {
   alignas(BuildingTypeClass) static unsigned char storage[sizeof(BuildingTypeClass)] = {};
@@ -836,66 +718,6 @@ bool TerrainClass::Save(FileClass&) { return true; }
 void TerrainClass::Code_Pointers() {}
 void TerrainClass::Decode_Pointers() {}
 int TerrainClass::Validate() const { return 0; }
-
-#ifdef CHEAT_KEYS
-void AircraftClass::Debug_Dump(MonoClass*) const {}
-#endif
-AircraftClass::~AircraftClass() = default;
-int AircraftClass::Mission_Attack() { return 0; }
-int AircraftClass::Mission_Unload() { return 0; }
-int AircraftClass::Mission_Hunt() { return 0; }
-int AircraftClass::Mission_Retreat() { return 0; }
-int AircraftClass::Mission_Move() { return 0; }
-int AircraftClass::Mission_Enter() { return 0; }
-int AircraftClass::Mission_Guard() { return 0; }
-int AircraftClass::Mission_Guard_Area() { return 0; }
-int AircraftClass::Threat_Range(int) const { return 0; }
-int AircraftClass::Rearm_Delay(bool) const { return 0; }
-MoveType AircraftClass::Can_Enter_Cell(CELL, FacingType) const { return MOVE_OK; }
-LayerType AircraftClass::In_Which_Layer() const { return LAYER_GROUND; }
-ActionType AircraftClass::What_Action(ObjectClass*) const { return ACTION_NONE; }
-ActionType AircraftClass::What_Action(CELL) const { return ACTION_NONE; }
-DirType AircraftClass::Desired_Load_Dir(ObjectClass*, CELL&) const { return DIR_N; }
-int AircraftClass::Pip_Count() const { return 0; }
-TARGET AircraftClass::Good_Fire_Location(TARGET) const { return 0; }
-bool AircraftClass::Cell_Seems_Ok(CELL, bool) const { return true; }
-DirType AircraftClass::Pose_Dir() const { return DIR_N; }
-TARGET AircraftClass::Good_LZ() const { return 0; }
-DirType AircraftClass::Fire_Direction() const { return DIR_N; }
-bool AircraftClass::Is_LZ_Clear(TARGET) const { return true; }
-TARGET AircraftClass::New_LZ(TARGET) const { return 0; }
-COORDINATE AircraftClass::Sort_Y() const { return Coord; }
-COORDINATE AircraftClass::Fire_Coord(int) const { return Coord; }
-COORDINATE AircraftClass::Target_Coord() const { return Coord; }
-bool AircraftClass::Unlimbo(COORDINATE coord, DirType facing) {
-  Coord = coord;
-  PrimaryFacing.Set_Current(facing);
-  return true;
-}
-int AircraftClass::Exit_Object(TechnoClass*) { return 0; }
-bool AircraftClass::Mark(MarkType) { return true; }
-short const* AircraftClass::Overlap_List() const { return nullptr; }
-void AircraftClass::Draw_It(int, int, WindowNumberType) {}
-void AircraftClass::Set_Speed(int) {}
-void AircraftClass::Active_Click_With(ActionType, ObjectClass*) {}
-void AircraftClass::Active_Click_With(ActionType, CELL) {}
-void AircraftClass::Player_Assign_Mission(MissionType, TARGET, TARGET) {}
-void AircraftClass::Response_Select() {}
-void AircraftClass::Response_Move() {}
-void AircraftClass::Response_Attack() {}
-bool AircraftClass::Process_Landing() { return true; }
-int AircraftClass::Process_Fly_To(bool) { return 0; }
-ResultType AircraftClass::Take_Damage(int& damage, int, WarheadType, TechnoClass*) {
-  damage = 0;
-  return RESULT_NONE;
-}
-void AircraftClass::Code_Pointers() {}
-void AircraftClass::Decode_Pointers() {}
-void AircraftClass::Enter_Idle_Mode(bool) {}
-RadioMessageType AircraftClass::Receive_Message(RadioClass*, RadioMessageType message, long&) { return message; }
-void AircraftClass::AI() {}
-BulletClass* AircraftClass::Fire_At(TARGET, int) { return nullptr; }
-void AircraftClass::Scatter(COORDINATE, bool) {}
 
 #ifdef CHEAT_KEYS
 void DriveClass::Debug_Dump(MonoClass*) const {}

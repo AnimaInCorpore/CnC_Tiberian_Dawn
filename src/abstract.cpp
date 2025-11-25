@@ -20,3 +20,23 @@ AbstractTypeClass::AbstractTypeClass(int name, char const * ini)
 	strncpy((char *)IniName, ini, sizeof(IniName));
 	((char &)IniName[sizeof(IniName)-1]) = '\0';
 }
+
+RTTIType AbstractTypeClass::What_Am_I(void) const
+{
+	return RTTI_NONE;
+}
+
+COORDINATE AbstractTypeClass::Coord_Fixup(COORDINATE coord) const
+{
+	return coord;
+}
+
+int AbstractTypeClass::Full_Name(void) const
+{
+	return Name;
+}
+
+unsigned short AbstractTypeClass::Get_Ownable(void) const
+{
+	return 0;
+}

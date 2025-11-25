@@ -14,11 +14,6 @@ find_package(SDL2 REQUIRED)
 
 # --- Source Files ---
 file(GLOB_RECURSE SOURCES "src/*.cpp")
-list(REMOVE_ITEM SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/gameplay_class_stubs.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/gadget_control_stub.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/legacy_vtables.cpp
-)
 
 # --- Library with all ported sources ---
 add_library(td_port STATIC ${SOURCES})
