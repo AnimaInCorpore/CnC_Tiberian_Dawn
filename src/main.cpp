@@ -1,6 +1,9 @@
 #include <SDL2/SDL.h>
-#include "platform_input.h"
+#include <cstdio>
+
 #include "game.h"
+#include "platform_input.h"
+#include "runtime_sdl.h"
 
 // Global shutdown flag maintained by legacy code paths.
 extern bool ReadyToQuit;
@@ -10,7 +13,10 @@ void Game_Shutdown(void);
 void Main_Game(int argc, char* argv[]);
 
 int main(int argc, char** argv) {
-    SDL_Init(SDL_INIT_VIDEO);
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        std::fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
+        return 1;
+    }
 
     SDL_Window* window = SDL_CreateWindow(
         "Command & Conquer",
@@ -20,28 +26,29 @@ int main(int argc, char** argv) {
         480,
         SDL_WINDOW_SHOWN
     );
+    if (!window) {
+        std::fprintf(stderr, "SDL_CreateWindow failed: %s\n", SDL_GetError());
+        SDL_Quit();
+        return 1;
+    }
+
+    SDL_Renderer* renderer =
+        SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (!renderer) {
+        std::fprintf(stderr, "SDL_CreateRenderer failed: %s\n", SDL_GetError());
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
+
+    Runtime_Set_Sdl_Window(window);
+    Runtime_Set_Sdl_Renderer(renderer);
 
     Game_Startup(argc, argv);
     Main_Game(argc, argv);
-
-    bool running = true;
-    while (running) {
-        if (ReadyToQuit) {
-            running = false;
-            break;
-        }
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = false;
-                break;
-            }
-            Platform_Handle_Sdl_Event(event);
-        }
-        SDL_Delay(1);
-    }
-
     Game_Shutdown();
+
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 

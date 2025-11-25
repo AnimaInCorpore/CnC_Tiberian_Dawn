@@ -25,7 +25,9 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdlib>
 #include <cstring>
+#include <cstdio>
 #include <limits>
 
 namespace {
@@ -223,6 +225,71 @@ DisplayClass::DisplayClass(void)
       PendingObjectPtr(nullptr),
       PendingObject(nullptr),
       PendingHouse(HOUSE_NONE) {}
+
+void DisplayClass::Read_INI(char* buffer) {
+	if (!buffer) return;
+
+	char name[16] = {};
+	char cell_trigger_name[20] = {};
+
+	Set_Map_Dimensions(
+	    WWGetPrivateProfileInt("MAP", "X", 1, buffer),
+	    WWGetPrivateProfileInt("MAP", "Y", 1, buffer),
+	    WWGetPrivateProfileInt("MAP", "Width", MAP_CELL_W - 2, buffer),
+	    WWGetPrivateProfileInt("MAP", "Height", MAP_CELL_H - 2, buffer));
+
+	WWGetPrivateProfileString("MAP", "Theater", Theaters[THEATER_DESERT].Name, name,
+	                          static_cast<int>(sizeof(name) - 1), buffer);
+	Theater = Theater_From_Name(name);
+
+	if (Theater != LastTheater) {
+		Reset_Theater_Shapes();
+	}
+
+	Init_Clear();
+	Init_IO();
+	Init_Theater(Theater);
+
+	for (int index = 0; index < WAYPT_COUNT; ++index) {
+		std::snprintf(name, sizeof(name), "%d", index);
+		Waypoint[index] = WWGetPrivateProfileInt("Waypoints", name, -1, buffer);
+		if (Waypoint[index] != -1) {
+			(*this)[Waypoint[index]].IsWaypoint = 1;
+		}
+	}
+
+	if (Waypoint[WAYPT_HOME] == -1) {
+		Waypoint[WAYPT_HOME] = XY_Cell(MapCellX, MapCellY);
+	}
+
+	Set_Tactical_Position(Cell_Coord(Waypoint[WAYPT_HOME]) & 0xFF00FF00L);
+	Views[0] = Views[1] = Views[2] = Views[3] = Waypoint[WAYPT_HOME];
+
+	const int ini_length = static_cast<int>(std::strlen(buffer)) + 2;
+	char* trigger_buffer = buffer + ini_length;
+	WWGetPrivateProfileString("CellTriggers", nullptr, nullptr, trigger_buffer,
+	                          ShapeBufferSize - ini_length, buffer);
+
+	while (*trigger_buffer != '\0') {
+		WWGetPrivateProfileString("CellTriggers", trigger_buffer, nullptr, cell_trigger_name,
+		                          sizeof(cell_trigger_name) - 1, buffer);
+
+		const int cell = std::atoi(trigger_buffer);
+		if (cell > 0 && cell < MAP_CELL_TOTAL && !(*this)[cell].IsTrigger) {
+			CellTriggers[cell] = TriggerClass::As_Pointer(cell_trigger_name);
+			if (CellTriggers[cell]) {
+				(*this)[cell].IsTrigger = 1;
+				CellTriggers[cell]->AttachCount++;
+			}
+		}
+
+		trigger_buffer += std::strlen(trigger_buffer) + 1;
+	}
+
+	LastTheater = Theater;
+}
+
+int DisplayClass::TacticalClass::Action(unsigned flags, KeyNumType&) { return static_cast<int>(flags); }
 
 void DisplayClass::One_Time(void) {
 	MapClass::One_Time();

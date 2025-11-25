@@ -1,7 +1,14 @@
+#include <SDL2/SDL.h>
+#include <strings.h>
+
 #include "legacy/compat.h"
 #include "legacy/function.h"
+#include "legacy/event.h"
+#include "legacy/externs.h"
 #include "legacy/nullmodem_stub.h"
 #include "legacy/windows_compat.h"
+#include "platform_input.h"
+#include "runtime_sdl.h"
 
 #include <cmath>
 #include <chrono>
@@ -112,6 +119,8 @@ bool Parse_Command_Line(int, char**) { return true; }
 
 void Read_Setup_Options(RawFileClass*) {}
 
+void Reset_Theater_Shapes() {}
+
 int WWGetPrivateProfileInt(char const*, char const*, int def, char*) {
   return def;
 }
@@ -127,6 +136,16 @@ char* WWGetPrivateProfileString(char const*, char const*, char const* def,
 bool WWWritePrivateProfileString(char const*, char const*, char const* value,
                                 char*) {
   return value ? true : false;
+}
+
+TheaterType Theater_From_Name(char const* name) {
+  if (!name) return THEATER_NONE;
+  for (int index = 0; index < THEATER_COUNT; ++index) {
+    if (strcasecmp(name, Theaters[index].Name) == 0) {
+      return static_cast<TheaterType>(index);
+    }
+  }
+  return THEATER_NONE;
 }
 
 bool Read_Private_Config_Struct(char*, NewConfigType* config) {
@@ -177,3 +196,96 @@ void Conquer_Init_Fonts() {}
 void CC_Draw_Text(int) {}
 
 void Game_Startup(void*, int, int, int, bool) {}
+
+// -----------------------------------------------------------------------------
+// Missing gameplay/loop hooks
+// -----------------------------------------------------------------------------
+EventClass::EventClass(EventType type) : Type(type), Frame(0), ID(0), IsExecuted(0), MPlayerID(0) {
+  std::memset(&Data, 0, sizeof(Data));
+}
+
+bool Init_Game(int, char**) {
+  CCDebugString("Init_Game: initializing minimal runtime.\n");
+  ReadyToQuit = false;
+  return true;
+}
+
+bool Select_Game(bool fade) {
+  static bool first_call = true;
+  if (!first_call) {
+    return false;
+  }
+
+  GameActive = true;
+  DoList.Init();
+  OutList.Init();
+  Frame = 0;
+  PlayerWins = false;
+  PlayerLoses = false;
+  PlayerRestarts = false;
+  Map.Set_Default_Mouse(MOUSE_NORMAL, false);
+
+  GameToPlay = GAME_NORMAL;
+  PlaybackGame = 0;
+  RecordGame = 0;
+
+  if (fade && GamePalette) {
+    Fade_Palette_To(GamePalette, FADE_PALETTE_MEDIUM, nullptr);
+  }
+
+  first_call = false;
+  return true;
+}
+
+bool Main_Loop() {
+  static Uint32 start_ticks = SDL_GetTicks();
+
+  SDL_Event event;
+  while (SDL_PollEvent(&event)) {
+    if (event.type == SDL_QUIT) {
+      ReadyToQuit = true;
+      return true;
+    }
+    Platform_Handle_Sdl_Event(event);
+  }
+
+  SDL_Renderer* renderer = Runtime_Get_Sdl_Renderer();
+  if (renderer) {
+    SDL_SetRenderDrawColor(renderer, 12, 16, 32, 255);
+    SDL_RenderClear(renderer);
+    SDL_Rect bar{20, 20, 200, 32};
+    const Uint8 pulse = static_cast<Uint8>(64 + (SDL_GetTicks() / 4) % 128);
+    SDL_SetRenderDrawColor(renderer, 32, 160, static_cast<Uint8>(192 + pulse / 4), 255);
+    SDL_RenderFillRect(renderer, &bar);
+    SDL_RenderPresent(renderer);
+  }
+
+  SDL_Delay(16);
+
+  const Uint32 elapsed = SDL_GetTicks() - start_ticks;
+  return ReadyToQuit || elapsed > 2500;
+}
+
+bool Map_Edit_Loop() { return true; }
+
+void Modem_Signoff() {
+  if (PlaybackGame) return;
+  EventClass event(EventClass::EXIT);
+  NullModem.Send_Message(&event, sizeof(EventClass), 0);
+  NullModem.Send_Message(&event, sizeof(EventClass), 0);
+}
+
+void Shutdown_Network() {
+  delete[] MetaPacket;
+  MetaPacket = nullptr;
+  MPlayerGameName[0] = '\0';
+}
+
+void Special_Dialog() { CCDebugString("Special dialog placeholder.\n"); }
+
+int Surrender_Dialog() {
+  CCDebugString("Surrender requested; defaulting to acceptance.\n");
+  return 1;
+}
+
+void Free_Scenario_Descriptions() {}

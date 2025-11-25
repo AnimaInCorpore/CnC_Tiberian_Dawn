@@ -1,4 +1,5 @@
 #pragma once
 
-// Lowercase mirror for legacy includes that expect "game.h".
-#include "GAME.h"
+void Game_Startup(int argc, char* argv[]);
+void Game_Shutdown(void);
+void Main_Game(int argc, char* argv[]);
