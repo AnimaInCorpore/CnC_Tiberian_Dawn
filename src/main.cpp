@@ -2,6 +2,9 @@
 #include "platform_input.h"
 #include "game.h"
 
+// Global shutdown flag maintained by legacy code paths.
+extern bool ReadyToQuit;
+
 void Game_Startup(int argc, char* argv[]);
 void Game_Shutdown(void);
 void Main_Game(int argc, char* argv[]);
@@ -23,13 +26,19 @@ int main(int argc, char** argv) {
 
     bool running = true;
     while (running) {
+        if (ReadyToQuit) {
+            running = false;
+            break;
+        }
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
+                break;
             }
             Platform_Handle_Sdl_Event(event);
         }
+        SDL_Delay(1);
     }
 
     Game_Shutdown();
