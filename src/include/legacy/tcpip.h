@@ -139,6 +139,7 @@ class TcpipManagerClass {
 		BOOL Add_Client(void);
 		void Close(void);
 		void Set_Host_Address(char *address);
+		void Set_Bind_Port(unsigned short port);
 		void Set_Protocol_UDP(BOOL state);
 		void Clear_Socket_Error(SOCKET socket);
 
@@ -233,7 +234,7 @@ extern int  InternetMaxPlayers;
 #define TXT_WINSOCK_RESOLVING_HOST_ADDRESS			4567+21
 
 
-struct tag tGameStatisticsStruct{
+struct GameStatisticsStruct {
 	char	WinnersName[20];
 	char	LosersName[20];
 	int	WinnersTeam;
@@ -246,7 +247,7 @@ struct tag tGameStatisticsStruct{
 	int	GameTimeElapsed;
 	int	VersionNumber;
 	char	TimeDateStamp[12];
-} GameStatisticsStruct;
+};
 
 
 

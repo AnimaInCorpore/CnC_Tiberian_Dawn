@@ -104,7 +104,7 @@ bool Queue_Options() { return false; }
 
 char const* Extract_String(char const* text, int) { return text; }
 
-void const* Hires_Retrieve(char*) { return nullptr; }
+void const* Hires_Retrieve(char const* /*name*/) { return nullptr; }
 
 void Validate_Error(char const*) {}
 

@@ -232,9 +232,17 @@ class GadgetClass : public LinkClass
 		virtual int Clicked_On(KeyNumType & key, unsigned flags, int x, int y);
 };
 
-inline GadgetClass::FlagEnum operator |(GadgetClass::FlagEnum, GadgetClass::FlagEnum);
-inline GadgetClass::FlagEnum operator &(GadgetClass::FlagEnum, GadgetClass::FlagEnum);
-inline GadgetClass::FlagEnum operator ~(GadgetClass::FlagEnum);
+inline GadgetClass::FlagEnum operator |(GadgetClass::FlagEnum lhs, GadgetClass::FlagEnum rhs) {
+	return static_cast<GadgetClass::FlagEnum>(static_cast<unsigned>(lhs) | static_cast<unsigned>(rhs));
+}
+
+inline GadgetClass::FlagEnum operator &(GadgetClass::FlagEnum lhs, GadgetClass::FlagEnum rhs) {
+	return static_cast<GadgetClass::FlagEnum>(static_cast<unsigned>(lhs) & static_cast<unsigned>(rhs));
+}
+
+inline GadgetClass::FlagEnum operator ~(GadgetClass::FlagEnum value) {
+	return static_cast<GadgetClass::FlagEnum>(~static_cast<unsigned>(value));
+}
 
 
 #endif

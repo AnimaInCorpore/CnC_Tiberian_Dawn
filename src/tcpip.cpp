@@ -99,6 +99,7 @@ std::deque<Datagram> g_incoming;
 std::vector<sockaddr_in> g_clients;
 sockaddr_in g_server_address{};
 bool g_has_server_address = false;
+int g_bind_port_override = -1;
 
 bool Addresses_Equal(sockaddr_in const& a, sockaddr_in const& b) {
 	return a.sin_port == b.sin_port && a.sin_addr.s_addr == b.sin_addr.s_addr;
@@ -117,7 +118,9 @@ bool Ensure_Socket_Open(unsigned short port) {
 
 	sockaddr_in local{};
 	local.sin_family = AF_INET;
-	local.sin_port = htons(port);
+	const unsigned short bind_port =
+	    g_bind_port_override >= 0 ? static_cast<unsigned short>(g_bind_port_override) : port;
+	local.sin_port = htons(bind_port);
 	local.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	if (::bind(fd, reinterpret_cast<sockaddr*>(&local), sizeof(local)) == SOCKET_ERROR) {
@@ -320,6 +323,7 @@ void TcpipManagerClass::Close(void) {
 	Clear_Queues();
 	SocketReceiveBuffer = 0;
 	SocketSendBuffer = 0;
+	g_bind_port_override = -1;
 #if defined(_WIN32)
 	if (g_wsa_ready) {
 		WSACleanup();
@@ -335,6 +339,10 @@ void TcpipManagerClass::Set_Host_Address(char* address) {
 	const unsigned short port = static_cast<unsigned short>(UseUDP ? UDP_PORT : PlanetWestwoodPortNumber);
 	g_server_address = Build_Address(HostAddress, port);
 	g_has_server_address = true;
+}
+
+void TcpipManagerClass::Set_Bind_Port(unsigned short port) {
+	g_bind_port_override = static_cast<int>(port);
 }
 
 void TcpipManagerClass::Set_Protocol_UDP(BOOL state) { UseUDP = state; }

@@ -29,19 +29,6 @@ inline T PostIncrementEnum(T& value) {
 }
 }  // namespace legacy_operators
 
-// Gadget flag helpers.
-inline GadgetClass::FlagEnum operator|(GadgetClass::FlagEnum lhs, GadgetClass::FlagEnum rhs) {
-  return legacy_operators::OrEnum(lhs, rhs);
-}
-
-inline GadgetClass::FlagEnum operator&(GadgetClass::FlagEnum lhs, GadgetClass::FlagEnum rhs) {
-  return legacy_operators::AndEnum(lhs, rhs);
-}
-
-inline GadgetClass::FlagEnum operator~(GadgetClass::FlagEnum value) {
-  return legacy_operators::NotEnum(value);
-}
-
 // Text print flag helpers.
 inline TextPrintType operator|(TextPrintType lhs, TextPrintType rhs) {
   return legacy_operators::OrEnum(lhs, rhs);

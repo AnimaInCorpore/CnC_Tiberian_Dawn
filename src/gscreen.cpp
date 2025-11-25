@@ -77,22 +77,16 @@ void GScreenClass::Init_Theater(TheaterType) {}
 void GScreenClass::Input(KeyNumType&, int&, int&) {}
 
 void GScreenClass::Add_A_Button(GadgetClass& gadget) {
-	gadget.Next = Buttons;
-	Buttons = &gadget;
+	gadget.Remove();
+	if (Buttons) {
+		Buttons = static_cast<GadgetClass*>(&gadget.Add_Head(*Buttons));
+	} else {
+		Buttons = &gadget;
+	}
 }
 
 void GScreenClass::Remove_A_Button(GadgetClass& gadget) {
-	if (Buttons == &gadget) {
-		Buttons = gadget.Next;
-		return;
-	}
-
-	for (GadgetClass* cursor = Buttons; cursor; cursor = cursor->Next) {
-		if (cursor->Next == &gadget) {
-			cursor->Next = gadget.Next;
-			break;
-		}
-	}
+	Buttons = static_cast<GadgetClass*>(gadget.Remove());
 }
 
 void GScreenClass::Flag_To_Redraw(bool complete) {

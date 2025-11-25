@@ -7,13 +7,13 @@
 **  coordinate utilities used throughout the game logic.
 */
 
-extern char const* SourceName[SOURCE_COUNT] = {
+char const* const SourceName[SOURCE_COUNT] = {
     "North",    "East",  "South",   "West",    "Shipping",
     "Beach",    "Air",   "Visible", "EnemyBase", "HomeBase",
     "Ocean",
 };
 
-extern COORDINATE const StoppingCoordAbs[5] = {
+COORDINATE const StoppingCoordAbs[5] = {
     0x00800080L,  // center
     0x00400040L,  // upper left
     0x004000C0L,  // upper right
@@ -21,7 +21,7 @@ extern COORDINATE const StoppingCoordAbs[5] = {
     0x00C000C0L   // lower right
 };
 
-extern WeaponTypeClass const Weapons[WEAPON_COUNT] = {
+WeaponTypeClass const Weapons[WEAPON_COUNT] = {
     {BULLET_SNIPER, 125, 40, 0x0580, VOC_SNIPER, ANIM_NONE},       // WEAPON_RIFLE
     {BULLET_SPREADFIRE, 25, 50, 0x0400, VOC_MINI, ANIM_GUN_N},     // WEAPON_CHAIN_GUN
     {BULLET_BULLET, 1, 7, 0x01C0, VOC_RIFLE, ANIM_NONE},           // WEAPON_PISTOL
@@ -49,7 +49,7 @@ extern WeaponTypeClass const Weapons[WEAPON_COUNT] = {
     {BULLET_TREXBITE, 155, 30, 0x0180, VOC_DINOATK1, ANIM_NONE},     // WEAPON_TREX
 };
 
-extern WarheadTypeClass const Warheads[WARHEAD_COUNT] = {
+WarheadTypeClass const Warheads[WARHEAD_COUNT] = {
     {2, false, false, false, {0xFF, 0x80, 0x90, 0x40, 0x40}},   // WARHEAD_SA
     {6, true, true, true, {0xE0, 0xC0, 0x90, 0x40, 0xFF}},      // WARHEAD_HE
     {6, true, true, false, {0x40, 0xC0, 0xC0, 0xFF, 0x80}},     // WARHEAD_AP
@@ -64,12 +64,12 @@ extern WarheadTypeClass const Warheads[WARHEAD_COUNT] = {
     {1, true, true, false, {0xFF, 0xC0, 0x80, 0x20, 0x08}},     // WARHEAD_FEEDME
 };
 
-extern unsigned char const Pixel2Lepton[24] = {
+unsigned char const Pixel2Lepton[24] = {
     0x00, 0x0B, 0x15, 0x20, 0x2B, 0x35, 0x40, 0x4B,
     0x55, 0x60, 0x6B, 0x75, 0x80, 0x8B, 0x95, 0xA0,
     0xAB, 0xB5, 0xC0, 0xCB, 0xD5, 0xE0, 0xEB, 0xF5};
 
-extern CELL const AdjacentCell[FACING_COUNT] = {
+CELL const AdjacentCell[FACING_COUNT] = {
     -(MAP_CELL_W),     // North
     -(MAP_CELL_W - 1), // North East
     1,                 // East
@@ -80,11 +80,11 @@ extern CELL const AdjacentCell[FACING_COUNT] = {
     -(MAP_CELL_W + 1)  // North West
 };
 
-extern COORDINATE const AdjacentCoord[FACING_COUNT] = {
+COORDINATE const AdjacentCoord[FACING_COUNT] = {
     0xFF000000L, 0xFF000100L, 0x00000100L, 0x01000100L,
     0x01000000L, 0x0100FF00L, 0x0000FF00L, 0xFF00FF00L};
 
-extern unsigned char const Facing8[256] = {
+unsigned char const Facing8[256] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
@@ -97,7 +97,7 @@ extern unsigned char const Facing8[256] = {
     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0};
 
-extern unsigned char const Facing32[256] = {
+unsigned char const Facing32[256] = {
     0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3,
     3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 6, 6,
     6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9,
@@ -111,7 +111,7 @@ extern unsigned char const Facing32[256] = {
     29, 29, 29, 29, 29, 29, 30, 30, 30, 30, 30, 30, 30, 30, 30, 31, 31, 31, 31, 31, 31, 31,
     31, 31, 0, 0, 0, 0, 0, 0};
 
-extern TheaterDataType const Theaters[THEATER_COUNT] = {
+TheaterDataType const Theaters[THEATER_COUNT] = {
     {"DESERT", "DESERT", "DES"},
     {"JUNGLE", "JUNGLE", "JUN"},
     {"TEMPERATE", "TEMPERAT", "TEM"},
