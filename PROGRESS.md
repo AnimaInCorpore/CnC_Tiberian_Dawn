@@ -45,7 +45,7 @@
 | `COMQUEUE.CPP` | | To be ported. |
 | `CONFDLG.CPP` | | To be ported. |
 | `CONNECT.CPP` | | To be ported. |
-| `CONQUER.CPP` | `src/conquer.cpp` | Ported to src/, replaced NULL with nullptr, and disabled platform-specific code (DOS, Windows API, DDE, IPX). |
+| `CONQUER.CPP` | `src/maingame.cpp` | Main_Game loop ported from the legacy file; retains SDL_QUIT push on exit while routing through the original select/loop/dialog flow. |
 | `CONST.CPP` | | To be ported. |
 | `CONTROL.CPP` | | To be ported. |
 | `COORD.CPP` | | To be ported. |
