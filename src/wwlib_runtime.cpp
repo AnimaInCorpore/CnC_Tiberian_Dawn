@@ -1,11 +1,14 @@
 #include "legacy/wwlib32.h"
 #include "legacy/defines.h"
 #include "legacy/externs.h"
+#include "runtime_sdl.h"
 
+#include <SDL2/SDL.h>
 #include <algorithm>
 #include <deque>
 #include <cstring>
 #include <utility>
+#include <vector>
 
 namespace {
 struct GraphicBufferImpl {
@@ -38,6 +41,79 @@ struct Fonts {
 PlatformMouseState g_mouse_state{};
 KeyboardImpl g_keyboard{};
 Fonts g_fonts{};
+SDL_Texture* g_present_texture = nullptr;
+int g_present_width = 0;
+int g_present_height = 0;
+
+Uint32 Palette_Index_To_ARGB(const unsigned char* palette, int index) {
+  index = std::clamp(index, 0, 255);
+  const int offset = index * 3;
+  const auto fetch = [palette, offset, index](int channel) -> Uint8 {
+    if (!palette) {
+      return static_cast<Uint8>(index);
+    }
+    const int value = static_cast<int>(palette[offset + channel]) * 4;
+    return static_cast<Uint8>(std::clamp(value, 0, 255));
+  };
+  const Uint8 r = fetch(0);
+  const Uint8 g = fetch(1);
+  const Uint8 b = fetch(2);
+  return (0xFFu << 24) | (static_cast<Uint32>(r) << 16) | (static_cast<Uint32>(g) << 8) | b;
+}
+
+void Destroy_Present_Texture() {
+  if (g_present_texture) {
+    SDL_DestroyTexture(g_present_texture);
+    g_present_texture = nullptr;
+  }
+  g_present_width = 0;
+  g_present_height = 0;
+}
+
+void Ensure_Present_Texture(SDL_Renderer* renderer, int width, int height) {
+  if (!renderer) return;
+  if (g_present_texture && g_present_width == width && g_present_height == height) {
+    return;
+  }
+  Destroy_Present_Texture();
+  g_present_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+  g_present_width = width;
+  g_present_height = height;
+}
+
+void Present_View(const GraphicViewPortClass& view) {
+  SDL_Renderer* renderer = Runtime_Get_Sdl_Renderer();
+  if (!renderer) return;
+  const GraphicBufferClass* buffer = view.Get_Graphic_Buffer();
+  if (!buffer) return;
+  const unsigned char* src = buffer->Get_Buffer();
+  if (!src) return;
+
+  const int width = view.Get_Width();
+  const int height = view.Get_Height();
+  if (width <= 0 || height <= 0) return;
+
+  Ensure_Present_Texture(renderer, width, height);
+  if (!g_present_texture) return;
+
+  const unsigned char* palette = Palette ? Palette : GamePalette;
+  std::vector<Uint32> argb(static_cast<std::size_t>(width) * height, 0);
+
+  const int pitch = buffer->Get_Width();
+  const int origin_x = view.Get_XPos();
+  const int origin_y = view.Get_YPos();
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      const int src_index = (origin_y + y) * pitch + (origin_x + x);
+      argb[static_cast<std::size_t>(y) * width + x] = Palette_Index_To_ARGB(palette, src[src_index]);
+    }
+  }
+
+  SDL_UpdateTexture(g_present_texture, nullptr, argb.data(), width * sizeof(Uint32));
+  SDL_RenderClear(renderer);
+  SDL_RenderCopy(renderer, g_present_texture, nullptr, nullptr);
+  SDL_RenderPresent(renderer);
+}
 
 }  // namespace
 
@@ -197,26 +273,49 @@ void GraphicViewPortClass::Blit(const GraphicBufferClass& src, int src_x, int sr
       dest_buffer[dest_y * impl_->buffer->Get_Width() + dest_x] = src_buffer[source_y * src.Get_Width() + source_x];
     }
   }
+
+  if (this == &SeenBuff) {
+    Present_View(*this);
+  }
 }
 
 void GraphicViewPortClass::Blit(const GraphicViewPortClass& src, int src_x, int src_y, int dst_x, int dst_y,
                                 int width, int height) {
-  const auto* src_buffer = src.Get_Graphic_Buffer() ? src.Get_Graphic_Buffer()->Get_Buffer() : nullptr;
-  if (!src_buffer) return;
-  if (!impl_->buffer) return;
-  GraphicBufferClass* src_storage = src.Get_Graphic_Buffer();
+  const GraphicViewPortClass* source_view = &src;
+  GraphicViewPortClass* dest_view = this;
+
+  if (this == &HidPage && &src == &SeenBuff) {
+    source_view = this;
+    dest_view = const_cast<GraphicViewPortClass*>(&src);
+    src_x = source_view->Get_XPos();
+    src_y = source_view->Get_YPos();
+    dst_x = dest_view->Get_XPos();
+    dst_y = dest_view->Get_YPos();
+    width = source_view->Get_Width();
+    height = source_view->Get_Height();
+  }
+
+  const auto* src_buffer = source_view->Get_Graphic_Buffer()
+                               ? source_view->Get_Graphic_Buffer()->Get_Buffer()
+                               : nullptr;
+  auto* dest_buffer = dest_view->impl_->buffer ? dest_view->impl_->buffer->Get_Buffer() : nullptr;
+  if (!src_buffer || !dest_buffer) return;
+  GraphicBufferClass* src_storage = source_view->Get_Graphic_Buffer();
   for (int y = 0; y < height; ++y) {
-    const int source_y = src_y + y - src.Get_YPos();
-    const int dest_y = dst_y + y - impl_->y;
-    if (source_y < 0 || dest_y < 0 || source_y >= src_storage->Get_Height() || dest_y >= impl_->height) continue;
+    const int source_y = src_y + y - source_view->Get_YPos();
+    const int dest_y = dst_y + y - dest_view->impl_->y;
+    if (source_y < 0 || dest_y < 0 || source_y >= src_storage->Get_Height() || dest_y >= dest_view->impl_->height) continue;
     for (int x = 0; x < width; ++x) {
-      const int source_x = src_x + x - src.Get_XPos();
-      const int dest_x = dst_x + x - impl_->x;
-      if (source_x < 0 || dest_x < 0 || source_x >= src_storage->Get_Width() || dest_x >= impl_->width) continue;
-      impl_->buffer
-          ->Get_Buffer()[dest_y * impl_->buffer->Get_Width() + dest_x] =
+      const int source_x = src_x + x - source_view->Get_XPos();
+      const int dest_x = dst_x + x - dest_view->impl_->x;
+      if (source_x < 0 || dest_x < 0 || source_x >= src_storage->Get_Width() || dest_x >= dest_view->impl_->width) continue;
+      dest_buffer[dest_y * dest_view->impl_->buffer->Get_Width() + dest_x] =
           src_buffer[source_y * src_storage->Get_Width() + source_x];
     }
+  }
+
+  if (dest_view == &SeenBuff) {
+    Present_View(*dest_view);
   }
 }
 

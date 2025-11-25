@@ -211,11 +211,6 @@ bool Init_Game(int, char**) {
 }
 
 bool Select_Game(bool fade) {
-  static bool first_call = true;
-  if (!first_call) {
-    return false;
-  }
-
   GameActive = true;
   DoList.Init();
   OutList.Init();
@@ -233,8 +228,29 @@ bool Select_Game(bool fade) {
     Fade_Palette_To(GamePalette, FADE_PALETTE_MEDIUM, nullptr);
   }
 
-  first_call = false;
-  return true;
+  static bool title_loaded = false;
+  if (!title_loaded) {
+    char filename[] = "HTITLE.PCX";
+    Load_Title_Screen(filename, &HidPage, Palette);
+    title_loaded = true;
+  }
+
+  while (!ReadyToQuit) {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+      if (event.type == SDL_QUIT ||
+          (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)) {
+        ReadyToQuit = true;
+        break;
+      }
+      Platform_Handle_Sdl_Event(event);
+    }
+
+    HidPage.Blit(SeenBuff);
+    SDL_Delay(16);
+  }
+
+  return false;
 }
 
 bool Main_Loop() {
