@@ -463,6 +463,8 @@ long Load_Uncompress(FileClass &file, BuffType &uncomp_buff, BuffType &dest_buff
 long Translucent_Table_Size(int count);
 void *Build_Translucent_Table(void const *palette, TLucentType const *control, int count, void *buffer);
 void *Conquer_Build_Translucent_Table(void const *palette, TLucentType const *control, int count, void *buffer);
+void *Build_Fading_Table(void const *palette, void *dest, int color, int frac);
+void Fade_Palette_To(unsigned char *palette, int speed, void (*callback)(void));
 
 /*
 **	KEYFBUFF.ASM

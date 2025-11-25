@@ -18,9 +18,8 @@ extern bool ReadyToQuit;
 int TotalLocks = 0;
 
 // Legacy routines that haven't been surfaced through a modern header yet.
-void Register_Game_Start_Time(void) {}
-void Send_Statistics_Packet(void) {}
-void Fade_Palette_To(unsigned char*, int, void (*)(void)) {}
+void Register_Game_Start_Time(void);
+void Send_Statistics_Packet(void);
 
 #ifdef FORCE_WINSOCK
 extern bool Spawn_WChat(bool can_launch);

@@ -1,7 +1,10 @@
 #include "legacy/wwlib32.h"
+#include "legacy/defines.h"
+#include "legacy/externs.h"
 
 #include <algorithm>
 #include <deque>
+#include <cstring>
 #include <utility>
 
 namespace {
@@ -298,7 +301,30 @@ void Update_Mouse_Position(int x, int y) {
   g_mouse_state.y = y;
 }
 
-void Set_Font_Palette_Range(void const* /*palette*/, int /*first*/, int /*count*/) {}
+void Set_Font_Palette_Range(void const* palette, int first, int count) {
+  if (!palette || count <= 0) return;
+  if (!GamePalette && !Palette) return;
+  if (!GamePalette) {
+    GamePalette = new unsigned char[256 * 3];
+    std::fill_n(GamePalette, 256 * 3, 0);
+  }
+  if (!Palette) {
+    Palette = new unsigned char[256 * 3];
+    std::fill_n(Palette, 256 * 3, 0);
+  }
+  const auto* source = static_cast<const unsigned char*>(palette);
+  const int start = std::clamp(first, 0, 255);
+  const int clamped_count = std::max(0, std::min(count, 256 - start));
+  const int byte_offset = start * 3;
+  const int byte_count = clamped_count * 3;
+
+  if (GamePalette) {
+    std::memcpy(GamePalette + byte_offset, source + byte_offset, byte_count);
+  }
+  if (Palette) {
+    std::memcpy(Palette + byte_offset, source + byte_offset, byte_count);
+  }
+}
 
 void const* Set_Current_Font(void const* font) {
   const void* old = g_fonts.current;

@@ -196,9 +196,6 @@ extern int  InternetMaxPlayers;
 #define TXT_WINSOCK_RESOLVING_HOST_ADDRESS			4567+21
 
 
-#if (0)
-
-
 struct tag tGameStatisticsStruct{
 	char	WinnersName[20];
 	char	LosersName[20];
@@ -219,7 +216,3 @@ struct tag tGameStatisticsStruct{
 
 
 extern GameStatisticsStruct GameStatistics;
-
-#endif	//(0)
-
-

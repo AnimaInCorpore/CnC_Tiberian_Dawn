@@ -75,20 +75,6 @@ unsigned char const RemapYellow[256] = {};
 unsigned char const RemapRed[256] = {};
 unsigned char const RemapBlueGreen[256] = {};
 
-unsigned char DisplayClass::FadingBrighten[256] = {};
-unsigned char DisplayClass::FadingShade[256] = {};
-unsigned char DisplayClass::FadingLight[256] = {};
-unsigned char DisplayClass::RemapTables[HOUSE_COUNT][3][256] = {};
-unsigned char DisplayClass::FadingGreen[256] = {};
-unsigned char DisplayClass::FadingYellow[256] = {};
-unsigned char DisplayClass::FadingRed[256] = {};
-unsigned char DisplayClass::TranslucentTable[(MAGIC_COL_COUNT + 1) * 256] = {};
-unsigned char DisplayClass::WhiteTranslucentTable[(1 + 1) * 256] = {};
-unsigned char DisplayClass::MouseTranslucentTable[(4 + 1) * 256] = {};
-void const* DisplayClass::TransIconset = nullptr;
-unsigned char DisplayClass::UnitShadow[(USHADOW_COL_COUNT + 1) * 256] = {};
-unsigned char DisplayClass::SpecialGhost[2 * 256] = {};
-
 GroundType const Ground[LAND_COUNT] = {};
 
 // --- Lightweight implementations -------------------------------------------------------------
@@ -193,96 +179,10 @@ EventClass::EventClass(EventType type, TARGET whom) : Type(type), Frame(0), ID(0
   Data.Mission.Mission = MISSION_NONE;
 }
 
-// --- GScreen / Display -----------------------------------------------------------------------
-
-GadgetClass* GScreenClass::Buttons = nullptr;
-GraphicBufferClass* GScreenClass::ShadowPage = nullptr;
-
-GScreenClass::GScreenClass() = default;
-void GScreenClass::One_Time() {}
-void GScreenClass::Init(TheaterType) {}
-void GScreenClass::Init_Clear() {}
-void GScreenClass::Init_IO() {}
-void GScreenClass::Init_Theater(TheaterType) {}
-void GScreenClass::Input(KeyNumType&, int&, int&) {}
-void GScreenClass::Add_A_Button(GadgetClass&) {}
-void GScreenClass::Remove_A_Button(GadgetClass&) {}
-void GScreenClass::Flag_To_Redraw(bool) {}
-void GScreenClass::Render() {}
-void GScreenClass::Blit_Display() {}
-void GScreenClass::Code_Pointers() {}
-void GScreenClass::Decode_Pointers() {}
-void GScreenClass::Set_Default_Mouse(MouseType, bool) {}
-bool GScreenClass::Override_Mouse_Shape(MouseType, bool) { return false; }
-void GScreenClass::Revert_Mouse_Shape() {}
-void GScreenClass::Mouse_Small(bool) {}
-
 int GadgetClass::Clicked_On(int& control, unsigned flags, int, int) {
   control = 0;
   return static_cast<int>(flags);
 }
-
-LayerClass DisplayClass::Layer[LAYER_COUNT] = {};
-
-DisplayClass::DisplayClass() : Theater(THEATER_NONE), TacticalCoord(0), TacLeptonWidth(0), TacLeptonHeight(0) {}
-void DisplayClass::Read_INI(char*) {}
-void DisplayClass::Write_INI(char*) {}
-void DisplayClass::One_Time() {}
-void DisplayClass::Init_Clear() {}
-void DisplayClass::Init_IO() {}
-void DisplayClass::Init_Theater(TheaterType theater) { Theater = theater; }
-void DisplayClass::AI(KeyNumType&, int, int) {}
-void DisplayClass::Draw_It(bool) {}
-bool DisplayClass::Map_Cell(CELL, HouseClass*) { return false; }
-CELL DisplayClass::Click_Cell_Calc(int, int) { return 0; }
-bool DisplayClass::Scroll_Map(DirType, int& distance, bool) {
-  distance = 0;
-  return false;
-}
-void DisplayClass::Refresh_Cells(CELL, short const*) {}
-void DisplayClass::Set_View_Dimensions(int, int, int, int) {}
-void DisplayClass::Set_Tactical_Position(COORDINATE coord) { TacticalCoord = coord; }
-void DisplayClass::Cursor_Mark(CELL, bool) {}
-void DisplayClass::Set_Cursor_Shape(short const*) {}
-CELL DisplayClass::Set_Cursor_Pos(CELL pos) { return pos; }
-void DisplayClass::Get_Occupy_Dimensions(int& w, int& h, short const*) {
-  w = 0;
-  h = 0;
-}
-void DisplayClass::Refresh_Band() {}
-void DisplayClass::Select_These(COORDINATE, COORDINATE) {}
-COORDINATE DisplayClass::Pixel_To_Coord(int, int) { return 0; }
-bool DisplayClass::Coord_To_Pixel(COORDINATE coord, int& x, int& y) {
-  x = 0;
-  y = 0;
-  return coord != 0;
-}
-bool DisplayClass::Push_Onto_TacMap(COORDINATE& source, COORDINATE& dest) {
-  dest = source;
-  return false;
-}
-void DisplayClass::Remove(ObjectClass const*, LayerType) {}
-void DisplayClass::Submit(ObjectClass const*, LayerType) {}
-CELL DisplayClass::Calculated_Cell(SourceType, HousesType) { return 0; }
-bool DisplayClass::In_View(CELL) { return false; }
-bool DisplayClass::Passes_Proximity_Check(ObjectTypeClass const*) { return true; }
-ObjectClass* DisplayClass::Cell_Object(CELL, int, int) { return nullptr; }
-ObjectClass* DisplayClass::Next_Object(ObjectClass*) { return nullptr; }
-ObjectClass* DisplayClass::Prev_Object(ObjectClass*) { return nullptr; }
-int DisplayClass::Cell_Shadow(CELL) { return 0; }
-short const* DisplayClass::Text_Overlap_List(char const*, int, int, int) { return nullptr; }
-bool DisplayClass::Is_Spot_Free(COORDINATE) const { return true; }
-COORDINATE DisplayClass::Closest_Free_Spot(COORDINATE coord, bool) const { return coord; }
-void DisplayClass::Sell_Mode_Control(int) {}
-void DisplayClass::Repair_Mode_Control(int) {}
-MouseType DisplayClass::Get_Mouse_Shape() const { return MOUSE_NORMAL; }
-void DisplayClass::Mouse_Left_Release(CELL, int, int, ObjectClass*, ActionType, bool) {}
-void DisplayClass::Mouse_Left_Up(bool, ObjectClass*, ActionType, bool) {}
-void DisplayClass::Mouse_Left_Press(int, int) {}
-void DisplayClass::Mouse_Left_Held(int, int) {}
-void DisplayClass::Mouse_Right_Press() {}
-void DisplayClass::Code_Pointers() {}
-void DisplayClass::Decode_Pointers() {}
 
 void RadarClass::Code_Pointers() {}
 void RadarClass::Decode_Pointers() {}
@@ -612,46 +512,6 @@ HouseTypeClass const& HouseTypeClass::As_Reference(HousesType house) {
   if (house < HOUSE_COUNT && Pointers[house]) return *Pointers[house];
   return dummy;
 }
-
-// --- IPX plumbing ----------------------------------------------------------------------------
-
-ConnectionClass::ConnectionClass(int, unsigned short, unsigned long, unsigned long, unsigned long) {}
-ConnectionClass::~ConnectionClass() = default;
-int ConnectionClass::Service() { return 0; }
-
-NonSequencedConnClass::NonSequencedConnClass(int numsend, int numrecieve, int maxlen, unsigned short magicnum,
-                                             unsigned long retry_delta, unsigned long max_retries, unsigned long timeout)
-    : ConnectionClass(maxlen, magicnum, retry_delta, max_retries, timeout), Queue(nullptr) {
-  (void)numsend;
-  (void)numrecieve;
-}
-NonSequencedConnClass::~NonSequencedConnClass() = default;
-void NonSequencedConnClass::Init() {}
-int NonSequencedConnClass::Get_Packet(void*, int*) { return 0; }
-int NonSequencedConnClass::Send_Packet(void*, int, int) { return 0; }
-int NonSequencedConnClass::Receive_Packet(void*, int) { return 0; }
-int NonSequencedConnClass::Service_Send_Queue() { return 0; }
-int NonSequencedConnClass::Service_Receive_Queue() { return 0; }
-
-int IPXGlobalConnClass::Send(char*, int) { return 0; }
-int IPXGlobalConnClass::Service_Receive_Queue() { return 0; }
-
-void IPXManagerClass::Set_Timing(unsigned long, unsigned long, unsigned long) {}
-int IPXManagerClass::Connection_ID(int) { return 0; }
-unsigned long IPXManagerClass::Response_Time() { return 0; }
-void IPXManagerClass::Configure_Debug(int, int, int, char**, int) {}
-int IPXManagerClass::Global_Num_Send() { return 0; }
-int IPXManagerClass::Num_Connections() { return 0; }
-int IPXManagerClass::Connection_Index(int) { return -1; }
-void IPXManagerClass::Mono_Debug_Print(int, int) {}
-int IPXManagerClass::Private_Num_Send(int) { return 0; }
-bool IPXManagerClass::Delete_Connection(int) { return false; }
-int IPXManagerClass::Global_Num_Receive() { return 0; }
-int IPXManagerClass::Get_Private_Message(void*, int*, int*) { return 0; }
-int IPXManagerClass::Private_Num_Receive(int) { return 0; }
-void IPXManagerClass::Reset_Response_Time() {}
-int IPXManagerClass::Send_Private_Message(void*, int, int, int) { return 0; }
-int IPXManagerClass::Service() { return 0; }
 
 // --- Cells / Fuses / Animations --------------------------------------------------------------
 

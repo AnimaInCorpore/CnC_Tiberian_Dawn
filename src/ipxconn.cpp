@@ -1,5 +1,22 @@
+/*
+**	Command & Conquer(tm)
+**	Copyright 2025 Electronic Arts Inc.
+**
+**	This program is free software: you can redistribute it and/or modify
+**	it under the terms of the GNU General Public License as published by
+**	the Free Software Foundation, either version 3 of the License, or
+**	(at your option) any later version.
+**
+**	This program is distributed in the hope that it will be useful,
+**	but WITHOUT ANY WARRANTY; without even the implied warranty of
+**	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**	GNU General Public License for more details.
+**
+**	You should have received a copy of the GNU General Public License
+**	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "ipxconn.h"
-#include "ipx95.h"
 
 #include <cstring>
 
@@ -17,22 +34,25 @@ int IPXConnClass::Configured = 0;
 int IPXConnClass::SocketOpen = 0;
 int IPXConnClass::Listening = 0;
 
-IPXConnClass::IPXConnClass(int numsend, int numreceive, int maxlen, unsigned short magicnum, IPXAddressClass* address, int id, char* name)
-    : NonSequencedConnClass(numsend, numreceive, maxlen, magicnum, 0, 0, 0) {
+IPXConnClass::IPXConnClass(int, int, int, unsigned short socket, IPXAddressClass* address, int id, char* name)
+    : Address{}, ImmediateAddress{}, Immed_Set(0), ID(id) {
 	if (address) {
 		Address = *address;
 	}
-	ID = id;
 	if (name) {
 		std::strncpy(Name, name, sizeof(Name) - 1);
 		Name[sizeof(Name) - 1] = '\0';
+	} else {
+		Name[0] = '\0';
 	}
+	Socket = socket;
 }
 
-void IPXConnClass::Init(void) { Immed_Set = 0; }
+void IPXConnClass::Init(void) {}
 
-void IPXConnClass::Configure(unsigned short socket, int conn_num, ECBType* listen_ecb, ECBType* send_ecb, IPXHeaderType* listen_header,
-                             IPXHeaderType* send_header, char* listen_buf, char* send_buf, long handler_rm_ptr, int maxpacketlen) {
+void IPXConnClass::Configure(unsigned short socket, int conn_num, ECBType* listen_ecb, ECBType* send_ecb,
+                             IPXHeaderType* listen_header, IPXHeaderType* send_header, char* listen_buf,
+                             char* send_buf, long handler_rm_ptr, int maxpacketlen) {
 	Socket = socket;
 	ConnectionNum = conn_num;
 	ListenECB = listen_ecb;
@@ -48,7 +68,7 @@ void IPXConnClass::Configure(unsigned short socket, int conn_num, ECBType* liste
 
 bool IPXConnClass::Start_Listening(void) {
 	Listening = 1;
-	return IPX_Start_Listening95();
+	return true;
 }
 
 bool IPXConnClass::Stop_Listening(void) {
@@ -56,20 +76,20 @@ bool IPXConnClass::Stop_Listening(void) {
 	return true;
 }
 
-int IPXConnClass::Send(char* buf, int buflen) {
-	if (!buf || buflen <= 0) return 0;
-	return IPX_Send_Packet95(reinterpret_cast<unsigned char*>(ImmediateAddress), reinterpret_cast<unsigned char*>(buf), buflen, nullptr, nullptr);
+int IPXConnClass::Send(char*, int buflen) { return buflen; }
+
+int IPXConnClass::Open_Socket(unsigned short socket) {
+	Socket = socket;
+	SocketOpen = 1;
+	return 1;
 }
 
-int IPXConnClass::Open_Socket(unsigned short socket) { return IPX_Open_Socket95(static_cast<int>(socket)); }
-
-void IPXConnClass::Close_Socket(unsigned short socket) { IPX_Close_Socket95(static_cast<int>(socket)); }
-
-int IPXConnClass::Send_To(char* buf, int buflen, IPXAddressClass* address, NetNodeType immed) {
-	if (address) {
-		address->Get_Address(SendHeader ? SendHeader->DestNetworkNumber : nullptr, immed);
+void IPXConnClass::Close_Socket(unsigned short socket) {
+	if (Socket == socket) {
+		SocketOpen = 0;
 	}
-	return IPX_Send_Packet95(immed, reinterpret_cast<unsigned char*>(buf), buflen, nullptr, nullptr);
 }
 
-int IPXConnClass::Broadcast(char* buf, int buflen) { return IPX_Broadcast_Packet95(reinterpret_cast<unsigned char*>(buf), buflen); }
+int IPXConnClass::Send_To(char*, int buflen, IPXAddressClass*, NetNodeType) { return buflen; }
+
+int IPXConnClass::Broadcast(char*, int buflen) { return buflen; }

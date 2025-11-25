@@ -56,7 +56,7 @@
 | `DESCDLG.CPP` | | To be ported. |
 | `DIAL8.CPP` | | To be ported. |
 | `DIALOG.CPP` | | To be ported. |
-| `DISPLAY.CPP` | | To be ported. |
+| `DISPLAY.CPP` | `src/display.cpp` | Palette tables rebuilt, fade routines wired, and display scaffolding moved to src/. |
 | `DOOR.CPP` | | To be ported. |
 | `DPMI.CPP` | | To be ported. |
 | `DRIVE.CPP` | | To be ported. |
@@ -74,7 +74,7 @@
 | `GADGET.CPP` | | To be ported. |
 | `GAMEDLG.CPP` | | To be ported. |
 | `GOPTIONS.CPP` | | To be ported. |
-| `GSCREEN.CPP` | | To be ported. |
+| `GSCREEN.CPP` | `src/gscreen.cpp` | Shadow-page setup and render/IO stubs recreated around modern buffers. |
 | `HDATA.CPP` | | To be ported. |
 | `HEAP.CPP` | | To be ported. |
 | `HELP.CPP` | | To be ported. |
@@ -93,7 +93,7 @@
 | `IPXADDR.CPP` | | To be ported. |
 | `IPXCONN.CPP` | | To be ported. |
 | `IPXGCONN.CPP` | | To be ported. |
-| `IPXMGR.CPP` | | To be ported. |
+| `IPXMGR.CPP` | `src/ipxmgr.cpp` | Simplified IPX manager stub retains global channel plumbing and connection bookkeeping. |
 | `JSHELL.CPP` | | To be ported. |
 | `KEYFRAME.CPP` | | To be ported. |
 | `LOADDLG.CPP` | | To be ported. |
@@ -143,7 +143,7 @@
 | `SUPER.CPP` | | To be ported. |
 | `TARCOM.CPP` | | To be ported. |
 | `TARGET.CPP` | | To be ported. |
-| `TCPIP.CPP` | | To be ported. |
+| `TCPIP.CPP` | `src/tcpip.cpp` | Winsock shim stub tracks connection state, buffers, and PlanetWestwood globals. |
 | `TDATA.CPP` | | To be ported. |
 | `TEAM.CPP` | | To be ported. |
 | `TEAMTYPE.CPP` | | To be ported. |
@@ -156,7 +156,7 @@
 | `TURRET.CPP` | | To be ported. |
 | `UDATA.CPP` | | To be ported. |
 | `UNIT.CPP` | | To be ported. |
-| `UTRACKER.CPP` | | To be ported. |
+| `UTRACKER.CPP` | `src/utracker.cpp` | Unit tracker ported with network/PC byte-order conversion helpers. |
 | `VISUDLG.CPP` | | To be ported. |
 | `WINSTUB.CPP` | | To be ported. |
 | `ABSTRACT.H` | `src/include/legacy/abstract.h` | Lowercase mirror retained so `#include "abstract.h"` works on case-sensitive hosts. |
@@ -292,3 +292,6 @@
 | `UTRACKER.H` | `src/include/legacy/utracker.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `VISUDLG.H` | `src/include/legacy/visudlg.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `WWALLOC.H` | `src/include/legacy/wwalloc.h` | Lowercase mirror retained for Linux-friendly includes. |
+
+## Pending follow-ups
+- None currently.
