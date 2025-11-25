@@ -29,6 +29,9 @@ public:
 	static void Close_Socket(unsigned short socket);
 	static int Send_To(char* buf, int buflen, IPXAddressClass* address, NetNodeType immed);
 	static int Broadcast(char* buf, int buflen);
+	static void Pump();
+	static bool Peek_Packet(IPXAddressClass* address = nullptr, int* length = nullptr);
+	static int Pop_Packet(char* buf, int buflen, IPXAddressClass* address);
 
 	IPXAddressClass Address{};
 	NetNodeType ImmediateAddress{};

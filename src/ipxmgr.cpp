@@ -21,7 +21,22 @@
 #include "legacy/ipx95.h"
 
 #include <algorithm>
+#include <deque>
 #include <cstring>
+#include <vector>
+
+namespace {
+
+struct IncomingMessage {
+std::vector<char> payload;
+	IPXAddressClass address;
+	int connection_id = IPXConnClass::CONNECTION_NONE;
+};
+
+std::deque<IncomingMessage> g_global_messages;
+std::deque<IncomingMessage> g_private_messages;
+
+}  // namespace
 
 IPXManagerClass::IPXManagerClass(int glb_maxlen, int pvt_maxlen, int glb_num_packets, int pvt_num_packets,
                                  unsigned short socket, unsigned short product_id)
@@ -38,18 +53,27 @@ IPXManagerClass::IPXManagerClass(int glb_maxlen, int pvt_maxlen, int glb_num_pac
 	(void)pvt_maxlen;
 	(void)glb_num_packets;
 	(void)pvt_num_packets;
+	if (pvt_maxlen > 0) {
+		IPXConnClass::PacketLen = pvt_maxlen;
+	}
 	std::fill(std::begin(Connection), std::end(Connection), nullptr);
+	IPXConnClass::Open_Socket(Socket);
 }
 
 IPXManagerClass::~IPXManagerClass() {
+	delete GlobalChannel;
 	GlobalChannel = nullptr;
-	std::fill(std::begin(Connection), std::end(Connection), nullptr);
+	for (auto& connection : Connection) {
+		delete connection;
+		connection = nullptr;
+	}
 }
 
 void IPXManagerClass::Init(void) {
 	if (GlobalChannel == nullptr && IPXStatus) {
 		GlobalChannel = new IPXGlobalConnClass(0, 0, 0, ProductID);
 	}
+	IPXConnClass::Open_Socket(Socket);
 }
 
 int IPXManagerClass::Is_IPX(void) const { return IPXStatus ? 1 : 0; }
@@ -60,15 +84,50 @@ void IPXManagerClass::Set_Timing(unsigned long retrydelta, unsigned long maxretr
 	Timeout = static_cast<int>(timeout);
 }
 
+int IPXManagerClass::Match_Connection(IPXAddressClass const& address) const {
+	for (int i = 0; i < CONNECT_MAX; ++i) {
+		if (Connection[i] != nullptr) {
+			IPXAddressClass mutable_addr = address;
+			if (mutable_addr == Connection[i]->Address) {
+				return Connection[i]->ID;
+			}
+		}
+	}
+	return IPXConnClass::CONNECTION_NONE;
+}
+
+void IPXManagerClass::Drain_Incoming() {
+	IPXConnClass::Pump();
+	IPXAddressClass address;
+	int length = 0;
+	while (IPXConnClass::Peek_Packet(&address, &length)) {
+		std::vector<char> buffer(static_cast<std::size_t>(length));
+		IPXConnClass::Pop_Packet(buffer.data(), length, &address);
+		IncomingMessage message{std::move(buffer), address, Match_Connection(address)};
+		if (message.connection_id == IPXConnClass::CONNECTION_NONE) {
+			g_global_messages.push_back(std::move(message));
+		} else {
+			g_private_messages.push_back(std::move(message));
+		}
+	}
+}
+
 bool IPXManagerClass::Set_Bridge(IPXAddressClass* address) {
 	(void)address;
 	return true;
 }
 
-bool IPXManagerClass::Create_Connection(int, char*, IPXAddressClass*) { return false; }
+bool IPXManagerClass::Create_Connection(int id, char* name, IPXAddressClass* address) {
+	if (id < 0 || id >= CONNECT_MAX || Connection[id] != nullptr) return false;
+	Connection[id] = new IPXConnClass(0, 0, IPXConnClass::PacketLen, Socket, address, id, name);
+	Connection[id]->Init();
+	++NumConnections;
+	return true;
+}
 
 bool IPXManagerClass::Delete_Connection(int id) {
 	if (id < 0 || id >= CONNECT_MAX) return false;
+	delete Connection[id];
 	Connection[id] = nullptr;
 	if (NumConnections > 0) {
 		--NumConnections;
@@ -108,31 +167,66 @@ int IPXManagerClass::Send_Global_Message(void* buf, int buflen, IPXAddressClass*
 }
 
 int IPXManagerClass::Get_Global_Message(void* buf, int* buflen, IPXAddressClass* address, unsigned short* product_id) {
-	if (!GlobalChannel) return 0;
-	return GlobalChannel->Get_Packet(buf, buflen, address, product_id);
+	if (!GlobalChannel || !buflen) return 0;
+	Drain_Incoming();
+	if (g_global_messages.empty()) return 0;
+
+	const IncomingMessage message = std::move(g_global_messages.front());
+	g_global_messages.pop_front();
+	if (address) {
+		*address = message.address;
+	}
+	const int to_copy = std::min(*buflen, static_cast<int>(message.payload.size()));
+	std::memcpy(buf, message.payload.data(), static_cast<std::size_t>(to_copy));
+	*buflen = to_copy;
+	if (product_id) *product_id = ProductID;
+	return to_copy;
 }
 
-int IPXManagerClass::Send_Private_Message(void*, int buflen, int, int) { return buflen; }
-
-int IPXManagerClass::Get_Private_Message(void*, int* buflen, int* conn_id) {
-	if (buflen) *buflen = 0;
-	if (conn_id) *conn_id = IPXConnClass::CONNECTION_NONE;
-	return 0;
+int IPXManagerClass::Send_Private_Message(void* buf, int buflen, int ack_req, int conn_id) {
+	(void)ack_req;
+	const int index = Connection_Index(conn_id);
+	if (index == -1) {
+		BadConnection = conn_id;
+		return 0;
+	}
+	BadConnection = IPXConnClass::CONNECTION_NONE;
+	return Connection[index]->Send(static_cast<char*>(buf), buflen);
 }
 
-int IPXManagerClass::Service(void) { return 0; }
+int IPXManagerClass::Get_Private_Message(void* buf, int* buflen, int* conn_id) {
+	if (!buflen) return 0;
+	Drain_Incoming();
+	if (g_private_messages.empty()) return 0;
+
+	const IncomingMessage message = std::move(g_private_messages.front());
+	g_private_messages.pop_front();
+	const int to_copy = std::min(*buflen, static_cast<int>(message.payload.size()));
+	if (conn_id) *conn_id = message.connection_id;
+	std::memcpy(buf, message.payload.data(), static_cast<std::size_t>(to_copy));
+	*buflen = to_copy;
+	return to_copy;
+}
+
+int IPXManagerClass::Service(void) {
+	Drain_Incoming();
+	return static_cast<int>(g_global_messages.size() + g_private_messages.size());
+}
 
 int IPXManagerClass::Get_Bad_Connection(void) { return BadConnection; }
 
-int IPXManagerClass::Global_Num_Send(void) { return 0; }
+int IPXManagerClass::Global_Num_Send(void) { return static_cast<int>(g_global_messages.size()); }
 
-int IPXManagerClass::Global_Num_Receive(void) { return 0; }
+int IPXManagerClass::Global_Num_Receive(void) { return static_cast<int>(g_global_messages.size()); }
 
-int IPXManagerClass::Private_Num_Send(int) { return 0; }
+int IPXManagerClass::Private_Num_Send(int) { return static_cast<int>(g_private_messages.size()); }
 
-int IPXManagerClass::Private_Num_Receive(int) { return 0; }
+int IPXManagerClass::Private_Num_Receive(int) { return static_cast<int>(g_private_messages.size()); }
 
-void IPXManagerClass::Set_Socket(unsigned short socket) { Socket = socket; }
+void IPXManagerClass::Set_Socket(unsigned short socket) {
+	Socket = socket;
+	IPXConnClass::Open_Socket(Socket);
+}
 
 unsigned long IPXManagerClass::Response_Time(void) { return 0; }
 

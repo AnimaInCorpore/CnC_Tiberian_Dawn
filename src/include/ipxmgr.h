@@ -48,6 +48,8 @@ public:
 	virtual void Mono_Debug_Print(int index, int refresh = 0);
 
 protected:
+	int Match_Connection(IPXAddressClass const& address) const;
+	void Drain_Incoming();
 	IPXGlobalConnClass* GlobalChannel;
 	IPXConnClass* Connection[CONNECT_MAX];
 	int IPXStatus;

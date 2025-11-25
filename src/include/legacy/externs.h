@@ -314,8 +314,8 @@ extern int										MPlayerCurGame;
 extern int										TheirProcessTime[MAX_PLAYERS - 1];
 extern int										DesiredFrameRate;
 
-extern char *									GlobalPacketNames[];
-extern char *									SerialPacketNames[];
+extern char const* const									GlobalPacketNames[];
+extern char const* const									SerialPacketNames[];
 
 typedef struct {
 	union {
@@ -424,7 +424,7 @@ void Memory_Error_Handler(void);
 extern bool GameStatisticsPacketSent;
 extern bool ConnectionLost;
 extern bool InMainLoop;			         // True if in game state rather than menu state
-void CCDebugString (char *string);
+void CCDebugString (char const* string);
 extern void *PacketLater;
 void Load_Title_Screen(char *name, GraphicViewPortClass *video_page, unsigned char *palette);
 

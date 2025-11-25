@@ -1,3 +1,40 @@
+#pragma once
+
+#include "windows_compat.h"
+
+#include <cstdint>
+#include <cstring>
+
+#if defined(_WIN32)
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+using SOCKET = int;
+using IN_ADDR = struct in_addr;
+struct WSADATA {
+	int dummy;
+};
+
+#ifndef INVALID_SOCKET
+#define INVALID_SOCKET (-1)
+#endif
+#ifndef SOCKET_ERROR
+#define SOCKET_ERROR (-1)
+#endif
+#ifndef MAXGETHOSTSTRUCT
+#define MAXGETHOSTSTRUCT 1024
+#endif
+#endif
+
+#ifndef WM_USER
+#define WM_USER 0x0400
+#endif
+
 /*
 **	Command & Conquer(tm)
 **	Copyright 2025 Electronic Arts Inc.

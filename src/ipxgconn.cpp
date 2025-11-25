@@ -7,11 +7,14 @@ int IPXGlobalConnClass::Send_Packet(void* buf, int buflen, IPXAddressClass* addr
 	return IPXConnClass::Send_To(static_cast<char*>(buf), buflen, address, ImmediateAddress);
 }
 
-int IPXGlobalConnClass::Receive_Packet(void*, int, IPXAddressClass*) { return 0; }
+int IPXGlobalConnClass::Receive_Packet(void* buf, int buflen, IPXAddressClass* address) {
+	return IPXConnClass::Pop_Packet(static_cast<char*>(buf), buflen, address);
+}
 
-int IPXGlobalConnClass::Get_Packet(void*, int* buflen, IPXAddressClass* address, unsigned short* product_id) {
-	if (buflen) *buflen = 0;
-	if (address) *address = IPXAddressClass{};
+int IPXGlobalConnClass::Get_Packet(void* buf, int* buflen, IPXAddressClass* address, unsigned short* product_id) {
+	if (!buf || !buflen) return 0;
 	if (product_id) *product_id = ProductID;
-	return 0;
+	const int received = Receive_Packet(buf, *buflen, address);
+	*buflen = received;
+	return received;
 }
