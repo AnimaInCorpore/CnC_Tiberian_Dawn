@@ -309,26 +309,27 @@ void UnitClass::Debug_Dump(MonoClass *mono) const
 	Validate();
 	mono->Set_Cursor(0, 0);
 	mono->Print(
-		"ÚName:ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂMission:ÄÄÄÂTarCom:ÂNavCom:ÂRadio:ÂCoord:ÄÄÂHeadTo:ÄÂSt:Ä¿\n"
-		"³                   ³           ³       ³       ³      ³        ³        ³    ³\n"
-		"ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂNÂYÂHealth:ÄÂBody:ÂTurret:ÂSpeed:ÂPath:ÁÄÄÄÄÄÄÂCargo:ÄÄÄÄÁÄÄÄÄ´\n"
-		"³Active........³ ³ ³        ³     ³       ³      ³            ³               ³\n"
-		"³Limbo.........³ ³ ÃÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´\n"
-		"³Owned.........³ ³ ³Last Message:                                             ³\n"
-		"³Discovered....³ ³ ÃTimer:ÂArm:ÂTrack:ÂTiberium:ÂFlash:ÂStage:ÂTeam:ÄÄÄÄÂArch:´\n"
-		"³Selected......³ ³ ³      ³    ³      ³         ³      ³      ³         ³     ³\n"
-		"³Teathered.....³ ³ ÃÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÙ\n"
-		"³Locked on Map.³ ³ ³                                                           \n"
-		"³Turret Locked.³ ³ ³                                                           \n"
-		"³Is A Loaner...³ ³ ³                                                           \n"
-		"³Deploying.....³ ³ ³                                                           \n"
-		"³Rotating......³ ³ ³                                                           \n"
-		"³Firing........³ ³ ³                                                           \n"
-		"³Driving.......³ ³ ³                                                           \n"
-		"³To Look.......³ ³ ³                                                           \n"
-		"³Recoiling.....³ ³ ³                                                           \n"
-		"³To Display....³ ³ ³                                                           \n"
-		"ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÁÄÙ                                                           \n");
+		"+Name:--------------+Mission:---+TarCom:+NavCom:+Radio:+Coord:--+HeadTo:-+St:-+\n"
+		"|                   |           |       |       |      |        |        |    |\n"
+		"+--------------+N+Y+Health:-+Body:+Turret:+Speed:+Path:+------+Cargo:----+----+\n"
+		"|Active........| | |        |     |       |      |            |               |\n"
+		"|Limbo.........| | +--------+-----+-------+------+------------+---------------+\n"
+		"|Owned.........| | |Last Message:                                             |\n"
+		"|Discovered....| | +Timer:+Arm:+Track:+Tiberium:+Flash:+Stage:+Team:----+Arch:+\n"
+		"|Selected......| | |      |    |      |         |      |      |         |     |\n"
+		"|Teathered.....| | +------+----+------+---------+------+------+---------+-----+\n"
+		"|Locked on Map.| | |                                                           \n"
+		"|Turret Locked.| | |                                                           \n"
+		"|Is A Loaner...| | |                                                           \n"
+		"|Deploying.....| | |                                                           \n"
+		"|Rotating......| | |                                                           \n"
+		"|Firing........| | |                                                           \n"
+		"|Driving.......| | |                                                           \n"
+		"|To Look.......| | |                                                           \n"
+		"|Recoiling.....| | |                                                           \n"
+		"|To Display....| | |                                                           \n"
+		"+--------------+-+-+                                                           \n"
+	);
 	mono->Set_Cursor(1, 1);mono->Printf("%s:%s", House->Class->IniName, Class->IniName);
 	CargoClass::Debug_Dump(mono);
 	MissionClass::Debug_Dump(mono);

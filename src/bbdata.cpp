@@ -590,7 +590,7 @@ void BulletTypeClass::One_Time(void)
 	for (BulletType index = BULLET_FIRST; index < BULLET_COUNT; index++) {
 		BulletTypeClass const & bullet = As_Reference(index);
 		if (!bullet.IsInvisible) {
-			std::string fullname = std::string(bullet.IniName ? bullet.IniName : "") + ".SHP";
+			std::string fullname = std::string(bullet.IniName[0] ? bullet.IniName : "") + ".SHP";
 
 			RawFileClass file(fullname.c_str());
 
