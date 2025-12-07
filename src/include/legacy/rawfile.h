@@ -195,49 +195,4 @@ class RawFileClass : public FileClass
  * HISTORY:                                                                                    *
 ;*   10/18/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-inline char const * RawFileClass::File_Name(void) const
-{
-	return(Filename);
-}
-
-/***********************************************************************************************
- * RawFileClass::RawFileClass -- Default constructor for a file object.                        *
- *                                                                                             *
- *    This constructs a null file object. A null file object has no file handle or filename    *
- *    associated with it. In order to use a file object created in this fashion it must be     *
- *    assigned a name and then opened.                                                         *
- *                                                                                             *
- * INPUT:   none                                                                               *
- *                                                                                             *
- * OUTPUT:  none                                                                               *
- *                                                                                             *
- * WARNINGS:   none                                                                            *
- *                                                                                             *
- * HISTORY:                                                                                    *
-;*   10/18/1994 JLB : Created.                                                                 *
- *=============================================================================================*/
-inline RawFileClass::RawFileClass(void) : Handle(-1), Filename(0), Allocated(false)
-{
-}
-
-/***********************************************************************************************
- * RawFileClass::Is_Open -- Checks to see if the file is open or not.                          *
- *                                                                                             *
- *    Use this routine to determine if the file is open. It returns true if it is.             *
- *                                                                                             *
- * INPUT:   none                                                                               *
- *                                                                                             *
- * OUTPUT:  bool; Is the file open?                                                            *
- *                                                                                             *
- *                                                                                             *
- * WARNINGS:   none                                                                            *
- *                                                                                             *
- * HISTORY:                                                                                    *
-;*   10/18/1994 JLB : Created.                                                                 *
- *=============================================================================================*/
-inline int RawFileClass::Is_Open(void) const
-{
-	return (Handle >= 0);
-}
-
 #endif

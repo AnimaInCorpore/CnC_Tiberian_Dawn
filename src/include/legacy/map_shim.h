@@ -131,7 +131,7 @@ class MapStubClass
 		bool Is_Radar_Active() const;
 		bool Is_Radar_Existing() const;
 		int Get_Tab_Height() const;
-		void Help_Text(int text_id);
+		void Help_Text(int text_id, int x = -1, int y = -1, int color = LTGREY, bool quick = false, int cost = 0);
 		void Zoom_Mode(CELL cell);
 		struct ZoomStub { void Enable() {} void Disable() {}; } Zoom;
 

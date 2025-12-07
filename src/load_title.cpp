@@ -20,8 +20,11 @@
 #include "legacy/externs.h"
 #include "legacy/function.h"
 #include "legacy/wwlib32.h"
+#include "legacy/mixfile.h"
+#include "legacy/ccfile.h"
 
 #include <algorithm>
+#include <cstdio>
 #include <cstdint>
 #include <cstring>
 #include <fstream>
@@ -63,23 +66,11 @@ struct DecodedPcx {
 	bool has_palette = false;
 };
 
-bool Decode_Pcx(const std::string& path, DecodedPcx& output) {
-	std::ifstream file(path, std::ios::binary);
-	if (!file) {
-		CCDebugString("Load_Title_Screen: failed to open PCX.\n");
-		return false;
-	}
-
-	file.seekg(0, std::ios::end);
-	const std::streamoff file_size = file.tellg();
-	if (file_size < static_cast<std::streamoff>(sizeof(PcxHeader))) {
-		return false;
-	}
-	file.seekg(0, std::ios::beg);
+bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, DecodedPcx& output) {
+	if (!data || data_size < sizeof(PcxHeader)) return false;
 
 	PcxHeader header{};
-	file.read(reinterpret_cast<char*>(&header), sizeof(PcxHeader));
-	if (!file) return false;
+	std::memcpy(&header, data, sizeof(PcxHeader));
 
 	if (header.manufacturer != 0x0A || header.encoding != 1 || header.bits_per_pixel != 8 || header.planes != 1) {
 		return false;
@@ -91,19 +82,17 @@ bool Decode_Pcx(const std::string& path, DecodedPcx& output) {
 		return false;
 	}
 
-	const std::streamoff data_size = file_size - static_cast<std::streamoff>(sizeof(PcxHeader));
-	if (data_size <= 0) return false;
-
-	std::vector<unsigned char> data(static_cast<std::size_t>(data_size));
-	file.read(reinterpret_cast<char*>(data.data()), data_size);
-	if (!file) return false;
+	const std::size_t payload_offset = sizeof(PcxHeader);
+	if (data_size <= payload_offset) return false;
+	const std::size_t payload_size = data_size - payload_offset;
+	const unsigned char* payload = data + payload_offset;
 
 	const std::size_t palette_block_size = 1 + kPaletteSize;
 	const std::size_t palette_offset =
-	    data.size() > palette_block_size ? data.size() - palette_block_size : data.size();
-	const bool has_palette = data.size() >= palette_block_size && data[palette_offset] == 0x0C;
+	    payload_size > palette_block_size ? payload_size - palette_block_size : payload_size;
+	const bool has_palette = payload_size >= palette_block_size && payload[palette_offset] == 0x0C;
 
-	const std::size_t pixel_data_size = has_palette ? palette_offset : data.size();
+	const std::size_t pixel_data_size = has_palette ? palette_offset : payload_size;
 	output.width = width;
 	output.height = height;
 	output.pixels.assign(static_cast<std::size_t>(width) * height, 0);
@@ -112,11 +101,11 @@ bool Decode_Pcx(const std::string& path, DecodedPcx& output) {
 	for (int y = 0; y < height; ++y) {
 		int x = 0;
 		while (x < width && pos < pixel_data_size) {
-			unsigned char value = data[pos++];
+			unsigned char value = payload[pos++];
 			int count = 1;
 			if ((value & 0xC0) == 0xC0 && pos < pixel_data_size) {
 				count = value & 0x3F;
-				value = data[pos++];
+				value = payload[pos++];
 			}
 			const int write_count = std::min(count, width - x);
 			std::fill_n(output.pixels.data() + (y * width) + x, write_count, value);
@@ -125,7 +114,7 @@ bool Decode_Pcx(const std::string& path, DecodedPcx& output) {
 	}
 
 	if (has_palette) {
-		const unsigned char* palette_data = data.data() + palette_offset + 1;
+		const unsigned char* palette_data = payload + palette_offset + 1;
 		for (int index = 0; index < kPaletteSize; ++index) {
 			output.palette[index] = static_cast<unsigned char>(palette_data[index] >> 2);
 		}
@@ -135,6 +124,26 @@ bool Decode_Pcx(const std::string& path, DecodedPcx& output) {
 	}
 
 	return true;
+}
+
+bool Decode_Pcx(const std::string& path, DecodedPcx& output) {
+	std::ifstream file(path, std::ios::binary);
+	if (!file) {
+		return false;
+	}
+
+	file.seekg(0, std::ios::end);
+	const std::streamoff file_size = file.tellg();
+	if (file_size < static_cast<std::streamoff>(sizeof(PcxHeader))) {
+		return false;
+	}
+	file.seekg(0, std::ios::beg);
+
+	std::vector<unsigned char> data(static_cast<std::size_t>(file_size));
+	file.read(reinterpret_cast<char*>(data.data()), file_size);
+	if (!file) return false;
+
+	return Decode_Pcx_Buffer(data.data(), data.size(), output);
 }
 
 void Blit_To_View(const DecodedPcx& pcx, GraphicViewPortClass* view) {
@@ -199,7 +208,45 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 	if (!name || !video_page) return;
 
 	DecodedPcx pcx{};
-	if (Decode_Pcx(name, pcx)) {
+	bool loaded = false;
+
+	static bool mixes_registered = false;
+	if (!mixes_registered) {
+		// Title art normally lives in GENERAL.MIX/CONQUER.MIX on the Win95 discs.
+		static MixFileClass general_mix("GENERAL.MIX");
+		static MixFileClass conquer_mix("CONQUER.MIX");
+		(void)general_mix;
+		(void)conquer_mix;
+		mixes_registered = true;
+	}
+
+	// Prefer loading from resident MIX archives.
+	void* ptr = nullptr;
+	MixFileClass* mix = nullptr;
+	long offset = 0;
+	long size = 0;
+	if (MixFileClass::Offset(name, &ptr, &mix, &offset, &size)) {
+		if (ptr) {
+			loaded = Decode_Pcx_Buffer(static_cast<unsigned char*>(ptr), static_cast<std::size_t>(size), pcx);
+		} else if (mix && size > 0) {
+			CCFileClass file(mix->Filename);
+			if (file.Open()) {
+				std::vector<unsigned char> data(static_cast<std::size_t>(size));
+				file.Seek(offset, SEEK_SET);
+				const long read = file.Read(data.data(), size);
+				file.Close();
+				if (read == size) {
+					loaded = Decode_Pcx_Buffer(data.data(), data.size(), pcx);
+				}
+			}
+		}
+	}
+
+	if (!loaded && Decode_Pcx(name, pcx)) {
+		loaded = true;
+	}
+
+	if (loaded) {
 		if (palette && pcx.has_palette) {
 			std::memcpy(palette, pcx.palette, kPaletteSize);
 			if (GamePalette) {
@@ -208,6 +255,7 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 		}
 		Blit_To_View(pcx, video_page);
 	} else {
+		CCDebugString("Load_Title_Screen: failed to open PCX.\n");
 		Fill_Fallback(video_page, palette);
 	}
 }

@@ -35,6 +35,10 @@ int main(int argc, char** argv) {
     SDL_Renderer* renderer =
         SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!renderer) {
+        // Headless/dummy drivers may not expose accelerated renderers; fall back to software.
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    }
+    if (!renderer) {
         std::fprintf(stderr, "SDL_CreateRenderer failed: %s\n", SDL_GetError());
         SDL_DestroyWindow(window);
         SDL_Quit();

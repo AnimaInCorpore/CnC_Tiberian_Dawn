@@ -142,7 +142,7 @@ bool MapStubClass::Is_Radar_Existing() const { return DoesRadarExist; }
 
 int MapStubClass::Get_Tab_Height() const { return 0; }
 
-void MapStubClass::Help_Text(int) {}
+void MapStubClass::Help_Text(int, int, int, int, bool, int) {}
 
 void MapStubClass::Zoom_Mode(CELL cell) {
   IsZoomed = true;

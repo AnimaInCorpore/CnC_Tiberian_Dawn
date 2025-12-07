@@ -36,9 +36,9 @@
 | `BULLET.CPP` | | To be ported. |
 | `CARGO.CPP` | | To be ported. |
 | `CCDDE.CPP` | | To be ported. |
-| `CCFILE.CPP` | | To be ported. |
+| `CCFILE.CPP` | `src/ccfile.cpp` | Mix-aware file wrapper now opens embedded mix entries (cached or on-disk) via the portable RawFile/CDFile layer. |
 | `CDATA.CPP` | | To be ported. |
-| `CDFILE.CPP` | | To be ported. |
+| `CDFILE.CPP` | `src/cdfile.cpp` | CD/file search helper now walks configured paths before falling back to direct opens. |
 | `CELL.CPP` | | To be ported. |
 | `COMBAT.CPP` | | To be ported. |
 | `COMBUF.CPP` | | To be ported. |
@@ -107,7 +107,7 @@
 | `MAPSEL.CPP` | | To be ported. |
 | `MENUS.CPP` | | To be ported. |
 | `MISSION.CPP` | | To be ported. |
-| `MIXFILE.CPP` | | To be ported. |
+| `MIXFILE.CPP` | `src/mixfile.cpp` | Mix archive reader parses headers, caches payloads, and resolves entries by CRC for asset lookup. |
 | `MONOC.CPP` | | To be ported. |
 | `MOUSE.CPP` | | To be ported. |
 | `MPLAYER.CPP` | | To be ported. |
@@ -127,7 +127,7 @@
 | `PROFILE.CPP` | | To be ported. |
 | `QUEUE.CPP` | | To be ported. |
 | `RADAR.CPP` | | To be ported. |
-| `RAWFILE.CPP` | | To be ported. |
+| `RAWFILE.CPP` | `src/rawfile.cpp` | RawFileClass rebuilt atop POSIX read/write/seek with simple error handling. |
 | `REINF.CPP` | | To be ported. |
 | `SAVELOAD.CPP` | | To be ported. |
 | `SCENARIO.CPP` | | To be ported. |

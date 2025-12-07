@@ -134,8 +134,8 @@ void PowerClass::One_Time(void)
 	RadarClass::One_Time();
 
 	int factor = Get_Resolution_Factor();
-	PowX 			= SeenBuff.Get_Width() - Map.RadWidth;
-	PowY 			= Map.RadY+Map.RadHeight + (13 << factor);
+	PowX 			= SeenBuff.Get_Width() - RadWidth;
+	PowY 			= RadY + RadHeight + (13 << factor);
 	PowWidth 	= 8 << factor;
 	PowHeight 	= SeenBuff.Get_Height() - PowY;
 	PowLineSpace = 5 << factor;
@@ -456,4 +456,3 @@ int PowerClass::PowerButtonClass::Action(unsigned flags, KeyNumType & key)
 	GadgetClass::Action(flags, key);
 	return(true);
 }
-
