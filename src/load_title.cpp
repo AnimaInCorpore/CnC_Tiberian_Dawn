@@ -370,6 +370,7 @@ bool Load_Title_From_Cps_Mix(const char* mix_name, GraphicViewPortClass* video_p
 
 	const MixFileClass::SubBlock* best = nullptr;
 	CpsHeader best_header{};
+	double best_palette_score = -1.0;
 
 	for (auto const& entry : entries) {
 		const std::uint32_t start = data_base + entry.Offset;
@@ -389,11 +390,26 @@ bool Load_Title_From_Cps_Mix(const char* mix_name, GraphicViewPortClass* video_p
 			continue;
 		}
 
+		// Use palette brightness as a tiebreaker so we pick the variant with a non-black
+		// background instead of the darkest entry.
+		double palette_score = -1.0;
+		const std::uint32_t palette_base = start + sizeof(CpsHeader);
+		if (palette_base + kPaletteSize <= end) {
+			std::uint64_t palette_sum = 0;
+			for (std::size_t i = 0; i < kPaletteSize; ++i) {
+				palette_sum += static_cast<std::uint64_t>(mix_data[palette_base + i]);
+			}
+			palette_score = static_cast<double>(palette_sum) / static_cast<double>(kPaletteSize);
+		}
+
 		// Prefer larger uncompressed payloads, then larger compressed size.
 		if (!best || header.uncompressed_size > best_header.uncompressed_size ||
-		    (header.uncompressed_size == best_header.uncompressed_size && entry.Size > best->Size)) {
+		    (header.uncompressed_size == best_header.uncompressed_size && palette_score > best_palette_score) ||
+		    (header.uncompressed_size == best_header.uncompressed_size && palette_score == best_palette_score &&
+		     entry.Size > best->Size)) {
 			best = &entry;
 			best_header = header;
+			best_palette_score = palette_score;
 		}
 	}
 
