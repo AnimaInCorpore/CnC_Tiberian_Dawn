@@ -5,7 +5,7 @@ project(CnC_Tiberian_Dawn CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(TD_BUILD_EXE "Build the experimental cnc_tiberian_dawn executable" OFF)
+option(TD_BUILD_EXE "Build the experimental cnc_tiberian_dawn executable" ON)
 
 # --- SDL2 ---
 # SDL2 is the portability layer for the ported code. If SDL2 is not present

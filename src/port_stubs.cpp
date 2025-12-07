@@ -5,6 +5,7 @@
 #include "legacy/function.h"
 #include "legacy/event.h"
 #include "legacy/externs.h"
+#include "legacy/gscreen.h"
 #include "legacy/nullmodem_stub.h"
 #include "legacy/windows_compat.h"
 #include "platform_input.h"
@@ -17,10 +18,6 @@
 #include <cstring>
 #include <string>
 #include <thread>
-
-// Basic font metrics used by the UI code.
-int FontHeight = 8;
-int FontYSpacing = 1;
 
 // Global ready flag and null modem instance expected by legacy code paths.
 bool ReadyToQuit = false;
@@ -59,26 +56,6 @@ void* Load_Alloc_Data(FileClass& file) {
   return buffer;
 }
 
-int String_Pixel_Width(char const* text) {
-  if (!text) return 0;
-  return static_cast<int>(std::strlen(text) * 8);
-}
-
-int Char_Pixel_Width(int) { return 8; }
-
-void Fancy_Text_Print(char const*, unsigned int, unsigned int, unsigned int,
-                     unsigned int, TextPrintType, ...) {
-}
-
-void Fancy_Text_Print(int, unsigned int, unsigned int, unsigned int,
-                     unsigned int, TextPrintType, ...) {
-}
-
-void Conquer_Clip_Text_Print(char const*, unsigned int, unsigned int,
-                            unsigned int, unsigned int, TextPrintType,
-                            unsigned int, int const*) {
-}
-
 void CC_Draw_Shape(void const*, int, int, int, WindowNumberType, unsigned int,
                    void const*, void const*) {}
 
@@ -108,8 +85,6 @@ void Buffer_To_Page(int, int, int, int, void const*, GraphicBufferClass&) {}
 void Shake_Screen(int) {}
 
 bool Queue_Options() { return false; }
-
-char const* Extract_String(char const* text, int) { return text; }
 
 void const* Hires_Retrieve(char const* /*name*/) { return nullptr; }
 
@@ -167,7 +142,52 @@ COORDINATE As_Coord(TARGET) { return 0; }
 ObjectClass* As_Object(TARGET) { return nullptr; }
 BuildingClass* As_Building(TARGET) { return nullptr; }
 
-void Draw_Box(int, int, int, int, BoxStyleEnum, bool) {}
+void Draw_Box(int x, int y, int w, int h, BoxStyleEnum style, bool filled) {
+  GraphicViewPortClass* page = LogicPage ? LogicPage : &HidPage;
+  if (!page) return;
+
+  struct BoxColors {
+    int fill;
+    int highlight;
+    int shadow;
+  };
+
+  BoxColors colors{DKGREY, WHITE, BLACK};
+  switch (style) {
+    case BOXSTYLE_DOWN:
+      colors = {DKGREY, BLACK, LTGREY};
+      break;
+    case BOXSTYLE_DIS_DOWN:
+    case BOXSTYLE_DIS_RAISED:
+      colors = {LTGREY, DKGREY, BLACK};
+      break;
+    case BOXSTYLE_GREEN_DOWN:
+    case BOXSTYLE_GREEN_BOX:
+    case BOXSTYLE_GREEN_BORDER:
+      colors = {CC_GREEN, BLACK, DKGREY};
+      break;
+    case BOXSTYLE_GREEN_RAISED:
+      colors = {CC_GREEN, WHITE, DKGREY};
+      break;
+    default:
+      break;
+  }
+
+  const int right = x + w - 1;
+  const int bottom = y + h - 1;
+
+  if (filled) {
+    page->Fill_Rect(x, y, right, bottom, colors.fill);
+  }
+
+  // Top/left edges.
+  page->Draw_Line(x, y, right, y, colors.highlight);
+  page->Draw_Line(x, y, x, bottom, colors.highlight);
+
+  // Bottom/right edges.
+  page->Draw_Line(x, bottom, right, bottom, colors.shadow);
+  page->Draw_Line(right, y, right, bottom, colors.shadow);
+}
 
 bool Confine_Rect(int* x, int* y, int width, int height, int max_width, int max_height) {
   if (!x || !y) return false;
@@ -191,10 +211,6 @@ bool Confine_Rect(int* x, int* y, int width, int height, int max_width, int max_
   return adjusted;
 }
 
-void Conquer_Init_Fonts() {}
-
-void CC_Draw_Text(int) {}
-
 void Game_Startup(void*, int, int, int, bool) {}
 
 // -----------------------------------------------------------------------------
@@ -207,6 +223,14 @@ EventClass::EventClass(EventType type) : Type(type), Frame(0), ID(0), IsExecuted
 bool Init_Game(int, char**) {
   CCDebugString("Init_Game: initializing minimal runtime.\n");
   ReadyToQuit = false;
+  if (!VisiblePage.Is_Valid()) {
+    VisiblePage.Init(ScreenWidth, ScreenHeight, nullptr, 0, GBC_NONE);
+  }
+  if (!HiddenPage.Is_Valid()) {
+    HiddenPage.Init(ScreenWidth, ScreenHeight, nullptr, 0, GBC_NONE);
+  }
+  SeenBuff.Configure(&VisiblePage, 0, 0, ScreenWidth, ScreenHeight);
+  HidPage.Configure(&HiddenPage, 0, 0, ScreenWidth, ScreenHeight);
   return true;
 }
 
@@ -232,11 +256,32 @@ bool Select_Game(bool fade) {
     Fade_Palette_To(GamePalette, FADE_PALETTE_MEDIUM, nullptr);
   }
 
-  static bool title_loaded = false;
-  if (!title_loaded) {
-    char filename[] = "HTITLE.PCX";
-    Load_Title_Screen(filename, &HidPage, Palette);
-    title_loaded = true;
+  const int selection = Main_Menu(0);
+  if (selection < 0) {
+    ReadyToQuit = true;
+    return false;
+  }
+
+  switch (selection) {
+    case 0:
+      GameToPlay = GAME_NORMAL;
+      break;
+    case 1:
+      GameToPlay = GAME_NORMAL;  // Load/save not wired yet.
+      break;
+    case 2:
+      GameToPlay = GAME_IPX;
+      break;
+    case 3:
+      GameToPlay = GAME_INTERNET;
+      break;
+    case 4:
+      GameToPlay = GAME_NORMAL;
+      break;
+    case 5:
+    default:
+      ReadyToQuit = true;
+      return false;
   }
 
   return true;
@@ -264,12 +309,17 @@ bool Main_Loop() {
       break;
     }
 
+    GadgetClass* gadgets = GScreenClass::Buttons;
+    if (gadgets) {
+      gadgets->Input();
+    }
+
     if (SpecialDialog == SDLG_NONE) {
       Map.Render();
-    } else {
-      // In a dialog; the dialog itself will pump the main loop.
-      // For now, just spin and wait for the dialog to exit.
     }
+
+    GScreenClass::Blit_Display();
+    ++Frame;
     SDL_Delay(16);
   }
   return true;

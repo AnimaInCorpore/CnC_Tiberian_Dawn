@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <chrono>
 #include <memory>
 #include <vector>
 
@@ -46,6 +47,7 @@ constexpr int KN_NONE = 0x0000;
 constexpr int KN_LMOUSE = 0x0100;
 constexpr int KN_RMOUSE = 0x0101;
 constexpr int KN_RLSE_BIT = 0x2000;
+constexpr int KN_BUTTON = 0x8000;
 constexpr int KN_SPACE = 0x0020;
 constexpr int KN_ESC = 0x001B;
 constexpr int KN_LSHIFT = 0x002A;
@@ -136,13 +138,18 @@ class GraphicViewPortClass {
 // Minimal timer shim used by assorted legacy systems.
 class TimerClass {
  public:
-  TimerClass() = default;
-  explicit TimerClass(long /*ticks*/) {}
+  TimerClass();
+  explicit TimerClass(long ticks);
 
-  void Reset(long /*ticks*/ = 0) {}
-  void Clear() {}
-  long Time() const { return 0; }
-  bool Expired() const { return false; }
+  void Reset(long ticks = 0);
+  void Clear();
+  long Time() const;
+  bool Expired() const;
+
+ private:
+  std::chrono::steady_clock::time_point start_time_;
+  long duration_ms_ = 0;
+  bool active_ = false;
 };
 
 class WWMouseClass {

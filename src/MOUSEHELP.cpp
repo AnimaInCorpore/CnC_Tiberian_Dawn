@@ -70,3 +70,5 @@ void Conditional_Show_Mouse() {
   g_mouse_conditionally_hidden = false;
   Show_Mouse();
 }
+
+int Get_Mouse_State(void) { return g_mouse_hide_depth; }

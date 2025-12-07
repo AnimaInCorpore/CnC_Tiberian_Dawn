@@ -5,6 +5,7 @@
 
 #include <SDL2/SDL.h>
 #include <algorithm>
+#include <chrono>
 #include <deque>
 #include <cstring>
 #include <utility>
@@ -117,6 +118,36 @@ void Present_View(const GraphicViewPortClass& view) {
 
 }  // namespace
 
+// --- TimerClass -----------------------------------------------------------
+TimerClass::TimerClass() { Reset(0); }
+
+TimerClass::TimerClass(long ticks) { Reset(ticks); }
+
+void TimerClass::Reset(long ticks) {
+  start_time_ = std::chrono::steady_clock::now();
+  duration_ms_ = ticks;
+  active_ = true;
+}
+
+void TimerClass::Clear() {
+  active_ = false;
+  duration_ms_ = 0;
+}
+
+long TimerClass::Time() const {
+  if (!active_) {
+    return 0;
+  }
+  const auto now = std::chrono::steady_clock::now();
+  const auto elapsed =
+      std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time_).count();
+  return static_cast<long>(elapsed);
+}
+
+bool TimerClass::Expired() const {
+  return active_ && duration_ms_ > 0 && Time() >= duration_ms_;
+}
+
 // --- GraphicBufferClass -----------------------------------------------------
 GraphicBufferClass::GraphicBufferClass() = default;
 
@@ -201,28 +232,77 @@ void GraphicViewPortClass::Clear() {
 }
 
 void GraphicViewPortClass::Fill_Rect(int x1, int y1, int x2, int y2, int color) {
-  (void)x1;
-  (void)y1;
-  (void)x2;
-  (void)y2;
-  (void)color;
+  auto* buffer = impl_->buffer ? impl_->buffer->Get_Buffer() : nullptr;
+  if (!buffer) return;
+
+  const int left = std::min(x1, x2);
+  const int right = std::max(x1, x2);
+  const int top = std::min(y1, y2);
+  const int bottom = std::max(y1, y2);
+
+  for (int y = top; y <= bottom; ++y) {
+    const int rel_y = y - impl_->y;
+    if (rel_y < 0 || rel_y >= impl_->height) continue;
+    const int row_offset = rel_y * impl_->buffer->Get_Width();
+    for (int x = left; x <= right; ++x) {
+      const int rel_x = x - impl_->x;
+      if (rel_x < 0 || rel_x >= impl_->width) continue;
+      buffer[row_offset + rel_x] = static_cast<unsigned char>(color);
+    }
+  }
 }
 
 void GraphicViewPortClass::Draw_Line(int x1, int y1, int x2, int y2, int color) {
-  (void)x1;
-  (void)y1;
-  (void)x2;
-  (void)y2;
-  (void)color;
+  int dx = std::abs(x2 - x1);
+  int dy = -std::abs(y2 - y1);
+  int sx = (x1 < x2) ? 1 : -1;
+  int sy = (y1 < y2) ? 1 : -1;
+  int err = dx + dy;
+
+  int x = x1;
+  int y = y1;
+  while (true) {
+    Put_Pixel(x, y, color);
+    if (x == x2 && y == y2) break;
+    int e2 = 2 * err;
+    if (e2 >= dy) {
+      err += dy;
+      x += sx;
+    }
+    if (e2 <= dx) {
+      err += dx;
+      y += sy;
+    }
+  }
 }
 
 void GraphicViewPortClass::Draw_Rect(int x1, int y1, int x2, int y2, int color) {
-  Fill_Rect(x1, y1, x2, y2, color);
+  Draw_Line(x1, y1, x2, y1, color);
+  Draw_Line(x1, y2, x2, y2, color);
+  Draw_Line(x1, y1, x1, y2, color);
+  Draw_Line(x2, y1, x2, y2, color);
 }
 
 void GraphicViewPortClass::Remap(int x, int y, int width, int height, const unsigned char* table) {
-  (void)table;
-  Fill_Rect(x, y, x + width - 1, y + height - 1, 0);
+  auto* buffer = impl_->buffer ? impl_->buffer->Get_Buffer() : nullptr;
+  if (!buffer || !table) return;
+
+  const int left = x;
+  const int right = x + width - 1;
+  const int top = y;
+  const int bottom = y + height - 1;
+
+  for (int yy = top; yy <= bottom; ++yy) {
+    const int rel_y = yy - impl_->y;
+    if (rel_y < 0 || rel_y >= impl_->height) continue;
+    const int row_offset = rel_y * impl_->buffer->Get_Width();
+    for (int xx = left; xx <= right; ++xx) {
+      const int rel_x = xx - impl_->x;
+      if (rel_x < 0 || rel_x >= impl_->width) continue;
+      unsigned char& pixel = buffer[row_offset + rel_x];
+      pixel = table[pixel];
+    }
+  }
 }
 
 void GraphicViewPortClass::Put_Pixel(int x, int y, int color) {

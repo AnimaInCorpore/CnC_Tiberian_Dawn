@@ -179,11 +179,6 @@ EventClass::EventClass(EventType type, TARGET whom) : Type(type), Frame(0), ID(0
   Data.Mission.Mission = MISSION_NONE;
 }
 
-int GadgetClass::Clicked_On(int& control, unsigned flags, int, int) {
-  control = 0;
-  return static_cast<int>(flags);
-}
-
 void RadarClass::Code_Pointers() {}
 void RadarClass::Decode_Pointers() {}
 

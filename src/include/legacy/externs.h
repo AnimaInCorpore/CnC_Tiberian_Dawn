@@ -222,6 +222,7 @@ extern int						MonoPage;
 extern unsigned char *		OriginalPalette;
 extern int						EndCountDown;
 extern bool						GameActive;
+extern bool						ReadyToQuit;
 extern bool						SpecialFlag;
 extern int						ScenarioInit;
 extern long						TutorFlags[2];
@@ -399,6 +400,7 @@ extern CountDownTimerClass FrameTimer;
 extern CountDownTimerClass	CountDownTimer;
 
 extern							TimerClass ProcessTimer;
+extern							TimerClass TickCount;
 extern int						ProcessTicks;
 extern int						ProcessFrames;
 

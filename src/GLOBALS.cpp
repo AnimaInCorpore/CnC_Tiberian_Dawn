@@ -954,6 +954,7 @@ NewConfigType NewConfig;
 TimerClass ProcessTimer;
 int ProcessTicks;				// accumulated ticks
 int ProcessFrames;			// # frames used to measure 'ProcessTicks'
+TimerClass TickCount;
 
 
 /***************************************************************************
