@@ -30,6 +30,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fstream>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -235,12 +236,39 @@ bool Decode_Cps(const std::vector<unsigned char>& data, DecodedPcx& output) {
 		std::memcpy(output.palette, data.data() + palette_offset, kPaletteSize);
 	}
 
-	// Infer dimensions (C&C CPS screens are 320x200; fall back to 640-wide if it fits cleanly).
+	// Infer dimensions (C&C CPS screens are usually 320x200; prefer 640-wide only when it yields
+	// a plausible full-screen aspect such as 640x400 or 640x480).
+	auto height_for_width = [&](int candidate_width) -> int {
+		if (candidate_width <= 0) return 0;
+		if (header.uncompressed_size % static_cast<std::uint32_t>(candidate_width) != 0) return 0;
+		const std::size_t h = header.uncompressed_size / static_cast<std::uint32_t>(candidate_width);
+		return h > static_cast<std::size_t>(std::numeric_limits<int>::max()) ? 0
+		                                                                      : static_cast<int>(h);
+	};
+
+	const int height_320 = height_for_width(320);
+	const int height_640 = height_for_width(640);
+
+	auto aspect_ok = [](int w, int h) {
+		if (w <= 0 || h <= 0) return false;
+		const float aspect = static_cast<float>(w) / static_cast<float>(h);
+		return aspect >= 1.2f && aspect <= 1.8f;
+	};
+
 	int width = 320;
-	if (header.uncompressed_size % 640 == 0 && header.uncompressed_size / 640 <= 480) {
+	int height = height_320;
+	if (height_640 > 0 && aspect_ok(640, height_640)) {
 		width = 640;
+		height = height_640;
+	} else if (height <= 0 && height_640 > 0) {
+		// Fall back to any viable 640-wide guess if the 320 path fails divisibility.
+		width = 640;
+		height = height_640;
 	}
-	const int height = static_cast<int>(header.uncompressed_size / static_cast<std::size_t>(width));
+
+	if (height <= 0) {
+		return false;
+	}
 
 	output.width = width;
 	output.height = height;
@@ -264,19 +292,24 @@ bool Blit_With_Scale(const DecodedPcx& image, GraphicViewPortClass* view) {
 	if (!dest) return false;
 
 	const int pitch = buffer->Get_Width();
-	const int scale = std::max(1, std::min(target_w / std::max(1, image.width), target_h / std::max(1, image.height)));
-	const int copy_w = std::min(target_w, image.width * scale);
-	const int copy_h = std::min(target_h, image.height * scale);
+	const float scale_x = static_cast<float>(target_w) / static_cast<float>(std::max(1, image.width));
+	const float scale_y = static_cast<float>(target_h) / static_cast<float>(std::max(1, image.height));
+	const float scale = std::max(0.01f, std::min(scale_x, scale_y));
+	const int copy_w = std::max(1, std::min(target_w, static_cast<int>(image.width * scale + 0.5f)));
+	const int copy_h = std::max(1, std::min(target_h, static_cast<int>(image.height * scale + 0.5f)));
+	const int offset_x = view->Get_XPos() + std::max(0, (target_w - copy_w) / 2);
+	const int offset_y = view->Get_YPos() + std::max(0, (target_h - copy_h) / 2);
 
 	// Clear destination to avoid junk in the padded area.
 	std::fill(dest, dest + pitch * buffer->Get_Height(), 0);
 
 	for (int y = 0; y < copy_h; ++y) {
-		const int src_y = y / scale;
+		const int src_y = std::min(image.height - 1, static_cast<int>(static_cast<float>(y) / scale));
 		const unsigned char* src_row = image.pixels.data() + src_y * image.width;
-		unsigned char* dst_row = dest + (view->Get_YPos() + y) * pitch + view->Get_XPos();
+		unsigned char* dst_row = dest + (offset_y + y) * pitch + offset_x;
 		for (int x = 0; x < copy_w; ++x) {
-			dst_row[x] = src_row[x / scale];
+			const int src_x = std::min(image.width - 1, static_cast<int>(static_cast<float>(x) / scale));
+			dst_row[x] = src_row[src_x];
 		}
 	}
 
@@ -473,32 +506,6 @@ bool Decode_Pcx(const std::string& path, DecodedPcx& output) {
 	return Decode_Pcx_Buffer(data.data(), data.size(), output);
 }
 
-void Blit_To_View(const DecodedPcx& pcx, GraphicViewPortClass* view) {
-	if (!view) return;
-	GraphicBufferClass* buffer = view->Get_Graphic_Buffer();
-	if (!buffer) return;
-
-	if (!buffer->Is_Valid() || buffer->Get_Width() < pcx.width || buffer->Get_Height() < pcx.height) {
-		buffer->Init(pcx.width, pcx.height, nullptr, 0, GBC_NONE);
-		view->Configure(buffer, 0, 0, pcx.width, pcx.height);
-	}
-
-	unsigned char* dest = buffer->Get_Buffer();
-	if (!dest) return;
-
-	const int copy_width = std::min(pcx.width, view->Get_Width());
-	const int copy_height = std::min(pcx.height, view->Get_Height());
-	const int pitch = buffer->Get_Width();
-	const int origin_x = view->Get_XPos();
-	const int origin_y = view->Get_YPos();
-
-	for (int y = 0; y < copy_height; ++y) {
-		const unsigned char* src_row = pcx.pixels.data() + y * pcx.width;
-		unsigned char* dest_row = dest + (origin_y + y) * pitch + origin_x;
-		std::memcpy(dest_row, src_row, static_cast<std::size_t>(copy_width));
-	}
-}
-
 void Fill_Fallback(GraphicViewPortClass* view, unsigned char* palette) {
 	if (!view) return;
 	GraphicBufferClass* buffer = view->Get_Graphic_Buffer();
@@ -577,7 +584,7 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 		if (pcx.has_palette) {
 			Apply_Title_Palette(pcx.palette, palette ? palette : Palette);
 		}
-		Blit_To_View(pcx, video_page);
+		Blit_With_Scale(pcx, video_page);
 		Present_Title(video_page);
 		return;
 	}

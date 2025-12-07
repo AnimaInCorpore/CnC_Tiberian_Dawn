@@ -170,18 +170,7 @@ void GScreenClass::Blit_Display(void) {
   }
 
   SDL_RenderClear(renderer);
-  SDL_Rect dest{0, 0, out_w, out_h};
-  if (out_w > 0 && out_h > 0) {
-    const float scale = std::min(static_cast<float>(out_w) / static_cast<float>(width),
-                                 static_cast<float>(out_h) / static_cast<float>(height));
-    const int dest_w = static_cast<int>(static_cast<float>(width) * scale);
-    const int dest_h = static_cast<int>(static_cast<float>(height) * scale);
-    dest.x = (out_w - dest_w) / 2;
-    dest.y = (out_h - dest_h) / 2;
-    dest.w = dest_w;
-    dest.h = dest_h;
-  }
-  SDL_RenderCopy(renderer, texture, NULL, &dest);
+  SDL_RenderCopy(renderer, texture, NULL, NULL);
   SDL_RenderPresent(renderer);
 
   SDL_DestroyTexture(texture);
