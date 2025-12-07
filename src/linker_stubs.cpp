@@ -492,7 +492,6 @@ InfantryTypeClass const* const InfantryTypeClass::Pointers[INFANTRY_COUNT] = {nu
 InfantryType InfantryTypeClass::From_Name(char const*) { return INFANTRY_NONE; }
 TemplateTypeClass const* const TemplateTypeClass::Pointers[TEMPLATE_COUNT] = {nullptr};
 TerrainTypeClass const* const TerrainTypeClass::Pointers[TERRAIN_COUNT] = {nullptr};
-BulletTypeClass const* const BulletTypeClass::Pointers[BULLET_COUNT] = {nullptr};
 SmudgeTypeClass const* const SmudgeTypeClass::Pointers[SMUDGE_COUNT] = {nullptr};
 OverlayTypeClass const* const OverlayTypeClass::Pointers[OVERLAY_COUNT] = {nullptr};
 UnitTypeClass const* const UnitTypeClass::Pointers[UNIT_COUNT] = {nullptr};

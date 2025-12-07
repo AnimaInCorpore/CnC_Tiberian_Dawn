@@ -24,13 +24,13 @@
 | `TEXTBTN.CPP` | `src/textbtn.cpp` | Text buttons resize around the assigned label, draw Windows-style boxes, and respect the green gradient flags. |
 | `AADATA.CPP` | `src/aadata.cpp` | Ported to src/, replaced NULL with nullptr, `stricmp` with `strcasecmp`, `sprintf` and `_makepath` with `std::string` manipulation, and updated include path for `function.h`. |
 | `ADATA.CPP` | `src/adata.cpp` | Ported to src/, updated include to the legacy shim, and replaced `_makepath` with `std::string` construction for SHP lookup. |
-| `ABSTRACT.CPP` | | To be ported. |
+| `ABSTRACT.CPP` | `src/abstract.cpp` | Abstract base logic now reports the correct RTTI/ownable mask, preserves the building distance fudge, and copies INI names with `std::strncpy`. |
 | `AIRCRAFT.CPP` | | To be ported. |
 | `ALLOC.CPP` | | To be ported. |
 | `ANIM.CPP` | | To be ported. |
 | `AUDIO.CPP` | | To be ported. |
 | `BASE.CPP` | | To be ported. |
-| `BBDATA.CPP` | | To be ported. |
+| `BBDATA.CPP` | `src/bbdata.cpp` | BulletTypeClass definitions and tables ported; shape loading now uses std::string paths and the modern file helpers. |
 | `BDATA.CPP` | | To be ported. |
 | `BUILDING.CPP` | | To be ported. |
 | `BULLET.CPP` | | To be ported. |
