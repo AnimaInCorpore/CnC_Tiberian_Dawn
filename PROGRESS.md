@@ -123,7 +123,7 @@
 | `OPTIONS.CPP` | | To be ported. |
 | `OVERLAY.CPP` | | To be ported. |
 | `PACKET.CPP` | | To be ported. |
-| `POWER.CPP` | | To be ported. |
+| `POWER.CPP` | `src/power.cpp` | Power bar UI ported; shapes are loaded via the modern MIX helpers and redraw logic mirrors the original radar/sidebar flow. |
 | `PROFILE.CPP` | | To be ported. |
 | `QUEUE.CPP` | | To be ported. |
 | `RADAR.CPP` | | To be ported. |
