@@ -55,7 +55,7 @@ void Main_Game(int argc, char* argv[]) {
     **	2) Invoke either the main-loop routine, or the editor-loop routine,
     **		until they indicate that the user wants to exit the scenario.
     */
-    while (Select_Game(fade)) {
+    while (!ReadyToQuit && Select_Game(fade)) {
         ScenarioInit = 0;  // Kludge.
 
         fade = true;
@@ -193,6 +193,10 @@ void Main_Game(int argc, char* argv[]) {
         }
 #endif
         InMainLoop = false;
+
+        if (ReadyToQuit) {
+            break;
+        }
 
         if (!GameStatisticsPacketSent && PacketLater) {
             Send_Statistics_Packet();

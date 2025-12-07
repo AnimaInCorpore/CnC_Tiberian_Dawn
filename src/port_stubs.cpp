@@ -211,6 +211,10 @@ bool Init_Game(int, char**) {
 }
 
 bool Select_Game(bool fade) {
+  if (ReadyToQuit) {
+    return false;
+  }
+
   GameActive = true;
   DoList.Init();
   OutList.Init();
@@ -244,9 +248,20 @@ bool Main_Loop() {
   while (!ReadyToQuit) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT) {
+      if (event.type == SDL_QUIT ||
+          (event.type == SDL_WINDOWEVENT &&
+           event.window.event == SDL_WINDOWEVENT_CLOSE)) {
         ReadyToQuit = true;
+        continue;
       }
+
+#if defined(TD_PORT_USE_SDL2)
+      Platform_Handle_Sdl_Event(event);
+#endif
+    }
+
+    if (ReadyToQuit) {
+      break;
     }
 
     if (SpecialDialog == SDLG_NONE) {
