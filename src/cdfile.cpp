@@ -66,7 +66,8 @@ int CDFileClass::Open(int rights) {
     SearchDriveNode* node = g_search_head;
     while (node) {
       const std::string candidate = Join_Path(node->path, File_Name());
-      if (RawFileClass::Open(candidate.c_str(), rights)) {
+      RawFileClass::Set_Name(candidate.c_str());
+      if (RawFileClass::Open(rights)) {
         return 1;
       }
       node = node->next;
