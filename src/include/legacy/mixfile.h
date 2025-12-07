@@ -38,6 +38,8 @@
 #ifndef MIXFILE_H
 #define MIXFILE_H
 
+#include <cstdint>
+
 #include	<wwlib32.h>
 #include	"link.h"
 
@@ -57,27 +59,30 @@ class MixFileClass : public LinkClass
 		static bool Offset(char const *filename, void ** realptr = 0, MixFileClass ** mixfile = 0, long * offset = 0, long * size = 0);
 		static void const * Retrieve(char const *filename);
 
+#pragma pack(push, 1)
 		struct SubBlock {
-			long CRC;				// CRC code for embedded file.
-			long Offset;			// Offset from start of data section.
-			long Size;				// Size of data subfile.
+			std::uint32_t CRC;				// CRC code for embedded file.
+			std::uint32_t Offset;			// Offset from start of data section.
+			std::uint32_t Size;				// Size of data subfile.
 
 			int operator < (SubBlock & two) const {return (CRC < two.CRC);};
 			int operator > (SubBlock & two) const {return (CRC > two.CRC);};
 			int operator == (SubBlock & two) const {return (CRC == two.CRC);};
 		};
+		struct FileHeader {
+			std::uint16_t	count;
+			std::uint32_t	size;
+		};
+#pragma pack(pop)
+		static_assert(sizeof(SubBlock) == 12, "Mix subblock must be 12 bytes");
+		static_assert(sizeof(FileHeader) == 6, "Mix header must be 6 bytes");
 
 	private:
 		static MixFileClass * Finder(char const *filename);
 		long Offset(long crc, long *size = 0);
 
-		typedef struct {
-			short	count;
-			long	size;
-		} FileHeader;
-
 		int Count;							// Number of sub-blocks.
-		long DataSize;						// Size of raw data.
+		std::uint32_t DataSize;						// Size of raw data.
 		SubBlock * Buffer;				// Array of sub blocks (could be in EMS).
 		void *Data;							// Pointer to raw data.
 

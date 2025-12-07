@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <memory>
 #include <string>
@@ -107,7 +108,7 @@ bool MixFileClass::Cache(char const* filename) {
 
 bool MixFileClass::Cache(void) {
   if (Data || !Filename) return true;
-  if (DataSize <= 0) return false;
+  if (DataSize == 0) return false;
 
   auto* buffer = new unsigned char[static_cast<std::size_t>(DataSize)];
   if (!buffer) return false;
@@ -118,10 +119,10 @@ bool MixFileClass::Cache(void) {
     return false;
   }
   file.Seek(sizeof(SubBlock) * Count + sizeof(FileHeader), SEEK_SET);
-  const long read = file.Read(buffer, DataSize);
+  const long read = file.Read(buffer, static_cast<long>(DataSize));
   file.Close();
 
-  if (read != DataSize) {
+  if (read != static_cast<long>(DataSize)) {
     delete[] buffer;
     return false;
   }
@@ -150,19 +151,22 @@ bool MixFileClass::Offset(char const* filename, void** realptr, MixFileClass** m
                           long* size) {
   if (!filename) return false;
 
-  const unsigned long crc = Crc_For_Name(filename);
+  const std::uint32_t crc = static_cast<std::uint32_t>(Crc_For_Name(filename));
 
   MixFileClass* ptr = First;
   while (ptr) {
-    const SubBlock key{static_cast<long>(crc), 0, 0};
+    const SubBlock key{crc, 0, 0};
     const SubBlock* block =
         std::lower_bound(ptr->Buffer, ptr->Buffer + ptr->Count, key,
                          [](SubBlock const& a, SubBlock const& b) { return a.CRC < b.CRC; });
 
-    if (block != ptr->Buffer + ptr->Count && block->CRC == static_cast<long>(crc)) {
+    if (block != ptr->Buffer + ptr->Count && block->CRC == crc) {
       if (mixfile) *mixfile = ptr;
-      if (size) *size = block->Size;
-      if (offset) *offset = block->Offset + sizeof(SubBlock) * ptr->Count + sizeof(FileHeader);
+      if (size) *size = static_cast<long>(block->Size);
+      if (offset) {
+        *offset =
+            static_cast<long>(block->Offset + sizeof(SubBlock) * ptr->Count + sizeof(FileHeader));
+      }
       if (realptr) {
         if (ptr->Data || ptr->Cache()) {
           *realptr = static_cast<unsigned char*>(ptr->Data) + block->Offset;
