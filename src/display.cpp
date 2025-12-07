@@ -87,17 +87,37 @@ int Closest_Color(const unsigned char* palette, int target_r, int target_g, int 
 }
 
 void Prepare_Global_Palettes() {
+	const bool had_game_palette = GamePalette != nullptr;
+	const bool had_original_palette = OriginalPalette != nullptr;
+	const bool had_black_palette = BlackPalette != nullptr;
+	const bool had_white_palette = WhitePalette != nullptr;
+	const bool had_active_palette = Palette != nullptr;
+
 	Ensure_Palette_Buffer(GamePalette);
 	Ensure_Palette_Buffer(OriginalPalette);
 	Ensure_Palette_Buffer(BlackPalette);
 	Ensure_Palette_Buffer(WhitePalette);
 	Ensure_Palette_Buffer(Palette);
 
-	Build_Default_Palette(GamePalette);
-	Copy_Palette(GamePalette, OriginalPalette);
-	std::fill_n(BlackPalette, kPaletteSize, 0);
-	std::fill_n(WhitePalette, kPaletteSize, 0x3F);
-	Copy_Palette(GamePalette, Palette);
+	if (!had_game_palette) {
+		Build_Default_Palette(GamePalette);
+	}
+
+	if (!had_original_palette) {
+		Copy_Palette(GamePalette, OriginalPalette);
+	}
+
+	if (!had_black_palette) {
+		std::fill_n(BlackPalette, kPaletteSize, 0);
+	}
+
+	if (!had_white_palette) {
+		std::fill_n(WhitePalette, kPaletteSize, 0x3F);
+	}
+
+	if (!had_active_palette) {
+		Copy_Palette(GamePalette, Palette);
+	}
 }
 
 }  // namespace

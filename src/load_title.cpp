@@ -23,6 +23,7 @@
 #include "legacy/mixfile.h"
 #include "legacy/ccfile.h"
 #include "legacy/cdfile.h"
+#include "legacy/gscreen.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -82,6 +83,28 @@ struct MixFileHeader {
 #pragma pack(pop)
 
 static_assert(sizeof(MixFileHeader) == 6, "Mix header size mismatch");
+
+void Apply_Title_Palette(const unsigned char* source, unsigned char* dest) {
+	if (!source) return;
+
+	unsigned char* target = dest ? dest : Palette;
+	if (target) {
+		std::memcpy(target, source, kPaletteSize);
+	}
+
+	if (!GamePalette) {
+		GamePalette = new unsigned char[kPaletteSize];
+	}
+	if (GamePalette) {
+		std::memcpy(GamePalette, source, kPaletteSize);
+	}
+}
+
+void Present_Title(GraphicViewPortClass* view) {
+	if (view == &HidPage) {
+		GScreenClass::Blit_Display();
+	}
+}
 
 bool Lcw_Decompress(const unsigned char* src, std::size_t src_size, std::vector<unsigned char>& out,
                     std::size_t expected_size) {
@@ -360,11 +383,8 @@ bool Load_Title_From_Cps_Mix(const char* mix_name, GraphicViewPortClass* video_p
 		return false;
 	}
 
-	if (palette && cps.has_palette) {
-		std::memcpy(palette, cps.palette, kPaletteSize);
-		if (GamePalette) {
-			std::memcpy(GamePalette, cps.palette, kPaletteSize);
-		}
+	if (cps.has_palette) {
+		Apply_Title_Palette(cps.palette, palette);
 	}
 
 	CCDebugString("Load_Title_Screen: loaded CPS title from ");
@@ -554,13 +574,11 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 	}
 
 	if (loaded) {
-		if (palette && pcx.has_palette) {
-			std::memcpy(palette, pcx.palette, kPaletteSize);
-			if (GamePalette) {
-				std::memcpy(GamePalette, pcx.palette, kPaletteSize);
-			}
+		if (pcx.has_palette) {
+			Apply_Title_Palette(pcx.palette, palette ? palette : Palette);
 		}
 		Blit_To_View(pcx, video_page);
+		Present_Title(video_page);
 		return;
 	}
 
@@ -568,9 +586,11 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 	// Legacy high-res title screens are stored as CPS inside the disc mix archives.
 	if (Load_Title_From_Cps_Mix("GENERAL.MIX", video_page, palette) ||
 	    Load_Title_From_Cps_Mix("CONQUER.MIX", video_page, palette)) {
+		Present_Title(video_page);
 		return;
 	}
 
 	CCDebugString("Load_Title_Screen: failed to open PCX.\n");
 	Fill_Fallback(video_page, palette);
+	Present_Title(video_page);
 }

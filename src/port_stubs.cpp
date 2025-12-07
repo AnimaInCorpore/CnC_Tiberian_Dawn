@@ -235,51 +235,29 @@ bool Select_Game(bool fade) {
     title_loaded = true;
   }
 
+  return true;
+}
+
+#include "legacy/map.h"
+
+bool Main_Loop() {
   while (!ReadyToQuit) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT ||
-          (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)) {
+      if (event.type == SDL_QUIT) {
         ReadyToQuit = true;
-        break;
       }
-      Platform_Handle_Sdl_Event(event);
     }
 
-    HidPage.Blit(SeenBuff);
+    if (SpecialDialog == SDLG_NONE) {
+      Map.Render();
+    } else {
+      // In a dialog; the dialog itself will pump the main loop.
+      // For now, just spin and wait for the dialog to exit.
+    }
     SDL_Delay(16);
   }
-
-  return false;
-}
-
-bool Main_Loop() {
-  static Uint32 start_ticks = SDL_GetTicks();
-
-  SDL_Event event;
-  while (SDL_PollEvent(&event)) {
-    if (event.type == SDL_QUIT) {
-      ReadyToQuit = true;
-      return true;
-    }
-    Platform_Handle_Sdl_Event(event);
-  }
-
-  SDL_Renderer* renderer = Runtime_Get_Sdl_Renderer();
-  if (renderer) {
-    SDL_SetRenderDrawColor(renderer, 12, 16, 32, 255);
-    SDL_RenderClear(renderer);
-    SDL_Rect bar{20, 20, 200, 32};
-    const Uint8 pulse = static_cast<Uint8>(64 + (SDL_GetTicks() / 4) % 128);
-    SDL_SetRenderDrawColor(renderer, 32, 160, static_cast<Uint8>(192 + pulse / 4), 255);
-    SDL_RenderFillRect(renderer, &bar);
-    SDL_RenderPresent(renderer);
-  }
-
-  SDL_Delay(16);
-
-  const Uint32 elapsed = SDL_GetTicks() - start_ticks;
-  return ReadyToQuit || elapsed > 2500;
+  return true;
 }
 
 bool Map_Edit_Loop() { return true; }

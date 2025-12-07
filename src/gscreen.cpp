@@ -21,7 +21,11 @@
 #include "legacy/externs.h"
 #include "legacy/function.h"
 
+#include <SDL2/SDL.h>
+
 #include <algorithm>
+
+#include "runtime_sdl.h"
 
 namespace {
 
@@ -103,12 +107,84 @@ void GScreenClass::Render(void) {
 }
 
 void GScreenClass::Blit_Display(void) {
-	Ensure_Page_Sizes();
-	if (ShadowPage) {
-		GraphicViewPortClass shadow_view(ShadowPage, 0, 0, ShadowPage->Get_Width(), ShadowPage->Get_Height());
-		shadow_view.Blit(HidPage);
-	}
-	SeenBuff.Blit(HidPage);
+  Ensure_Page_Sizes();
+
+  GraphicViewPortClass* view = &HidPage;
+  if (!view) {
+    return;
+  }
+
+  GraphicBufferClass* buffer = view->Get_Graphic_Buffer();
+  if (!buffer || !buffer->Is_Valid()) {
+    return;
+  }
+
+  unsigned char* pixels = buffer->Get_Buffer();
+  int width = buffer->Get_Width();
+  int height = buffer->Get_Height();
+
+  if (!pixels || width <= 0 || height <= 0) {
+    return;
+  }
+
+  const unsigned char* palette = GamePalette ? GamePalette : Palette;
+  if (!palette) {
+    return;
+  }
+
+  SDL_Renderer* renderer = Runtime_Get_Sdl_Renderer();
+  if (!renderer) {
+    return;
+  }
+  int out_w = 0;
+  int out_h = 0;
+  if (SDL_GetRendererOutputSize(renderer, &out_w, &out_h) != 0 || out_w <= 0 || out_h <= 0) {
+    SDL_Window* window = Runtime_Get_Sdl_Window();
+    if (window) {
+      SDL_GetWindowSize(window, &out_w, &out_h);
+    }
+  }
+
+  SDL_Surface* surface =
+      SDL_CreateRGBSurfaceFrom(pixels, width, height, 8, width, 0, 0, 0, 0);
+  if (!surface) {
+    return;
+  }
+
+  SDL_Color colors[256];
+  for (int i = 0; i < 256; ++i) {
+    const int offset = i * 3;
+    auto expand = [](int value) { return std::clamp(value * 4, 0, 255); };
+    colors[i].r = static_cast<Uint8>(expand(palette[offset + 0]));
+    colors[i].g = static_cast<Uint8>(expand(palette[offset + 1]));
+    colors[i].b = static_cast<Uint8>(expand(palette[offset + 2]));
+    colors[i].a = 255;
+  }
+  SDL_SetPaletteColors(surface->format->palette, colors, 0, 256);
+
+  SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+  SDL_FreeSurface(surface);
+
+  if (!texture) {
+    return;
+  }
+
+  SDL_RenderClear(renderer);
+  SDL_Rect dest{0, 0, out_w, out_h};
+  if (out_w > 0 && out_h > 0) {
+    const float scale = std::min(static_cast<float>(out_w) / static_cast<float>(width),
+                                 static_cast<float>(out_h) / static_cast<float>(height));
+    const int dest_w = static_cast<int>(static_cast<float>(width) * scale);
+    const int dest_h = static_cast<int>(static_cast<float>(height) * scale);
+    dest.x = (out_w - dest_w) / 2;
+    dest.y = (out_h - dest_h) / 2;
+    dest.w = dest_w;
+    dest.h = dest_h;
+  }
+  SDL_RenderCopy(renderer, texture, NULL, &dest);
+  SDL_RenderPresent(renderer);
+
+  SDL_DestroyTexture(texture);
 }
 
 void GScreenClass::Code_Pointers(void) {}
