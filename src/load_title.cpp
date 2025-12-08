@@ -492,7 +492,7 @@ bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, Decoded
 	if (has_palette) {
 		const unsigned char* palette_data = payload + palette_offset + 1;
 		for (int index = 0; index < kPaletteSize; ++index) {
-			output.palette[index] = static_cast<unsigned char>(palette_data[index] >> 2);
+			output.palette[index] = static_cast<unsigned char>(palette_data[index] << 2);
 		}
 		output.has_palette = true;
 	} else {
@@ -544,9 +544,9 @@ void Fill_Fallback(GraphicViewPortClass* view, unsigned char* palette) {
 			dest[(origin_y + y) * pitch + origin_x + x] = value;
 			if (palette && x < 256 && y == 0) {
 				const std::size_t offset = static_cast<std::size_t>(x) * 3;
-				palette[offset + 0] = static_cast<unsigned char>(value >> 2);
-				palette[offset + 1] = static_cast<unsigned char>(value >> 2);
-				palette[offset + 2] = static_cast<unsigned char>(value >> 2);
+				palette[offset + 0] = static_cast<unsigned char>(value << 2);
+				palette[offset + 1] = static_cast<unsigned char>(value << 2);
+				palette[offset + 2] = static_cast<unsigned char>(value << 2);
 			}
 		}
 	}
