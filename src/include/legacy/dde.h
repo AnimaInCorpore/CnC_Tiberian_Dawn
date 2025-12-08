@@ -48,6 +48,8 @@
 ***************************** Class defines *****************************
 */
 
+#include "windows_compat.h"
+
 #ifndef 	__DDE_H
 #define	__DDE_H
 

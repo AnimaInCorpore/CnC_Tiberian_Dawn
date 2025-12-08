@@ -52,7 +52,7 @@
 #include	"legacy/function.h"
 #include "legacy/mapedit.h"
 #include <string> // For std::string
-#include <strings.h> // For strcasecmp
+#include <cstring> // For strcasecmp
 
 
 

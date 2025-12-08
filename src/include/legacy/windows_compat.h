@@ -1,11 +1,16 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
 #include <cstdio>
 #include <cstring>
+#include <string>
 
 #include "platform.h"
+
+#if defined(_WIN32)
+#include <windows.h>
+#include <ddeml.h>
+#else
 
 // The modern port mirrors the original Win32 release. Even when building on
 // non-Windows platforms we provide compatible typedefs so legacy source code
@@ -24,6 +29,9 @@ using HMENU = void*;
 using HGDIOBJ = void*;
 using HGLOBAL = void*;
 using HBITMAP = void*;
+using HCONV = void*;
+using HDDEDATA = void*;
+using HSZ = void*;
 using WPARAM = std::uintptr_t;
 using LPARAM = std::intptr_t;
 using LRESULT = std::intptr_t;
@@ -41,6 +49,7 @@ using LPSTR = char*;
 using LPCSTR = char const*;
 using LPTSTR = char*;
 using LPCTSTR = char const*;
+using LPBYTE = BYTE*;
 using LPOVERLAPPED = void*;
 using LPSECURITY_ATTRIBUTES = void*;
 using FARPROC = void (*)();
@@ -167,3 +176,5 @@ inline void _makepath(char* buffer, const char* drive, const char* dir, const ch
   }
   std::snprintf(buffer, MAX_PATH, "%s", path.c_str());
 }
+
+#endif

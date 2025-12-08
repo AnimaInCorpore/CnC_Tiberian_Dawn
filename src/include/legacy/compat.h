@@ -5,8 +5,17 @@
 #include <cstring>
 #include <string>
 #include <cstdio>
+#include <climits>
 
 #include "platform.h"
+
+#if defined(_WIN32)
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#ifndef PATH_MAX
+#define PATH_MAX MAX_PATH
+#endif
+#endif
 
 class BufferClass;
 

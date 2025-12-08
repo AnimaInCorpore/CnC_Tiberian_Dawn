@@ -1,7 +1,7 @@
 | Legacy file | Modern path | Notes |
 | --- | --- | --- |
 | `GLOBALS.CPP` | `src/globals.cpp` | Ported to src/, replaced NULL with nullptr, and disabled legacy networking code. |
-| `FTIMER.H` | `src/ftimer.h` | Countdown timer helper rewritten with `#pragma once` and the global `Frame` counter. |
+| `FTIMER.H` | `src/include/ftimer.h` | Countdown timer helper rewritten with `#pragma once` and the global `Frame` counter. |
 | `RAND.H` | `src/rand.h` | Random helper declarations cleaned up to use `<cstdint>` types. |
 | `RAND.CPP` | `src/rand.cpp` | Random lookup table logic now relies on standard headers and explicit scaling. |
 | `VECTOR.H` | `src/vector.h` | Vector template modernized with RAII allocation and portable guards. |
@@ -82,7 +82,7 @@
 | `IDATA.CPP` | | To be ported. |
 | `INFANTRY.CPP` | | To be ported. |
 | `INI.CPP` | | To be ported. |
-| `INIT.CPP` | `src/init.cpp` | Ported to src/, replaced NULL with nullptr, and disabled platform-specific code (DOS, DDE, Winsock). |
+| `INIT.CPP` | | To be ported. |
 | `INTERNET.CPP` | | To be ported. |
 | `INTERPAL.CPP` | | To be ported. |
 | `INTRO.CPP` | | To be ported. |
@@ -138,7 +138,7 @@
 | `SMUDGE.CPP` | | To be ported. |
 | `SOUNDDLG.CPP` | | To be ported. |
 | `SPECIAL.CPP` | | To be ported. |
-| `STARTUP.CPP` | `src/startup.cpp` | Win32 entry path rebuilt with portable Win32 shims and simplified video/audio setup so the modern build can drive `Main_Game`. |
+| `STARTUP.CPP` | | To be ported. |
 | `STATS.CPP` | | To be ported. |
 | `SUPER.CPP` | | To be ported. |
 | `TARCOM.CPP` | | To be ported. |

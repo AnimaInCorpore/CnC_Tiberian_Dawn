@@ -3,7 +3,7 @@
 #include "legacy/externs.h"
 #include "runtime_sdl.h"
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <algorithm>
 #include <chrono>
 #include <deque>

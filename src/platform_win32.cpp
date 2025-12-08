@@ -1,3 +1,7 @@
+#if !defined(_WIN32)
+#error "platform_win32.cpp is only intended for Win32 builds"
+#endif
+
 #include "legacy/windows_compat.h"
 #include "legacy/function.h"
 #include "legacy/ccdde.h"

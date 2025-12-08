@@ -6,7 +6,6 @@
 #include <cstring>
 #include <memory>
 #include <string>
-#include <strings.h>
 #include <vector>
 
 #include "legacy/ccfile.h"

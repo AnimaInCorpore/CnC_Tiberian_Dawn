@@ -1,43 +1,39 @@
 #pragma once
 
+// Global frame counter maintained by the legacy runtime.
 extern long Frame;
 
 class TCountDownTimerClass {
-public:
-	TCountDownTimerClass(long set=0) {
-		Set(set);
-	};
+ public:
+  explicit TCountDownTimerClass(long set = 0) { Set(set); }
+  ~TCountDownTimerClass() = default;
 
-	~TCountDownTimerClass(void) {}
+  operator long() const { return Time(); }
 
-	operator long(void) const {return Time();};
+  void Set(long set) {
+    Started = Frame;
+    DelayTime = set;
+  }
 
-	void Set(long set) {
-		Started = Frame;
-		DelayTime = set;
-	};
+  void Clear() {
+    Started = -1;
+    DelayTime = 0;
+  }
 
-	void Clear(void) {
-		Started   = -1;
-		DelayTime = 0;
-	};
-	long Get_Start(void) const {
-		return(Started);
-	};
-	long Get_Delay(void) const {
-		return(DelayTime);
-	};
-	bool Active(void) const {
-		return(Started != -1);
-	};
-	int Expired(void) const {return (Time() == 0);};
-	long Time(void) const {
-		long remain = DelayTime - (Frame-Started);
-		if (remain < 0) remain = 0;
-		return(remain);
-	};
+  long Get_Start() const { return Started; }
+  long Get_Delay() const { return DelayTime; }
+  bool Active() const { return Started != -1; }
+  int Expired() const { return Time() == 0; }
 
-protected:
-	long Started;
-	long DelayTime;
+  long Time() const {
+    if (!Active()) {
+      return 0;
+    }
+    long remain = DelayTime - (Frame - Started);
+    return remain > 0 ? remain : 0;
+  }
+
+ protected:
+  long Started = -1;
+  long DelayTime = 0;
 };

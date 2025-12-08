@@ -2,7 +2,7 @@
 **	Simplified main menu for the SDL port.
 */
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include "legacy/externs.h"
 #include "legacy/function.h"

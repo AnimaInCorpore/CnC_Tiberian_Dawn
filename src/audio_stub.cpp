@@ -1,19 +1,46 @@
 #include "audio_stub.h"
-#include <cstdio> // For printf
 
-bool Audio_Init(void* window_handle, int rate, bool sixteen_bit, int num_channels, int audio_buffer_size) {
-    // Placeholder implementation for Audio_Init
-    printf("Audio_Init called with handle: %p, rate: %d, 16bit: %d, channels: %d, buffer_size: %d\n",
-           window_handle, rate, sixteen_bit, num_channels, audio_buffer_size);
-    (void)window_handle;
-    (void)rate;
-    (void)sixteen_bit;
-    (void)num_channels;
-    (void)audio_buffer_size;
-    return true;
+#include <SDL.h>
+#include <cstdio>
+
+namespace {
+SDL_AudioDeviceID g_audio_device = 0;
+SDL_AudioSpec g_audio_spec{};
+}
+
+bool Audio_Init(void* /*window_handle*/, int rate, bool sixteen_bit, int num_channels, int audio_buffer_size) {
+  if (SDL_WasInit(SDL_INIT_AUDIO) == 0) {
+    if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
+      std::fprintf(stderr, "SDL_InitSubSystem(SDL_INIT_AUDIO) failed: %s\n", SDL_GetError());
+      return false;
+    }
+  }
+
+  SDL_AudioSpec desired{};
+  desired.freq = rate > 0 ? rate : 44100;
+  desired.format = sixteen_bit ? AUDIO_S16SYS : AUDIO_U8;
+  desired.channels = num_channels > 0 ? static_cast<Uint8>(num_channels) : 2;
+  desired.samples = audio_buffer_size > 0 ? static_cast<Uint16>(audio_buffer_size) : 2048;
+  desired.callback = nullptr;  // Pull-based audio; silence by default.
+
+  SDL_AudioDeviceID device =
+      SDL_OpenAudioDevice(nullptr, 0, &desired, &g_audio_spec, 0);
+  if (device == 0) {
+    std::fprintf(stderr, "SDL_OpenAudioDevice failed: %s\n", SDL_GetError());
+    return false;
+  }
+
+  g_audio_device = device;
+  SDL_PauseAudioDevice(g_audio_device, 0);  // Start playback (silence).
+  return true;
 }
 
 void Sound_End() {
-    // Placeholder implementation for Sound_End
-    printf("Sound_End called\n");
+  if (g_audio_device != 0) {
+    SDL_CloseAudioDevice(g_audio_device);
+    g_audio_device = 0;
+  }
+  if (SDL_WasInit(SDL_INIT_AUDIO) != 0) {
+    SDL_QuitSubSystem(SDL_INIT_AUDIO);
+  }
 }

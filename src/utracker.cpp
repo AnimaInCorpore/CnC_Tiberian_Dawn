@@ -19,7 +19,11 @@
 #include "legacy/utracker.h"
 
 #include <algorithm>
+#if defined(_WIN32)
+#include <winsock2.h>
+#else
 #include <arpa/inet.h>
+#endif
 #include <cstring>
 
 UnitTrackerClass::UnitTrackerClass(int unit_count)

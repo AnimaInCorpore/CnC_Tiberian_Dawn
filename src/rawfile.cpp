@@ -5,7 +5,22 @@
 #include <fcntl.h>
 #include <string>
 #include <sys/stat.h>
+#if defined(_WIN32)
+#include <io.h>
+#include <BaseTsd.h>
+#include <stdlib.h>
+#else
 #include <unistd.h>
+#endif
+
+#if defined(_WIN32)
+#define ssize_t SSIZE_T
+#define unlink _unlink
+#define open _open
+#define read _read
+#define write _write
+#define close _close
+#endif
 
 #include "legacy/wwlib32.h"
 

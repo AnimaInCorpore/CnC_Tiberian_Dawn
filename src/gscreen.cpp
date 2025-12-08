@@ -21,7 +21,7 @@
 #include "legacy/externs.h"
 #include "legacy/function.h"
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include <algorithm>
 

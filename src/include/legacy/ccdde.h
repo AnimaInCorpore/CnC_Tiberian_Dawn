@@ -39,7 +39,27 @@
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#ifdef WIN32
+#include "compat.h"
+
+#if defined(TD_PORT_USE_SDL2)
+// SDL2 port stub: DDE integration is not implemented.
+class DDEServerClass {
+ public:
+  DDEServerClass() = default;
+  ~DDEServerClass() = default;
+
+  char* Get_MPlayer_Game_Info() { return nullptr; }
+  int Get_MPlayer_Game_Info_Length() { return 0; }
+  BOOL Callback(unsigned char*, long) { return FALSE; }
+  void Delete_MPlayer_Game_Info() {}
+  void Enable() {}
+  void Disable() {}
+  int Time_Since_Heartbeat() { return 0; }
+};
+
+extern DDEServerClass DDEServer;
+
+#elif defined(WIN32)
 
 #include "dde.h"
 

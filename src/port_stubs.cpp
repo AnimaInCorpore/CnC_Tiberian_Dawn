@@ -1,7 +1,7 @@
-#include <SDL2/SDL.h>
-#include <strings.h>
+#include <SDL.h>
 
 #include "legacy/compat.h"
+#include "legacy/ccdde.h"
 #include "legacy/function.h"
 #include "legacy/event.h"
 #include "legacy/externs.h"
@@ -22,6 +22,9 @@
 // Global ready flag and null modem instance expected by legacy code paths.
 bool ReadyToQuit = false;
 NullModemClass NullModem;
+DDEServerClass DDEServer;
+
+BOOL Send_Data_To_DDE_Server(char*, int, int) { return FALSE; }
 
 // Shape buffer placeholders.
 long _ShapeBufferSize = 512 * 1024;

@@ -3,6 +3,14 @@
 #include <cstddef>
 #include <cstdint>
 
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#include <windows.h>
+#else
+
 // Classic Watcom/MSVCRT-style path constants expected by the legacy code.
 #ifndef _MAX_PATH
 #define _MAX_PATH 260
@@ -39,10 +47,6 @@
                               ((static_cast<std::uint32_t>(high) & 0x0000FFFFul) << 16)))
 #endif
 
-#ifndef MAKE_LONG
-#define MAKE_LONG(high, low) MAKELONG((low), (high))
-#endif
-
 #ifndef LOWORD
 #define LOWORD(value) (static_cast<std::uint16_t>((static_cast<std::uint32_t>(value)) & 0xFFFFu))
 #endif
@@ -50,14 +54,6 @@
 #ifndef HIWORD
 #define HIWORD(value) \
   (static_cast<std::uint16_t>((static_cast<std::uint32_t>(value) >> 16) & 0xFFFFu))
-#endif
-
-#ifndef LOW_WORD
-#define LOW_WORD(value) LOWORD(value)
-#endif
-
-#ifndef HIGH_WORD
-#define HIGH_WORD(value) HIWORD(value)
 #endif
 
 // Basic Win16/Watcom compatible typedefs used throughout the legacy codebase.
@@ -73,6 +69,19 @@ using SHORT = std::int16_t;
 using USHORT = std::uint16_t;
 using UCHAR = unsigned char;
 #define CNC_TD_LEGACY_WORD_DEFINED 1
+#endif
+#endif
+
+#ifndef MAKE_LONG
+#define MAKE_LONG(high, low) MAKELONG((low), (high))
+#endif
+
+#ifndef LOW_WORD
+#define LOW_WORD(value) LOWORD(value)
+#endif
+
+#ifndef HIGH_WORD
+#define HIGH_WORD(value) HIWORD(value)
 #endif
 
 // The DOS build relied on segmented memory keywords. They become no-ops here.
