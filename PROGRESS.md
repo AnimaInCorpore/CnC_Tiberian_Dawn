@@ -25,8 +25,8 @@
 | `AADATA.CPP` | `src/aadata.cpp` | Ported to src/, replaced NULL with nullptr, `stricmp` with `strcasecmp`, `sprintf` and `_makepath` with `std::string` manipulation, and updated include path for `function.h`. |
 | `ADATA.CPP` | `src/adata.cpp` | Ported to src/, updated include to the legacy shim, and replaced `_makepath` with `std::string` construction for SHP lookup. |
 | `ABSTRACT.CPP` | `src/abstract.cpp` | Abstract base logic now reports the correct RTTI/ownable mask, preserves the building distance fudge, and copies INI names with `std::strncpy`. |
-| `AIRCRAFT.CPP` | | To be ported. |
-| `ALLOC.CPP` | | To be ported. |
+| `AIRCRAFT.CPP` | `src/aircraft.cpp` | Full aircraft gameplay/AI logic moved to src/, restoring the original missions, drawing, and targeting behavior. |
+| `ALLOC.CPP` | `src/alloc.cpp` | Legacy allocator collapsed onto the modern malloc-based wrapper (moved from the wwalloc port) while keeping the legacy entry points. |
 | `ANIM.CPP` | | To be ported. |
 | `AUDIO.CPP` | | To be ported. |
 | `BASE.CPP` | | To be ported. |
