@@ -55,8 +55,10 @@ bool Platform_Handle_Sdl_Event(const SDL_Event& event) {
       bool right_down = g_mouse_state.right_button_down;
       if (event.button.button == SDL_BUTTON_LEFT) {
         left_down = pressed;
+        Platform_Queue_Key_Event(KN_LMOUSE, pressed);
       } else if (event.button.button == SDL_BUTTON_RIGHT) {
         right_down = pressed;
+        Platform_Queue_Key_Event(KN_RMOUSE, pressed);
       }
       Platform_Update_Mouse_State(
           Build_Mouse_State(event.button.x, event.button.y, left_down, right_down));

@@ -55,6 +55,7 @@ bool MapStubClass::Coord_To_Pixel(COORDINATE, int& x, int& y) const {
 }
 
 bool MapStubClass::In_Radar(CELL) const { return true; }
+bool MapStubClass::In_View(CELL) const { return true; }
 
 void MapStubClass::Sight_From(CELL, int, bool) {}
 

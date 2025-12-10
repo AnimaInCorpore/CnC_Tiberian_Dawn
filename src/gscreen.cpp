@@ -109,7 +109,7 @@ void GScreenClass::Render(void) {
 void GScreenClass::Blit_Display(void) {
   Ensure_Page_Sizes();
 
-  GraphicViewPortClass* view = &HidPage;
+  GraphicViewPortClass* view = LogicPage ? LogicPage : &HidPage;
   if (!view) {
     return;
   }
@@ -120,8 +120,11 @@ void GScreenClass::Blit_Display(void) {
   }
 
   unsigned char* pixels = buffer->Get_Buffer();
-  int width = buffer->Get_Width();
-  int height = buffer->Get_Height();
+  const int pitch = buffer->Get_Width();
+  const int width = view->Get_Width();
+  const int height = view->Get_Height();
+  const int origin_x = view->Get_XPos();
+  const int origin_y = view->Get_YPos();
 
   if (!pixels || width <= 0 || height <= 0) {
     return;
@@ -145,8 +148,8 @@ void GScreenClass::Blit_Display(void) {
     }
   }
 
-  SDL_Surface* surface =
-      SDL_CreateRGBSurfaceFrom(pixels, width, height, 8, width, 0, 0, 0, 0);
+  SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(
+      pixels + origin_y * pitch + origin_x, width, height, 8, pitch, 0, 0, 0, 0);
   if (!surface) {
     return;
   }

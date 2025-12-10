@@ -820,7 +820,7 @@ void AircraftClass::AI(void)
 	*/
 	if (Map.In_View(Coord_Cell(Coord))) {
 		Map.Flag_To_Redraw(false);
-		Map.DisplayClass::IsToRedraw = true;
+		Map.IsToRedraw = true;
 	}
 
 	/*
@@ -1441,18 +1441,22 @@ int AircraftClass::Mission_Retreat(void)
  * HISTORY:                                                                                    *
  *   01/10/1995 JLB : Created.                                                                 *
  *=============================================================================================*/
-bool AircraftClass::Exit_Object(TechnoClass * unit)
+int AircraftClass::Exit_Object(TechnoClass * unit)
 {
 	Validate();
 	static FacingType _toface[FACING_COUNT] = {FACING_S, FACING_SW, FACING_SE, FACING_NW, FACING_NE, FACING_N, FACING_W, FACING_E};
 	CELL	cell;
+	FacingType chosen_face = FACING_N;
 
 	/*
 	**	Find a free cell to drop the unit off at.
 	*/
 	for (FacingType face = FACING_N; face < FACING_COUNT; face++) {
 		cell = Adjacent_Cell(Coord_Cell(Coord), _toface[face]);
-		if (unit->Can_Enter_Cell(cell) == MOVE_OK) break;
+		if (unit->Can_Enter_Cell(cell) == MOVE_OK) {
+			chosen_face = face;
+			break;
+		}
 	}
 
 	// Should perform a check here to see if no cell could be found.
@@ -1463,7 +1467,7 @@ bool AircraftClass::Exit_Object(TechnoClass * unit)
 	**	to make sure that the transport waits until the passenger is clear before
 	**	unloading the next passenger or taking off.
 	*/
-	if (unit->Unlimbo(Coord, Facing_Dir(_toface[face]))) {
+	if (unit->Unlimbo(Coord, Facing_Dir(_toface[chosen_face]))) {
 		unit->Assign_Mission(MISSION_MOVE);
 		unit->Assign_Destination(::As_Target(cell));
 		if (Transmit_Message(RADIO_HELLO, unit) == RADIO_ROGER) {
@@ -1922,26 +1926,26 @@ void AircraftClass::Debug_Dump(MonoClass *mono) const
 	Validate();
 	mono->Set_Cursor(0, 0);
 	mono->Print(
-		"ÚName:ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂMission:ÄÄÄÂTarCom:ÂNavCom:ÂRadio:ÂCoord:ÄÄÂAltitudeÂSt:Ä¿\n"
-		"³                   ³           ³       ³       ³      ³        ³        ³    ³\n"
-		"ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂNÂYÂHealth:ÄÂFdir:ÂÄBdir:ÄÂSpeed:ÂÄÄÄÄÄÁÄÄÄÄÄÄÂCargo:ÄÄÄÄÁÄÄÄÄ´\n"
-		"³Active........³ ³ ³        ³     ³       ³      ³            ³               ³\n"
-		"³Limbo.........³ ³ ÃÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´\n"
-		"³Owned.........³ ³ ³Last Message:                                             ³\n"
-		"³Discovered....³ ³ ÃTimer:ÂArm:ÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂFlash:ÂStage:ÂTeam:ÄÄÄÄÂArch:´\n"
-		"³Selected......³ ³ ³      ³    ³      ³         ³      ³      ³         ³     ³\n"
-		"³Teathered.....³ ³ ÃÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÙ\n"
-		"³Locked on Map.³ ³ ³                                                           \n"
-		"³              ³ ³ ³                                                           \n"
-		"³Is A Loaner...³ ³ ³                                                           \n"
-		"³Is Landing....³ ³ ³                                                           \n"
-		"³Is Taking Off.³ ³ ³                                                           \n"
-		"³              ³ ³ ³                                                           \n"
-		"³              ³ ³ ³                                                           \n"
-		"³              ³ ³ ³                                                           \n"
-		"³Recoiling.....³ ³ ³                                                           \n"
-		"³To Display....³ ³ ³                                                           \n"
-		"ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÁÄÙ                                                           \n");
+		"ï¿½Name:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Mission:ï¿½ï¿½ï¿½ï¿½TarCom:ï¿½NavCom:ï¿½Radio:ï¿½Coord:ï¿½ï¿½ï¿½Altitudeï¿½St:Ä¿\n"
+		"ï¿½                   ï¿½           ï¿½       ï¿½       ï¿½      ï¿½        ï¿½        ï¿½    ï¿½\n"
+		"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Nï¿½Yï¿½Health:ï¿½ï¿½Fdir:ï¿½ï¿½Bdir:ï¿½ï¿½Speed:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Cargo:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä´\n"
+		"ï¿½Active........ï¿½ ï¿½ ï¿½        ï¿½     ï¿½       ï¿½      ï¿½            ï¿½               ï¿½\n"
+		"ï¿½Limbo.........ï¿½ ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä´\n"
+		"ï¿½Owned.........ï¿½ ï¿½ ï¿½Last Message:                                             ï¿½\n"
+		"ï¿½Discovered....ï¿½ ï¿½ ï¿½Timer:ï¿½Arm:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Flash:ï¿½Stage:ï¿½Team:ï¿½ï¿½ï¿½ï¿½ï¿½Arch:ï¿½\n"
+		"ï¿½Selected......ï¿½ ï¿½ ï¿½      ï¿½    ï¿½      ï¿½         ï¿½      ï¿½      ï¿½         ï¿½     ï¿½\n"
+		"ï¿½Teathered.....ï¿½ ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\n"
+		"ï¿½Locked on Map.ï¿½ ï¿½ ï¿½                                                           \n"
+		"ï¿½              ï¿½ ï¿½ ï¿½                                                           \n"
+		"ï¿½Is A Loaner...ï¿½ ï¿½ ï¿½                                                           \n"
+		"ï¿½Is Landing....ï¿½ ï¿½ ï¿½                                                           \n"
+		"ï¿½Is Taking Off.ï¿½ ï¿½ ï¿½                                                           \n"
+		"ï¿½              ï¿½ ï¿½ ï¿½                                                           \n"
+		"ï¿½              ï¿½ ï¿½ ï¿½                                                           \n"
+		"ï¿½              ï¿½ ï¿½ ï¿½                                                           \n"
+		"ï¿½Recoiling.....ï¿½ ï¿½ ï¿½                                                           \n"
+		"ï¿½To Display....ï¿½ ï¿½ ï¿½                                                           \n"
+		"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½                                                           \n");
 	mono->Set_Cursor(1, 1);mono->Printf("%s:%s", House->Class->IniName, Class->IniName);
 	mono->Set_Cursor(36, 3);mono->Printf("%02X:%02X", SecondaryFacing.Current(), SecondaryFacing.Desired());
 	mono->Set_Cursor(42, 1);mono->Printf("%04X", NavCom);
@@ -2747,7 +2751,7 @@ MoveType AircraftClass::Can_Enter_Cell(CELL cell, FacingType ) const
 	Validate();
 	if (!Map.In_Radar(cell)) return(MOVE_NO);
 
-	CellClass * cellptr = &Map[cell];
+	MapCellStub* cellptr = &Map[cell];
 
 	if (!cellptr->Cell_Occupier() ||
 		!cellptr->Cell_Occupier()->Is_Techno() ||
@@ -3493,3 +3497,4 @@ void AircraftClass::Response_Select(void)
 		Sound_Effect(response, 0, -(Aircraft.ID(this)+1));
 	}
 }
+

@@ -93,6 +93,7 @@ class MapStubClass
 		bool Push_Onto_TacMap(COORDINATE source, COORDINATE dest);
 		bool Coord_To_Pixel(COORDINATE coord, int& x, int& y) const;
 		bool In_Radar(CELL cell) const;
+		bool In_View(CELL cell) const;
 		void Sight_From(CELL cell, int sightRange, bool incremental = false);
 
 		CELL Calculated_Cell(SourceType dir, HousesType house);

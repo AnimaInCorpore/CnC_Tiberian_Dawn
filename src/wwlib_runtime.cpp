@@ -463,14 +463,12 @@ bool Set_Video_Mode(int /*mode*/) { return true; }
 
 bool Set_Video_Mode(void* /*window*/, int /*width*/, int /*height*/, int /*bits_per_pixel*/) { return true; }
 
-static WWKeyboardClass g_keyboard_instance;
-
-int Get_Key_Num() { return g_keyboard_instance.Get(); }
-int Check_Key_Num() { return g_keyboard_instance.Check(); }
+int Get_Key_Num() { return Kbd.Get(); }
+int Check_Key_Num() { return Kbd.Check(); }
 int KN_To_KA(int key) { return key; }
-void Clear_KeyBuffer() { g_keyboard_instance.Clear(); }
-void Stuff_Key_Num(int key) { g_keyboard_instance.Stuff(key); }
-int Key_Down(int key) { return g_keyboard_instance.Down(key) ? 1 : 0; }
+void Clear_KeyBuffer() { Kbd.Clear(); }
+void Stuff_Key_Num(int key) { Kbd.Stuff(key); }
+int Key_Down(int key) { return Kbd.Down(key) ? 1 : 0; }
 
 int Get_Mouse_X() { return g_mouse_state.x; }
 int Get_Mouse_Y() { return g_mouse_state.y; }
@@ -524,11 +522,14 @@ void Platform_Set_Fonts(const void* current_font, const void* gradient_font6, in
   g_fonts.y_spacing = font_y_spacing;
 }
 
-void Platform_Update_Mouse_State(const PlatformMouseState& state) { g_mouse_state = state; }
+void Platform_Update_Mouse_State(const PlatformMouseState& state) {
+  g_mouse_state = state;
+  Kbd.MouseQX = state.x;
+  Kbd.MouseQY = state.y;
+}
 
 void Platform_Queue_Key_Event(int key, bool pressed) {
-  if (pressed) {
-    g_keyboard_instance.Stuff(key);
-  }
-  g_keyboard_instance.impl_->key_down = pressed;
+  const int queued_key = pressed ? key : (key | KN_RLSE_BIT);
+  Kbd.Stuff(queued_key);
+  Kbd.impl_->key_down = pressed;
 }
