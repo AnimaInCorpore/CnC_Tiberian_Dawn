@@ -59,6 +59,31 @@ static void Destroy_Buttons(std::vector<TextButtonClass*>& buttons) {
   buttons.clear();
 }
 
+static void Draw_Menu_Text(GraphicViewPortClass& page) {
+  GraphicViewPortClass* const previous_page = Set_Logic_Page(page);
+  const int center_x = page.Get_XPos() + (page.Get_Width() / 2);
+  const int top_y = page.Get_YPos() + 24;
+  const TextPrintType title_style =
+      static_cast<TextPrintType>(TPF_CENTER | TPF_6PT_GRAD | TPF_USE_GRAD_PAL | TPF_NOSHADOW);
+  Fancy_Text_Print(TXT_NONE, 0, 0, CC_GREEN, TBLACK, title_style);
+  Fancy_Text_Print("Command & Conquer", center_x, top_y, CC_GREEN, TBLACK, title_style);
+  Fancy_Text_Print("Tiberian Dawn", center_x, top_y + FontHeight + 2, CC_GREEN, TBLACK,
+                   title_style);
+
+  const TextPrintType version_style =
+      static_cast<TextPrintType>(TPF_6PT_GRAD | TPF_USE_GRAD_PAL | TPF_RIGHT | TPF_NOSHADOW);
+  const int version_x = page.Get_XPos() + page.Get_Width() - 8;
+  const int version_y = page.Get_YPos() + page.Get_Height() - (FontHeight + 8);
+  Fancy_Text_Print("V.%d%s", version_x, version_y, DKGREY, TBLACK, version_style,
+                   Version_Number(), VersionText);
+
+  if (previous_page) {
+    Set_Logic_Page(*previous_page);
+  } else {
+    LogicPage = nullptr;
+  }
+}
+
 int Main_Menu(unsigned long timeout) {
   std::vector<TextButtonClass*> buttons;
   ControlClass* commands = nullptr;
@@ -76,6 +101,7 @@ int Main_Menu(unsigned long timeout) {
 
   // Draw the background/title.
   Load_Title_Screen(const_cast<char*>("HTITLE.PCX"), &HidPage, Palette);
+  Draw_Menu_Text(HidPage);
   HidPage.Blit(SeenBuff);
 
   const unsigned long start_time = TickCount.Time();

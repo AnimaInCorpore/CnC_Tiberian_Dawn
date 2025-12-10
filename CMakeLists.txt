@@ -14,6 +14,30 @@ option(TD_ENABLE_WINMAIN "Build the legacy WinMain launcher (Windows only)" OFF)
 set(SDL2_STATIC ON) # Prefer the static SDL2 target if available
 find_package(SDL2 REQUIRED)
 
+# Handle SDL2 target selection across the different package styles (config vs. module, static vs. shared).
+if(TARGET SDL2::SDL2-static)
+  set(TD_SDL2_TARGET SDL2::SDL2-static)
+elseif(TARGET SDL2::SDL2)
+  set(TD_SDL2_TARGET SDL2::SDL2)
+elseif(DEFINED SDL2_LIBRARIES)
+  set(TD_SDL2_TARGET ${SDL2_LIBRARIES})
+else()
+  message(FATAL_ERROR "SDL2 was found, but no usable CMake target was exported. Please update/repair your SDL2 installation.")
+endif()
+
+if(TARGET SDL2::SDL2main)
+  set(TD_SDL2MAIN_TARGET SDL2::SDL2main)
+elseif(DEFINED SDL2_MAIN_LIBRARY)
+  set(TD_SDL2MAIN_TARGET ${SDL2_MAIN_LIBRARY})
+elseif(DEFINED SDL2MAIN_LIBRARY)
+  set(TD_SDL2MAIN_TARGET ${SDL2MAIN_LIBRARY})
+endif()
+
+set(TD_SDL2_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
+if(NOT TD_SDL2_INCLUDE_DIRS AND DEFINED SDL2_INCLUDE_DIR)
+  set(TD_SDL2_INCLUDE_DIRS ${SDL2_INCLUDE_DIR})
+endif()
+
 # --- Source Files ---
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 # Keep the Win32 launcher opt-in so the default build stays SDL-only.
@@ -31,7 +55,7 @@ target_include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/src/include/legacy
     ${CMAKE_CURRENT_SOURCE_DIR}/src/include
-    ${SDL2_INCLUDE_DIRS}
+    ${TD_SDL2_INCLUDE_DIRS}
 )
 
 target_compile_definitions(
@@ -48,23 +72,18 @@ target_compile_definitions(
 if(WIN32)
   target_link_libraries(td_port PUBLIC ws2_32)
 endif()
-target_link_libraries(td_port PUBLIC SDL2::SDL2-static)
+target_link_libraries(td_port PUBLIC ${TD_SDL2_TARGET})
 
 # --- Optional executable (disabled by default until more gameplay code is ported) ---
 if(TD_BUILD_EXE)
   add_executable(cnc_tiberian_dawn src/main.cpp)
-  if(MINGW)
-    target_link_libraries(cnc_tiberian_dawn PRIVATE td_port SDL2::SDL2-static)
-  else()
-    target_link_libraries(cnc_tiberian_dawn PRIVATE td_port SDL2::SDL2-static SDL2::SDL2main)
-  endif()
   target_include_directories(
     cnc_tiberian_dawn
     PRIVATE
       ${CMAKE_CURRENT_SOURCE_DIR}/src
       ${CMAKE_CURRENT_SOURCE_DIR}/src/include/legacy
       ${CMAKE_CURRENT_SOURCE_DIR}/src/include
-      ${SDL2_INCLUDE_DIRS}
+      ${TD_SDL2_INCLUDE_DIRS}
   )
   target_compile_definitions(
     cnc_tiberian_dawn
@@ -76,4 +95,8 @@ if(TD_BUILD_EXE)
       _CRT_SECURE_NO_WARNINGS
       SCENARIO_EDITOR
   )
+  target_link_libraries(cnc_tiberian_dawn PRIVATE td_port ${TD_SDL2_TARGET})
+  if(TD_SDL2MAIN_TARGET AND NOT MINGW)
+    target_link_libraries(cnc_tiberian_dawn PRIVATE ${TD_SDL2MAIN_TARGET})
+  endif()
 endif()

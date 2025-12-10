@@ -99,6 +99,8 @@ void Read_Setup_Options(RawFileClass*) {}
 
 void Reset_Theater_Shapes() {}
 
+int Version_Number() { return 1; }
+
 int WWGetPrivateProfileInt(char const*, char const*, int def, char*) {
   return def;
 }

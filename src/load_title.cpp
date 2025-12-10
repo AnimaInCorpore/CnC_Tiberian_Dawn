@@ -30,13 +30,22 @@
 #include <cstdint>
 #include <cstring>
 #include <fstream>
+#include <initializer_list>
 #include <limits>
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace {
 
 constexpr int kPaletteSize = 256 * 3;
+
+// PCX palette components are 6-bit; expand to 8-bit while preserving the top
+// white value instead of clamping it to 252.
+unsigned char Expand_Pcx_Channel(unsigned char value) {
+	const unsigned int scaled = (static_cast<unsigned int>(value) * 255u + 31u) / 63u;
+	return static_cast<unsigned char>(scaled > 255u ? 255u : scaled);
+}
 
 #pragma pack(push, 1)
 struct PcxHeader {
@@ -98,6 +107,33 @@ void Apply_Title_Palette(const unsigned char* source, unsigned char* dest) {
 	}
 	if (GamePalette) {
 		std::memcpy(GamePalette, source, kPaletteSize);
+	}
+}
+
+void Patch_Ui_Colors(unsigned char* palette) {
+	if (!palette) return;
+
+	static const unsigned char kUiColors[16 * 3] = {
+	    0,  0,  0,   // BLACK
+	    0,  0,  42,  // BLUE
+	    0,  42, 0,   // GREEN
+	    0,  42, 42,  // CYAN
+	    42, 0,  0,   // RED
+	    42, 0,  42,  // MAGENTA
+	    42, 21, 0,   // BROWN
+	    42, 42, 42,  // LTGREY
+	    21, 21, 21,  // DKGREY
+	    21, 21, 63,  // LTBLUE
+	    21, 63, 21,  // LTGREEN
+	    21, 63, 63,  // LTCYAN
+	    63, 21, 21,  // LTRED
+	    63, 21, 63,  // LTMAGENTA
+	    63, 63, 21,  // YELLOW
+	    63, 63, 63,  // WHITE
+	};
+
+	for (int i = 0; i < 16 * 3; ++i) {
+		palette[i] = kUiColors[i];
 	}
 }
 
@@ -436,6 +472,10 @@ bool Load_Title_From_Cps_Mix(const char* mix_name, GraphicViewPortClass* video_p
 
 	if (cps.has_palette) {
 		Apply_Title_Palette(cps.palette, palette);
+		Patch_Ui_Colors(palette ? palette : Palette);
+		if (GamePalette) {
+			Patch_Ui_Colors(GamePalette);
+		}
 	}
 
 	CCDebugString("Load_Title_Screen: loaded CPS title from ");
@@ -494,7 +534,7 @@ bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, Decoded
 	if (has_palette) {
 		const unsigned char* palette_data = payload + palette_offset + 1;
 		for (int index = 0; index < kPaletteSize; ++index) {
-			output.palette[index] = static_cast<unsigned char>(palette_data[index] << 2);
+			output.palette[index] = Expand_Pcx_Channel(palette_data[index]);
 		}
 		output.has_palette = true;
 	} else {
@@ -564,11 +604,30 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 
 	static bool mixes_registered = false;
 	if (!mixes_registered) {
+		auto register_mix = [](const char* filename) {
+			if (!filename) return;
+			std::vector<std::string> paths;
+			paths.emplace_back(filename);
+			paths.emplace_back(std::string("CD/") + filename);
+			paths.emplace_back(std::string("CD/GDI/") + filename);
+			paths.emplace_back(std::string("CD/NOD/") + filename);
+
+			for (auto const& path : paths) {
+				std::ifstream test(path, std::ios::binary);
+				if (test) {
+					static std::vector<std::unique_ptr<MixFileClass>> registered;
+					registered.emplace_back(std::make_unique<MixFileClass>(path.c_str()));
+					CCDebugString("Load_Title_Screen: registered mix ");
+					CCDebugString(path.c_str());
+					CCDebugString("\n");
+					return;
+				}
+			}
+		};
+
 		// Title art normally lives in GENERAL.MIX/CONQUER.MIX on the Win95 discs.
-		static MixFileClass general_mix("GENERAL.MIX");
-		static MixFileClass conquer_mix("CONQUER.MIX");
-		(void)general_mix;
-		(void)conquer_mix;
+		register_mix("GENERAL.MIX");
+		register_mix("CONQUER.MIX");
 		mixes_registered = true;
 	}
 
@@ -601,6 +660,10 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 	if (loaded) {
 		if (pcx.has_palette) {
 			Apply_Title_Palette(pcx.palette, palette ? palette : Palette);
+			Patch_Ui_Colors(palette ? palette : Palette);
+			if (GamePalette) {
+				Patch_Ui_Colors(GamePalette);
+			}
 		}
 		Blit_With_Scale(pcx, video_page);
 		Present_Title(video_page);
