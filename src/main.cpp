@@ -5,6 +5,7 @@
 #include "game.h"
 #include "platform_input.h"
 #include "runtime_sdl.h"
+#include "legacy/function.h"
 
 // Global shutdown flag maintained by legacy code paths.
 extern bool ReadyToQuit;
@@ -23,8 +24,8 @@ int main(int argc, char** argv) {
         "Command & Conquer",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        640,
-        480,
+        ScreenWidth,
+        ScreenHeight,
         SDL_WINDOW_SHOWN
     );
     if (!window) {
