@@ -357,11 +357,23 @@ bool Load_Title_From_Cps_Mix(const char* mix_name, GraphicViewPortClass* video_p
 	if (!mix_name || !video_page) return false;
 
 	const std::string base_name(mix_name);
-	const std::string gdi_path = "CD/GDI/" + base_name;
-	const std::string nod_path = "CD/NOD/" + base_name;
-	const std::string root_path = "CD/" + base_name;
+	const char* cd_subfolder = CDFileClass::Get_CD_Subfolder();
 
-	std::vector<std::string> search_paths{base_name, gdi_path, nod_path, root_path};
+	std::vector<std::string> search_paths;
+	search_paths.reserve(5);
+	auto add_path = [&](const std::string& path) {
+		if (path.empty()) return;
+		if (std::find(search_paths.begin(), search_paths.end(), path) != search_paths.end()) return;
+		search_paths.push_back(path);
+	};
+
+	add_path(base_name);
+	if (cd_subfolder && *cd_subfolder) {
+		add_path(std::string("CD/") + cd_subfolder + "/" + base_name);
+	}
+	add_path(std::string("CD/GDI/") + base_name);
+	add_path(std::string("CD/NOD/") + base_name);
+	add_path(std::string("CD/") + base_name);
 	std::vector<unsigned char> mix_data;
 
 	for (auto const& path : search_paths) {
@@ -601,16 +613,26 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 
 	DecodedPcx pcx{};
 	bool loaded = false;
+	const char* cd_subfolder = CDFileClass::Get_CD_Subfolder();
 
 	static bool mixes_registered = false;
 	if (!mixes_registered) {
-		auto register_mix = [](const char* filename) {
+		auto register_mix = [cd_subfolder](const char* filename) {
 			if (!filename) return;
 			std::vector<std::string> paths;
-			paths.emplace_back(filename);
-			paths.emplace_back(std::string("CD/") + filename);
-			paths.emplace_back(std::string("CD/GDI/") + filename);
-			paths.emplace_back(std::string("CD/NOD/") + filename);
+			auto add_path = [&](const std::string& path) {
+				if (path.empty()) return;
+				if (std::find(paths.begin(), paths.end(), path) != paths.end()) return;
+				paths.emplace_back(path);
+			};
+
+			add_path(filename);
+			if (cd_subfolder && *cd_subfolder) {
+				add_path(std::string("CD/") + cd_subfolder + "/" + filename);
+			}
+			add_path(std::string("CD/") + filename);
+			add_path(std::string("CD/GDI/") + filename);
+			add_path(std::string("CD/NOD/") + filename);
 
 			for (auto const& path : paths) {
 				std::ifstream test(path, std::ios::binary);

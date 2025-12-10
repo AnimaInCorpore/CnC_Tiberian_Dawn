@@ -1,5 +1,7 @@
 #include "legacy/cdfile.h"
 
+#include <algorithm>
+#include <cctype>
 #include <cstring>
 #include <string>
 #include <vector>
@@ -12,6 +14,7 @@ struct SearchDriveNode {
 };
 
 SearchDriveNode* g_search_head = nullptr;
+std::string g_cd_subfolder;
 
 void Clear_Search_List() {
   while (g_search_head) {
@@ -30,6 +33,17 @@ std::string Join_Path(std::string const& base, char const* filename) {
   return base + "/" + filename;
 }
 
+std::string Normalize_Cd_Subfolder(const char* subfolder) {
+  if (!subfolder || !*subfolder) return {};
+  std::string value(subfolder);
+  std::transform(value.begin(), value.end(), value.begin(),
+                 [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+  if (value == "GDI" || value == "NOD") {
+    return value;
+  }
+  return {};
+}
+
 }  // namespace
 
 CDFileClass::SearchDriveType* CDFileClass::First = nullptr;
@@ -40,6 +54,19 @@ int CDFileClass::LastCDDrive = 0;
 CDFileClass::CDFileClass(char const* filename) : RawFileClass(filename), IsDisabled(0) {}
 
 CDFileClass::CDFileClass() : RawFileClass(), IsDisabled(0) {}
+
+void CDFileClass::Set_CD_Subfolder(char const* subfolder) {
+  const std::string normalized = Normalize_Cd_Subfolder(subfolder);
+  if (normalized == g_cd_subfolder) {
+    return;
+  }
+  g_cd_subfolder = normalized;
+  Clear_Search_Drives();
+}
+
+char const* CDFileClass::Get_CD_Subfolder(void) {
+  return g_cd_subfolder.empty() ? nullptr : g_cd_subfolder.c_str();
+}
 
 char const* CDFileClass::Set_Name(char const* filename) {
   return RawFileClass::Set_Name(filename);
@@ -56,9 +83,14 @@ int CDFileClass::Open(int rights) {
   }
 
   if (!g_search_head && RawPath[0] == '\0') {
-    // Prefer explicit GDI/NOD subfolders, then fall back to the root CD folder.
-    Add_Search_Drive(const_cast<char*>("CD/GDI"));
-    Add_Search_Drive(const_cast<char*>("CD/NOD"));
+    // Prefer explicit subfolder selection, then fall back to the root CD folder.
+    if (!g_cd_subfolder.empty()) {
+      const std::string primary = Join_Path("CD", g_cd_subfolder.c_str());
+      Add_Search_Drive(const_cast<char*>(primary.c_str()));
+    } else {
+      Add_Search_Drive(const_cast<char*>("CD/GDI"));
+      Add_Search_Drive(const_cast<char*>("CD/NOD"));
+    }
     Add_Search_Drive(const_cast<char*>("CD"));
   }
 

@@ -69,6 +69,8 @@ class CDFileClass : public RawFileClass
 		static void Add_Search_Drive(char *path);
 		static void Clear_Search_Drives(void);
 		static void Refresh_Search_Drives(void);
+		static void Set_CD_Subfolder(char const* subfolder);
+		static char const* Get_CD_Subfolder(void);
 		static void Set_CD_Drive(int drive);
 		static int  Get_CD_Drive(void) {return(CurrentCDDrive);};
 		static int  Get_Last_CD_Drive(void) {return(LastCDDrive);};
@@ -112,4 +114,3 @@ class CDFileClass : public RawFileClass
 
 
 #endif
-

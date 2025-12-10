@@ -7,13 +7,16 @@
 #include "legacy/externs.h"
 #include "legacy/gscreen.h"
 #include "legacy/nullmodem_stub.h"
+#include "legacy/cdfile.h"
 #include "legacy/windows_compat.h"
 #include "platform_input.h"
 #include "runtime_sdl.h"
 
+#include <algorithm>
 #include <cmath>
 #include <chrono>
 #include <cstdarg>
+#include <cctype>
 #include <cstdio>
 #include <cstring>
 #include <string>
@@ -93,7 +96,36 @@ void const* Hires_Retrieve(char const* /*name*/) { return nullptr; }
 
 void Validate_Error(char const*) {}
 
-bool Parse_Command_Line(int, char**) { return true; }
+bool Parse_Command_Line(int argc, char** argv) {
+  if (!argv) return true;
+
+  std::string cd_disc;
+  for (int i = 1; i < argc; ++i) {
+    if (!argv[i]) continue;
+    std::string arg = argv[i];
+    if (arg.empty()) continue;
+
+    std::string lower = arg;
+    std::transform(lower.begin(), lower.end(), lower.begin(),
+                   [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+    if (lower == "gdi" || lower == "-gdi" || lower == "--gdi" || lower == "--cd=gdi") {
+      cd_disc = "GDI";
+      continue;
+    }
+    if (lower == "nod" || lower == "-nod" || lower == "--nod" || lower == "--cd=nod") {
+      cd_disc = "NOD";
+      continue;
+    }
+  }
+
+  if (!cd_disc.empty()) {
+    CDFileClass::Set_CD_Subfolder(cd_disc.c_str());
+    CCDebugString(cd_disc == "GDI" ? "Using GDI disc assets.\n" : "Using NOD disc assets.\n");
+  }
+
+  return true;
+}
 
 void Read_Setup_Options(RawFileClass*) {}
 
