@@ -53,7 +53,11 @@ target_link_libraries(td_port PUBLIC SDL2::SDL2-static)
 # --- Optional executable (disabled by default until more gameplay code is ported) ---
 if(TD_BUILD_EXE)
   add_executable(cnc_tiberian_dawn src/main.cpp)
-  target_link_libraries(cnc_tiberian_dawn PRIVATE td_port SDL2::SDL2-static SDL2::SDL2main)
+  if(MINGW)
+    target_link_libraries(cnc_tiberian_dawn PRIVATE td_port SDL2::SDL2-static)
+  else()
+    target_link_libraries(cnc_tiberian_dawn PRIVATE td_port SDL2::SDL2-static SDL2::SDL2main)
+  endif()
   target_include_directories(
     cnc_tiberian_dawn
     PRIVATE

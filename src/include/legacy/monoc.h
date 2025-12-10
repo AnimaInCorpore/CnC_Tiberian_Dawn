@@ -146,7 +146,9 @@ class MonoClass {
 		int Offset(int x=0, int y=0) const {return (SIZE_OF_PAGE*Page) + sizeof(CellType)*(x + (y*COLUMNS));};
 		void Scroll(int lines);
 		void Store_Cell(CellType &cell, int x, int y) {
-			*(CellType *)((long)MonoSegment + Offset(x, y)) = cell;
+			std::uintptr_t base = reinterpret_cast<std::uintptr_t>(MonoSegment);
+			CellType* dest = reinterpret_cast<CellType*>(base + static_cast<std::uintptr_t>(Offset(x, y)));
+			*dest = cell;
 		};
 
 		/*
@@ -188,4 +190,3 @@ int Mono_X(void);
 int Mono_Y(void);
 
 #endif
-
