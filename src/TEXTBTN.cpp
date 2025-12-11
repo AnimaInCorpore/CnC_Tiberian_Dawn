@@ -101,14 +101,17 @@ void TextButtonClass::Draw_Text(char const* text) {
 
   if (PrintFlags & TPF_6PT_GRAD) {
     TextPrintType flags = static_cast<TextPrintType>(0);
-    int color = CC_GREEN;
+    int color = LTGREEN;
 
     if (!IsDisabled) {
       if (IsPressed || IsOn) {
         flags = static_cast<TextPrintType>(TPF_USE_GRAD_PAL | TPF_BRIGHT_COLOR);
+        color = WHITE;
       } else {
         flags = static_cast<TextPrintType>(TPF_USE_GRAD_PAL | TPF_MEDIUM_COLOR);
       }
+    } else {
+      color = DKGREY;
     }
     Fancy_Text_Print(text, X + (Width >> 1) - 1, Y + 1, color, TBLACK, static_cast<TextPrintType>(PrintFlags | flags | TPF_CENTER));
     return;
