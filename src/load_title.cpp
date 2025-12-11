@@ -34,6 +34,7 @@
 #include <limits>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -94,10 +95,7 @@ struct MixFileHeader {
 
 static_assert(sizeof(MixFileHeader) == 6, "Mix header size mismatch");
 
-// Preferred CRCs for the known title CPS variants shipped on the Win95 discs. If any of these
-// entries are present in the mix, use them ahead of the heuristic size-based selection.
-constexpr std::uint32_t kTitleCpsCrcs[] = {0xD3ADF127, 0xD1D7822E, 0xE31C32D1, 0xE50032D1,
-                                           0x69FB3FE6};
+bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, DecodedPcx& output);
 
 void Apply_Title_Palette(const unsigned char* source, unsigned char* dest) {
 	if (!source) return;
@@ -365,7 +363,7 @@ bool Load_Title_From_Cps_Mix(const char* mix_name, GraphicViewPortClass* video_p
 	const char* cd_subfolder = CDFileClass::Get_CD_Subfolder();
 
 	std::vector<std::string> search_paths;
-	search_paths.reserve(10);
+	search_paths.reserve(12);
 	auto add_path = [&](const std::string& path) {
 		if (path.empty()) return;
 		if (std::find(search_paths.begin(), search_paths.end(), path) != search_paths.end()) return;
@@ -381,6 +379,7 @@ bool Load_Title_From_Cps_Mix(const char* mix_name, GraphicViewPortClass* video_p
 	if (cd_subfolder && *cd_subfolder) {
 		add_path_with_parent(std::string("CD/") + cd_subfolder + "/" + base_name);
 	}
+	add_path_with_parent(std::string("CD/CNC95/") + base_name);
 	add_path_with_parent(std::string("CD/GDI/") + base_name);
 	add_path_with_parent(std::string("CD/NOD/") + base_name);
 	add_path_with_parent(std::string("CD/") + base_name);
@@ -426,11 +425,8 @@ bool Load_Title_From_Cps_Mix(const char* mix_name, GraphicViewPortClass* video_p
 	std::vector<MixFileClass::SubBlock> entries(mix_header.count);
 	std::memcpy(entries.data(), mix_data.data() + sizeof(MixFileHeader), entries_bytes);
 
-	const MixFileClass::SubBlock* best = nullptr;
-	CpsHeader best_header{};
-	double best_palette_score = -1.0;
-	const MixFileClass::SubBlock* preferred = nullptr;
-	CpsHeader preferred_header{};
+	DecodedPcx best_image{};
+	double best_score = -1.0;
 
 	for (auto const& entry : entries) {
 		const std::uint32_t start = data_base + entry.Offset;
@@ -440,84 +436,42 @@ bool Load_Title_From_Cps_Mix(const char* mix_name, GraphicViewPortClass* video_p
 			continue;
 		}
 
-		CpsHeader header{};
-		std::memcpy(&header, mix_data.data() + start, sizeof(header));
+		std::vector<unsigned char> entry_data(mix_data.begin() + start, mix_data.begin() + end);
 
-		if ((header.compression != 0 && header.compression != 4) || header.uncompressed_size == 0) {
+		DecodedPcx candidate{};
+		bool decoded = Decode_Cps(entry_data, candidate) ||
+		               Decode_Pcx_Buffer(entry_data.data(), entry_data.size(), candidate);
+		if (!decoded) {
 			continue;
 		}
-		if (header.palette_size < kPaletteSize) {
-			continue;
-		}
 
-		// Track palette brightness to use as a late tiebreaker if two payloads are otherwise
-		// equivalent.
-		double palette_score = -1.0;
-		const std::uint32_t palette_base = start + sizeof(CpsHeader);
-		if (palette_base + kPaletteSize <= end) {
-			std::uint64_t palette_sum = 0;
-			for (std::size_t i = 0; i < kPaletteSize; ++i) {
-				palette_sum += static_cast<std::uint64_t>(mix_data[palette_base + i]);
-			}
-			palette_score = static_cast<double>(palette_sum) / static_cast<double>(kPaletteSize);
-		}
-
-		// Prefer the richest payload: first by uncompressed size, then by compressed size
-		// (a heavier compressed blob typically preserves more detail), and finally by palette
-		// brightness.
-		if (!best || header.uncompressed_size > best_header.uncompressed_size ||
-		    (header.uncompressed_size == best_header.uncompressed_size && entry.Size > best->Size) ||
-		    (header.uncompressed_size == best_header.uncompressed_size && entry.Size == best->Size &&
-		     palette_score > best_palette_score)) {
-			best = &entry;
-			best_header = header;
-			best_palette_score = palette_score;
-		}
-
-		if (!preferred) {
-			for (std::uint32_t crc : kTitleCpsCrcs) {
-				if (entry.CRC == crc) {
-					preferred = &entry;
-					preferred_header = header;
-					break;
-				}
-			}
+		const double score = static_cast<double>(std::max(1, candidate.width)) *
+		                     static_cast<double>(std::max(1, candidate.height));
+		if (score > best_score) {
+			best_score = score;
+			std::swap(best_image, candidate);
 		}
 	}
 
-	const MixFileClass::SubBlock* chosen = preferred ? preferred : best;
-
-	if (!chosen) {
+	if (best_score < 0.0) {
 		CCDebugString("Load_Title_Screen: no CPS candidates found in ");
 		CCDebugString(mix_name);
 		CCDebugString(".\n");
 		return false;
 	}
 
-	const std::uint32_t best_start = data_base + chosen->Offset;
-	std::vector<unsigned char> entry_data(mix_data.begin() + best_start,
-	                                      mix_data.begin() + best_start + chosen->Size);
-
-	DecodedPcx cps{};
-	if (!Decode_Cps(entry_data, cps)) {
-		CCDebugString("Load_Title_Screen: CPS decode failed for ");
-		CCDebugString(mix_name);
-		CCDebugString(".\n");
-		return false;
-	}
-
-	if (cps.has_palette) {
-		Apply_Title_Palette(cps.palette, palette);
+	if (best_image.has_palette) {
+		Apply_Title_Palette(best_image.palette, palette);
 		Patch_Ui_Colors(palette ? palette : Palette);
 		if (GamePalette) {
 			Patch_Ui_Colors(GamePalette);
 		}
 	}
 
-	CCDebugString("Load_Title_Screen: loaded CPS title from ");
+	CCDebugString("Load_Title_Screen: loaded title art from ");
 	CCDebugString(mix_name);
 	CCDebugString(".\n");
-	return Blit_With_Scale(cps, video_page);
+	return Blit_With_Scale(best_image, video_page);
 }
 
 bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, DecodedPcx& output) {
@@ -629,6 +583,7 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 			if (cd_subfolder && *cd_subfolder) {
 				add_path_with_parent(std::string("CD/") + cd_subfolder + "/" + filename);
 			}
+			add_path_with_parent(std::string("CD/CNC95/") + filename);
 			add_path_with_parent(std::string("CD/") + filename);
 			add_path_with_parent(std::string("CD/GDI/") + filename);
 			add_path_with_parent(std::string("CD/NOD/") + filename);
