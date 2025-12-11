@@ -28,6 +28,39 @@ MapStubClass::MapStubClass()
       UnitShadow(nullptr),
       FadingLight(nullptr) {}
 
+void MapStubClass::One_Time() {
+  cells_.clear();
+  PendingHouse = HOUSE_NONE;
+  PendingObject = nullptr;
+  PendingObjectPtr = nullptr;
+  MapCellX = 0;
+  MapCellY = 0;
+  MapCellWidth = 0;
+  MapCellHeight = 0;
+  TacPixelX = 0;
+  TacPixelY = 0;
+  TacLeptonWidth = 0;
+  TacLeptonHeight = 0;
+  TacticalCoord = 0;
+  DesiredTacticalCoord = 0;
+  SpecialRadarFrame = 0;
+  IsToRedraw = 0;
+  IsSellMode = false;
+  IsTargettingMode = false;
+  IsRadarActive = false;
+  DoesRadarExist = false;
+  IsSidebarActive = false;
+  IsZoomed = false;
+  PlayerNamesEnabled = false;
+  FadingShade = nullptr;
+  UnitShadow = nullptr;
+  FadingLight = nullptr;
+
+  for (auto& column : Column) {
+    column.IsToRedraw = false;
+  }
+}
+
 MapCellStub& MapStubClass::operator[](CELL cell) {
   return cells_[cell];
 }

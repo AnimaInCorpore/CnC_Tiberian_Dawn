@@ -81,6 +81,7 @@ class MapStubClass
 {
 	public:
 		MapStubClass();
+		void One_Time();
 
 		MapCellStub& operator[](CELL cell);
 		MapCellStub const& operator[](CELL cell) const;

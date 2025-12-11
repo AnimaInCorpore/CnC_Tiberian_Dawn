@@ -23,7 +23,7 @@ Status: Next steps. Scope: port IPX/Greenleaf stack (`IPX*.CPP`, `TCPIP.CPP`, `C
 Status: Next steps. Scope: modernize MIX/raw/CC file handling (`MIXFILE.CPP`, `RAWFILE.CPP`, `CCFILE.CPP`) for cross-platform paths/endianness, and config/profile parsing for startup/save/load parity. Excludes gameplay logic changes.
 
 ## Gameplay systems and AI
-Status: Next steps. Scope: port unit/structure/AI systems (`UNIT/TECHNO/BUILDING/INFANTRY/VEHICLE`, pathfinding `FINDPATH`/`VECTOR`, triggers/scripts, mission flow) ensuring deterministic timers/random seeds. Excludes platform or asset I/O changes.
+Status: Next steps. Scope: port unit/structure/AI systems (`UNIT/TECHNO/BUILDING/INFANTRY/VEHICLE`, pathfinding `FINDPATH`/`VECTOR`, triggers/scripts, mission flow) ensuring deterministic timers/random seeds. Excludes platform or asset I/O changes. Cargo attach/detach/pointer coding now live in `src/cargo.cpp`; next tie it back into Foot/Unit load/unload once those files move.
 
 ## Assembly replacements
 Status: Next steps. Scope: re-implement `.ASM` helpers (MMX routines, page fault glue, IPX real-mode bridges, text blits) in portable C/C++ with comments; remove inline assembly/pragmas. Excludes higher-level logic.

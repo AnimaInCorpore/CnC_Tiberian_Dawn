@@ -132,29 +132,6 @@ UnitClass* As_Unit(TARGET) { return nullptr; }
 TechnoClass* As_Techno(TARGET) { return nullptr; }
 AircraftClass* As_Aircraft(TARGET) { return nullptr; }
 
-// --- Cargo -----------------------------------------------------------------------------------
-
-FootClass* CargoClass::Attached_Object() const { return CargoHold; }
-
-FootClass* CargoClass::Detach_Object() {
-  FootClass* obj = CargoHold;
-  CargoHold = nullptr;
-  Quantity = 0;
-  return obj;
-}
-
-void CargoClass::Attach(FootClass* object) {
-  CargoHold = object;
-  Quantity = object ? 1 : 0;
-}
-
-void CargoClass::Code_Pointers() {}
-void CargoClass::Decode_Pointers() {}
-
-#ifdef CHEAT_KEYS
-void CargoClass::Debug_Dump(MonoClass*) const {}
-#endif
-
 // --- Flasher ---------------------------------------------------------------------------------
 
 bool FlasherClass::Process() {

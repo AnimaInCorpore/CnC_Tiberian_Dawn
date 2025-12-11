@@ -49,6 +49,7 @@ set(TD_SOURCES
   src/base_stub.cpp
   src/bbdata.cpp
   src/building.cpp
+  src/cargo.cpp
   src/ccfile.cpp
   src/cdfile.cpp
   src/checkbox.cpp

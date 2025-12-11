@@ -38,7 +38,10 @@
 #ifndef CARGO_H
 #define CARGO_H
 
+#include "defines.h"
+
 class FootClass;
+class MonoClass;
 
 /****************************************************************************
 **	This class handles the basic cargo logic.
@@ -88,4 +91,3 @@ class CargoClass {
 };
 
 #endif
-
