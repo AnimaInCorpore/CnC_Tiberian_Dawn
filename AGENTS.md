@@ -3,10 +3,11 @@
 This guide directs the process of porting the original Command & Conquer source code to a modern, cross-platform build system.
 
 ## Primary Objective
-Translate the legacy C++ codebase to compile with modern tools (`g++`, `CMake`) while preserving original game logic and behavior. The end-goal is a platform-independent application using SDL for hardware abstraction.
+Translate the legacy C++ codebase (the C&C95 Win32 build) to compile with modern tools (`g++`, `CMake`) while preserving original game logic and behavior. The end-goal is a platform-independent application using SDL for hardware abstraction.
 
 ## Core Principles
 1.  **Preserve Original Behavior:** The Win32 build is the canonical reference. All ported code must function identically to the original.
+    - Treat the C&C95 Win32 release as the authoritative source of truth for gameplay, timing, asset handling, and UI flow.
 2.  **Platform Independence:** Use SDL to replace all direct hardware calls (Graphics, Audio, Input, Networking). Avoid platform-specific code outside of the SDL implementation layer.
 3.  **Modern Tooling:** The codebase must build with `g++` (or a compatible compiler) and `CMake`.
 4.  **Clean Codebase:** Remove all legacy code paths for DOS, Win16, and segmented memory. The target is a flat 32/64-bit memory model.
@@ -36,6 +37,7 @@ Translate the legacy C++ codebase to compile with modern tools (`g++`, `CMake`) 
 ### 4. Verification
 - The game must compile and run after each major module is ported.
 - Gameplay and behavior should be frequently compared against the original Win32 version to check for regressions.
+- After porting or materially updating a source/header, record the change in `PROGRESS.md` and refresh `NEXT_STEPS.md` with the follow-up tasks that make sense from that work.
 
 ## Task Checklist (High-Level)
 - [ ] **Setup:** Create `src/` directory and `CMakeLists.txt`.
