@@ -11,7 +11,7 @@ Status: Next steps. Scope: create SDL2/SDL_net shims for video/audio/input/netwo
 Status: Next steps. Scope: port `STARTUP.CPP`/`CONQUER.CPP` sequencing into `src/port_stubs.cpp`/`src/game.cpp` (heap sizing, mix/font preload, intro gating, CD/MMX probes, mouse/setup checks, DDE/network teardown) and drop in full `MENUS.CPP` flow. Wire the new `Load_Title_Screen` path into that bootstrap once menus/intro sequencing lands. Excludes rendering/audio/UI internals.
 
 ## Rendering and UI
-Status: Next steps. Scope: finish `DisplayClass::Draw_It/AI`, map helpers in `src/display.cpp`, `GScreenClass` in `src/gscreen.cpp`, and `MapStubClass`/`MapClass` replacements (`src/map_shim.cpp`, `src/gameplay_core_stub.cpp`), plus HUD/UI widgets (Sidebar/Tab/Radio/Theme, startup options). Hook the ported credit tab (`src/credits.cpp`) back into Sidebar/Tab update loops when those UI classes move over. Add a real gradient font palette path and load the original font assets so the temporary 2x bitmap scaling can be dropped. Excludes audio or net hooks.
+Status: Next steps. Scope: finish `DisplayClass::Draw_It/AI`, map helpers in `src/display.cpp`, `GScreenClass` in `src/gscreen.cpp`, and `MapStubClass`/`MapClass` replacements (`src/map_shim.cpp`, `src/gameplay_core_stub.cpp`), plus HUD/UI widgets (Sidebar/Tab/Radio/Theme, startup options). Hook the ported credit tab (`src/credits.cpp`) back into Sidebar/Tab update loops when those UI classes move over. Excludes audio or net hooks.
 
 ## Audio and messaging
 Status: Next steps. Scope: wire `CCMessageBox::Process` and audio entry points in `src/linker_stubs.cpp`; rebuild `src/audio_stub.cpp` to match `AUDIO.CPP` mixing/streaming via SDL with original volume/priority/voice rules. Excludes rendering or net.

@@ -22,25 +22,14 @@ enum MenuButtonIds {
   BUTTON_EXIT,
 };
 
-namespace {
-class TextScaleGuard {
- public:
-  explicit TextScaleGuard(int scale) : previous_scale_(Text_Set_Scale(scale)) {}
-  ~TextScaleGuard() { Text_Set_Scale(previous_scale_); }
-
- private:
-  int previous_scale_;
-};
-}  // namespace
-
 static void Build_Button_List(std::vector<TextButtonClass*>& buttons, ControlClass*& head) {
-  const int button_width = 280;
-  const int button_height = 24;
+  const int button_width = 220;
+  const int button_height = 20;
   const int spacing = 10;
   const int start_x = (ScreenWidth - button_width) / 2;
   int y = 140;
   const TextPrintType style =
-      static_cast<TextPrintType>(TPF_CENTER | TPF_6PT_GRAD | TPF_USE_GRAD_PAL | TPF_NOSHADOW);
+      static_cast<TextPrintType>(TPF_CENTER | TPF_6PT_GRAD | TPF_USE_GRAD_PAL | TPF_DROPSHADOW);
 
   auto emplace_button = [&](unsigned id, int text) {
     buttons.push_back(
@@ -96,7 +85,6 @@ static void Draw_Menu_Text(GraphicViewPortClass& page) {
 }
 
 int Main_Menu(unsigned long timeout) {
-  TextScaleGuard text_scale_guard(2);
   std::vector<TextButtonClass*> buttons;
   ControlClass* commands = nullptr;
   Build_Button_List(buttons, commands);

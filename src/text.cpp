@@ -6,7 +6,6 @@
 #include "legacy/externs.h"
 #include "legacy/wwlib32.h"
 
-#include <algorithm>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
@@ -21,7 +20,6 @@ namespace {
 
 constexpr int kFontWidth = 8;
 constexpr int kFontHeight = 8;
-int g_font_scale = 1;
 
 // Public-domain 8x8 bitmap font (font8x8_basic).
 static const unsigned char kFont8x8[128][8] = {
@@ -160,26 +158,11 @@ GraphicViewPortClass* Target_Page() {
 }
 
 void Select_Font(TextPrintType flag) {
-  int base_height = kFontHeight;
-  switch (flag & 0x000F) {
-    case TPF_6POINT:
-    case TPF_6PT_GRAD:
-    case TPF_MAP:
-      base_height = 7;
-      break;
-    case TPF_3POINT:
-      base_height = 4;
-      break;
-    case TPF_GREEN12:
-    case TPF_GREEN12_GRAD:
-      base_height = 10;
-      break;
-    default:
-      base_height = kFontHeight;
-      break;
-  }
-  FontHeight = base_height * std::max(1, g_font_scale);
-  FontYSpacing = std::max(1, g_font_scale);
+  // The placeholder bitmap font is always 8 pixels tall; keep layout metrics in sync so spacing
+  // matches what we actually draw even when callers request 6pt/3pt/gradient variants.
+  (void)flag;
+  FontHeight = kFontHeight;
+  FontYSpacing = 1;
   Platform_Set_Fonts(kFont8x8, nullptr, FontHeight, FontYSpacing);
 }
 
@@ -188,25 +171,14 @@ void Draw_Glyph(char ch, int x, int y, unsigned fore, unsigned back, bool fill_b
   GraphicViewPortClass* page = Target_Page();
   if (!page) return;
 
-  for (int row = 0; row < kFontHeight; ++row) {
+  const int rows = std::min(FontHeight, kFontHeight);
+  for (int row = 0; row < rows; ++row) {
     for (int col = 0; col < kFontWidth; ++col) {
-      // font8x8_basic stores bits LSB->MSB left-to-right.
-      bool bit_set;
-      if (ch >= 'A' && ch <= 'Z') {
-        bit_set = glyph[row] & (1 << (7-col));
-      } else {
-        bit_set = glyph[row] & (1 << col);
-      }
-      const int scaled_x = x + (col * g_font_scale);
-      const int scaled_y = y + (row * g_font_scale);
-      for (int dy = 0; dy < g_font_scale; ++dy) {
-        for (int dx = 0; dx < g_font_scale; ++dx) {
-          if (bit_set) {
-            page->Put_Pixel(scaled_x + dx, scaled_y + dy, static_cast<int>(fore));
-          } else if (fill_background) {
-            page->Put_Pixel(scaled_x + dx, scaled_y + dy, static_cast<int>(back));
-          }
-        }
+      const bool bit_set = glyph[row] & (1 << col);
+      if (bit_set) {
+        page->Put_Pixel(x + col, y + row, static_cast<int>(fore));
+      } else if (fill_background) {
+        page->Put_Pixel(x + col, y + row, static_cast<int>(back));
       }
     }
   }
@@ -234,15 +206,15 @@ void Draw_String(const char* text, unsigned x, unsigned y, unsigned fore, unsign
   unsigned cursor_x = x;
   for (const char* ptr = text; *ptr; ++ptr) {
     if (*ptr == '\t') {
-      cursor_x += static_cast<unsigned>(kFontWidth * 4 * g_font_scale);
+      cursor_x += static_cast<unsigned>(kFontWidth * 4);
       continue;
     }
     if (shadow) {
-      Draw_Glyph(*ptr, static_cast<int>(cursor_x + g_font_scale),
-                 static_cast<int>(y + g_font_scale), TBLACK, back, fill_background);
+      Draw_Glyph(*ptr, static_cast<int>(cursor_x + 1), static_cast<int>(y + 1), TBLACK, back,
+                 fill_background);
     }
     Draw_Glyph(*ptr, static_cast<int>(cursor_x), static_cast<int>(y), fore, back, fill_background);
-    cursor_x += static_cast<unsigned>(kFontWidth * g_font_scale);
+    cursor_x += static_cast<unsigned>(kFontWidth);
   }
 }
 
@@ -281,27 +253,18 @@ const char* Lookup_Text(int id) {
 
 }  // namespace
 
-int Char_Pixel_Width(int) { return kFontWidth * g_font_scale; }
+int Char_Pixel_Width(int) { return kFontWidth; }
 
 int String_Pixel_Width(char const* text) {
   if (!text) return 0;
   int width = 0;
   for (const char* ptr = text; *ptr; ++ptr) {
-    const int advance = (*ptr == '\t') ? (kFontWidth * 4) : kFontWidth;
-    width += advance * g_font_scale;
+    width += (*ptr == '\t') ? (kFontWidth * 4) : kFontWidth;
   }
   return width;
 }
 
 void Conquer_Init_Fonts() { Select_Font(TPF_8POINT); }
-
-int Text_Set_Scale(int scale) {
-  const int previous = g_font_scale;
-  g_font_scale = std::max(1, scale);
-  // Refresh current font metrics to reflect the new scale.
-  Select_Font(TPF_LASTPOINT);
-  return previous;
-}
 
 void Conquer_Clip_Text_Print(char const* text, unsigned x, unsigned y, unsigned fore,
                              unsigned back, TextPrintType flag, unsigned width, int const*) {
@@ -312,7 +275,6 @@ void Conquer_Clip_Text_Print(char const* text, unsigned x, unsigned y, unsigned 
     const unsigned char ch = static_cast<unsigned char>(*ptr);
     unsigned advance = (ch == '\t') ? static_cast<unsigned>(kFontWidth * 4)
                                     : static_cast<unsigned>(kFontWidth);
-    advance *= static_cast<unsigned>(g_font_scale);
     if (current_width + advance > width) {
       break;
     }

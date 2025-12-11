@@ -421,7 +421,6 @@ void Fancy_Text_Print(int text, unsigned x, unsigned y, unsigned fore, unsigned 
 void Simple_Text_Print(char const *text, unsigned x, unsigned y, unsigned fore, unsigned back, TextPrintType flag);
 int String_Pixel_Width(char const* text);
 int Char_Pixel_Width(int value);
-int Text_Set_Scale(int scale);
 extern int FontHeight;
 extern int FontYSpacing;
 
