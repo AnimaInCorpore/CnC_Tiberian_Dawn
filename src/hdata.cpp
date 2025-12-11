@@ -1,0 +1,313 @@
+/*
+**	Command & Conquer(tm)
+**	Copyright 2025 Electronic Arts Inc.
+**
+**	This program is free software: you can redistribute it and/or modify
+**	it under the terms of the GNU General Public License as published by
+**	the Free Software Foundation, either version 3 of the License, or
+**	(at your option) any later version.
+**
+**	This program is distributed in the hope that it will be useful,
+**	but WITHOUT ANY WARRANTY; without even the implied warranty of
+**	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**	GNU General Public License for more details.
+**
+**	You should have received a copy of the GNU General Public License
+**	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/* $Header:   F:\projects\c&c\vcs\code\hdata.cpv   2.17   16 Oct 1995 16:48:18   JOE_BOSTIC  $ */
+/***********************************************************************************************
+ ***             C O N F I D E N T I A L  ---  W E S T W O O D   S T U D I O S               ***
+ ***********************************************************************************************/
+/*
+ *                 Project Name : Command & Conquer
+ *
+ *                    File Name : HDATA.CPP
+ *
+ *                   Programmer : Joe L. Bostic
+ *
+ *                   Start Date : May 22, 1994
+ *
+ *                  Last Update : January 23, 1995 [JLB]
+ *
+ *---------------------------------------------------------------------------------------------*
+ * Functions:
+ *   HouseTypeClass::From_Name -- Fetch house pointer from its name.
+ *   HouseTypeClass::As_Reference -- Fetches a reference to the house specified.
+ *---------------------------------------------------------------------------------------------*/
+
+#include "legacy/type.h"
+#include "legacy/externs.h"
+
+#include <cstring>
+#include <strings.h>
+
+namespace {
+constexpr int kColorGood = 180;          // GOLD
+constexpr int kColorBrightGood = 176;    // GOLD
+constexpr int kColorBad = 123;           // RED
+constexpr int kColorBrightBad = 127;     // RED
+constexpr int kColorNeutral = 205;       // WHITE
+constexpr int kColorBrightNeutral = 202; // WHITE
+}  // namespace
+
+static HouseTypeClass const HouseGood(
+	HOUSE_GOOD,
+	"GoodGuy",					//	NAME:			House name.
+	TXT_GDI,						// FULLNAME:	Translated house name.
+	"GDI",						// SUFFIX:		House file suffix.
+	0,								// LEMON:		Lemon vehicle frequency.
+	kColorGood,					// COLOR:		Dark Radar map color.
+	kColorBrightGood,		// COLOR:		Bright Radar map color.
+	REMAP_YELLOW,				// Remap color ID number.
+	RemapYellow,				// Default remap table.
+	'G'							// VOICE:		Voice prefix character.
+);
+
+static HouseTypeClass const HouseBad(
+	HOUSE_BAD,
+	"BadGuy",					//	NAME:			House name.
+	TXT_NOD,						// FULLNAME:	Translated house name.
+	"NOD",						// SUFFIX:		House file suffix.
+	0,								// LEMON:		Lemon vehicle frequency.
+	kColorBad,					// COLOR:		Dark Radar map color.
+	kColorBrightBad,			// COLOR:		Bright Radar map color.
+	REMAP_BLUE,					// Remap color ID number.
+	RemapBlue,					// Default remap table.
+	'B'							// VOICE:		Voice prefix character.
+);
+
+static HouseTypeClass const HouseCivilian(
+	HOUSE_NEUTRAL,
+	"Neutral",					//	NAME:			House name.
+	TXT_CIVILIAN,				// FULLNAME:	Translated house name.
+	"CIV",						// SUFFIX:		House file suffix.
+	0,								// LEMON:		Lemon vehicle frequency.
+	kColorNeutral,				// COLOR:		Dark Radar map color.
+	kColorBrightNeutral,	// COLOR:		Bright Radar map color.
+	REMAP_YELLOW,				// Remap color ID number.
+	RemapNone,					// Default remap table.
+	'C'							// VOICE:		Voice prefix character.
+);
+
+static HouseTypeClass const HouseJP(
+	HOUSE_JP,
+	"Special",					//	NAME:			House name.
+	TXT_JP,						// FULLNAME:	Translated house name.
+	"JP",							// SUFFIX:		House file suffix.
+	0,								// LEMON:		Lemon vehicle frequency.
+	kColorNeutral,				// COLOR:		Dark Radar map color.
+	kColorBrightNeutral,	// COLOR:		Bright Radar map color.
+	REMAP_YELLOW,				// Remap color ID number.
+	RemapNone,					// Default remap table.
+	'J'							// VOICE:		Voice prefix character.
+);
+
+static HouseTypeClass const HouseMulti1(
+	HOUSE_MULTI1,
+	"Multi1",					//	NAME:			House name.
+	TXT_CIVILIAN,				// FULLNAME:	Translated house name.
+	"MP1",						// SUFFIX:		House file suffix.
+	0,								// LEMON:		Lemon vehicle frequency.
+	kColorNeutral,				// COLOR:		Radar map color.
+	kColorBrightNeutral,	// COLOR:		Bright Radar map color.
+	REMAP_AQUA,					// Remap color ID number.
+	RemapBlueGreen,			// Default remap table.
+	'M'							// VOICE:		Voice prefix character.
+);
+
+static HouseTypeClass const HouseMulti2(
+	HOUSE_MULTI2,
+	"Multi2",					//	NAME:			House name.
+	TXT_CIVILIAN,				// FULLNAME:	Translated house name.
+	"MP2",						// SUFFIX:		House file suffix.
+	0,								// LEMON:		Lemon vehicle frequency.
+	kColorNeutral,				// COLOR:		Radar map color.
+	kColorBrightNeutral,	// COLOR:		Bright Radar map color.
+	REMAP_ORANGE,				// Remap color ID number.
+	RemapOrange,				// Default remap table.
+	'M'							// VOICE:		Voice prefix character.
+);
+
+static HouseTypeClass const HouseMulti3(
+	HOUSE_MULTI3,
+	"Multi3",					//	NAME:			House name.
+	TXT_CIVILIAN,				// FULLNAME:	Translated house name.
+	"MP3",						// SUFFIX:		House file suffix.
+	0,								// LEMON:		Lemon vehicle frequency.
+	kColorNeutral,				// COLOR:		Radar map color.
+	kColorBrightNeutral,	// COLOR:		Bright Radar map color.
+	REMAP_GREEN,				// Remap color ID number.
+	RemapGreen,					// Default remap table.
+	'M'							// VOICE:		Voice prefix character.
+);
+
+static HouseTypeClass const HouseMulti4(
+	HOUSE_MULTI4,
+	"Multi4",					//	NAME:			House name.
+	TXT_CIVILIAN,				// FULLNAME:	Translated house name.
+	"MP4",						// SUFFIX:		House file suffix.
+	0,								// LEMON:		Lemon vehicle frequency.
+	kColorNeutral,				// COLOR:		Radar map color.
+	kColorBrightNeutral,	// COLOR:		Bright Radar map color.
+	REMAP_BLUE,					// Remap color ID number.
+	RemapBlue,					// Default remap table.
+	'M'							// VOICE:		Voice prefix character.
+);
+
+static HouseTypeClass const HouseMulti5(
+	HOUSE_MULTI5,
+	"Multi5",					//	NAME:			House name.
+	TXT_CIVILIAN,				// FULLNAME:	Translated house name.
+	"MP5",						// SUFFIX:		House file suffix.
+	0,								// LEMON:		Lemon vehicle frequency.
+	kColorNeutral,				// COLOR:		Radar map color.
+	kColorBrightNeutral,	// COLOR:		Bright Radar map color.
+	REMAP_YELLOW,				// Remap color ID number.
+	RemapYellow,				// Default remap table.
+	'M'							// VOICE:		Voice prefix character.
+);
+
+static HouseTypeClass const HouseMulti6(
+	HOUSE_MULTI6,
+	"Multi6",					//	NAME:			House name.
+	TXT_CIVILIAN,				// FULLNAME:	Translated house name.
+	"MP6",						// SUFFIX:		House file suffix.
+	0,								// LEMON:		Lemon vehicle frequency.
+	kColorNeutral,				// COLOR:		Radar map color.
+	kColorBrightNeutral,	// COLOR:		Bright Radar map color.
+	REMAP_RED,					// Remap color ID number.
+	RemapRed,					// Default remap table.
+	'M'							// VOICE:		Voice prefix character.
+);
+
+HouseTypeClass const* const HouseTypeClass::Pointers[HOUSE_COUNT] = {
+	&HouseGood,  &HouseBad,   &HouseCivilian, &HouseJP,    &HouseMulti1,
+	&HouseMulti2,&HouseMulti3,&HouseMulti4,   &HouseMulti5,&HouseMulti6,
+};
+
+
+/***********************************************************************************************
+ * HouseTypeClass::HouseTypeClass -- Constructor for house type objects.
+ *
+ *    This is the constructor for house type objects. This object holds the constant data
+ *    for the house type.
+ *
+ * INPUT:   house    -- The ID number for this house type.
+ *          ini      -- The INI name of this house.
+ *          fullname -- The text number representing the complete name of the house.
+ *          ext      -- The filename extension used when loading data files.
+ *          lemon    -- The percentage for objects of this ownership to be lemon.
+ *          remapc   -- The remap color number to use.
+ *          color    -- The radar color to use for this "house".
+ *          prefix   -- A unique prefix letter used when building custom filenames.
+ *
+ * OUTPUT:  none
+ *
+ * WARNINGS:   none
+ *
+ * HISTORY:
+ *   06/21/1994 JLB : Created.
+ *=============================================================================================*/
+HouseTypeClass::HouseTypeClass(HousesType house,
+				char const * ini,
+				int fullname,
+				char const * ext,
+				int lemon,
+				int color,
+				int bright_color,
+				PlayerColorType remapcolor,
+				unsigned char const * remap,
+				char prefix)
+{
+	RemapTable = remap;
+	RemapColor = remapcolor;
+	House = house;
+	IniName = ini;
+	FullName = fullname;
+	std::strncpy(Suffix, ext, sizeof(Suffix) - 1);
+	Suffix[sizeof(Suffix) - 1] = '\0';
+	Lemon = static_cast<unsigned>(lemon);
+	Color = static_cast<unsigned char>(color);
+	BrightColor = static_cast<unsigned char>(bright_color);
+	Prefix = prefix;
+}
+
+
+/***********************************************************************************************
+ * HouseTypeClass::From_Name -- Fetch house pointer from its name.
+ *
+ *    This routine will convert the ASCII house name specified into a
+ *    real house number. Typically, this is used when processing a
+ *    scenario INI file.
+ *
+ * INPUT:   name  -- ASCII name of house to process.
+ *
+ * OUTPUT:  Returns with actual house number represented by the ASCII
+ *          name specified.
+ *
+ * WARNINGS:   none
+ *
+ * HISTORY:
+ *   10/07/1992 JLB : Created.
+ *   05/21/1994 JLB : Converted to member function.
+ *=============================================================================================*/
+HousesType HouseTypeClass::From_Name(char const *name)
+{
+	if (name) {
+		for (HousesType house = HOUSE_FIRST; house < HOUSE_COUNT; house++) {
+			const HouseTypeClass* entry = Pointers[house];
+			if (entry && strcasecmp(entry->IniName, name) == 0) {
+				return(house);
+			}
+		}
+	}
+	return(HOUSE_NONE);
+}
+
+
+/***********************************************************************************************
+ * HouseTypeClass::One_Time -- One-time initialization
+ *
+ * INPUT:   none
+ *
+ * OUTPUT:  none
+ *
+ * WARNINGS:   none
+ *
+ * HISTORY:
+ *   05/21/1994 JLB : Converted to member function.
+ *=============================================================================================*/
+void HouseTypeClass::One_Time(void)
+{
+	/*
+	** Change the radar color for special units; otherwise, they'll be the same
+	** color as the player!
+	*/
+	if (Special.IsJurassic && AreThingiesEnabled) {
+		const_cast<unsigned char&>(HouseJP.Color) = static_cast<unsigned char>(kColorBad);
+		const_cast<unsigned char&>(HouseJP.BrightColor) = static_cast<unsigned char>(kColorBrightBad);
+	}
+}
+
+
+/***********************************************************************************************
+ * HouseTypeClass::As_Reference -- Fetches a reference to the house specified.
+ *
+ *    Use this routine to fetch a reference to the house number specified.
+ *
+ * INPUT:   house -- The house number (HousesType) to look up.
+ *
+ * OUTPUT:  Returns with a reference to the HouseTypeClass object that matches the house
+ *          number specified.
+ *
+ * WARNINGS:   none
+ *
+ * HISTORY:
+ *   01/23/1995 JLB : Created.
+ *=============================================================================================*/
+HouseTypeClass const & HouseTypeClass::As_Reference(HousesType house)
+{
+	return(*Pointers[house]);
+}

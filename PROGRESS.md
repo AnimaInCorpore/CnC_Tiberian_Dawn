@@ -76,7 +76,7 @@
 | `GAMEDLG.CPP` | | To be ported. |
 | `GOPTIONS.CPP` | | To be ported. |
 | `GSCREEN.CPP` | `src/gscreen.cpp` | Shadow-page setup and render/IO stubs recreated around modern buffers. |
-| `HDATA.CPP` | | To be ported. |
+| `HDATA.CPP` | `src/hdata.cpp` | House type table migrated; colors/remap tables kept intact and Jurassic palette tweak guarded behind the Special/AreThingiesEnabled flags. |
 | `HEAP.CPP` | | To be ported. |
 | `HELP.CPP` | | To be ported. |
 | `HOUSE.CPP` | | To be ported. |

@@ -69,6 +69,7 @@ set(TD_SOURCES
   src/gauge.cpp
   src/globals.cpp
   src/gscreen.cpp
+  src/hdata.cpp
   src/heap.cpp
   src/house.cpp
   src/infantry.cpp
