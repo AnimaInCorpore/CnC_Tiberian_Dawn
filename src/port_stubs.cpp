@@ -9,6 +9,9 @@
 #include "legacy/nullmodem_stub.h"
 #include "legacy/cdfile.h"
 #include "legacy/windows_compat.h"
+#include "legacy/logic.h"
+#include "legacy/options.h"
+#include "legacy/wwlib32.h"
 #include "platform_input.h"
 #include "runtime_sdl.h"
 
@@ -38,6 +41,8 @@ bool OverlappedVideoBlits = false;
 namespace {
 
 constexpr int kPaletteSize = 256 * 3;
+constexpr unsigned long kMenuTimeoutMs = 60 * 1000;
+constexpr int kDefaultFrameMs = 66;
 
 void Ensure_Shape_Buffer() {
   if (_ShapeBuffer || _ShapeBufferSize <= 0) return;
@@ -100,6 +105,36 @@ void Reset_Game_State_For_Menu() {
   Map.DoesRadarExist = false;
   Map.IsZoomed = false;
   Map.Set_Default_Mouse(MOUSE_NORMAL, false);
+}
+
+int Target_Frame_Milliseconds() {
+  if (Options.GameSpeed > 0 && Options.GameSpeed < 500) {
+    return static_cast<int>(Options.GameSpeed);
+  }
+  return kDefaultFrameMs;
+}
+
+void Pump_Sdl_Events() {
+  SDL_Event event;
+  while (SDL_PollEvent(&event)) {
+    if (event.type == SDL_QUIT ||
+        (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE)) {
+      ReadyToQuit = true;
+      continue;
+    }
+
+    if (event.type == SDL_WINDOWEVENT) {
+      if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+        GameInFocus = true;
+      } else if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+        GameInFocus = false;
+      }
+    }
+
+#if defined(TD_PORT_USE_SDL2)
+    Platform_Handle_Sdl_Event(event);
+#endif
+  }
 }
 
 }  // namespace
@@ -332,10 +367,25 @@ bool Init_Game(int, char**) {
   CCDebugString("Init_Game: initializing runtime scaffolding.\n");
 
   ReadyToQuit = false;
+  AllDone = 0;
+  GameInFocus = true;
+  SpecialDialog = SDLG_NONE;
+
   Ensure_Shape_Buffer();
   Ensure_Palettes();
+  if (!Palette) {
+    Palette = GamePalette;
+  }
   Configure_Game_Viewports();
   Reset_Game_State_For_Menu();
+  Options.GameSpeed = Target_Frame_Milliseconds();
+  TickCount.Reset(0);
+  ProcessTimer.Reset(0);
+  FrameTimer.Clear();
+
+  Logic.One_Time();
+  Options.One_Time();
+  Map.One_Time();
 
   if (!initialized) {
     // Prime the palette buffers so menu fades have valid targets.
@@ -352,18 +402,23 @@ bool Select_Game(bool fade) {
     return false;
   }
 
+  DDEServer.Enable();
   Configure_Game_Viewports();
   Reset_Game_State_For_Menu();
 
   GameToPlay = GAME_NORMAL;
   PlaybackGame = 0;
   RecordGame = 0;
+  Options.GameSpeed = Target_Frame_Milliseconds();
 
   if (fade && GamePalette) {
     Fade_Palette_To(GamePalette, FADE_PALETTE_MEDIUM, nullptr);
   }
 
-  const int selection = Main_Menu(0);
+  Keyboard::Clear();
+  TickCount.Reset(0);
+
+  const int selection = Main_Menu(kMenuTimeoutMs);
   if (selection < 0) {
     ReadyToQuit = true;
     return false;
@@ -399,20 +454,11 @@ bool Select_Game(bool fade) {
 bool Main_Loop() {
   Configure_Game_Viewports();
 
-  while (!ReadyToQuit) {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT ||
-          (event.type == SDL_WINDOWEVENT &&
-           event.window.event == SDL_WINDOWEVENT_CLOSE)) {
-        ReadyToQuit = true;
-        continue;
-      }
+  const int frame_ms = Target_Frame_Milliseconds();
 
-#if defined(TD_PORT_USE_SDL2)
-      Platform_Handle_Sdl_Event(event);
-#endif
-    }
+  while (!ReadyToQuit) {
+    const auto frame_start = std::chrono::steady_clock::now();
+    Pump_Sdl_Events();
 
     if (ReadyToQuit) {
       break;
@@ -429,7 +475,13 @@ bool Main_Loop() {
 
     GScreenClass::Blit_Display();
     ++Frame;
-    SDL_Delay(16);
+
+    const auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                                std::chrono::steady_clock::now() - frame_start)
+                                .count();
+    if (elapsed_ms < frame_ms) {
+      SDL_Delay(static_cast<Uint32>(frame_ms - elapsed_ms));
+    }
   }
   return true;
 }
