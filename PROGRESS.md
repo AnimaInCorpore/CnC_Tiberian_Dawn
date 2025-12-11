@@ -98,7 +98,7 @@
 | `JSHELL.CPP` | | To be ported. |
 | `KEYFRAME.CPP` | | To be ported. |
 | `LOADDLG.CPP` | | To be ported. |
-| `LOAD_TITLE.CPP` | `src/load_title.cpp` | Title screen loader now decodes PCX/CPS art from MIX/CD paths, patches UI palette colors, and scales to the active viewport. |
+| `LOAD_TITLE.CPP` | `src/load_title.cpp` | Title screen loader now resolves art through the CCFile/Mix stack, decodes PCX or CPS deterministically, patches UI palette colors, and scales to the active viewport. |
 | `LOGIC.CPP` | | To be ported. |
 | `MAP.CPP` | | To be ported. |
 | `MAPEDDLG.CPP` | | To be ported. |

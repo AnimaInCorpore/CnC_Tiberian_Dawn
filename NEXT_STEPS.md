@@ -2,7 +2,7 @@
 Tackle one chunk at a time; when a chunk has no remaining next steps, mark it with "Implementation done!".
 
 ## Build system and source layout
-Status: Next steps. Scope: move legacy sources into `src/` with lowercase names, fix includes, strip Watcom/segmented keywords, and keep `CMakeLists.txt` in sync. Excludes gameplay/runtime changes.
+Status: Next steps. Scope: move legacy sources into `src/` with lowercase names, fix includes, strip Watcom/segmented keywords, and keep `CMakeLists.txt` in sync. Uppercase `src` filenames have been normalized; continue migrating the remaining legacy files. Excludes gameplay/runtime changes.
 
 ## Platform abstraction with SDL
 Status: Next steps. Scope: create SDL2/SDL_net shims for video/audio/input/network only; replace DirectDraw/DirectSound/DirectInput/IPX/Greenleaf entry points while keeping call signatures so upper layers stay untouched.
