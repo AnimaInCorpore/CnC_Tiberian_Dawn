@@ -379,6 +379,7 @@ CELL CurrentCell = 0;
 void const *Green12FontPtr;			// Green font for pressed in tabs
 void const *Green12GradFontPtr;   // Graduated green font for tabs
 void const *MapFontPtr;				// Standard very small font.
+void const *FontPtr;					// Current font pointer (default 8pt).
 void const *Font3Ptr;					// Standard very small font.
 void const *Font6Ptr;					// Standard small font.
 void const *Font8Ptr;					// 8 point proportional.

@@ -7,6 +7,9 @@
 #include "legacy/audio_stub.h"
 #include "legacy/wwalloc.h"
 #include "legacy/error_stub.h"
+#include "legacy/mixfile.h"
+#include "legacy/ccfile.h"
+#include "legacy/defines.h"
 
 #include <array>
 #include <cctype>
@@ -14,6 +17,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <string>
 #include <thread>
 #include <vector>
@@ -40,6 +44,57 @@ void __cdecl Init_MMX(void);
 }
 
 namespace {
+    std::filesystem::path Resolve_Data_Path(const char* filename) {
+        if (!filename) return {};
+        std::filesystem::path direct(filename);
+        if (std::filesystem::exists(direct)) {
+            return direct;
+        }
+        std::filesystem::path cd_path = std::filesystem::path("CD") / "CNC95" / filename;
+        if (std::filesystem::exists(cd_path)) {
+            return cd_path;
+        }
+        return {};
+    }
+
+    void Register_Mix_If_Present(const char* filename) {
+        auto path = Resolve_Data_Path(filename);
+        if (path.empty()) return;
+        // Constructing the MixFileClass registers it for later lookups.
+        auto* mix = new MixFileClass(path.string().c_str());
+        if (mix) {
+            mix->Cache();
+        }
+    }
+
+    const void* Load_Font_File(const char* filename) {
+        CCFileClass file(filename);
+        if (!file.Is_Available()) {
+            return nullptr;
+        }
+        return Load_Alloc_Data(file);
+    }
+
+    void Initialize_Font_Resources() {
+        // Ensure the mix archives that contain fonts are registered.
+        Register_Mix_If_Present("CCLOCAL.MIX");
+        Register_Mix_If_Present("UPDATE.MIX");
+        Register_Mix_If_Present("UPDATEC.MIX");
+        Register_Mix_If_Present("LANGUAGE.MIX");
+
+        Green12FontPtr = Load_Font_File("12GREEN.FNT");
+        Green12GradFontPtr = Load_Font_File("12GRNGRD.FNT");
+        MapFontPtr = Load_Font_File("8FAT.FNT");
+        Font8Ptr = Load_Font_File(FONT8);
+        FontPtr = Font8Ptr ? Font8Ptr : nullptr;
+        Font3Ptr = Load_Font_File(FONT3);
+        Font6Ptr = Load_Font_File(FONT6);
+        FontLEDPtr = Load_Font_File("LED.FNT");
+        VCRFontPtr = Load_Font_File("VCR.FNT");
+        GradFont6Ptr = Load_Font_File("GRAD6FNT.FNT");
+        ScoreFontPtr = Green12GradFontPtr ? Green12GradFontPtr : Load_Font_File("12GRNGRD.FNT");
+    }
+
     void Clear_Pages() {
         if (SeenBuff.Get_Width() > 0 && SeenBuff.Get_Height() > 0) {
             SeenBuff.Fill_Rect(0, 0, SeenBuff.Get_Width() - 1, SeenBuff.Get_Height() - 1, 0);
@@ -81,6 +136,7 @@ void Game_Startup(int argc, char* argv[]) {
 	}
 
 	CDFileClass::Set_CD_Drive(CDList.Get_First_CD_Drive());
+    Initialize_Font_Resources();
 
 	if (cfile.Is_Available()) {
 		char* cdata = static_cast<char*>(Load_Alloc_Data(cfile));

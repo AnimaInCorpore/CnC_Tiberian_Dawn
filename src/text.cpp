@@ -9,6 +9,8 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
+#include <algorithm>
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -20,6 +22,18 @@ namespace {
 
 constexpr int kFontWidth = 8;
 constexpr int kFontHeight = 8;
+
+struct ParsedFont {
+  const unsigned char* base = nullptr;
+  const std::uint16_t* offsets = nullptr;
+  const unsigned char* widths = nullptr;
+  const unsigned char* heights = nullptr;  // two bytes per character: top blank, data height
+  int max_height = kFontHeight;
+  int max_width = kFontWidth;
+};
+
+ParsedFont g_current_font{};
+bool g_current_font_valid = false;
 
 // Public-domain 8x8 bitmap font (font8x8_basic).
 static const unsigned char kFont8x8[128][8] = {
@@ -157,28 +171,139 @@ GraphicViewPortClass* Target_Page() {
   return LogicPage ? LogicPage : &HidPage;
 }
 
+const void* Font_For_Type(TextPrintType type) {
+  switch (type) {
+    case TPF_6POINT:
+      return Font6Ptr ? Font6Ptr : FontPtr;
+    case TPF_8POINT:
+      return Font8Ptr ? Font8Ptr : FontPtr;
+    case TPF_3POINT:
+      return Font3Ptr ? Font3Ptr : FontPtr;
+    case TPF_LED:
+      return FontLEDPtr ? FontLEDPtr : FontPtr;
+    case TPF_VCR:
+      return VCRFontPtr ? VCRFontPtr : FontPtr;
+    case TPF_6PT_GRAD:
+      return GradFont6Ptr ? GradFont6Ptr : Font6Ptr;
+    case TPF_MAP:
+      return MapFontPtr ? MapFontPtr : Font6Ptr;
+    case TPF_GREEN12:
+      return Green12FontPtr ? Green12FontPtr : FontPtr;
+    case TPF_GREEN12_GRAD:
+      return Green12GradFontPtr ? Green12GradFontPtr : FontPtr;
+    case TPF_LASTPOINT:
+    default:
+      return FontPtr;
+  }
+}
+
+bool Parse_Font(const void* font_ptr, ParsedFont* out) {
+  if (!font_ptr || !out) return false;
+
+  struct Header {
+    std::uint16_t length;
+    std::uint8_t compress;
+    std::uint8_t data_blocks;
+    std::uint16_t info_offset;
+    std::uint16_t offset_offset;
+    std::uint16_t width_offset;
+    std::uint16_t data_offset;
+    std::uint16_t height_offset;
+  };
+
+  const auto* base = static_cast<const unsigned char*>(font_ptr);
+  const auto* header = reinterpret_cast<const Header*>(base);
+  const unsigned char* info_block = base + header->info_offset;
+  ParsedFont parsed{};
+  parsed.base = base;
+  parsed.offsets = reinterpret_cast<const std::uint16_t*>(base + header->offset_offset);
+  parsed.widths = base + header->width_offset;
+  parsed.heights = base + header->height_offset;
+  parsed.max_height = info_block[4];
+  parsed.max_width = info_block[5];
+
+  *out = parsed;
+  return parsed.offsets && parsed.widths && parsed.heights && parsed.base;
+}
+
 void Select_Font(TextPrintType flag) {
-  // The placeholder bitmap font is always 8 pixels tall; keep layout metrics in sync so spacing
-  // matches what we actually draw even when callers request 6pt/3pt/gradient variants.
-  (void)flag;
-  FontHeight = kFontHeight;
+  static const void* last_font = nullptr;
+  const TextPrintType type = static_cast<TextPrintType>(flag & static_cast<TextPrintType>(0x000F));
+
+  const void* requested =
+      (type == TPF_LASTPOINT) ? last_font : Font_For_Type(type);
+  if (!requested) {
+    requested = last_font ? last_font : static_cast<const void*>(kFont8x8);
+  }
+  last_font = requested;
+
+  g_current_font_valid = Parse_Font(requested, &g_current_font);
+  if (!g_current_font_valid) {
+    FontHeight = kFontHeight;
+  } else {
+    FontHeight = std::max(1, g_current_font.max_height);
+  }
   FontYSpacing = 1;
-  Platform_Set_Fonts(kFont8x8, nullptr, FontHeight, FontYSpacing);
+  Platform_Set_Fonts(requested, (type == TPF_6PT_GRAD) ? GradFont6Ptr : nullptr, FontHeight,
+                     FontYSpacing);
 }
 
 void Draw_Glyph(char ch, int x, int y, unsigned fore, unsigned back, bool fill_background) {
-  const unsigned char* glyph = kFont8x8[static_cast<unsigned char>(ch) & 0x7F];
   GraphicViewPortClass* page = Target_Page();
   if (!page) return;
 
-  const int rows = std::min(FontHeight, kFontHeight);
-  for (int row = 0; row < rows; ++row) {
-    for (int col = 0; col < kFontWidth; ++col) {
-      const bool bit_set = glyph[row] & (1 << col);
-      if (bit_set) {
-        page->Put_Pixel(x + col, y + row, static_cast<int>(fore));
+  if (!g_current_font_valid) {
+    const unsigned char* glyph = kFont8x8[static_cast<unsigned char>(ch) & 0x7F];
+    const int rows = std::min(FontHeight, kFontHeight);
+    for (int row = 0; row < rows; ++row) {
+      for (int col = 0; col < kFontWidth; ++col) {
+        const bool bit_set = (glyph[row] & (0x80 >> col)) != 0;
+        if (bit_set) {
+          page->Put_Pixel(x + col, y + row, static_cast<int>(fore));
+        } else if (fill_background) {
+          page->Put_Pixel(x + col, y + row, static_cast<int>(back));
+        }
+      }
+    }
+    return;
+  }
+
+  const unsigned idx = static_cast<unsigned char>(ch);
+  const int width = std::max(1, static_cast<int>(g_current_font.widths[idx]));
+  const int top_blank = g_current_font.heights[idx * 2];
+  const int data_height = g_current_font.heights[idx * 2 + 1];
+  const int max_height = g_current_font.max_height;
+  const unsigned char* glyph = g_current_font.base + g_current_font.offsets[idx];
+  const int bytes_per_row = (width + 1) / 2;
+
+  int dest_y = y;
+  if (fill_background && top_blank > 0) {
+    for (int row = 0; row < top_blank; ++row) {
+      for (int col = 0; col < width; ++col) {
+        page->Put_Pixel(x + col, dest_y + row, static_cast<int>(back));
+      }
+    }
+  }
+
+  for (int row = 0; row < data_height; ++row) {
+    const unsigned char* row_ptr = glyph + row * bytes_per_row;
+    for (int col = 0; col < width; ++col) {
+      const unsigned char byte = row_ptr[col / 2];
+      const unsigned char nibble = (col & 1) ? (byte >> 4) & 0x0F : byte & 0x0F;
+      if (nibble) {
+        page->Put_Pixel(x + col, dest_y + top_blank + row, static_cast<int>(fore));
       } else if (fill_background) {
-        page->Put_Pixel(x + col, y + row, static_cast<int>(back));
+        page->Put_Pixel(x + col, dest_y + top_blank + row, static_cast<int>(back));
+      }
+    }
+  }
+
+  const int bottom_blank = std::max(0, max_height - top_blank - data_height);
+  if (fill_background && bottom_blank > 0) {
+    const int start_y = dest_y + top_blank + data_height;
+    for (int row = 0; row < bottom_blank; ++row) {
+      for (int col = 0; col < width; ++col) {
+        page->Put_Pixel(x + col, start_y + row, static_cast<int>(back));
       }
     }
   }
@@ -205,8 +330,15 @@ void Draw_String(const char* text, unsigned x, unsigned y, unsigned fore, unsign
   const bool fill_background = back != TBLACK;
   unsigned cursor_x = x;
   for (const char* ptr = text; *ptr; ++ptr) {
+    const unsigned char ch = static_cast<unsigned char>(*ptr);
+    const int glyph_width =
+        (*ptr == '\t')
+            ? ((g_current_font_valid ? std::max(g_current_font.max_width, kFontWidth) : kFontWidth) *
+               4)
+            : (g_current_font_valid ? std::max(1, static_cast<int>(g_current_font.widths[ch]))
+                                    : kFontWidth);
     if (*ptr == '\t') {
-      cursor_x += static_cast<unsigned>(kFontWidth * 4);
+      cursor_x += static_cast<unsigned>(glyph_width);
       continue;
     }
     if (shadow) {
@@ -214,7 +346,7 @@ void Draw_String(const char* text, unsigned x, unsigned y, unsigned fore, unsign
                  fill_background);
     }
     Draw_Glyph(*ptr, static_cast<int>(cursor_x), static_cast<int>(y), fore, back, fill_background);
-    cursor_x += static_cast<unsigned>(kFontWidth);
+    cursor_x += static_cast<unsigned>(glyph_width);
   }
 }
 
@@ -253,13 +385,22 @@ const char* Lookup_Text(int id) {
 
 }  // namespace
 
-int Char_Pixel_Width(int) { return kFontWidth; }
+int Char_Pixel_Width(int ch) {
+  if (g_current_font_valid) {
+    return std::max(1, static_cast<int>(g_current_font.widths[static_cast<unsigned char>(ch)]));
+  }
+  return kFontWidth;
+}
 
 int String_Pixel_Width(char const* text) {
   if (!text) return 0;
   int width = 0;
   for (const char* ptr = text; *ptr; ++ptr) {
-    width += (*ptr == '\t') ? (kFontWidth * 4) : kFontWidth;
+    const unsigned char ch = static_cast<unsigned char>(*ptr);
+    const int char_width =
+        g_current_font_valid ? std::max(1, static_cast<int>(g_current_font.widths[ch]))
+                             : kFontWidth;
+    width += (*ptr == '\t') ? (char_width * 4) : char_width;
   }
   return width;
 }

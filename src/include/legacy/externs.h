@@ -203,6 +203,7 @@ extern BaseClass													Base;
 extern void const *	Green12FontPtr;
 extern void const *	Green12GradFontPtr;
 extern void const *	MapFontPtr;
+extern void const *	FontPtr;
 extern void const *	VCRFontPtr;
 extern void const *	Font3Ptr;
 extern void const *	Font6Ptr;
