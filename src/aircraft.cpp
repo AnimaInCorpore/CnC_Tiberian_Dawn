@@ -714,7 +714,7 @@ void AircraftClass::AI(void)
 			Mark();
 		}
 	}
-	if (Physics(Coord, PrimaryFacing) != RESULT_NONE) {
+	if (Physics(Coord, PrimaryFacing) != IMPACT_NONE) {
 		Mark();
 	}
 
@@ -3497,4 +3497,3 @@ void AircraftClass::Response_Select(void)
 		Sound_Effect(response, 0, -(Aircraft.ID(this)+1));
 	}
 }
-

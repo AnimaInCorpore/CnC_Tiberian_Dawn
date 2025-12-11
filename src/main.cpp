@@ -47,6 +47,11 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    if (SDL_RenderSetLogicalSize(renderer, ScreenWidth, ScreenHeight) != 0) {
+        std::fprintf(stderr, "SDL_RenderSetLogicalSize failed: %s\n", SDL_GetError());
+    }
+    SDL_RenderSetIntegerScale(renderer, SDL_TRUE);
+
     Runtime_Set_Sdl_Window(window);
     Runtime_Set_Sdl_Renderer(renderer);
 
@@ -60,6 +65,5 @@ int main(int argc, char** argv) {
 
     return 0;
 }
-
 
 

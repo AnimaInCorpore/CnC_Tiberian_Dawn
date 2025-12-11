@@ -61,8 +61,8 @@ long __cdecl Ram_Free(MemoryFlagType flag);
 long __cdecl Total_Ram_Free(MemoryFlagType flag);
 long __cdecl Heap_Size(MemoryFlagType flag);
 
-extern unsigned long __cdecl MinRam;		// Record of least memory at worst case.
-extern unsigned long __cdecl MaxRam;		// Record of total allocated at worst case.
+extern unsigned long MinRam;		// Record of least memory at worst case.
+extern unsigned long MaxRam;		// Record of total allocated at worst case.
 
 #ifdef __cplusplus
 }

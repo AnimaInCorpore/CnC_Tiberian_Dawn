@@ -152,7 +152,9 @@ typedef enum MenuIndexType {
 #endif
 #define HIBITL 0x80000000
 
+#ifndef MAXINT
 #define MAXINT MAXLONG
+#endif
 #define HIBITI HIBITL
 
 #define DMAXEXP 308
