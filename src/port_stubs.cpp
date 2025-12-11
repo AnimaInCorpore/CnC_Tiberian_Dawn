@@ -33,7 +33,7 @@ DDEServerClass DDEServer;
 
 BOOL Send_Data_To_DDE_Server(char*, int, int) { return FALSE; }
 
-// Shape buffer placeholders.
+// Shape buffer backing store; allocated lazily to match the original runtime.
 long _ShapeBufferSize = 512 * 1024;
 char* _ShapeBuffer = nullptr;
 bool OverlappedVideoBlits = false;
@@ -170,8 +170,6 @@ void* Load_Alloc_Data(FileClass& file) {
 void CC_Draw_Shape(void const*, int, int, int, WindowNumberType, unsigned int,
                    void const*, void const*) {}
 
-unsigned short Get_Build_Frame_Width(void const*) { return 0; }
-unsigned short Get_Build_Frame_Height(void const*) { return 0; }
 int Get_Resolution_Factor() { return 1; }
 
 int Distance_Coord(COORDINATE coord1, COORDINATE coord2) {
@@ -190,8 +188,6 @@ void Delay(int ticks) {
 void* Add_Long_To_Pointer(void* ptr, long offset) {
   return static_cast<unsigned char*>(ptr) + offset;
 }
-
-void Buffer_To_Page(int, int, int, int, void const*, GraphicBufferClass&) {}
 
 void Shake_Screen(int) {}
 
@@ -500,8 +496,6 @@ void Shutdown_Network() {
   MetaPacket = nullptr;
   MPlayerGameName[0] = '\0';
 }
-
-void Special_Dialog() { CCDebugString("Special dialog placeholder.\n"); }
 
 int Surrender_Dialog() {
   CCDebugString("Surrender requested; defaulting to acceptance.\n");

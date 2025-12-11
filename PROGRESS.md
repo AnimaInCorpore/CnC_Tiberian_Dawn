@@ -46,6 +46,7 @@
 | `CONFDLG.CPP` | | To be ported. |
 | `CONNECT.CPP` | | To be ported. |
 | `CONQUER.CPP` | `src/maingame.cpp` | Main_Game loop ported from the legacy file; retains SDL_QUIT push on exit while routing through the original select/loop/dialog flow. |
+| `CONQUER.CPP` (source helpers) | `src/source_helpers.cpp` | `Source_From_Name`/`Name_From_Source` now follow the legacy lookup table instead of the placeholder mapping. |
 | `CONST.CPP` | `src/const.cpp` | Weapon/warhead tables and coordinate helpers brought over with lowercase includes and portable tables. |
 | `STARTUP.CPP` (bootstrap) | `src/port_stubs.cpp` | Init_Game/Select_Game/Main_Loop now allocate palettes/shape buffers, configure viewports, reset menu state, enable the DDE heartbeat stub, and pace the frame loop using the legacy timer defaults. |
 | `CONTROL.CPP` | `src/control.cpp` | Control gadgets now propagate peer redraws, return KN_BUTTON IDs when triggered, and keep peers wired via a portable nullptr-safe link. |
@@ -96,7 +97,7 @@
 | `IPXGCONN.CPP` | | To be ported. |
 | `IPXMGR.CPP` | `src/ipxmgr.cpp` | Simplified IPX manager stub retains global channel plumbing and connection bookkeeping. |
 | `JSHELL.CPP` | | To be ported. |
-| `KEYFRAME.CPP` | | To be ported. |
+| `KEYFRAME.CPP` | `src/keyframe_info.cpp` | Frame metadata/palette accessors ported; `Build_Frame`/LCW decode still pending. |
 | `LOADDLG.CPP` | | To be ported. |
 | `LOAD_TITLE.CPP` | `src/load_title.cpp` | Title screen loader now resolves art through the CCFile/Mix stack, decodes PCX or CPS deterministically, patches UI palette colors, and scales to the active viewport. |
 | `LOGIC.CPP` | | To be ported. |
@@ -130,6 +131,7 @@
 | `QUEUE.CPP` | | To be ported. |
 | `RADAR.CPP` | | To be ported. |
 | `RAWFILE.CPP` | `src/rawfile.cpp` | RawFileClass rebuilt atop POSIX read/write/seek with simple error handling. |
+| `BUFFER_TO_PAGE` (legacy blit) | `src/buffer_to_page.cpp` | Raw 8-bit buffer copy now performs bounds-aware page blits instead of the stub. |
 | `REINF.CPP` | | To be ported. |
 | `SAVELOAD.CPP` | | To be ported. |
 | `SCENARIO.CPP` | | To be ported. |
@@ -139,7 +141,7 @@
 | `SIDEBAR.CPP` | | To be ported. |
 | `SMUDGE.CPP` | | To be ported. |
 | `SOUNDDLG.CPP` | | To be ported. |
-| `SPECIAL.CPP` | | To be ported. |
+| `SPECIAL.CPP` | `src/special.cpp` | Special options dialog wired with original checkbox logic and OK/Cancel flow. |
 | `STARTUP.CPP` | | To be ported. |
 | `STATS.CPP` | | To be ported. |
 | `SUPER.CPP` | | To be ported. |

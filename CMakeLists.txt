@@ -97,6 +97,8 @@ set(TD_SOURCES
   src/mousehelp.cpp
   src/name_crc.cpp
   src/object.cpp
+  src/buffer_to_page.cpp
+  src/keyframe_info.cpp
   src/platform_input.cpp
   src/port_stubs.cpp
   src/power.cpp
@@ -106,8 +108,10 @@ set(TD_SOURCES
   src/rawfile.cpp
   src/runtime_sdl.cpp
   src/scroll.cpp
+  src/source_helpers.cpp
   src/shapebtn.cpp
   src/slider.cpp
+  src/special.cpp
   src/stats.cpp
   src/super.cpp
   src/tab.cpp

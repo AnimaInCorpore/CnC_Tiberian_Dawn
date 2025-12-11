@@ -107,21 +107,9 @@ bool Create_Special_Reinforcement(HouseClass*, TechnoTypeClass const*, TechnoTyp
 
 void Speak(VoxType) {}
 
-char const* Name_From_Source(SourceType source) {
-  static const char* names[] = {"North", "East", "South", "West", "Shipping", "Beach",
-                                "Air",   "Visible", "Enemy", "Home", "Ocean"};
-  const int index = static_cast<int>(source);
-  if (index >= 0 && index < static_cast<int>(std::size(names))) return names[index];
-  return "Unknown";
-}
-
-SourceType Source_From_Name(char const*) { return SOURCE_NONE; }
-
 TechnoTypeClass const* Fetch_Techno_Type(RTTIType, int) { return nullptr; }
 
 int Scan_Place_Object(ObjectClass*, CELL) { return 0; }
-
-unsigned short Get_Build_Frame_Count(void const*) { return 1; }
 
 void Unselect_All() {}
 
