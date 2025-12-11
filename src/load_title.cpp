@@ -94,6 +94,11 @@ struct MixFileHeader {
 
 static_assert(sizeof(MixFileHeader) == 6, "Mix header size mismatch");
 
+// Preferred CRCs for the known title CPS variants shipped on the Win95 discs. If any of these
+// entries are present in the mix, use them ahead of the heuristic size-based selection.
+constexpr std::uint32_t kTitleCpsCrcs[] = {0xD3ADF127, 0xD1D7822E, 0xE31C32D1, 0xE50032D1,
+                                           0x69FB3FE6};
+
 void Apply_Title_Palette(const unsigned char* source, unsigned char* dest) {
 	if (!source) return;
 
@@ -360,20 +365,25 @@ bool Load_Title_From_Cps_Mix(const char* mix_name, GraphicViewPortClass* video_p
 	const char* cd_subfolder = CDFileClass::Get_CD_Subfolder();
 
 	std::vector<std::string> search_paths;
-	search_paths.reserve(5);
+	search_paths.reserve(10);
 	auto add_path = [&](const std::string& path) {
 		if (path.empty()) return;
 		if (std::find(search_paths.begin(), search_paths.end(), path) != search_paths.end()) return;
 		search_paths.push_back(path);
 	};
 
-	add_path(base_name);
+	auto add_path_with_parent = [&](const std::string& path) {
+		add_path(path);
+		add_path(std::string("../") + path);
+	};
+
+	add_path_with_parent(base_name);
 	if (cd_subfolder && *cd_subfolder) {
-		add_path(std::string("CD/") + cd_subfolder + "/" + base_name);
+		add_path_with_parent(std::string("CD/") + cd_subfolder + "/" + base_name);
 	}
-	add_path(std::string("CD/GDI/") + base_name);
-	add_path(std::string("CD/NOD/") + base_name);
-	add_path(std::string("CD/") + base_name);
+	add_path_with_parent(std::string("CD/GDI/") + base_name);
+	add_path_with_parent(std::string("CD/NOD/") + base_name);
+	add_path_with_parent(std::string("CD/") + base_name);
 	std::vector<unsigned char> mix_data;
 
 	for (auto const& path : search_paths) {
@@ -419,6 +429,8 @@ bool Load_Title_From_Cps_Mix(const char* mix_name, GraphicViewPortClass* video_p
 	const MixFileClass::SubBlock* best = nullptr;
 	CpsHeader best_header{};
 	double best_palette_score = -1.0;
+	const MixFileClass::SubBlock* preferred = nullptr;
+	CpsHeader preferred_header{};
 
 	for (auto const& entry : entries) {
 		const std::uint32_t start = data_base + entry.Offset;
@@ -461,18 +473,30 @@ bool Load_Title_From_Cps_Mix(const char* mix_name, GraphicViewPortClass* video_p
 			best_header = header;
 			best_palette_score = palette_score;
 		}
+
+		if (!preferred) {
+			for (std::uint32_t crc : kTitleCpsCrcs) {
+				if (entry.CRC == crc) {
+					preferred = &entry;
+					preferred_header = header;
+					break;
+				}
+			}
+		}
 	}
 
-	if (!best) {
+	const MixFileClass::SubBlock* chosen = preferred ? preferred : best;
+
+	if (!chosen) {
 		CCDebugString("Load_Title_Screen: no CPS candidates found in ");
 		CCDebugString(mix_name);
 		CCDebugString(".\n");
 		return false;
 	}
 
-	const std::uint32_t best_start = data_base + best->Offset;
+	const std::uint32_t best_start = data_base + chosen->Offset;
 	std::vector<unsigned char> entry_data(mix_data.begin() + best_start,
-	                                      mix_data.begin() + best_start + best->Size);
+	                                      mix_data.begin() + best_start + chosen->Size);
 
 	DecodedPcx cps{};
 	if (!Decode_Cps(entry_data, cps)) {
@@ -576,36 +600,6 @@ bool Decode_Pcx(const std::string& path, DecodedPcx& output) {
 	return Decode_Pcx_Buffer(data.data(), data.size(), output);
 }
 
-void Fill_Fallback(GraphicViewPortClass* view, unsigned char* palette) {
-	if (!view) return;
-	GraphicBufferClass* buffer = view->Get_Graphic_Buffer();
-	if (!buffer) return;
-	if (!buffer->Is_Valid()) {
-		buffer->Init(view->Get_Width(), view->Get_Height(), nullptr, 0, GBC_NONE);
-	}
-	unsigned char* dest = buffer->Get_Buffer();
-	if (!dest) return;
-
-	const int pitch = buffer->Get_Width();
-	const int width = view->Get_Width();
-	const int height = view->Get_Height();
-	const int origin_x = view->Get_XPos();
-	const int origin_y = view->Get_YPos();
-
-	for (int y = 0; y < height; ++y) {
-		for (int x = 0; x < width; ++x) {
-			const unsigned char value = static_cast<unsigned char>((x + y) % 256);
-			dest[(origin_y + y) * pitch + origin_x + x] = value;
-			if (palette && x < 256 && y == 0) {
-				const std::size_t offset = static_cast<std::size_t>(x) * 3;
-				palette[offset + 0] = static_cast<unsigned char>(value << 2);
-				palette[offset + 1] = static_cast<unsigned char>(value << 2);
-				palette[offset + 2] = static_cast<unsigned char>(value << 2);
-			}
-		}
-	}
-}
-
 }  // namespace
 
 void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned char* palette) {
@@ -626,13 +620,18 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 				paths.emplace_back(path);
 			};
 
-			add_path(filename);
+			auto add_path_with_parent = [&](const std::string& path) {
+				add_path(path);
+				add_path(std::string("../") + path);
+			};
+
+			add_path_with_parent(filename);
 			if (cd_subfolder && *cd_subfolder) {
-				add_path(std::string("CD/") + cd_subfolder + "/" + filename);
+				add_path_with_parent(std::string("CD/") + cd_subfolder + "/" + filename);
 			}
-			add_path(std::string("CD/") + filename);
-			add_path(std::string("CD/GDI/") + filename);
-			add_path(std::string("CD/NOD/") + filename);
+			add_path_with_parent(std::string("CD/") + filename);
+			add_path_with_parent(std::string("CD/GDI/") + filename);
+			add_path_with_parent(std::string("CD/NOD/") + filename);
 
 			for (auto const& path : paths) {
 				std::ifstream test(path, std::ios::binary);
@@ -701,6 +700,17 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 	}
 
 	CCDebugString("Load_Title_Screen: failed to open PCX.\n");
-	Fill_Fallback(video_page, palette);
+	GraphicBufferClass* buffer = video_page->Get_Graphic_Buffer();
+	if (buffer) {
+		if (!buffer->Is_Valid()) {
+			buffer->Init(video_page->Get_Width(), video_page->Get_Height(), nullptr, 0, GBC_NONE);
+		}
+		unsigned char* dest = buffer->Get_Buffer();
+		if (dest) {
+			const int pitch = buffer->Get_Width();
+			const int height = buffer->Get_Height();
+			std::fill(dest, dest + pitch * height, 0);
+		}
+	}
 	Present_Title(video_page);
 }
