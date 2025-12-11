@@ -46,7 +46,8 @@
 | `CONFDLG.CPP` | | To be ported. |
 | `CONNECT.CPP` | | To be ported. |
 | `CONQUER.CPP` | `src/maingame.cpp` | Main_Game loop ported from the legacy file; retains SDL_QUIT push on exit while routing through the original select/loop/dialog flow. |
-| `CONST.CPP` | | To be ported. |
+| `CONST.CPP` | `src/const.cpp` | Weapon/warhead tables and coordinate helpers brought over with lowercase includes and portable tables. |
+| `STARTUP.CPP` (bootstrap) | `src/port_stubs.cpp` | Init_Game/Select_Game/Main_Loop now allocate palettes/shape buffers, configure viewports, and reset menu state instead of returning placeholders. |
 | `CONTROL.CPP` | | To be ported. |
 | `COORD.CPP` | | To be ported. |
 | `CREDITS.CPP` | | To be ported. |

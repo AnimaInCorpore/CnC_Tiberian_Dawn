@@ -1,6 +1,6 @@
 # Next Steps Toward Main Menu Parity
 
-- Replace the bootstrap stubs (`Init_Game`, `Select_Game`, `Main_Loop`) in `src/port_stubs.cpp` with the real startup/loop flow from `STARTUP.CPP`/`CONQUER.CPP` (resource init, timers/input cadence, game/multiplayer branching, and proper shutdown paths).
+- Finish replacing the bootstrap stubs (`Init_Game`, `Select_Game`, `Main_Loop`) in `src/port_stubs.cpp` with the full `STARTUP.CPP`/`CONQUER.CPP` flow (heap setup, timers/input cadence, DDE/network hooks, and the real shutdown sequencing beyond the palette/buffer scaffolding already in place).
 - Port the full main menu logic from `MENUS.CPP` instead of the simplified SDL menu in `src/menus.cpp`, including intro/movie gating, load/save handling, options/net dialogs, and timeout behavior.
 - Restore display/render scaffolding: implement `DisplayClass::Draw_It/AI` and map helpers in `src/display.cpp`; fill out `GScreenClass` behaviors in `src/gscreen.cpp`; replace `MapStubClass` and `MapClass` stubs (`src/map_shim.cpp`, `src/gameplay_core_stub.cpp`) so rendering, cursor, and radar work as in Win95.
 - Reintroduce the startup option/UI plumbing: implement `GameOptionsClass::Adjust_Variables_For_Resolution/Process`, Sidebar/Tab/Radio/Theme behaviors, and the related UI helpers in `src/gameplay_class_stubs.cpp` so startup can adjust resolution and build the HUD correctly.

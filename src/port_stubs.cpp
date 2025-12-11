@@ -19,6 +19,7 @@
 #include <cctype>
 #include <cstdio>
 #include <cstring>
+#include <new>
 #include <string>
 #include <thread>
 
@@ -33,6 +34,75 @@ BOOL Send_Data_To_DDE_Server(char*, int, int) { return FALSE; }
 long _ShapeBufferSize = 512 * 1024;
 char* _ShapeBuffer = nullptr;
 bool OverlappedVideoBlits = false;
+
+namespace {
+
+constexpr int kPaletteSize = 256 * 3;
+
+void Ensure_Shape_Buffer() {
+  if (_ShapeBuffer || _ShapeBufferSize <= 0) return;
+  char* buffer = new (std::nothrow) char[_ShapeBufferSize];
+  if (buffer) {
+    _ShapeBuffer = buffer;
+  } else {
+    _ShapeBufferSize = 0;
+  }
+}
+
+void Ensure_Palette_Buffer(unsigned char*& palette, unsigned char fill) {
+  if (!palette) {
+    palette = new (std::nothrow) unsigned char[kPaletteSize];
+  }
+  if (palette) {
+    std::fill(palette, palette + kPaletteSize, fill);
+  }
+}
+
+void Ensure_Palettes() {
+  Ensure_Palette_Buffer(BlackPalette, 0);
+  Ensure_Palette_Buffer(GamePalette, 0);
+  Ensure_Palette_Buffer(OriginalPalette, 0);
+  Ensure_Palette_Buffer(WhitePalette, 63);
+}
+
+void Configure_Game_Viewports() {
+  if (!VisiblePage.Is_Valid()) {
+    VisiblePage.Init(ScreenWidth, ScreenHeight, nullptr, 0, GBC_NONE);
+  }
+  if (!HiddenPage.Is_Valid()) {
+    HiddenPage.Init(ScreenWidth, ScreenHeight, nullptr, 0, GBC_NONE);
+  }
+
+  const bool is_640x480 = (ScreenHeight == 480);
+  const int y_offset = is_640x480 ? 40 : 0;
+  const int target_height = is_640x480 ? 400 : ScreenHeight;
+
+  SeenBuff.Configure(&VisiblePage, 0, y_offset, ScreenWidth, target_height);
+  HidPage.Configure(&HiddenPage, 0, y_offset, ScreenWidth, target_height);
+}
+
+void Reset_Game_State_For_Menu() {
+  GameActive = true;
+  DoList.Init();
+  OutList.Init();
+  Frame = 0;
+  PlayerWins = false;
+  PlayerLoses = false;
+  PlayerRestarts = false;
+
+  Map.PendingHouse = HOUSE_NONE;
+  Map.PendingObject = nullptr;
+  Map.PendingObjectPtr = nullptr;
+  Map.SpecialRadarFrame = 0;
+  Map.IsSellMode = false;
+  Map.IsTargettingMode = false;
+  Map.IsRadarActive = false;
+  Map.DoesRadarExist = false;
+  Map.IsZoomed = false;
+  Map.Set_Default_Mouse(MOUSE_NORMAL, false);
+}
+
+}  // namespace
 
 int Bound(int value, int min, int max) {
   if (value < min) return min;
@@ -258,16 +328,22 @@ EventClass::EventClass(EventType type) : Type(type), Frame(0), ID(0), IsExecuted
 }
 
 bool Init_Game(int, char**) {
-  CCDebugString("Init_Game: initializing minimal runtime.\n");
+  static bool initialized = false;
+  CCDebugString("Init_Game: initializing runtime scaffolding.\n");
+
   ReadyToQuit = false;
-  if (!VisiblePage.Is_Valid()) {
-    VisiblePage.Init(ScreenWidth, ScreenHeight, nullptr, 0, GBC_NONE);
+  Ensure_Shape_Buffer();
+  Ensure_Palettes();
+  Configure_Game_Viewports();
+  Reset_Game_State_For_Menu();
+
+  if (!initialized) {
+    // Prime the palette buffers so menu fades have valid targets.
+    if (Palette && GamePalette) {
+      std::memcpy(GamePalette, Palette, kPaletteSize);
+    }
+    initialized = true;
   }
-  if (!HiddenPage.Is_Valid()) {
-    HiddenPage.Init(ScreenWidth, ScreenHeight, nullptr, 0, GBC_NONE);
-  }
-  SeenBuff.Configure(&VisiblePage, 0, 0, ScreenWidth, ScreenHeight);
-  HidPage.Configure(&HiddenPage, 0, 0, ScreenWidth, ScreenHeight);
   return true;
 }
 
@@ -276,14 +352,8 @@ bool Select_Game(bool fade) {
     return false;
   }
 
-  GameActive = true;
-  DoList.Init();
-  OutList.Init();
-  Frame = 0;
-  PlayerWins = false;
-  PlayerLoses = false;
-  PlayerRestarts = false;
-  Map.Set_Default_Mouse(MOUSE_NORMAL, false);
+  Configure_Game_Viewports();
+  Reset_Game_State_For_Menu();
 
   GameToPlay = GAME_NORMAL;
   PlaybackGame = 0;
@@ -327,6 +397,8 @@ bool Select_Game(bool fade) {
 #include "legacy/map.h"
 
 bool Main_Loop() {
+  Configure_Game_Viewports();
+
   while (!ReadyToQuit) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
