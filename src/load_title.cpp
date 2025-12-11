@@ -30,6 +30,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <cstring>
+#include <fstream>
 #include <limits>
 #include <memory>
 #include <string>
@@ -73,6 +74,8 @@ struct DecodedPcx {
 	unsigned char palette[kPaletteSize]{};
 	bool has_palette = false;
 };
+
+bool Decode_Cps(const std::vector<unsigned char>& data, DecodedPcx& output);
 
 #pragma pack(push, 1)
 struct CpsHeader {

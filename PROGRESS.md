@@ -33,7 +33,7 @@
 | `BBDATA.CPP` | `src/bbdata.cpp` | BulletTypeClass definitions and tables ported; shape loading now uses std::string paths and the modern file helpers. |
 | `BDATA.CPP` | | To be ported. |
 | `BUILDING.CPP` | | To be ported. |
-| `BULLET.CPP` | | To be ported. |
+| `BULLET.CPP` | `src/bullet.cpp` | Projectile flight/fuse logic ported; keeps homing/arc/drop behaviors, shadow rendering, and explosion damage paths intact. |
 | `CARGO.CPP` | `src/cargo.cpp` | Cargo hold bookkeeping ported; attach/detach preserve the chained LIFO order and carry over save/load pointer coding. |
 | `CCDDE.CPP` | | To be ported. |
 | `CCFILE.CPP` | `src/ccfile.cpp` | Mix-aware file wrapper now opens embedded mix entries (cached or on-disk) via the portable RawFile/CDFile layer. |
