@@ -58,6 +58,7 @@ set(TD_SOURCES
   src/const.cpp
   src/control.cpp
   src/coord.cpp
+  src/credits.cpp
   src/display.cpp
   src/edit.cpp
   src/error_stub.cpp

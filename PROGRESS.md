@@ -50,7 +50,7 @@
 | `STARTUP.CPP` (bootstrap) | `src/port_stubs.cpp` | Init_Game/Select_Game/Main_Loop now allocate palettes/shape buffers, configure viewports, reset menu state, enable the DDE heartbeat stub, and pace the frame loop using the legacy timer defaults. |
 | `CONTROL.CPP` | `src/control.cpp` | Control gadgets now propagate peer redraws, return KN_BUTTON IDs when triggered, and keep peers wired via a portable nullptr-safe link. |
 | `COORD.CPP` | | To be ported. |
-| `CREDITS.CPP` | | To be ported. |
+| `CREDITS.CPP` | `src/credits.cpp` | Credit counter now ticks toward the player's funds, plays up/down cues, and redraws the tab with resolution scaling. |
 | `CREW.CPP` | | To be ported. |
 | `DDE.CPP` | | To be ported. |
 | `DEBUG.CPP` | | To be ported. |
@@ -98,6 +98,7 @@
 | `JSHELL.CPP` | | To be ported. |
 | `KEYFRAME.CPP` | | To be ported. |
 | `LOADDLG.CPP` | | To be ported. |
+| `LOAD_TITLE.CPP` | `src/load_title.cpp` | Title screen loader now decodes PCX/CPS art from MIX/CD paths, patches UI palette colors, and scales to the active viewport. |
 | `LOGIC.CPP` | | To be ported. |
 | `MAP.CPP` | | To be ported. |
 | `MAPEDDLG.CPP` | | To be ported. |

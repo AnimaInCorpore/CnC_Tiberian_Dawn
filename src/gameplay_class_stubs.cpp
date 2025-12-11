@@ -122,10 +122,6 @@ void TabClass::Decode_Pointers(void) {}
 void RadioClass::Code_Pointers(void) {}
 void RadioClass::Decode_Pointers(void) {}
 
-CreditClass::CreditClass() = default;
-void CreditClass::Graphic_Logic(bool) {}
-void CreditClass::AI(bool) {}
-
 FacingClass::FacingClass() : CurrentFacing(DIR_N), DesiredFacing(DIR_N) {}
 
 ThemeClass::ThemeClass() = default;
