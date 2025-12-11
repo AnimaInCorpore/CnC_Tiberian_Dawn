@@ -423,6 +423,7 @@ int String_Pixel_Width(char const* text);
 int Char_Pixel_Width(int value);
 extern int FontHeight;
 extern int FontYSpacing;
+extern int FontXSpacing;
 
 /*
 **	DISPLAY.CPP

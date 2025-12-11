@@ -17,6 +17,7 @@
 
 int FontHeight = 8;
 int FontYSpacing = 1;
+int FontXSpacing = 0;
 
 namespace {
 
@@ -25,6 +26,7 @@ constexpr int kFontHeight = 8;
 
 struct ParsedFont {
   const unsigned char* base = nullptr;
+  const unsigned char* data_base = nullptr;
   const std::uint16_t* offsets = nullptr;
   const unsigned char* widths = nullptr;
   const unsigned char* heights = nullptr;  // two bytes per character: top blank, data height
@@ -216,6 +218,7 @@ bool Parse_Font(const void* font_ptr, ParsedFont* out) {
   const unsigned char* info_block = base + header->info_offset;
   ParsedFont parsed{};
   parsed.base = base;
+  parsed.data_base = base + header->data_offset;
   parsed.offsets = reinterpret_cast<const std::uint16_t*>(base + header->offset_offset);
   parsed.widths = base + header->width_offset;
   parsed.heights = base + header->height_offset;
@@ -273,7 +276,7 @@ void Draw_Glyph(char ch, int x, int y, unsigned fore, unsigned back, bool fill_b
   const int top_blank = g_current_font.heights[idx * 2];
   const int data_height = g_current_font.heights[idx * 2 + 1];
   const int max_height = g_current_font.max_height;
-  const unsigned char* glyph = g_current_font.base + g_current_font.offsets[idx];
+  const unsigned char* glyph = g_current_font.data_base + g_current_font.offsets[idx];
   const int bytes_per_row = (width + 1) / 2;
 
   int dest_y = y;
