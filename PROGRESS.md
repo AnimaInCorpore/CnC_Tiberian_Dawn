@@ -48,7 +48,7 @@
 | `CONQUER.CPP` | `src/maingame.cpp` | Main_Game loop ported from the legacy file; retains SDL_QUIT push on exit while routing through the original select/loop/dialog flow. |
 | `CONST.CPP` | `src/const.cpp` | Weapon/warhead tables and coordinate helpers brought over with lowercase includes and portable tables. |
 | `STARTUP.CPP` (bootstrap) | `src/port_stubs.cpp` | Init_Game/Select_Game/Main_Loop now allocate palettes/shape buffers, configure viewports, reset menu state, enable the DDE heartbeat stub, and pace the frame loop using the legacy timer defaults. |
-| `CONTROL.CPP` | | To be ported. |
+| `CONTROL.CPP` | `src/control.cpp` | Control gadgets now propagate peer redraws, return KN_BUTTON IDs when triggered, and keep peers wired via a portable nullptr-safe link. |
 | `COORD.CPP` | | To be ported. |
 | `CREDITS.CPP` | | To be ported. |
 | `CREW.CPP` | | To be ported. |

@@ -64,7 +64,6 @@ inline ThreatType operator~(ThreatType value) {
 
 // Postfix increment helpers for the various enums declared in defines.h.
 inline ThemeType operator++(ThemeType& value, int) { return legacy_operators::PostIncrementEnum(value); }
-inline HousesType operator++(HousesType& value, int) { return legacy_operators::PostIncrementEnum(value); }
 inline ScenarioPlayerType operator++(ScenarioPlayerType& value, int) {
   return legacy_operators::PostIncrementEnum(value);
 }

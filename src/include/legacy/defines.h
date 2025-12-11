@@ -636,7 +636,11 @@ typedef enum HousesType {
 	HOUSE_FIRST=HOUSE_GOOD
 } HousesType;
 
-inline HousesType operator++(HousesType &, int);
+inline HousesType operator++(HousesType& value, int) {
+	HousesType old = value;
+	value = static_cast<HousesType>(static_cast<int>(value) + 1);
+	return old;
+}
 
 #define	HOUSEF_GOOD		(1<<HOUSE_GOOD)
 #define	HOUSEF_BAD		(1<<HOUSE_BAD)

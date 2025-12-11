@@ -56,6 +56,7 @@ set(TD_SOURCES
   src/cheklist.cpp
   src/colrlist.cpp
   src/const.cpp
+  src/control.cpp
   src/coord.cpp
   src/display.cpp
   src/edit.cpp

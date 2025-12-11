@@ -38,6 +38,7 @@
  *---------------------------------------------------------------------------------------------*/
 
 #include "legacy/type.h"
+#include "legacy/conquer.h"
 #include "legacy/externs.h"
 
 #include <cstring>
