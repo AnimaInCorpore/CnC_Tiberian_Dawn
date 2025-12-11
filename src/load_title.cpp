@@ -39,6 +39,7 @@
 namespace {
 
 constexpr int kPaletteSize = 256 * 3;
+constexpr std::size_t kMaxScanSize = 2 * 1024 * 1024;
 
 unsigned char Expand_Pcx_Channel(unsigned char value) {
 	return static_cast<unsigned char>(value << 2);  // 6-bit to 8-bit (0..252) like the original
@@ -73,6 +74,12 @@ struct DecodedPcx {
 	std::vector<unsigned char> pixels;
 	unsigned char palette[kPaletteSize]{};
 	bool has_palette = false;
+};
+
+struct MixSubBlock {
+	std::uint32_t crc = 0;
+	std::uint32_t offset = 0;
+	std::uint32_t size = 0;
 };
 
 bool Decode_Cps(const std::vector<unsigned char>& data, DecodedPcx& output);
@@ -465,6 +472,8 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 	const char* cd_subfolder = CDFileClass::Get_CD_Subfolder();
 
 	static bool mixes_registered = false;
+	static std::vector<std::unique_ptr<MixFileClass>> registered;
+	static std::vector<std::string> registered_paths;
 	if (!mixes_registered) {
 		auto register_mix = [cd_subfolder](const char* filename) {
 			if (!filename) return;
@@ -480,24 +489,41 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 				add_path(std::string("../") + path);
 			};
 
-			add_path_with_parent(filename);
+			auto add_variants = [&](const std::string& base) {
+				add_path_with_parent(base);
+				std::string upper = base;
+				std::transform(upper.begin(), upper.end(), upper.begin(),
+				               [](unsigned char ch) { return static_cast<char>(std::toupper(ch)); });
+				add_path_with_parent(upper);
+			};
+
+			add_variants(filename);
 			if (cd_subfolder && *cd_subfolder) {
-				add_path_with_parent(std::string("CD/") + cd_subfolder + "/" + filename);
+				add_variants(std::string("CD/") + cd_subfolder + "/" + filename);
 			}
-			add_path_with_parent(std::string("CD/CNC95/") + filename);
-			add_path_with_parent(std::string("CD/") + filename);
-			add_path_with_parent(std::string("CD/GDI/") + filename);
-			add_path_with_parent(std::string("CD/NOD/") + filename);
+			add_variants(std::string("CD/CNC95/") + filename);
+			add_variants(std::string("CD/") + filename);
+			add_variants(std::string("CD/GDI/") + filename);
+			add_variants(std::string("CD/NOD/") + filename);
 
 			for (auto const& path : paths) {
 				std::ifstream test(path, std::ios::binary);
 				if (test) {
-					static std::vector<std::unique_ptr<MixFileClass>> registered;
-					registered.emplace_back(std::make_unique<MixFileClass>(path.c_str()));
-					CCDebugString("Load_Title_Screen: registered mix ");
-					CCDebugString(path.c_str());
-					CCDebugString("\n");
-					return;
+					bool already_registered = std::any_of(
+					    registered.begin(), registered.end(),
+					    [&](auto const& mix) { return strcasecmp(mix->Filename, path.c_str()) == 0; });
+					bool path_known = std::any_of(
+					    registered_paths.begin(), registered_paths.end(),
+					    [&](auto const& p) { return strcasecmp(p.c_str(), path.c_str()) == 0; });
+					if (!already_registered) {
+						registered.emplace_back(std::make_unique<MixFileClass>(path.c_str()));
+						CCDebugString("Load_Title_Screen: registered mix ");
+						CCDebugString(path.c_str());
+						CCDebugString("\n");
+					}
+					if (!path_known) {
+						registered_paths.push_back(path);
+					}
 				}
 			}
 		};
@@ -505,11 +531,31 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 		// Title art normally lives in GENERAL.MIX/CONQUER.MIX on the Win95 discs.
 		register_mix("GENERAL.MIX");
 		register_mix("CONQUER.MIX");
+		register_mix("CCLOCAL.MIX");
+		register_mix("UPDATE.MIX");
 		mixes_registered = true;
 	}
 
 	std::vector<std::string> candidates;
-	candidates.emplace_back(name);
+	auto add_candidate = [&](const std::string& value) {
+		if (value.empty()) return;
+		if (std::find(candidates.begin(), candidates.end(), value) == candidates.end()) {
+			candidates.emplace_back(value);
+		}
+	};
+
+	auto add_with_case_variants = [&](const std::string& value) {
+		add_candidate(value);
+		std::string upper = value;
+		std::transform(upper.begin(), upper.end(), upper.begin(),
+		               [](unsigned char ch) { return static_cast<char>(std::toupper(ch)); });
+		add_candidate(upper);
+	};
+
+	add_with_case_variants(name);
+	// Also consider the alternate TITLE.* naming used by some distributions.
+	add_with_case_variants("TITLE.PCX");
+	add_with_case_variants("TITLE.CPS");
 	const char* dot = std::strrchr(name, '.');
 	if (dot) {
 		std::string ext(dot);
@@ -518,7 +564,7 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 		if (ext == ".PCX") {
 			std::string cps_name(name);
 			cps_name.replace(dot - name, std::strlen(dot), ".CPS");
-			candidates.push_back(std::move(cps_name));
+			add_with_case_variants(cps_name);
 		}
 	}
 
@@ -530,6 +576,46 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 		if (Decode_Pcx_Or_Cps(buffer, pcx)) {
 			loaded = true;
 			break;
+		}
+	}
+
+	// Fallback: scan registered mixes for any decodable PCX/CPS payload (some distributions ship unnamed title art).
+	auto try_decode_mix_blob = [&](const std::string& path) -> bool {
+		std::ifstream file(path, std::ios::binary);
+		if (!file) return false;
+
+		std::uint16_t count = 0;
+		std::uint32_t size = 0;
+		file.read(reinterpret_cast<char*>(&count), sizeof(count));
+		file.read(reinterpret_cast<char*>(&size), sizeof(size));
+		if (!file) return false;
+
+		std::vector<MixSubBlock> blocks;
+		blocks.resize(count);
+		for (std::uint16_t i = 0; i < count; ++i) {
+			file.read(reinterpret_cast<char*>(&blocks[i]), sizeof(MixSubBlock));
+		}
+
+		const std::streamoff base = static_cast<std::streamoff>(6 + count * sizeof(MixSubBlock));
+		for (auto const& block : blocks) {
+			if (block.size == 0 || block.size > kMaxScanSize) continue;
+			std::vector<unsigned char> blob(block.size);
+			file.seekg(base + static_cast<std::streamoff>(block.offset), std::ios::beg);
+			file.read(reinterpret_cast<char*>(blob.data()), static_cast<std::streamsize>(block.size));
+			if (!file) break;
+			if (Decode_Pcx_Or_Cps(blob, pcx) && pcx.width >= 320 && pcx.height >= 200) {
+				return true;
+			}
+		}
+		return false;
+	};
+
+	if (!loaded) {
+		for (auto const& path : registered_paths) {
+			if (try_decode_mix_blob(path)) {
+				loaded = true;
+				break;
+			}
 		}
 	}
 

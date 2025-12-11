@@ -82,17 +82,18 @@ int CDFileClass::Open(int rights) {
     return RawFileClass::Open(rights);
   }
 
-  if (!g_search_head && RawPath[0] == '\0') {
-    // Prefer explicit subfolder selection, then fall back to the root CD folder.
-    if (!g_cd_subfolder.empty()) {
-      const std::string primary = Join_Path("CD", g_cd_subfolder.c_str());
-      Add_Search_Drive(const_cast<char*>(primary.c_str()));
-    } else {
-      Add_Search_Drive(const_cast<char*>("CD/GDI"));
-      Add_Search_Drive(const_cast<char*>("CD/NOD"));
-    }
-    Add_Search_Drive(const_cast<char*>("CD"));
-  }
+	if (!g_search_head && RawPath[0] == '\0') {
+		// Prefer explicit subfolder selection, then fall back to the root CD folder.
+		if (!g_cd_subfolder.empty()) {
+			const std::string primary = Join_Path("CD", g_cd_subfolder.c_str());
+			Add_Search_Drive(const_cast<char*>(primary.c_str()));
+		} else {
+			Add_Search_Drive(const_cast<char*>("CD/GDI"));
+			Add_Search_Drive(const_cast<char*>("CD/NOD"));
+		}
+		Add_Search_Drive(const_cast<char*>("CD/CNC95"));
+		Add_Search_Drive(const_cast<char*>("CD"));
+	}
 
   if (!IsDisabled && First) {
     SearchDriveNode* node = g_search_head;
