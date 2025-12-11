@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(CnC_Tiberian_Dawn CXX)
+project(CnC_Tiberian_Dawn LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(TD_BUILD_EXE "Build the experimental cnc_tiberian_dawn executable" ON)
-option(TD_ENABLE_WINMAIN "Build the legacy WinMain launcher (Windows only)" OFF)
 
 # --- SDL2 ---
 # SDL2 is the portability layer for the ported code. If SDL2 is not present
@@ -39,63 +39,123 @@ if(NOT TD_SDL2_INCLUDE_DIRS AND DEFINED SDL2_INCLUDE_DIR)
 endif()
 
 # --- Source Files ---
-file(GLOB_RECURSE SOURCES "src/*.cpp")
-# Keep the Win32 launcher opt-in so the default build stays SDL-only.
-list(FILTER SOURCES EXCLUDE REGEX ".*/platform_win32\\.cpp$")
-if(TD_ENABLE_WINMAIN AND WIN32)
-  list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/platform_win32.cpp)
-endif()
+set(TD_SOURCES
+  src/aadata.cpp
+  src/abstract.cpp
+  src/adata.cpp
+  src/aircraft.cpp
+  src/alloc.cpp
+  src/audio_stub.cpp
+  src/base_stub.cpp
+  src/bbdata.cpp
+  src/building.cpp
+  src/ccfile.cpp
+  src/cdfile.cpp
+  src/checkbox.cpp
+  src/cheklist.cpp
+  src/colrlist.cpp
+  src/const.cpp
+  src/coord.cpp
+  src/display.cpp
+  src/edit.cpp
+  src/error_stub.cpp
+  src/factory.cpp
+  src/fly_stub.cpp
+  src/gadget_control_stub.cpp
+  src/game.cpp
+  src/gameplay_class_stubs.cpp
+  src/gameplay_core_stub.cpp
+  src/gauge.cpp
+  src/globals.cpp
+  src/gscreen.cpp
+  src/heap.cpp
+  src/house.cpp
+  src/infantry.cpp
+  src/input_shim.cpp
+  src/ipx.cpp
+  src/ipx95.cpp
+  src/ipxaddr.cpp
+  src/ipxconn.cpp
+  src/ipxgconn.cpp
+  src/ipxmgr.cpp
+  src/layer.cpp
+  src/legacy_vtables.cpp
+  src/link.cpp
+  src/linker_stubs.cpp
+  src/list.cpp
+  src/load_title.cpp
+  src/maingame.cpp
+  src/map_shim.cpp
+  src/menus.cpp
+  src/mixfile.cpp
+  src/mmx_stub.cpp
+  src/mousehelp.cpp
+  src/name_crc.cpp
+  src/object.cpp
+  src/platform_input.cpp
+  src/port_stubs.cpp
+  src/power.cpp
+  src/radar.cpp
+  src/radio.cpp
+  src/rand.cpp
+  src/rawfile.cpp
+  src/runtime_sdl.cpp
+  src/scroll.cpp
+  src/shapebtn.cpp
+  src/slider.cpp
+  src/stats.cpp
+  src/super.cpp
+  src/tab.cpp
+  src/tcpip.cpp
+  src/techno.cpp
+  src/text.cpp
+  src/textbtn.cpp
+  src/toggle.cpp
+  src/txtlabel.cpp
+  src/unit.cpp
+  src/utracker.cpp
+  src/vector.cpp
+  src/wwlib_runtime.cpp
+  src/wwlib.cpp
+)
+# Legacy WinMain launcher intentionally excluded to keep the SDL path canonical.
 
 # --- Library with all ported sources ---
-add_library(td_port STATIC ${SOURCES})
+add_library(td_port STATIC ${TD_SOURCES})
 
 target_include_directories(
   td_port
-  PRIVATE
+  PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/src/include/legacy
     ${CMAKE_CURRENT_SOURCE_DIR}/src/include
     ${TD_SDL2_INCLUDE_DIRS}
 )
 
-target_compile_definitions(
-  td_port
-  PRIVATE
+set(TD_COMMON_DEFS
+  TD_PORT_USE_SDL2
+  SCENARIO_EDITOR
+)
+if(WIN32)
+  list(APPEND TD_COMMON_DEFS
     NOMINMAX
     STRICT=1
-    TD_PORT_USE_SDL2
     WIN32_LEAN_AND_MEAN
     _CRT_SECURE_NO_WARNINGS
-    SCENARIO_EDITOR
-)
+  )
+endif()
 
+target_compile_definitions(td_port PUBLIC ${TD_COMMON_DEFS})
+
+target_link_libraries(td_port PUBLIC ${TD_SDL2_TARGET})
 if(WIN32)
   target_link_libraries(td_port PUBLIC ws2_32)
 endif()
-target_link_libraries(td_port PUBLIC ${TD_SDL2_TARGET})
 
 # --- Optional executable (disabled by default until more gameplay code is ported) ---
 if(TD_BUILD_EXE)
   add_executable(cnc_tiberian_dawn src/main.cpp)
-  target_include_directories(
-    cnc_tiberian_dawn
-    PRIVATE
-      ${CMAKE_CURRENT_SOURCE_DIR}/src
-      ${CMAKE_CURRENT_SOURCE_DIR}/src/include/legacy
-      ${CMAKE_CURRENT_SOURCE_DIR}/src/include
-      ${TD_SDL2_INCLUDE_DIRS}
-  )
-  target_compile_definitions(
-    cnc_tiberian_dawn
-    PRIVATE
-      NOMINMAX
-      STRICT=1
-      TD_PORT_USE_SDL2
-      WIN32_LEAN_AND_MEAN
-      _CRT_SECURE_NO_WARNINGS
-      SCENARIO_EDITOR
-  )
-  target_link_libraries(cnc_tiberian_dawn PRIVATE td_port ${TD_SDL2_TARGET})
+  target_link_libraries(cnc_tiberian_dawn PRIVATE td_port)
   if(TD_SDL2MAIN_TARGET AND NOT MINGW)
     target_link_libraries(cnc_tiberian_dawn PRIVATE ${TD_SDL2MAIN_TARGET})
   endif()

@@ -450,6 +450,18 @@ TextLabelClass* MessageListClass::Add_Message(char*, int, TextPrintType, int, un
 
 TeamTypeClass const* TeamTypeClass::Suggested_New_Team(HouseClass*, long, long, bool) { return nullptr; }
 TeamClass* TeamTypeClass::Create_One_Of() const { return nullptr; }
+void* TeamTypeClass::operator new(size_t) {
+  void* ptr = TeamTypes.Allocate();
+  if (ptr) {
+    static_cast<TeamTypeClass*>(ptr)->IsActive = true;
+  }
+  return ptr;
+}
+void TeamTypeClass::operator delete(void* ptr) {
+  if (!ptr) return;
+  static_cast<TeamTypeClass*>(ptr)->IsActive = false;
+  TeamTypes.Free(static_cast<TeamTypeClass*>(ptr));
+}
 
 BuildingTypeClass const* const BuildingTypeClass::Pointers[STRUCT_COUNT] = {nullptr};
 BuildingTypeClass const& BuildingTypeClass::As_Reference(StructType type) {
