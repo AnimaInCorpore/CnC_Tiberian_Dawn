@@ -26,26 +26,21 @@
 #include "legacy/gscreen.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
 #include <cstdint>
 #include <cstring>
-#include <fstream>
-#include <initializer_list>
 #include <limits>
 #include <memory>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace {
 
 constexpr int kPaletteSize = 256 * 3;
 
-// PCX palette components are 6-bit; expand to 8-bit while preserving the top
-// white value instead of clamping it to 252.
 unsigned char Expand_Pcx_Channel(unsigned char value) {
-	const unsigned int scaled = (static_cast<unsigned int>(value) * 255u + 31u) / 63u;
-	return static_cast<unsigned char>(scaled > 255u ? 255u : scaled);
+	return static_cast<unsigned char>(value << 2);  // 6-bit to 8-bit (0..252) like the original
 }
 
 #pragma pack(push, 1)
@@ -87,15 +82,37 @@ struct CpsHeader {
 	std::uint16_t palette_size = 0;
 };
 
-struct MixFileHeader {
-	std::uint16_t count = 0;
-	std::uint32_t size = 0;
-};
 #pragma pack(pop)
 
-static_assert(sizeof(MixFileHeader) == 6, "Mix header size mismatch");
-
 bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, DecodedPcx& output);
+
+bool Load_File_To_Buffer(const char* name, std::vector<unsigned char>& data) {
+	if (!name) return false;
+
+	CCFileClass file(name);
+	if (!file.Open()) {
+		return false;
+	}
+
+	const long length = file.Size();
+	if (length <= 0) {
+		file.Close();
+		return false;
+	}
+
+	data.resize(static_cast<std::size_t>(length));
+	const long read = file.Read(data.data(), length);
+	file.Close();
+	return read == length;
+}
+
+bool Decode_Pcx_Or_Cps(const std::vector<unsigned char>& data, DecodedPcx& output) {
+	if (data.empty()) return false;
+	if (Decode_Pcx_Buffer(data.data(), data.size(), output)) {
+		return true;
+	}
+	return Decode_Cps(data, output);
+}
 
 void Apply_Title_Palette(const unsigned char* source, unsigned char* dest) {
 	if (!source) return;
@@ -355,125 +372,6 @@ bool Blit_With_Scale(const DecodedPcx& image, GraphicViewPortClass* view) {
 	return true;
 }
 
-bool Load_Title_From_Cps_Mix(const char* mix_name, GraphicViewPortClass* video_page,
-                             unsigned char* palette) {
-	if (!mix_name || !video_page) return false;
-
-	const std::string base_name(mix_name);
-	const char* cd_subfolder = CDFileClass::Get_CD_Subfolder();
-
-	std::vector<std::string> search_paths;
-	search_paths.reserve(12);
-	auto add_path = [&](const std::string& path) {
-		if (path.empty()) return;
-		if (std::find(search_paths.begin(), search_paths.end(), path) != search_paths.end()) return;
-		search_paths.push_back(path);
-	};
-
-	auto add_path_with_parent = [&](const std::string& path) {
-		add_path(path);
-		add_path(std::string("../") + path);
-	};
-
-	add_path_with_parent(base_name);
-	if (cd_subfolder && *cd_subfolder) {
-		add_path_with_parent(std::string("CD/") + cd_subfolder + "/" + base_name);
-	}
-	add_path_with_parent(std::string("CD/CNC95/") + base_name);
-	add_path_with_parent(std::string("CD/GDI/") + base_name);
-	add_path_with_parent(std::string("CD/NOD/") + base_name);
-	add_path_with_parent(std::string("CD/") + base_name);
-	std::vector<unsigned char> mix_data;
-
-	for (auto const& path : search_paths) {
-		std::ifstream file(path, std::ios::binary);
-		if (!file) continue;
-		file.seekg(0, std::ios::end);
-		const std::streamoff size = file.tellg();
-		if (size <= 0) continue;
-		file.seekg(0, std::ios::beg);
-		mix_data.resize(static_cast<std::size_t>(size));
-		file.read(reinterpret_cast<char*>(mix_data.data()), size);
-		if (file) {
-			break;
-		}
-		mix_data.clear();
-	}
-
-	if (mix_data.empty()) {
-		CCDebugString("Load_Title_Screen: unable to open ");
-		CCDebugString(mix_name);
-		CCDebugString(".\n");
-		return false;
-	}
-
-	if (mix_data.size() < sizeof(MixFileHeader)) {
-		return false;
-	}
-
-	MixFileHeader mix_header{};
-	std::memcpy(&mix_header, mix_data.data(), sizeof(mix_header));
-	if (mix_header.count == 0) return false;
-
-	const std::uint32_t entries_bytes =
-	    static_cast<std::uint32_t>(mix_header.count * sizeof(MixFileClass::SubBlock));
-	const std::uint32_t data_base =
-	    static_cast<std::uint32_t>(sizeof(MixFileHeader) + entries_bytes);
-	const std::uint32_t data_end = data_base + mix_header.size;
-	if (mix_data.size() < data_end) return false;
-
-	std::vector<MixFileClass::SubBlock> entries(mix_header.count);
-	std::memcpy(entries.data(), mix_data.data() + sizeof(MixFileHeader), entries_bytes);
-
-	DecodedPcx best_image{};
-	double best_score = -1.0;
-
-	for (auto const& entry : entries) {
-		const std::uint32_t start = data_base + entry.Offset;
-		const std::uint32_t end = start + entry.Size;
-		if (start < data_base || end > data_end || end > mix_data.size() ||
-		    entry.Size < sizeof(CpsHeader)) {
-			continue;
-		}
-
-		std::vector<unsigned char> entry_data(mix_data.begin() + start, mix_data.begin() + end);
-
-		DecodedPcx candidate{};
-		bool decoded = Decode_Cps(entry_data, candidate) ||
-		               Decode_Pcx_Buffer(entry_data.data(), entry_data.size(), candidate);
-		if (!decoded) {
-			continue;
-		}
-
-		const double score = static_cast<double>(std::max(1, candidate.width)) *
-		                     static_cast<double>(std::max(1, candidate.height));
-		if (score > best_score) {
-			best_score = score;
-			std::swap(best_image, candidate);
-		}
-	}
-
-	if (best_score < 0.0) {
-		CCDebugString("Load_Title_Screen: no CPS candidates found in ");
-		CCDebugString(mix_name);
-		CCDebugString(".\n");
-		return false;
-	}
-
-	if (best_image.has_palette) {
-		Apply_Title_Palette(best_image.palette, palette);
-		Patch_Ui_Colors(palette ? palette : Palette);
-		if (GamePalette) {
-			Patch_Ui_Colors(GamePalette);
-		}
-	}
-
-	CCDebugString("Load_Title_Screen: loaded title art from ");
-	CCDebugString(mix_name);
-	CCDebugString(".\n");
-	return Blit_With_Scale(best_image, video_page);
-}
-
 bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, DecodedPcx& output) {
 	if (!data || data_size < sizeof(PcxHeader)) return false;
 
@@ -607,30 +505,29 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 		mixes_registered = true;
 	}
 
-	// Prefer loading from resident MIX archives.
-	void* ptr = nullptr;
-	MixFileClass* mix = nullptr;
-	long offset = 0;
-	long size = 0;
-	if (MixFileClass::Offset(name, &ptr, &mix, &offset, &size)) {
-		if (ptr) {
-			loaded = Decode_Pcx_Buffer(static_cast<unsigned char*>(ptr), static_cast<std::size_t>(size), pcx);
-		} else if (mix && size > 0) {
-			CCFileClass file(mix->Filename);
-			if (file.Open()) {
-				std::vector<unsigned char> data(static_cast<std::size_t>(size));
-				file.Seek(offset, SEEK_SET);
-				const long read = file.Read(data.data(), size);
-				file.Close();
-				if (read == size) {
-					loaded = Decode_Pcx_Buffer(data.data(), data.size(), pcx);
-				}
-			}
+	std::vector<std::string> candidates;
+	candidates.emplace_back(name);
+	const char* dot = std::strrchr(name, '.');
+	if (dot) {
+		std::string ext(dot);
+		std::transform(ext.begin(), ext.end(), ext.begin(),
+		               [](unsigned char ch) { return static_cast<char>(std::toupper(ch)); });
+		if (ext == ".PCX") {
+			std::string cps_name(name);
+			cps_name.replace(dot - name, std::strlen(dot), ".CPS");
+			candidates.push_back(std::move(cps_name));
 		}
 	}
 
-	if (!loaded && Decode_Pcx(name, pcx)) {
-		loaded = true;
+	for (auto const& candidate : candidates) {
+		std::vector<unsigned char> buffer;
+		if (!Load_File_To_Buffer(candidate.c_str(), buffer)) {
+			continue;
+		}
+		if (Decode_Pcx_Or_Cps(buffer, pcx)) {
+			loaded = true;
+			break;
+		}
 	}
 
 	if (loaded) {
@@ -646,15 +543,7 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 		return;
 	}
 
-	CCDebugString("Load_Title_Screen: attempting CPS fallback.\n");
-	// Legacy high-res title screens are stored as CPS inside the disc mix archives.
-	if (Load_Title_From_Cps_Mix("GENERAL.MIX", video_page, palette) ||
-	    Load_Title_From_Cps_Mix("CONQUER.MIX", video_page, palette)) {
-		Present_Title(video_page);
-		return;
-	}
-
-	CCDebugString("Load_Title_Screen: failed to open PCX.\n");
+	CCDebugString("Load_Title_Screen: failed to open title art.\n");
 	GraphicBufferClass* buffer = video_page->Get_Graphic_Buffer();
 	if (buffer) {
 		if (!buffer->Is_Valid()) {
