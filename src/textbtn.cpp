@@ -99,6 +99,9 @@ void TextButtonClass::Draw_Text(char const* text) {
     return;
   }
 
+  const int anchor_x = X + (Width >> 1);
+  const int anchor_y = Y + std::max(0, (Height - FontHeight) / 2);
+
   if (PrintFlags & TPF_6PT_GRAD) {
     TextPrintType flags = static_cast<TextPrintType>(0);
     int color = WHITE;
@@ -112,7 +115,8 @@ void TextButtonClass::Draw_Text(char const* text) {
     } else {
       color = DKGREY;
     }
-    Fancy_Text_Print(text, X + (Width >> 1) - 1, Y + 1, color, TBLACK, static_cast<TextPrintType>(PrintFlags | flags | TPF_CENTER));
+    Fancy_Text_Print(text, anchor_x, anchor_y, color, TBLACK,
+                     static_cast<TextPrintType>(PrintFlags | flags | TPF_CENTER));
     return;
   }
 
@@ -125,6 +129,6 @@ void TextButtonClass::Draw_Text(char const* text) {
     color = WHITE;
   }
 
-  Fancy_Text_Print(text, X + (Width >> 1) - 1, Y + 1, IsOn ? RED : color, TBLACK,
+  Fancy_Text_Print(text, anchor_x, anchor_y, IsOn ? RED : color, TBLACK,
                    static_cast<TextPrintType>(PrintFlags | TPF_CENTER));
 }
