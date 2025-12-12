@@ -21,8 +21,8 @@ Status: Next steps. Scope: port IPX/Greenleaf stack (`IPX*.CPP`, `TCPIP.CPP`, `C
 
 ## Data loading and file I/O
 Status: Next steps. Scope: modernize MIX/raw/CC file handling (`MIXFILE.CPP`, `RAWFILE.CPP`, `CCFILE.CPP`) for cross-platform paths/endianness, and config/profile parsing for startup/save/load parity. Excludes gameplay logic changes.
-Add a sanity check/log when required MIX archives (e.g. `GENERAL.MIX`/`CONQUER.MIX`) are missing so font loads don't silently fall back to stub glyphs.
-Add a debug assert around font header size in the SDL text path so regressions in packed parsing don't blank text, and log when we reject a font and fall back to the built-in glyphs.
+Add a sanity check/log when required MIX archives (e.g. `GENERAL.MIX`/`CONQUER.MIX`) are missing now that text rendering depends on the CD font assets instead of stub glyphs.
+Add a debug assert around font header size in the SDL text path so regressions in packed parsing surface clearly now that we refuse to draw without valid font data.
 
 ## Gameplay systems and AI
 Status: Next steps. Scope: port unit/structure/AI systems (`UNIT/TECHNO/BUILDING/INFANTRY/VEHICLE`, pathfinding `FINDPATH`/`VECTOR`, triggers/scripts, mission flow) ensuring deterministic timers/random seeds. Excludes platform or asset I/O changes. Cargo attach/detach/pointer coding now live in `src/cargo.cpp`; next tie it back into Foot/Unit load/unload once those files move. `src/bullet.cpp` now carries the projectile logic; follow up by moving the bullet data tables (`BDATA.CPP`) and the animations it references (`ANIM.CPP`) so the type definitions and explosion visuals line up.
