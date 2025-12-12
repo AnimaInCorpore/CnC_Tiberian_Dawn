@@ -2125,6 +2125,7 @@ int BuildingClass::Exit_Object(TechnoClass * base)
 
 				case STRUCT_BARRACKS:
 				case STRUCT_HAND:
+				{
 					CELL cell;
 					bool found = false;
 
@@ -2167,6 +2168,10 @@ int BuildingClass::Exit_Object(TechnoClass * base)
 						}
 						ScenarioInit--;
 					}
+					break;
+				}
+
+				default:
 					break;
 			}
 			break;
@@ -2266,6 +2271,9 @@ void BuildingClass::Update_Buildables(void)
 //						}
 					}
 				}
+				break;
+
+			default:
 				break;
 		}
 	}
@@ -3227,6 +3235,9 @@ bool BuildingClass::Captured(HouseClass * newowner)
 			case HOUSE_BAD:
 				Speak(VOX_NOD_CAPTURED);
 				break;
+
+			default:
+				break;
 		}
 
 		if (House == PlayerPtr) {
@@ -3441,7 +3452,7 @@ MoveType BuildingClass::Can_Enter_Cell(CELL cell, FacingType) const
 bool BuildingClass::Can_Demolish(void) const
 {
 	Validate();
-	if (Class->Get_Buildup_Data() && BState != BSTATE_CONSTRUCTION && !Mission != MISSION_DECONSTRUCTION && Mission != MISSION_CONSTRUCTION) {
+	if (Class->Get_Buildup_Data() && BState != BSTATE_CONSTRUCTION && Mission != MISSION_DECONSTRUCTION && Mission != MISSION_CONSTRUCTION) {
 		if (*this == STRUCT_REFINERY && Is_Something_Attached()) return(false);
 		return(true);
 	}
@@ -3972,6 +3983,9 @@ int BuildingClass::Mission_Attack(void)
 			case FIRE_OK:
 				Fire_At(TarCom, 0);
 				return(1);
+
+			default:
+				break;
 		}
 	}
 	return(TICKS_PER_SECOND);
@@ -4810,6 +4824,9 @@ void BuildingClass::Detach_All(bool all)
 
 			case RTTI_SPECIAL:
 				fnum = House->SpecialFactory;
+				break;
+
+			default:
 				break;
 
 		}

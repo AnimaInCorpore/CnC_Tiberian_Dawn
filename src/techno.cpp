@@ -864,7 +864,7 @@ void TechnoClass::Draw_It(int x, int y, WindowNumberType window)
 	Clear_Redraw_Flag();
 	if (IsSelected || Special.IsBarOn) {
 		GraphicViewPortClass draw_window(	LogicPage->Get_Graphic_Buffer(),
-														WindowList[window][WINDOWX] << 3 + LogicPage->Get_XPos(),
+														(WindowList[window][WINDOWX] << 3) + LogicPage->Get_XPos(),
 														WindowList[window][WINDOWY] + LogicPage->Get_YPos(),
 														WindowList[window][WINDOWWIDTH] << 3,
 														WindowList[window][WINDOWHEIGHT]);
@@ -1680,6 +1680,9 @@ void TechnoClass::AI(void)
 								Scatter(0, true);
 							}
 							break;
+
+						default:
+							break;
 					}
 					break;
 
@@ -1691,6 +1694,9 @@ void TechnoClass::AI(void)
 					if (IsOwnedByPlayer) {
 						Mark(MARK_CHANGE);
 					}
+					break;
+
+				default:
 					break;
 			}
 		}
@@ -2056,6 +2062,9 @@ BulletClass * TechnoClass::Fire_At(TARGET target, int which)
 			case ANIM_CHEM_N:
 			case ANIM_FLAME_N:
 				a = (AnimType)(a + Dir_Facing(Fire_Direction()));
+				break;
+
+			default:
 				break;
 		}
 
@@ -2679,6 +2688,9 @@ void TechnoClass::Record_The_Kill(TechnoClass * source)
 
 			case RTTI_AIRCRAFT:
 				((AircraftClass *)source)->Made_A_Kill();
+				break;
+
+			default:
 				break;
 		}
 

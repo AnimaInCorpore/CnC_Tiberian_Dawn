@@ -617,6 +617,9 @@ void RadarClass::Render_Infantry(CELL cell, int x, int y, int size)
 						//LogicPage->Unlock();
 					//}
 					break;
+
+				default:
+					break;
 			}
 		}
 		obj = obj->Next;

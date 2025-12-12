@@ -700,6 +700,8 @@ RadioMessageType UnitClass::Receive_Message(RadioClass * from, RadioMessageType 
 			TarComClass::Receive_Message(from, message, param);
 			return(RADIO_ROGER);
 
+		default:
+			break;
 	}
 	return(TarComClass::Receive_Message(from, message, param));
 }
@@ -2363,6 +2365,9 @@ int UnitClass::Mission_Unload(void)
 					Exit_Map();
 					break;
 			}
+			break;
+
+		default:
 			break;
 	}
 	return(TICKS_PER_SECOND);

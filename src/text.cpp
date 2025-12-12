@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <algorithm>
 #include <cstdint>
+#include <limits>
 #include <string>
 #include <unordered_map>
 
@@ -99,7 +100,7 @@ bool Parse_Font(const void* font_ptr, ParsedFont* out) {
   static_assert(sizeof(Header) == 14, "Font header must remain packed");
 
   // Reject obviously bogus headers so we don't treat random memory as a valid font asset.
-  constexpr std::size_t kMaxFontBytes = 1 * 1024 * 1024;
+  constexpr std::size_t kMaxFontBytes = std::numeric_limits<std::uint16_t>::max();
   if (header->length == 0 || header->length > kMaxFontBytes) {
     return false;
   }

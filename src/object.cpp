@@ -838,6 +838,7 @@ bool ObjectClass::Render(bool forced)
 			switch (What_Am_I()) {
 				case RTTI_INFANTRY:
 				case RTTI_UNIT:
+				{
 					FootClass * foot = (FootClass *)this;
 					CELL cell;
 					int oldx, oldy;
@@ -855,6 +856,10 @@ bool ObjectClass::Render(bool forced)
 							oldy = y;
 						}
 					}
+					break;
+				}
+
+				default:
 					break;
 			}
 		}
