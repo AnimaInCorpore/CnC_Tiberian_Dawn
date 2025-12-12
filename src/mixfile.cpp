@@ -153,10 +153,9 @@ bool MixFileClass::Offset(char const* filename, void** realptr, MixFileClass** m
                           long* size) {
   if (!filename) return false;
 
-  const std::uint32_t crc = Resolve_Crc_For_Name(filename);
-
   MixFileClass* ptr = First;
   while (ptr) {
+    const std::uint32_t crc = ptr->Resolve_Crc_For_Name(filename);
     const SubBlock key{crc, 0, 0};
     const SubBlock* block =
         std::lower_bound(ptr->Buffer, ptr->Buffer + ptr->Count, key,

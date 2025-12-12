@@ -83,17 +83,18 @@ int CDFileClass::Open(int rights) {
   }
 
 	if (!g_search_head && RawPath[0] == '\0') {
-		// Prefer explicit subfolder selection, then fall back to the root CD folder.
+		// Prefer explicit subfolder selection, then fall back to all known CD mirrors.
 		if (!g_cd_subfolder.empty()) {
 			const std::string primary = Join_Path("CD", g_cd_subfolder.c_str());
 			Add_Search_Drive(const_cast<char*>(primary.c_str()));
-		} else {
-			Add_Search_Drive(const_cast<char*>("CD/TIBERIAN_DAWN/CD1"));
-			Add_Search_Drive(const_cast<char*>("CD/TIBERIAN_DAWN/CD2"));
-			Add_Search_Drive(const_cast<char*>("CD/TIBERIAN_DAWN/CD3"));
-			Add_Search_Drive(const_cast<char*>("CD/GDI"));
-			Add_Search_Drive(const_cast<char*>("CD/NOD"));
 		}
+		// Always include the Tiberian Dawn unpacked discs first so fonts/MIXes are found.
+		Add_Search_Drive(const_cast<char*>("CD/TIBERIAN_DAWN/CD1"));
+		Add_Search_Drive(const_cast<char*>("CD/TIBERIAN_DAWN/CD2"));
+		Add_Search_Drive(const_cast<char*>("CD/TIBERIAN_DAWN/CD3"));
+		// Legacy mirrors.
+		Add_Search_Drive(const_cast<char*>("CD/GDI"));
+		Add_Search_Drive(const_cast<char*>("CD/NOD"));
 		Add_Search_Drive(const_cast<char*>("CD/CNC95"));
 		Add_Search_Drive(const_cast<char*>("CD"));
 	}
