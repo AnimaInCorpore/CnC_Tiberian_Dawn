@@ -11,6 +11,9 @@ Translate the legacy C++ codebase (the C&C95 Win32 build) to compile with modern
 2.  **Platform Independence:** Use SDL to replace all direct hardware calls (Graphics, Audio, Input, Networking). Avoid platform-specific code outside of the SDL implementation layer.
 3.  **Modern Tooling:** The codebase must build with `g++` (or a compatible compiler) and `CMake`.
 4.  **Clean Codebase:** Remove all legacy code paths for DOS, Win16, and segmented memory. The target is a flat 32/64-bit memory model.
+5.  **No Shims or Stubs:** Do not rely on shims, fallbacks, stubs, or other mockups to stand in for ported code. Fully port missing functionality to match the Win32 behavior.
+6.  **No New External Dependencies:** Do not introduce external dependencies beyond those explicitly allowed here (e.g., SDL/SDL_net). Implement required functionality within the port unless a specific exception is documented in this file.
+7.  **Minimal Divergence:** Keep the original code and structure wherever possible. Only apply necessary changes—using modern best practices—to achieve platform independence and compatibility while preserving behavior.
 
 ## Porting Workflow
 
@@ -38,13 +41,5 @@ Translate the legacy C++ codebase (the C&C95 Win32 build) to compile with modern
 - The game must compile and run after each major module is ported.
 - Gameplay and behavior should be frequently compared against the original Win32 version to check for regressions.
 - After porting or materially updating a source/header, record the change in `PROGRESS.md` and refresh `NEXT_STEPS.md` with the follow-up tasks that make sense from that work.
-
-## Task Checklist (High-Level)
-- [ ] **Setup:** Create `src/` directory and `CMakeLists.txt`.
-- [ ] **Headers:** Port all `.H` files to `src/include/`, modernizing types and removing legacy conditionals.
-- [ ] **Core Logic:** Port `.CPP` files, starting with those with fewest dependencies.
-- [ ] **Assembly:** Re-implement all `.ASM` files in C++.
-- [ ] **SDL Integration:** Implement graphics, audio, and input backends using SDL.
-- [ ] **Build & Test:** Continuously build and test the application.
 
 This document serves as the primary directive. Follow this plan systematically.
