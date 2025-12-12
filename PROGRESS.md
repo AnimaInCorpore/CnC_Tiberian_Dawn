@@ -28,6 +28,7 @@
 | `ADATA.CPP` | `src/adata.cpp` | Ported to src/, updated include to the legacy shim, and replaced `_makepath` with `std::string` construction for SHP lookup. |
 | `ABSTRACT.CPP` | `src/abstract.cpp` | Abstract base logic now reports the correct RTTI/ownable mask, preserves the building distance fudge, and copies INI names with `std::strncpy`. |
 | `AIRCRAFT.CPP` | `src/aircraft.cpp` | Full aircraft gameplay/AI logic moved to src/, restoring the original missions, drawing, and targeting behavior; INI serialization now uses bounded snprintf formatting. |
+| `TEXT.CPP` (ColorXlat) | `src/text.cpp` | Glyph draw path now mirrors the legacy ColorXlat translation so gradient/LED fonts use their palette ramps instead of a flat foreground fill. |
 | `ALLOC.CPP` | `src/alloc.cpp` | Legacy allocator collapsed onto the modern malloc-based wrapper (moved from the wwalloc port) while keeping the legacy entry points. |
 | `ANIM.CPP` | | To be ported. |
 | `AUDIO.CPP` | | To be ported. |
@@ -103,6 +104,9 @@
 | `LOADDLG.CPP` | | To be ported. |
 | `LOAD_TITLE.CPP` | `src/load_title.cpp` | Title screen loader now resolves art through the CCFile/Mix stack, decodes PCX or CPS deterministically, patches UI palette colors, and scales to the active viewport. |
 | `LOGIC.CPP` | | To be ported. |
+| `MAIN.CPP` | `src/main.cpp` | SDL bootstrap now requests a high-DPI window and nearest-neighbor scaling so UI/text pixels stay crisp. |
+| `WWLIB_RUNTIME.CPP` (present blit) | `src/wwlib_runtime.cpp` | Present texture now pins SDL texture scale mode to `nearest` to avoid blurry text when SDL scales the 8-bit buffer. |
+| `GSCREEN.CPP` | `src/gscreen.cpp` | Title screen blit texture also forces `nearest` scale mode to keep fonts/pixels sharp. |
 | `MAP.CPP` | | To be ported. |
 | `MAPEDDLG.CPP` | | To be ported. |
 | `MAPEDIT.CPP` | | To be ported. |

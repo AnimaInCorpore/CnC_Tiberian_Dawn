@@ -15,18 +15,21 @@ void Game_Shutdown(void);
 void Main_Game(int argc, char* argv[]);
 
 int main(int argc, char** argv) {
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");  // avoid bilinear blur when scaling
+
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         std::fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
         return 1;
     }
 
+    const Uint32 window_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
     SDL_Window* window = SDL_CreateWindow(
         "Command & Conquer",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
         ScreenWidth,
         ScreenHeight,
-        SDL_WINDOW_SHOWN
+        window_flags
     );
     if (!window) {
         std::fprintf(stderr, "SDL_CreateWindow failed: %s\n", SDL_GetError());
@@ -65,5 +68,4 @@ int main(int argc, char** argv) {
 
     return 0;
 }
-
 

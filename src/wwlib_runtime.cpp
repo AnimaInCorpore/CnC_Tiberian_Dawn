@@ -80,9 +80,13 @@ void Ensure_Present_Texture(SDL_Renderer* renderer, int width, int height) {
     return;
   }
   Destroy_Present_Texture();
-  g_present_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+  g_present_texture =
+      SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
   g_present_width = width;
   g_present_height = height;
+  if (g_present_texture) {
+    SDL_SetTextureScaleMode(g_present_texture, SDL_ScaleModeNearest);
+  }
 }
 
 void Present_View(const GraphicViewPortClass& view) {

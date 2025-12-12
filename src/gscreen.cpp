@@ -171,6 +171,7 @@ void GScreenClass::Blit_Display(void) {
   if (!texture) {
     return;
   }
+  SDL_SetTextureScaleMode(texture, SDL_ScaleModeNearest);
 
   SDL_RenderClear(renderer);
   SDL_RenderCopy(renderer, texture, NULL, NULL);
