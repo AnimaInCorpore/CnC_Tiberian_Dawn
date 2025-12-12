@@ -107,6 +107,9 @@ void Main_Game(int argc, char* argv[]) {
 
                 if (SpecialDialog != SDLG_NONE) {
                     switch (SpecialDialog) {
+                        case SDLG_NONE:
+                            break;
+
                         case SDLG_SPECIAL:
                             Map.Help_Text(TXT_NONE);
                             Map.Override_Mouse_Shape(MOUSE_NORMAL, false);
@@ -163,6 +166,9 @@ void Main_Game(int argc, char* argv[]) {
             */
             if (SpecialDialog != SDLG_NONE) {
                 switch (SpecialDialog) {
+                    case SDLG_NONE:
+                        break;
+
                     case SDLG_SPECIAL:
                         Map.Help_Text(TXT_NONE);
                         Map.Override_Mouse_Shape(MOUSE_NORMAL, false);

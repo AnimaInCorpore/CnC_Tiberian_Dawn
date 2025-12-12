@@ -90,7 +90,9 @@
  *   AircraftClass::Validate -- validates aircraft pointer												  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include <cstdio>
+
+#include "function.h"
 
 
 /*
@@ -547,8 +549,8 @@ void AircraftClass::Write_INI(char *buffer)
 		unit = Aircraft.Ptr(index);
 		if (!unit->IsInLimbo) {
 
-			sprintf(uname, "%03d", index);
-			sprintf(buf, "%s,%s,%d,%u,%d,%s",
+			std::snprintf(uname, sizeof(uname), "%03d", index);
+			std::snprintf(buf, sizeof(buf), "%s,%s,%d,%u,%d,%s",
 				unit->House->Class->IniName,
 				unit->Class->IniName,
 				unit->Health_Ratio(),
@@ -2481,6 +2483,9 @@ RadioMessageType AircraftClass::Receive_Message(RadioClass * from, RadioMessageT
 {
 	Validate();
 	switch (message) {
+
+		default:
+			break;
 
 		case RADIO_PREPARED:
 			if (Target_Legal(TarCom)) return(RADIO_NEGATIVE);
