@@ -119,6 +119,7 @@ class MapStubClass
 		void Set_Cursor_Pos(int x, int y);
 		void Set_Cursor_Pos(CELL cell);
 		void Set_Cursor_Shape(short const* list);
+		void Set_Cursor(ObjectTypeClass const* object);
 		void Set_Default_Mouse(MouseType mouse, bool wwsmall = false);
 		void Set_Tactical_Position(COORDINATE coord);
 		bool Activate(int column);

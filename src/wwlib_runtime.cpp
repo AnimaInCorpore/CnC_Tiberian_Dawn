@@ -118,6 +118,8 @@ void Present_View(const GraphicViewPortClass& view) {
 
 }  // namespace
 
+SurfaceCollectionStub AllSurfaces;
+
 // --- TimerClass -----------------------------------------------------------
 TimerClass::TimerClass() { Reset(0); }
 

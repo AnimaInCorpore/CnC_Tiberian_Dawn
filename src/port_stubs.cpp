@@ -185,6 +185,12 @@ void Delay(int ticks) {
   std::this_thread::sleep_for(std::chrono::milliseconds(ticks));
 }
 
+void Dialog_Box(int, int, int, int) {}
+
+void Draw_Caption(int, int, int, int) {}
+
+void Call_Back() {}
+
 void* Add_Long_To_Pointer(void* ptr, long offset) {
   return static_cast<unsigned char*>(ptr) + offset;
 }

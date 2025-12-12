@@ -3,6 +3,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#ifndef _WIN32
+#include <strings.h>
+#endif
 #include <string>
 #include <cstdio>
 #include <climits>
@@ -14,6 +17,15 @@
 #define strncasecmp _strnicmp
 #ifndef PATH_MAX
 #define PATH_MAX MAX_PATH
+#endif
+#endif
+
+#ifndef _WIN32
+#ifndef stricmp
+#define stricmp strcasecmp
+#endif
+#ifndef strnicmp
+#define strnicmp strncasecmp
 #endif
 #endif
 

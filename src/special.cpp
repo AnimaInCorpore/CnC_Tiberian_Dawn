@@ -245,7 +245,7 @@ void Special_Dialog(void) {
       default:
         if (input & KN_BUTTON) {
           for (int index = 0; index < static_cast<int>(sizeof(_options) / sizeof(_options[0])); index++) {
-            if (_options[index].Button == GadgetClass::Get_Gadget(input & (~KN_BUTTON))) {
+            if (_options[index].Button == buttons->Extract_Gadget(input & (~KN_BUTTON))) {
               _options[index].Setting ^= 1;
               if (_options[index].Setting) {
                 _options[index].Button->Turn_On();
@@ -265,7 +265,7 @@ void Special_Dialog(void) {
       buttons->Flag_List_To_Redraw();
     }
 
-    if (buttons->Any_Redraw()) {
+    if (buttons->Is_List_To_Redraw()) {
       display = true;
     }
   }
@@ -289,7 +289,7 @@ void Special_Dialog(void) {
   Special.IsRoad = oldspecial.IsRoad;
   Special.IsScatter = oldspecial.IsScatter;
 
-  if (SeenBuff != LogicPage || HiddenPage.Get_Height() == 0) return;
+  if (&SeenBuff != LogicPage || HiddenPage.Get_Height() == 0) return;
   if (Map.PendingObject != nullptr) {
     Map.Set_Cursor(Map.PendingObject);
   }

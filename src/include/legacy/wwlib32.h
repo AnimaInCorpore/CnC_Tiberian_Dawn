@@ -200,6 +200,18 @@ class WWKeyboardClass {
   friend void Platform_Queue_Key_Event(int key, bool pressed);
 };
 
+// Minimal stub for the DirectDraw surface manager used by the original runtime.
+struct SurfaceCollectionStub {
+  bool SurfacesRestored = false;
+
+  void Set_Surface_Focus(bool) {}
+  void Restore_Surfaces() { SurfacesRestored = false; }
+  void Release() { SurfacesRestored = false; }
+  void Remove_DD_Surface(void*) {}
+};
+
+extern SurfaceCollectionStub AllSurfaces;
+
 // The runtime keeps a "current" drawing surface that UI widgets reference.
 extern GraphicViewPortClass* LogicPage;
 GraphicViewPortClass* Set_Logic_Page(GraphicViewPortClass& page);

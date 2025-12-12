@@ -139,6 +139,8 @@ void MapStubClass::Set_Cursor_Pos(CELL) {}
 
 void MapStubClass::Set_Cursor_Shape(short const*) {}
 
+void MapStubClass::Set_Cursor(ObjectTypeClass const*) {}
+
 void MapStubClass::Set_Default_Mouse(MouseType, bool) {}
 
 void MapStubClass::Set_Tactical_Position(COORDINATE coord) {
