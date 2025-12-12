@@ -8,6 +8,7 @@
 
 #include <cstdarg>
 #include <cstdio>
+#include <cstddef>
 #include <algorithm>
 #include <cstdint>
 #include <string>
@@ -24,10 +25,11 @@ constexpr int kFontHeight = 8;
 
 struct ParsedFont {
   const unsigned char* base = nullptr;
-  const unsigned char* data_base = nullptr;
   const std::uint16_t* offsets = nullptr;
   const unsigned char* widths = nullptr;
   const unsigned char* heights = nullptr;  // two bytes per character: top blank, data height
+  std::size_t length = 0;
+  std::size_t glyph_count = 0;
   int max_height = kFontHeight;
   int max_width = kFontWidth;
 };
@@ -98,6 +100,9 @@ bool Parse_Font(const void* font_ptr, ParsedFont* out) {
 
   // Reject obviously bogus headers so we don't treat random memory as a valid font asset.
   constexpr std::size_t kMaxFontBytes = 1 * 1024 * 1024;
+  if (header->length == 0 || header->length > kMaxFontBytes) {
+    return false;
+  }
   const std::uint16_t offsets[] = {header->info_offset,   header->offset_offset, header->width_offset,
                                    header->data_offset,   header->height_offset, header->length};
   auto monotonic = [](const std::uint16_t* arr, std::size_t n) {
@@ -115,6 +120,26 @@ bool Parse_Font(const void* font_ptr, ParsedFont* out) {
     }
   }
 
+  const std::size_t offset_bytes =
+      static_cast<std::size_t>(header->width_offset) - static_cast<std::size_t>(header->offset_offset);
+  if (offset_bytes == 0 || (offset_bytes % sizeof(std::uint16_t)) != 0) {
+    return false;
+  }
+  const std::size_t glyph_count = offset_bytes / sizeof(std::uint16_t);
+  const std::size_t width_bytes =
+      static_cast<std::size_t>(header->data_offset) - static_cast<std::size_t>(header->width_offset);
+  if (width_bytes != glyph_count) {
+    return false;
+  }
+  if (header->height_offset < header->data_offset) {
+    return false;
+  }
+  const std::size_t height_bytes =
+      static_cast<std::size_t>(header->length) - static_cast<std::size_t>(header->height_offset);
+  if (height_bytes / 2 < glyph_count) {
+    return false;
+  }
+
   const unsigned char* info_block = base + header->info_offset;
   const int max_height = info_block[4];
   const int max_width = info_block[5];
@@ -122,12 +147,21 @@ bool Parse_Font(const void* font_ptr, ParsedFont* out) {
     return false;
   }
 
+  const std::uint16_t* offset_block =
+      reinterpret_cast<const std::uint16_t*>(base + header->offset_offset);
+  for (std::size_t i = 0; i < glyph_count; ++i) {
+    if (offset_block[i] >= header->length) {
+      return false;
+    }
+  }
+
   ParsedFont parsed{};
   parsed.base = base;
-  parsed.data_base = base + header->data_offset;
-  parsed.offsets = reinterpret_cast<const std::uint16_t*>(base + header->offset_offset);
+  parsed.offsets = offset_block;
   parsed.widths = base + header->width_offset;
   parsed.heights = base + header->height_offset;
+  parsed.length = header->length;
+  parsed.glyph_count = glyph_count;
   parsed.max_height = max_height;
   parsed.max_width = max_width;
 
@@ -171,11 +205,14 @@ void Draw_Glyph(char ch, int x, int y, unsigned fore, unsigned back, bool fill_b
   if (!page || !g_current_font_valid) return;
 
   const unsigned idx = static_cast<unsigned char>(ch);
+  if (idx >= g_current_font.glyph_count) return;
   const int width = std::max(1, static_cast<int>(g_current_font.widths[idx]));
   const int top_blank = g_current_font.heights[idx * 2];
   const int data_height = g_current_font.heights[idx * 2 + 1];
   const int max_height = g_current_font.max_height;
-  const unsigned char* glyph = g_current_font.data_base + g_current_font.offsets[idx];
+  const std::uint16_t glyph_offset = g_current_font.offsets[idx];
+  if (glyph_offset >= g_current_font.length) return;
+  const unsigned char* glyph = g_current_font.base + glyph_offset;
   const int bytes_per_row = (width + 1) / 2;
 
   int dest_y = y;
@@ -235,6 +272,9 @@ void Draw_String(const char* text, unsigned x, unsigned y, unsigned fore, unsign
   unsigned cursor_x = x;
   for (const char* ptr = text; *ptr; ++ptr) {
     const unsigned char ch = static_cast<unsigned char>(*ptr);
+    if (ch >= g_current_font.glyph_count) {
+      continue;
+    }
     const int glyph_width = std::max(1, static_cast<int>(g_current_font.widths[ch]));
     if (*ptr == '\t') {
       const int tab_width = std::max(g_current_font.max_width, kFontWidth);
@@ -291,6 +331,9 @@ int Char_Pixel_Width(int ch) {
   if (is_tab) {
     return (std::max(g_current_font.max_width, kFontWidth) + FontXSpacing) * 4;
   }
+  if (static_cast<unsigned>(static_cast<unsigned char>(ch)) >= g_current_font.glyph_count) {
+    return 0;
+  }
   return std::max(1, static_cast<int>(g_current_font.widths[static_cast<unsigned char>(ch)])) +
          FontXSpacing;
 }
@@ -300,6 +343,9 @@ int String_Pixel_Width(char const* text) {
   int width = 0;
   for (const char* ptr = text; *ptr; ++ptr) {
     const unsigned char ch = static_cast<unsigned char>(*ptr);
+    if (ch >= g_current_font.glyph_count) {
+      continue;
+    }
     const int char_width = std::max(1, static_cast<int>(g_current_font.widths[ch]));
     if (*ptr == '\t') {
       const int tab_width = std::max(g_current_font.max_width, kFontWidth);
