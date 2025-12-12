@@ -202,6 +202,7 @@ const void* Font_For_Type(TextPrintType type) {
 bool Parse_Font(const void* font_ptr, ParsedFont* out) {
   if (!font_ptr || !out) return false;
 
+#pragma pack(push, 1)
   struct Header {
     std::uint16_t length;
     std::uint8_t compress;
@@ -212,18 +213,48 @@ bool Parse_Font(const void* font_ptr, ParsedFont* out) {
     std::uint16_t data_offset;
     std::uint16_t height_offset;
   };
+#pragma pack(pop)
 
   const auto* base = static_cast<const unsigned char*>(font_ptr);
   const auto* header = reinterpret_cast<const Header*>(base);
+  // The legacy font headers are byte-packed; assert the expected layout so we don't mis-parse
+  // offsets and end up with empty glyphs.
+  static_assert(sizeof(Header) == 14, "Font header must remain packed");
+
+  // Reject obviously bogus headers (e.g., when falling back to the built-in 8x8 table).
+  constexpr std::size_t kMaxFontBytes = 1 * 1024 * 1024;
+  const std::uint16_t offsets[] = {header->info_offset,   header->offset_offset, header->width_offset,
+                                   header->data_offset,   header->height_offset, header->length};
+  auto monotonic = [](const std::uint16_t* arr, std::size_t n) {
+    for (std::size_t i = 1; i < n; ++i) {
+      if (arr[i] <= arr[i - 1]) return false;
+    }
+    return true;
+  };
+  if (!monotonic(offsets, 5)) {
+    return false;
+  }
+  for (std::size_t i = 0; i < 5; ++i) {
+    if (offsets[i] == 0 || offsets[i] >= kMaxFontBytes) {
+      return false;
+    }
+  }
+
   const unsigned char* info_block = base + header->info_offset;
+  const int max_height = info_block[4];
+  const int max_width = info_block[5];
+  if (max_height <= 0 || max_height > 64 || max_width <= 0 || max_width > 64) {
+    return false;
+  }
+
   ParsedFont parsed{};
   parsed.base = base;
   parsed.data_base = base + header->data_offset;
   parsed.offsets = reinterpret_cast<const std::uint16_t*>(base + header->offset_offset);
   parsed.widths = base + header->width_offset;
   parsed.heights = base + header->height_offset;
-  parsed.max_height = info_block[4];
-  parsed.max_width = info_block[5];
+  parsed.max_height = max_height;
+  parsed.max_width = max_width;
 
   *out = parsed;
   return parsed.offsets && parsed.widths && parsed.heights && parsed.base;

@@ -159,10 +159,26 @@ int Mono_Printf(char const* fmt, ...) {
 }
 
 void* Load_Alloc_Data(FileClass& file) {
+  const bool was_open = file.Is_Open();
+  if (!was_open && !file.Open(READ)) {
+    return nullptr;
+  }
+
   const int size = file.Size();
-  if (size <= 0) return nullptr;
+  if (size <= 0) {
+    if (!was_open) file.Close();
+    return nullptr;
+  }
+
   char* buffer = new char[size + 1];
-  file.Read(buffer, size);
+  const long read = file.Read(buffer, size);
+  if (!was_open) file.Close();
+
+  if (read != size) {
+    delete[] buffer;
+    return nullptr;
+  }
+
   buffer[size] = '\0';
   return buffer;
 }
