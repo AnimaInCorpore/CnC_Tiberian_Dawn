@@ -39,6 +39,8 @@
 #define MIXFILE_H
 
 #include <cstdint>
+#include <unordered_map>
+#include <string>
 
 #include	<wwlib32.h>
 #include	"link.h"
@@ -58,6 +60,7 @@ class MixFileClass : public LinkClass
 		static bool Cache(char const *filename);
 		static bool Offset(char const *filename, void ** realptr = 0, MixFileClass ** mixfile = 0, long * offset = 0, long * size = 0);
 		static void const * Retrieve(char const *filename);
+		std::uint32_t Resolve_Crc_For_Name(char const* filename) const;
 
 #pragma pack(push, 1)
 		struct SubBlock {
@@ -85,8 +88,12 @@ class MixFileClass : public LinkClass
 		std::uint32_t DataSize;						// Size of raw data.
 		SubBlock * Buffer;				// Array of sub blocks (could be in EMS).
 		void *Data;							// Pointer to raw data.
+		std::unordered_map<std::string, std::uint32_t> NameToCrc;
 
 		static MixFileClass * First;
+
+		void Load_Xcc_Name_Table();
+		static std::string Upper_Name(const char* name);
 };
 
 #endif

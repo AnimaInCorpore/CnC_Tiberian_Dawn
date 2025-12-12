@@ -88,6 +88,9 @@ int CDFileClass::Open(int rights) {
 			const std::string primary = Join_Path("CD", g_cd_subfolder.c_str());
 			Add_Search_Drive(const_cast<char*>(primary.c_str()));
 		} else {
+			Add_Search_Drive(const_cast<char*>("CD/TIBERIAN_DAWN/CD1"));
+			Add_Search_Drive(const_cast<char*>("CD/TIBERIAN_DAWN/CD2"));
+			Add_Search_Drive(const_cast<char*>("CD/TIBERIAN_DAWN/CD3"));
 			Add_Search_Drive(const_cast<char*>("CD/GDI"));
 			Add_Search_Drive(const_cast<char*>("CD/NOD"));
 		}

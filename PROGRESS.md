@@ -113,6 +113,7 @@
 | `MENUS.CPP` | | To be ported. |
 | `MISSION.CPP` | | To be ported. |
 | `MIXFILE.CPP` | `src/mixfile.cpp` | Mix archive reader parses headers, caches payloads, and resolves entries by CRC for asset lookup. |
+| `MIXFILE.CPP` | `src/mixfile.cpp` | Added XCC name-table support so mixed archives (e.g., CD1/CCLOCAL.MIX) with embedded filenames resolve fonts correctly. |
 | `MONOC.CPP` | | To be ported. |
 | `MOUSE.CPP` | | To be ported. |
 | `MPLAYER.CPP` | | To be ported. |

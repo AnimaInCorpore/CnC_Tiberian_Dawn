@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <cctype>
 
 #include "legacy/ccfile.h"
 #include "legacy/function.h"
@@ -58,6 +59,8 @@ MixFileClass::MixFileClass(char const* filename)
   } else {
     Add_Tail(*First);
   }
+
+  Load_Xcc_Name_Table();
 }
 
 MixFileClass::~MixFileClass() {
@@ -150,7 +153,7 @@ bool MixFileClass::Offset(char const* filename, void** realptr, MixFileClass** m
                           long* size) {
   if (!filename) return false;
 
-  const std::uint32_t crc = static_cast<std::uint32_t>(Crc_For_Name(filename));
+  const std::uint32_t crc = Resolve_Crc_For_Name(filename);
 
   MixFileClass* ptr = First;
   while (ptr) {
@@ -185,4 +188,87 @@ void const* MixFileClass::Retrieve(char const* filename) {
   void* ptr = nullptr;
   MixFileClass::Offset(filename, &ptr);
   return ptr;
+}
+
+std::string MixFileClass::Upper_Name(const char* name) {
+  if (!name) return {};
+  std::string upper = name;
+  std::transform(upper.begin(), upper.end(), upper.begin(),
+                 [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+  return upper;
+}
+
+std::uint32_t MixFileClass::Resolve_Crc_For_Name(char const* filename) const {
+  if (!filename) return 0;
+  const std::string upper = Upper_Name(filename);
+  auto it = NameToCrc.find(upper);
+  if (it != NameToCrc.end()) {
+    return it->second;
+  }
+  return static_cast<std::uint32_t>(Crc_For_Name(filename));
+}
+
+void MixFileClass::Load_Xcc_Name_Table() {
+  if (!Filename || Count <= 0 || !Buffer) return;
+
+  const char kMarker[] = "XCC by Olaf van der Spek";
+
+  CCFileClass file(Filename);
+  if (!file.Open(READ)) {
+    return;
+  }
+
+  const long table_bytes =
+      static_cast<long>(sizeof(SubBlock)) * Count + static_cast<long>(sizeof(FileHeader));
+  for (int i = 0; i < Count; ++i) {
+    const SubBlock& block = Buffer[i];
+    if (block.Size > 4096) continue;
+
+    std::vector<unsigned char> blob(block.Size);
+    file.Seek(table_bytes + static_cast<long>(block.Offset), SEEK_SET);
+    const long read = file.Read(blob.data(), static_cast<long>(blob.size()));
+    if (read != static_cast<long>(blob.size())) continue;
+
+    const auto it = std::search(blob.begin(), blob.end(), std::begin(kMarker),
+                                std::end(kMarker) - 1);
+    if (it == blob.end()) continue;
+
+    std::vector<std::string> names;
+    std::size_t cursor =
+        static_cast<std::size_t>(std::distance(blob.begin(), it) + (sizeof(kMarker) - 1));
+    while (cursor < blob.size() && (blob[cursor] < 0x20 || blob[cursor] > 0x7E)) {
+      ++cursor;
+    }
+    while (cursor < blob.size()) {
+      std::size_t end = cursor;
+      while (end < blob.size() && blob[end] != 0) {
+        ++end;
+      }
+      if (end == cursor) {
+        ++cursor;
+        continue;
+      }
+      bool printable = true;
+      for (std::size_t pos = cursor; pos < end; ++pos) {
+        if (blob[pos] < 0x20 || blob[pos] > 0x7E) {
+          printable = false;
+          break;
+        }
+      }
+      if (printable) {
+        names.emplace_back(reinterpret_cast<const char*>(&blob[cursor]), end - cursor);
+      }
+      cursor = end + 1;
+    }
+
+    if (names.size() == static_cast<std::size_t>(Count)) {
+      NameToCrc.clear();
+      for (std::size_t idx = 0; idx < names.size(); ++idx) {
+        NameToCrc[Upper_Name(names[idx].c_str())] = Buffer[idx].CRC;
+      }
+      break;
+    }
+  }
+
+  file.Close();
 }
