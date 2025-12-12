@@ -18,10 +18,13 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <filesystem>
+#include <limits>
 #include <string>
 #include <thread>
 #include <vector>
+#include <unordered_set>
 
 bool Read_Private_Config_Struct(char* profile, NewConfigType* config);
 void Delete_Swap_Files(void);
@@ -51,9 +54,20 @@ namespace {
         if (std::filesystem::exists(direct)) {
             return direct;
         }
-        std::filesystem::path cd_path = std::filesystem::path("CD") / "CNC95" / filename;
-        if (std::filesystem::exists(cd_path)) {
-            return cd_path;
+        std::vector<std::filesystem::path> roots;
+        if (const char* subfolder = CDFileClass::Get_CD_Subfolder()) {
+            roots.emplace_back(std::filesystem::path("CD") / subfolder);
+        }
+        roots.emplace_back(std::filesystem::path("CD") / "CNC95");
+        static const char* kDiscs[] = {"CD1", "CD2", "CD3"};
+        for (auto disc : kDiscs) {
+            roots.emplace_back(std::filesystem::path("CD") / "TIBERIAN_DAWN" / disc);
+        }
+        for (auto const& root : roots) {
+            std::filesystem::path candidate = root / filename;
+            if (std::filesystem::exists(candidate)) {
+                return candidate;
+            }
         }
         return {};
     }
@@ -68,12 +82,177 @@ namespace {
         }
     }
 
-    const void* Load_Font_File(const char* filename) {
-        CCFileClass file(filename);
-        if (!file.Is_Available()) {
+    std::vector<std::filesystem::path> Discover_Mix_Files() {
+        static bool scanned = false;
+        static std::vector<std::filesystem::path> cached;
+        if (scanned) {
+            return cached;
+        }
+        scanned = true;
+
+        const char* cd_subfolder = CDFileClass::Get_CD_Subfolder();
+        std::vector<std::filesystem::path> roots;
+        roots.emplace_back(".");
+        roots.emplace_back(std::filesystem::path("CD") / "CNC95");
+        if (cd_subfolder && *cd_subfolder) {
+            roots.emplace_back(std::filesystem::path("CD") / cd_subfolder);
+        }
+        static const char* kTiberianFolders[] = {"CD1", "CD2", "CD3"};
+        for (auto folder : kTiberianFolders) {
+            roots.emplace_back(std::filesystem::path("CD") / "TIBERIAN_DAWN" / folder);
+        }
+
+        static const char* kAllowedMixes[] = {"GENERAL.MIX", "CONQUER.MIX", "CCLOCAL.MIX",
+                                              "LOCAL.MIX",   "UPDATE.MIX",  "UPDATEC.MIX",
+                                              "UPDATA.MIX",  "LANGUAGE.MIX"};
+        auto is_allowed = [&](const std::string& filename) {
+            for (auto allowed : kAllowedMixes) {
+                if (filename == allowed) return true;
+            }
+            return false;
+        };
+
+        std::unordered_set<std::string> seen;
+        auto add_if_mix = [&](const std::filesystem::path& path) {
+            if (!std::filesystem::is_regular_file(path)) return;
+            const std::string ext = path.extension().string();
+            if (ext == ".MIX" || ext == ".mix") {
+                std::string filename = path.filename().string();
+                std::transform(filename.begin(), filename.end(), filename.begin(),
+                               [](unsigned char ch) { return static_cast<char>(std::toupper(ch)); });
+                if (is_allowed(filename) && seen.insert(filename).second) {
+                    cached.push_back(path);
+                }
+            }
+        };
+
+        for (auto const& root : roots) {
+            if (!std::filesystem::exists(root) || !std::filesystem::is_directory(root)) continue;
+            for (auto const& entry : std::filesystem::directory_iterator(root)) {
+                add_if_mix(entry.path());
+            }
+        }
+
+        return cached;
+    }
+
+    struct FontCandidate {
+        std::vector<unsigned char> data;
+        int height = 0;
+        int width = 0;
+    };
+
+    bool Parse_Font_Header(const std::vector<unsigned char>& blob, FontCandidate& out) {
+        if (blob.size() < 32) return false;
+
+#pragma pack(push, 1)
+        struct Header {
+            std::uint16_t length;
+            std::uint8_t compress;
+            std::uint8_t data_blocks;
+            std::uint16_t info_offset;
+            std::uint16_t offset_offset;
+            std::uint16_t width_offset;
+            std::uint16_t data_offset;
+            std::uint16_t height_offset;
+        };
+#pragma pack(pop)
+
+        Header header{};
+        std::memcpy(&header, blob.data(), sizeof(header));
+
+        const std::uint16_t offsets[] = {header.info_offset, header.offset_offset, header.width_offset,
+                                         header.data_offset, header.height_offset, header.length};
+        auto monotonic = [](const std::uint16_t* arr, std::size_t n) {
+            for (std::size_t i = 1; i < n; ++i) {
+                if (arr[i] <= arr[i - 1]) return false;
+            }
+            return true;
+        };
+        if (!monotonic(offsets, 5)) return false;
+        for (std::size_t i = 0; i < 5; ++i) {
+            if (offsets[i] == 0 || offsets[i] >= blob.size()) {
+                return false;
+            }
+        }
+
+        const unsigned char* info_block = blob.data() + header.info_offset;
+        if (header.info_offset + 6 > blob.size()) return false;
+        const int max_height = info_block[4];
+        const int max_width = info_block[5];
+        if (max_height <= 0 || max_width <= 0) return false;
+
+        out.data = blob;
+        out.height = max_height;
+        out.width = max_width;
+        return true;
+    }
+
+    const void* Load_Font_By_Height(int expected_height, int expected_width) {
+        FontCandidate best{};
+        int best_height_diff = std::numeric_limits<int>::max();
+        int best_width_diff = std::numeric_limits<int>::max();
+
+        for (auto const& mix_path : Discover_Mix_Files()) {
+            std::ifstream file(mix_path, std::ios::binary);
+            if (!file) continue;
+
+            std::uint16_t count = 0;
+            std::uint32_t size = 0;
+            file.read(reinterpret_cast<char*>(&count), sizeof(count));
+            file.read(reinterpret_cast<char*>(&size), sizeof(size));
+            if (!file || size == 0) continue;
+
+            struct SubBlock {
+                std::uint32_t crc;
+                std::uint32_t offset;
+                std::uint32_t length;
+            };
+
+            std::vector<SubBlock> blocks(count);
+            file.read(reinterpret_cast<char*>(blocks.data()), static_cast<std::streamsize>(blocks.size() * sizeof(SubBlock)));
+            const std::streamoff base = static_cast<std::streamoff>(6 + blocks.size() * sizeof(SubBlock));
+
+            for (auto const& block : blocks) {
+                if (block.length == 0 || block.offset + block.length > size) continue;
+                std::vector<unsigned char> blob(static_cast<std::size_t>(block.length));
+                file.seekg(base + static_cast<std::streamoff>(block.offset), std::ios::beg);
+                file.read(reinterpret_cast<char*>(blob.data()), static_cast<std::streamsize>(blob.size()));
+                if (!file) break;
+
+                FontCandidate candidate{};
+                if (!Parse_Font_Header(blob, candidate)) continue;
+
+                const int height_diff = expected_height > 0 ? std::abs(candidate.height - expected_height) : 0;
+                const int width_diff = expected_width > 0 ? std::abs(candidate.width - expected_width) : 0;
+                if (height_diff < best_height_diff ||
+                    (height_diff == best_height_diff && width_diff < best_width_diff) ||
+                    (height_diff == best_height_diff && width_diff == best_width_diff &&
+                     candidate.data.size() > best.data.size())) {
+                    best = std::move(candidate);
+                    best_height_diff = height_diff;
+                    best_width_diff = width_diff;
+                }
+            }
+        }
+
+        if (best.data.empty()) {
             return nullptr;
         }
-        return Load_Alloc_Data(file);
+
+        auto* buffer = new unsigned char[best.data.size()];
+        std::memcpy(buffer, best.data.data(), best.data.size());
+        return buffer;
+    }
+
+    const void* Load_Font_File(const char* filename, int expected_height, int expected_width) {
+        CCFileClass file(filename);
+        if (file.Is_Available()) {
+            if (void* data = Load_Alloc_Data(file)) {
+                return data;
+            }
+        }
+        return Load_Font_By_Height(expected_height, expected_width);
     }
 
     void Initialize_Font_Resources() {
@@ -81,21 +260,23 @@ namespace {
         Register_Mix_If_Present("GENERAL.MIX");
         Register_Mix_If_Present("CONQUER.MIX");
         Register_Mix_If_Present("CCLOCAL.MIX");
+        Register_Mix_If_Present("LOCAL.MIX");
         Register_Mix_If_Present("UPDATE.MIX");
         Register_Mix_If_Present("UPDATEC.MIX");
+        Register_Mix_If_Present("UPDATA.MIX");
         Register_Mix_If_Present("LANGUAGE.MIX");
 
-        Green12FontPtr = Load_Font_File("12GREEN.FNT");
-        Green12GradFontPtr = Load_Font_File("12GRNGRD.FNT");
-        MapFontPtr = Load_Font_File("8FAT.FNT");
-        Font8Ptr = Load_Font_File(FONT8);
+        Green12FontPtr = Load_Font_File("12GREEN.FNT", 16, 16);
+        Green12GradFontPtr = Load_Font_File("12GRNGRD.FNT", 16, 16);
+        MapFontPtr = Load_Font_File("8FAT.FNT", 16, 16);
+        Font8Ptr = Load_Font_File(FONT8, 10, 10);
         FontPtr = Font8Ptr ? Font8Ptr : nullptr;
-        Font3Ptr = Load_Font_File(FONT3);
-        Font6Ptr = Load_Font_File(FONT6);
-        FontLEDPtr = Load_Font_File("LED.FNT");
-        VCRFontPtr = Load_Font_File("VCR.FNT");
-        GradFont6Ptr = Load_Font_File("GRAD6FNT.FNT");
-        ScoreFontPtr = Green12GradFontPtr ? Green12GradFontPtr : Load_Font_File("12GRNGRD.FNT");
+        Font3Ptr = Load_Font_File(FONT3, 4, 5);
+        Font6Ptr = Load_Font_File(FONT6, 6, 6);
+        FontLEDPtr = Load_Font_File("LED.FNT", 11, 10);
+        VCRFontPtr = Load_Font_File("VCR.FNT", 16, 16);
+        GradFont6Ptr = Load_Font_File("GRAD6FNT.FNT", 11, 10);
+        ScoreFontPtr = Green12GradFontPtr ? Green12GradFontPtr : Load_Font_File("12GRNGRD.FNT", 16, 16);
     }
 
     void Clear_Pages() {

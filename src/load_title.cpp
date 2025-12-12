@@ -30,10 +30,12 @@
 #include <cstdio>
 #include <cstdint>
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <limits>
 #include <memory>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace {
@@ -462,6 +464,62 @@ bool Decode_Pcx(const std::string& path, DecodedPcx& output) {
 	return Decode_Pcx_Buffer(data.data(), data.size(), output);
 }
 
+std::vector<std::string> Discover_Mix_Files(const char* cd_subfolder) {
+	static bool scanned = false;
+	static std::vector<std::string> cached;
+	if (scanned) {
+		return cached;
+	}
+	scanned = true;
+
+	std::vector<std::filesystem::path> roots;
+	roots.emplace_back(".");
+	roots.emplace_back(std::filesystem::path("CD") / "CNC95");
+	if (cd_subfolder && *cd_subfolder) {
+		roots.emplace_back(std::filesystem::path("CD") / cd_subfolder);
+	}
+	static const char* kTiberianFolders[] = {"CD1", "CD2", "CD3"};
+	for (auto folder : kTiberianFolders) {
+		roots.emplace_back(std::filesystem::path("CD") / "TIBERIAN_DAWN" / folder);
+	}
+
+	static const char* kAllowedMixes[] = {"GENERAL.MIX", "CONQUER.MIX", "CCLOCAL.MIX", "LOCAL.MIX",
+	                                      "UPDATE.MIX",  "UPDATEC.MIX", "UPDATA.MIX",  "LANGUAGE.MIX"};
+	auto is_allowed = [&](const std::string& filename) {
+		for (auto allowed : kAllowedMixes) {
+			if (filename == allowed) return true;
+		}
+		return false;
+	};
+
+	std::unordered_set<std::string> seen_names;
+	auto add_if_mix = [&](const std::filesystem::path& path) {
+		if (!std::filesystem::is_regular_file(path)) return;
+		const std::string ext = path.extension().string();
+		if (ext != ".MIX" && ext != ".mix") return;
+		std::string filename = path.filename().string();
+		std::transform(filename.begin(), filename.end(), filename.begin(),
+		               [](unsigned char ch) { return static_cast<char>(std::toupper(ch)); });
+		if (!is_allowed(filename)) return;
+		if (!seen_names.insert(filename).second) {
+			return;
+		}
+		const std::string normalized = path.string();
+		if (std::find(cached.begin(), cached.end(), normalized) == cached.end()) {
+			cached.push_back(normalized);
+		}
+	};
+
+	for (auto const& root : roots) {
+		if (!std::filesystem::exists(root) || !std::filesystem::is_directory(root)) continue;
+		for (auto const& entry : std::filesystem::directory_iterator(root)) {
+			add_if_mix(entry.path());
+		}
+	}
+
+	return cached;
+}
+
 }  // namespace
 
 void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned char* palette) {
@@ -497,6 +555,13 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 				add_path_with_parent(upper);
 			};
 
+			auto add_tiberian_paths = [&](const std::string& base) {
+				static const char* kDiscs[] = {"CD1", "CD2", "CD3"};
+				for (auto disc : kDiscs) {
+					add_variants(std::string("CD/TIBERIAN_DAWN/") + disc + "/" + base);
+				}
+			};
+
 			add_variants(filename);
 			if (cd_subfolder && *cd_subfolder) {
 				add_variants(std::string("CD/") + cd_subfolder + "/" + filename);
@@ -505,6 +570,7 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 			add_variants(std::string("CD/") + filename);
 			add_variants(std::string("CD/GDI/") + filename);
 			add_variants(std::string("CD/NOD/") + filename);
+			add_tiberian_paths(filename);
 
 			for (auto const& path : paths) {
 				std::ifstream test(path, std::ios::binary);
@@ -532,7 +598,18 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 		register_mix("GENERAL.MIX");
 		register_mix("CONQUER.MIX");
 		register_mix("CCLOCAL.MIX");
+		register_mix("LOCAL.MIX");
 		register_mix("UPDATE.MIX");
+		register_mix("UPDATEC.MIX");
+		register_mix("UPDATA.MIX");
+		for (auto const& path : Discover_Mix_Files(cd_subfolder)) {
+			if (std::find(registered_paths.begin(), registered_paths.end(), path) == registered_paths.end()) {
+				std::ifstream test(path, std::ios::binary);
+				if (test) {
+					registered_paths.push_back(path);
+				}
+			}
+		}
 		mixes_registered = true;
 	}
 
