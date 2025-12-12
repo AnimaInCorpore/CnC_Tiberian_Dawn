@@ -78,6 +78,8 @@ namespace {
 
     void Initialize_Font_Resources() {
         // Ensure the mix archives that contain fonts are registered.
+        Register_Mix_If_Present("GENERAL.MIX");
+        Register_Mix_If_Present("CONQUER.MIX");
         Register_Mix_If_Present("CCLOCAL.MIX");
         Register_Mix_If_Present("UPDATE.MIX");
         Register_Mix_If_Present("UPDATEC.MIX");

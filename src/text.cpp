@@ -334,14 +334,13 @@ void Draw_String(const char* text, unsigned x, unsigned y, unsigned fore, unsign
   unsigned cursor_x = x;
   for (const char* ptr = text; *ptr; ++ptr) {
     const unsigned char ch = static_cast<unsigned char>(*ptr);
-    const int glyph_width =
-        (*ptr == '\t')
-            ? ((g_current_font_valid ? std::max(g_current_font.max_width, kFontWidth) : kFontWidth) *
-               4)
-            : (g_current_font_valid ? std::max(1, static_cast<int>(g_current_font.widths[ch]))
-                                    : kFontWidth);
+    const int glyph_width = g_current_font_valid
+                                ? std::max(1, static_cast<int>(g_current_font.widths[ch]))
+                                : kFontWidth;
     if (*ptr == '\t') {
-      cursor_x += static_cast<unsigned>(glyph_width);
+      const int tab_width =
+          g_current_font_valid ? std::max(g_current_font.max_width, kFontWidth) : kFontWidth;
+      cursor_x += static_cast<unsigned>((tab_width + FontXSpacing) * 4);
       continue;
     }
     if (shadow) {
@@ -349,7 +348,7 @@ void Draw_String(const char* text, unsigned x, unsigned y, unsigned fore, unsign
                  fill_background);
     }
     Draw_Glyph(*ptr, static_cast<int>(cursor_x), static_cast<int>(y), fore, back, fill_background);
-    cursor_x += static_cast<unsigned>(glyph_width);
+    cursor_x += static_cast<unsigned>(glyph_width + FontXSpacing);
   }
 }
 
@@ -389,10 +388,18 @@ const char* Lookup_Text(int id) {
 }  // namespace
 
 int Char_Pixel_Width(int ch) {
+  const bool is_tab = (ch == '\t');
   if (g_current_font_valid) {
-    return std::max(1, static_cast<int>(g_current_font.widths[static_cast<unsigned char>(ch)]));
+    if (is_tab) {
+      return (std::max(g_current_font.max_width, kFontWidth) + FontXSpacing) * 4;
+    }
+    return std::max(1, static_cast<int>(g_current_font.widths[static_cast<unsigned char>(ch)])) +
+           FontXSpacing;
   }
-  return kFontWidth;
+  if (is_tab) {
+    return (kFontWidth + FontXSpacing) * 4;
+  }
+  return kFontWidth + FontXSpacing;
 }
 
 int String_Pixel_Width(char const* text) {
@@ -403,7 +410,13 @@ int String_Pixel_Width(char const* text) {
     const int char_width =
         g_current_font_valid ? std::max(1, static_cast<int>(g_current_font.widths[ch]))
                              : kFontWidth;
-    width += (*ptr == '\t') ? (char_width * 4) : char_width;
+    if (*ptr == '\t') {
+      const int tab_width =
+          g_current_font_valid ? std::max(g_current_font.max_width, kFontWidth) : kFontWidth;
+      width += (tab_width + FontXSpacing) * 4;
+    } else {
+      width += char_width + FontXSpacing;
+    }
   }
   return width;
 }

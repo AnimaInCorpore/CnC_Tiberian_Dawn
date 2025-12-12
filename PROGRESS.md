@@ -22,6 +22,7 @@
 | `SLIDER.CPP` | `src/slider.cpp` | Slider gadget now owns its plus/minus peers, recalculates thumb geometry, and handles clicks outside the thumb area. |
 | `SCROLL.CPP` | `src/scroll.cpp` | Map edge scrolling now clamps the virtual cursor, honors inertia, and keeps the mouse override logic intact. |
 | `TEXTBTN.CPP` | `src/textbtn.cpp` | Text buttons resize around the assigned label, draw Windows-style boxes, and respect the green gradient flags. |
+| `TEXT.CPP` | `src/text.cpp` | Font loader now registers CD MIX archives before loading fonts and applies the legacy X spacing when measuring/drawing strings. |
 | `AADATA.CPP` | `src/aadata.cpp` | Ported to src/, replaced NULL with nullptr, `stricmp` with `strcasecmp`, `sprintf` and `_makepath` with `std::string` manipulation, and updated include path for `function.h`. |
 | `ADATA.CPP` | `src/adata.cpp` | Ported to src/, updated include to the legacy shim, and replaced `_makepath` with `std::string` construction for SHP lookup. |
 | `ABSTRACT.CPP` | `src/abstract.cpp` | Abstract base logic now reports the correct RTTI/ownable mask, preserves the building distance fudge, and copies INI names with `std::strncpy`. |
