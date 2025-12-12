@@ -44,7 +44,11 @@ constexpr int kPaletteSize = 256 * 3;
 constexpr std::size_t kMaxScanSize = 2 * 1024 * 1024;
 
 unsigned char Expand_Pcx_Channel(unsigned char value) {
-	return static_cast<unsigned char>(value << 2);  // 6-bit to 8-bit (0..252) like the original
+	// Normalize palette bytes to 6-bit VGA scale.
+	if (value > 63) {
+		value = static_cast<unsigned char>(value >> 2);  // downscale 0..255 -> 0..63 without rounding up.
+	}
+	return value;
 }
 
 #pragma pack(push, 1)
@@ -299,9 +303,18 @@ bool Decode_Cps(const std::vector<unsigned char>& data, DecodedPcx& output) {
 
 	if (pixels.size() != header.uncompressed_size) return false;
 
-	output.has_palette = header.palette_size >= kPaletteSize;
+	const unsigned char* palette_data = data.data() + palette_offset;
+	std::size_t palette_bytes = header.palette_size;
+	if (palette_bytes >= kPaletteSize + 1 && palette_data[0] == 0x0C) {
+		// Some CPS assets store the palette with a PCX-style marker prefix.
+		++palette_data;
+		--palette_bytes;
+	}
+	output.has_palette = palette_bytes >= kPaletteSize;
 	if (output.has_palette) {
-		std::memcpy(output.palette, data.data() + palette_offset, kPaletteSize);
+		for (int index = 0; index < kPaletteSize; ++index) {
+			output.palette[index] = Expand_Pcx_Channel(palette_data[index]);
+		}
 	}
 
 	// Infer dimensions (C&C CPS screens are usually 320x200; prefer 640-wide only when it yields
@@ -405,12 +418,10 @@ bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, Decoded
 	const std::size_t payload_size = data_size - payload_offset;
 	const unsigned char* payload = data + payload_offset;
 
-	const std::size_t palette_block_size = 1 + kPaletteSize;
-	const std::size_t palette_offset =
-	    payload_size > palette_block_size ? payload_size - palette_block_size : payload_size;
-	const bool has_palette = payload_size >= palette_block_size && payload[palette_offset] == 0x0C;
-
-	const std::size_t pixel_data_size = has_palette ? palette_offset : payload_size;
+	if (payload_size < kPaletteSize) return false;
+	// Legacy loader always pulled the last 768 bytes as the palette (marker optional).
+	const std::size_t palette_offset = payload_size - kPaletteSize;
+	const std::size_t pixel_data_size = palette_offset;
 	output.width = width;
 	output.height = height;
 	output.pixels.assign(static_cast<std::size_t>(width) * height, 0);
@@ -431,14 +442,10 @@ bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, Decoded
 		}
 	}
 
-	if (has_palette) {
-		const unsigned char* palette_data = payload + palette_offset + 1;
-		for (int index = 0; index < kPaletteSize; ++index) {
-			output.palette[index] = Expand_Pcx_Channel(palette_data[index]);
-		}
-		output.has_palette = true;
-	} else {
-		output.has_palette = false;
+	output.has_palette = true;
+	const unsigned char* palette_data = payload + palette_offset;
+	for (int index = 0; index < kPaletteSize; ++index) {
+		output.palette[index] = Expand_Pcx_Channel(palette_data[index]);
 	}
 
 	return true;

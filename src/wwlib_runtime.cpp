@@ -53,8 +53,11 @@ Uint32 Palette_Index_To_ARGB(const unsigned char* palette, int index) {
     if (!palette) {
       return static_cast<Uint8>(index);
     }
-    const int value = static_cast<int>(palette[offset + channel]) * 4;
-    return static_cast<Uint8>(std::clamp(value, 0, 255));
+    const int value = static_cast<int>(palette[offset + channel]);
+    // Palette entries are stored as VGA 6-bit values; stretch to 8-bit by
+    // duplicating high bits so full-intensity white reaches 255 instead of 252.
+    const int expanded = (value << 2) | (value >> 4);
+    return static_cast<Uint8>(std::clamp(expanded, 0, 255));
   };
   const Uint8 r = fetch(0);
   const Uint8 g = fetch(1);
