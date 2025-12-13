@@ -32,7 +32,7 @@
 | `TEXT.CPP` (spacing) | `src/text.cpp` | Font X/Y spacing now mirrors the legacy Simple_Text_Print rules per font/shadow flag, fixing misaligned SDL text runs. |
 | `TEXTBTN.CPP` | `src/textbtn.cpp` | Button labels now center horizontally/vertically using the active font height so menu text aligns cleanly inside the boxes. |
 | `ALLOC.CPP` | `src/alloc.cpp` | Legacy allocator collapsed onto the modern malloc-based wrapper (moved from the wwalloc port) while keeping the legacy entry points. |
-| `ANIM.CPP` | | To be ported. |
+| `ANIM.CPP` | `src/anim.cpp` | Animation system moved to src/; keeps spawn/attach logic, scorch/crater side effects, and translucent draw path intact with nullptr-safe ownership handling. |
 | `AUDIO.CPP` | | To be ported. |
 | `BASE.CPP` | | To be ported. |
 | `BBDATA.CPP` | `src/bbdata.cpp` | BulletTypeClass definitions and tables ported; shape loading now uses std::string paths and the modern file helpers. |

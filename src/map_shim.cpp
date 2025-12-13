@@ -26,7 +26,14 @@ MapStubClass::MapStubClass()
       PlayerNamesEnabled(false),
       FadingShade(nullptr),
       UnitShadow(nullptr),
-      FadingLight(nullptr) {}
+      FadingLight(nullptr),
+      WhiteTranslucentTable(nullptr),
+      TranslucentTable(nullptr) {
+  for (auto& remap_row : RemapTables) {
+    remap_row[0] = nullptr;
+    remap_row[1] = nullptr;
+  }
+}
 
 void MapStubClass::One_Time() {
   cells_.clear();
@@ -55,6 +62,12 @@ void MapStubClass::One_Time() {
   FadingShade = nullptr;
   UnitShadow = nullptr;
   FadingLight = nullptr;
+  WhiteTranslucentTable = nullptr;
+  TranslucentTable = nullptr;
+  for (auto& remap_row : RemapTables) {
+    remap_row[0] = nullptr;
+    remap_row[1] = nullptr;
+  }
 
   for (auto& column : Column) {
     column.IsToRedraw = false;
@@ -183,6 +196,10 @@ void MapStubClass::Help_Text(int, int, int, int, bool, int) {}
 void MapStubClass::Zoom_Mode(CELL cell) {
   IsZoomed = true;
   TacticalCoord = Cell_Coord(cell);
+}
+
+COORDINATE MapStubClass::Closest_Free_Spot(COORDINATE coord, bool) const {
+  return coord;
 }
 
 MapCellStub const& MapStubClass::Lookup(CELL cell) const {

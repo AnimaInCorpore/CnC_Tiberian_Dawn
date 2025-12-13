@@ -459,32 +459,6 @@ int CellClass::Clear_Icon() const { return 0; }
 
 FuseClass::FuseClass() : Timer(0), Arming(0), HeadTo(0), Proximity(0) {}
 
-void* AnimClass::operator new(std::size_t size) { return ::operator new(size); }
-void AnimClass::operator delete(void* ptr) { ::operator delete(ptr); }
-AnimClass::AnimClass(AnimType, COORDINATE coord, unsigned char, unsigned char loops, bool)
-    : Object(nullptr), Owner(HOUSE_NONE), Loops(loops), IsToDelete(0), IsBrandNew(0), IsAlternate(0), IsInvisible(0),
-      Class(nullptr), Delay(0), Accum(0) {
-  Coord = coord;
-}
-AnimClass::~AnimClass() = default;
-void AnimClass::Attach_To(ObjectClass* obj) { Object = obj; }
-bool AnimClass::Mark(MarkType) { return true; }
-bool AnimClass::Render(bool) { return true; }
-COORDINATE AnimClass::Center_Coord() const { return Coord; }
-COORDINATE AnimClass::Sort_Y() const { return Coord; }
-LayerType AnimClass::In_Which_Layer() const { return LAYER_GROUND; }
-short const* AnimClass::Occupy_List() const { return nullptr; }
-short const* AnimClass::Overlap_List() const { return nullptr; }
-void AnimClass::Draw_It(int, int, WindowNumberType) {}
-void AnimClass::AI() {}
-TARGET AnimClass::As_Target() const { return 0; }
-void AnimClass::Detach(TARGET, bool) {}
-bool AnimClass::Load(FileClass&) { return true; }
-bool AnimClass::Save(FileClass&) { return true; }
-void AnimClass::Code_Pointers() {}
-void AnimClass::Decode_Pointers() {}
-int AnimClass::Validate() const { return 0; }
-
 // --- Misc ---------------------------------------------------------------------
 
 TerrainClass::TerrainClass(TerrainType, CELL) : Class(nullptr) {}

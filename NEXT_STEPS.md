@@ -29,7 +29,7 @@ Add a sanity check/log when required MIX archives (e.g. `GENERAL.MIX`/`CONQUER.M
 Add a debug assert around font header size in the SDL text path so regressions in packed parsing surface clearly now that we refuse to draw without valid font data.
 
 ## Gameplay systems and AI
-Status: Next steps. Scope: port unit/structure/AI systems (`UNIT/TECHNO/BUILDING/INFANTRY/VEHICLE`, pathfinding `FINDPATH`/`VECTOR`, triggers/scripts, mission flow) ensuring deterministic timers/random seeds. Excludes platform or asset I/O changes. Cargo attach/detach/pointer coding now live in `src/cargo.cpp`; next tie it back into Foot/Unit load/unload once those files move. `src/bullet.cpp` now carries the projectile logic with the data tables in `src/bdata.cpp`; follow up by moving the animations it references (`ANIM.CPP`) so the type definitions and explosion visuals line up.
+Status: Next steps. Scope: port unit/structure/AI systems (`UNIT/TECHNO/BUILDING/INFANTRY/VEHICLE`, pathfinding `FINDPATH`/`VECTOR`, triggers/scripts, mission flow) ensuring deterministic timers/random seeds. Excludes platform or asset I/O changes. Cargo attach/detach/pointer coding now live in `src/cargo.cpp`; next tie it back into Foot/Unit load/unload once those files move. `src/bullet.cpp` now carries the projectile logic with the data tables in `src/bdata.cpp`; with `src/anim.cpp` ported, hook Foot/Unit/Building callers back into the real animation spawn/attach paths.
 
 ## Assembly replacements
 Status: Next steps. Scope: re-implement `.ASM` helpers (MMX routines, page fault glue, IPX real-mode bridges, text blits) in portable C/C++ with comments; remove inline assembly/pragmas. Excludes higher-level logic.

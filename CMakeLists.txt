@@ -44,6 +44,7 @@ set(TD_SOURCES
   src/abstract.cpp
   src/adata.cpp
   src/aircraft.cpp
+  src/anim.cpp
   src/alloc.cpp
   src/audio_stub.cpp
   src/base_stub.cpp
@@ -108,6 +109,7 @@ set(TD_SOURCES
   src/radio.cpp
   src/rand.cpp
   src/rawfile.cpp
+  src/saveload_utils.cpp
   src/runtime_sdl.cpp
   src/scroll.cpp
   src/source_helpers.cpp

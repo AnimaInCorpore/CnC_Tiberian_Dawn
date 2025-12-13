@@ -55,6 +55,7 @@ struct MapCellStub {
 	ObjectClass* Overlapper[4] = {nullptr, nullptr, nullptr, nullptr};
 
 	COORDINATE Closest_Free_Spot(COORDINATE coord, bool = false) const { return coord; }
+	bool Cell_Terrain() const { return false; }
 	LandType Land_Type() const { return Land; }
 	void Incoming(int, bool) {}
 	TechnoClass* Cell_Techno() const { return nullptr; }
@@ -114,6 +115,7 @@ class MapStubClass
 		bool Repair_Mode_Control(int value);
 		bool Sell_Mode_Control(int value);
 		bool Radar_Activate(bool activate);
+		COORDINATE Closest_Free_Spot(COORDINATE coord, bool forceclear = false) const;
 		void Render(bool complete = false);
 		void Flag_Cell(CELL cell);
 		void Set_Cursor_Pos(int x, int y);
@@ -170,6 +172,9 @@ class MapStubClass
 		unsigned char const* FadingShade;
 		unsigned char const* UnitShadow;
 		unsigned char const* FadingLight;
+		unsigned char const* WhiteTranslucentTable;
+		unsigned char const* TranslucentTable;
+		unsigned char const* RemapTables[HOUSE_COUNT][2];
 
 	private:
 		MapCellStub const& Lookup(CELL cell) const;
