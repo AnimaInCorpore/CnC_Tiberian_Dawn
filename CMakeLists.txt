@@ -48,6 +48,7 @@ set(TD_SOURCES
   src/audio_stub.cpp
   src/base_stub.cpp
   src/bbdata.cpp
+  src/bdata.cpp
   src/building.cpp
   src/bullet.cpp
   src/cargo.cpp

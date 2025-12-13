@@ -47,8 +47,6 @@
 bool IsTheaterShape = false;
 IPXManagerClass Ipx(0, 0, 0, 0, 0, 0);
 
-void const* WarFactoryOverlay = nullptr;
-
 static constexpr unsigned char kIdentityRemap[256] = {
     0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,  15,
     16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,  31,
@@ -427,38 +425,6 @@ void TeamTypeClass::operator delete(void* ptr) {
   static_cast<TeamTypeClass*>(ptr)->IsActive = false;
   TeamTypes.Free(static_cast<TeamTypeClass*>(ptr));
 }
-
-BuildingTypeClass const* const BuildingTypeClass::Pointers[STRUCT_COUNT] = {nullptr};
-BuildingTypeClass const& BuildingTypeClass::As_Reference(StructType type) {
-  alignas(BuildingTypeClass) static unsigned char storage[sizeof(BuildingTypeClass)] = {};
-  static BuildingTypeClass const& dummy = *reinterpret_cast<BuildingTypeClass const*>(storage);
-  if (type < STRUCT_COUNT && Pointers[type]) return *Pointers[type];
-  return dummy;
-}
-StructType BuildingTypeClass::From_Name(char const*) { return STRUCT_NONE; }
-void BuildingTypeClass::Init(TheaterType) {}
-void BuildingTypeClass::One_Time() {}
-void BuildingTypeClass::Prep_For_Add() {}
-int BuildingTypeClass::Width() const { return 0; }
-int BuildingTypeClass::Height() const { return 0; }
-int BuildingTypeClass::Cost_Of() const { return 0; }
-int BuildingTypeClass::Full_Name() const { return Name; }
-int BuildingTypeClass::Max_Pips() const { return 0; }
-void BuildingTypeClass::Dimensions(int& w, int& h) const {
-  w = 0;
-  h = 0;
-}
-int BuildingTypeClass::Legal_Placement(CELL) const { return 0; }
-bool BuildingTypeClass::Create_And_Place(CELL, HousesType) const { return false; }
-ObjectClass* BuildingTypeClass::Create_One_Of(HouseClass*) const { return nullptr; }
-short const* BuildingTypeClass::Occupy_List(bool) const { return nullptr; }
-short const* BuildingTypeClass::Overlap_List() const { return nullptr; }
-BuildingClass* BuildingTypeClass::Who_Can_Build_Me(bool, bool, HousesType) const { return nullptr; }
-int BuildingTypeClass::Raw_Cost() const { return 0; }
-int BuildingTypeClass::Repair_Cost() const { return 0; }
-int BuildingTypeClass::Repair_Step() const { return 0; }
-bool BuildingTypeClass::Bib_And_Offset(SmudgeType&, CELL&) const { return false; }
-void BuildingTypeClass::Display(int, int, WindowNumberType, HousesType) const {}
 
 InfantryTypeClass const* const InfantryTypeClass::Pointers[INFANTRY_COUNT] = {nullptr};
 InfantryType InfantryTypeClass::From_Name(char const*) { return INFANTRY_NONE; }

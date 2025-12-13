@@ -35,7 +35,7 @@
 | `AUDIO.CPP` | | To be ported. |
 | `BASE.CPP` | | To be ported. |
 | `BBDATA.CPP` | `src/bbdata.cpp` | BulletTypeClass definitions and tables ported; shape loading now uses std::string paths and the modern file helpers. |
-| `BDATA.CPP` | | To be ported. |
+| `BDATA.CPP` | `src/bdata.cpp` | Building type tables and helpers ported; loads cameos/buildup shapes via portable paths, initializes real Pointers/placement/repair logic, and sets the WEAP2 overlay hook. |
 | `BUILDING.CPP` | | To be ported. |
 | `BULLET.CPP` | `src/bullet.cpp` | Projectile flight/fuse logic ported; keeps homing/arc/drop behaviors, shadow rendering, and explosion damage paths intact. |
 | `CARGO.CPP` | `src/cargo.cpp` | Cargo hold bookkeeping ported; attach/detach preserve the chained LIFO order and carry over save/load pointer coding. |
