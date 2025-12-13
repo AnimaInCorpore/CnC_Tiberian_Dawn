@@ -63,6 +63,7 @@ set(TD_SOURCES
   src/display.cpp
   src/edit.cpp
   src/error_stub.cpp
+  src/expand.cpp
   src/factory.cpp
   src/fly_stub.cpp
   src/gadget_control_stub.cpp

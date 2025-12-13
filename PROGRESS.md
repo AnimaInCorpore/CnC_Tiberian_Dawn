@@ -68,7 +68,7 @@
 | `DRIVE.CPP` | | To be ported. |
 | `ENDING.CPP` | | To be ported. |
 | `EVENT.CPP` | | To be ported. |
-| `EXPAND.CPP` | | To be ported. |
+| `EXPAND.CPP` | `src/expand.cpp` | Expansion detection now mirrors the original `EXPAND.DAT` probe so NEWMENU layouts gate off the real data file. |
 | `FACING.CPP` | | To be ported. |
 | `FACTORY.CPP` | | To be ported. |
 | `FIELD.CPP` | | To be ported. |
@@ -106,7 +106,7 @@
 | `LOAD_TITLE.CPP` | `src/load_title.cpp` | Title screen loader now resolves art through the CCFile/Mix stack, decodes PCX or CPS deterministically, patches UI palette colors, and scales to the active viewport. |
 | `LOGIC.CPP` | | To be ported. |
 | `MAIN.CPP` | `src/main.cpp` | SDL bootstrap now requests a high-DPI window and nearest-neighbor scaling so UI/text pixels stay crisp. |
-| `WWLIB_RUNTIME.CPP` (present blit) | `src/wwlib_runtime.cpp` | Present texture now pins SDL texture scale mode to `nearest` to avoid blurry text when SDL scales the 8-bit buffer. |
+| `WWLIB_RUNTIME.CPP` (present blit) | `src/wwlib_runtime.cpp` | Present texture now pins SDL texture scale mode to `nearest` to avoid blurry text when SDL scales the 8-bit buffer, and ModeX_Blit forwards legacy menu blits to the SDL presenter. |
 | `GSCREEN.CPP` | `src/gscreen.cpp` | Title screen blit texture also forces `nearest` scale mode to keep fonts/pixels sharp. |
 | `MAP.CPP` | | To be ported. |
 | `MAPEDDLG.CPP` | | To be ported. |
@@ -115,7 +115,7 @@
 | `MAPEDSEL.CPP` | | To be ported. |
 | `MAPEDTM.CPP` | | To be ported. |
 | `MAPSEL.CPP` | | To be ported. |
-| `MENUS.CPP` | | To be ported. |
+| `MENUS.CPP` | `src/menus.cpp` | Restored the original main menu: renders the title/dialog chrome, builds the legacy button list (including expansions/bonus), pumps SDL events into the keyboard queue, honors timeouts, and returns the canonical selection indices. |
 | `MISSION.CPP` | | To be ported. |
 | `MIXFILE.CPP` | `src/mixfile.cpp` | Mix archive reader parses headers, caches payloads, and resolves entries by CRC for asset lookup. |
 | `MIXFILE.CPP` | `src/mixfile.cpp` | Added XCC name-table support so mixed archives (e.g., CD1/CCLOCAL.MIX) with embedded filenames resolve fonts correctly. |
@@ -182,6 +182,7 @@
 | `TARGET.H` | `src/include/legacy/target.h` | Lowercase mirror for the targeting helper declarations. |
 | `TYPE.H` | `src/include/legacy/type.h` | Lowercase copy of the shared enums/typedefs used throughout the game. |
 | `WWFILE.H` | `src/include/legacy/wwfile.h` | FileClass interface refreshed with `std::size_t` and a namespace alias. |
+| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Navigation key constants now mirror SDL keycodes for menu/input handling. |
 | `WATCOM.H` | `src/include/legacy/watcom.h` | Watcom pragma wrappers swapped for GCC diagnostic helpers. |
 | `PLATFORM (new)` | `src/include/legacy/platform.h` | Win16/Watcom typedef shim that turns `near`/`far` keywords into no-ops. |
 | `WINDOWS_COMPAT (new)` | `src/include/legacy/windows_compat.h` | Win32 handle/struct typedef shim so the port never includes platform headers directly. |

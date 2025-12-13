@@ -443,22 +443,26 @@ bool Select_Game(bool fade) {
   }
 
   switch (selection) {
-    case 0:
+    case 0:  // New missions (expansion)
+    case 1:  // Start new game
       GameToPlay = GAME_NORMAL;
       break;
-    case 1:
-      GameToPlay = GAME_NORMAL;  // Load/save not wired yet.
+    case 2:  // Bonus missions
+      GameToPlay = GAME_NORMAL;
       break;
-    case 2:
-      GameToPlay = GAME_IPX;
-      break;
-    case 3:
+    case 3:  // Internet
       GameToPlay = GAME_INTERNET;
       break;
-    case 4:
+    case 4:  // Load mission (not wired yet)
       GameToPlay = GAME_NORMAL;
       break;
-    case 5:
+    case 5:  // Multiplayer
+      GameToPlay = GAME_IPX;
+      break;
+    case 6:  // Intro
+      GameToPlay = GAME_NORMAL;
+      break;
+    case 7:  // Exit
     default:
       ReadyToQuit = true;
       return false;

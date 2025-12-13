@@ -1,6 +1,7 @@
 #include "legacy/wwlib32.h"
 #include "legacy/defines.h"
 #include "legacy/externs.h"
+#include "legacy/gscreen.h"
 #include "runtime_sdl.h"
 
 #include <SDL.h>
@@ -510,6 +511,11 @@ void Set_Font_Palette_Range(void const* palette, int first, int count) {
   if (Palette) {
     std::memcpy(Palette + byte_offset, source + byte_offset, byte_count);
   }
+}
+
+extern "C" void ModeX_Blit(GraphicBufferClass* source) {
+  (void)source;
+  GScreenClass::Blit_Display();
 }
 
 void const* Set_Current_Font(void const* font) {

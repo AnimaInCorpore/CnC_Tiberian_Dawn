@@ -7,6 +7,10 @@
 #include <memory>
 #include <vector>
 
+#if defined(TD_PORT_USE_SDL2)
+#include <SDL.h>
+#endif
+
 #include "ftimer.h"
 #include "windows_compat.h"
 #include "wintimer_stub.h"
@@ -56,6 +60,15 @@ constexpr int KN_LCTRL = 0x001D;
 constexpr int KN_RCTRL = 0x011D;
 constexpr int KN_LALT = 0x0038;
 constexpr int KN_RALT = 0x0138;
+#if defined(TD_PORT_USE_SDL2)
+constexpr int KN_UP = SDLK_UP;
+constexpr int KN_DOWN = SDLK_DOWN;
+constexpr int KN_RETURN = SDLK_RETURN;
+#else
+constexpr int KN_UP = 0x4800;
+constexpr int KN_DOWN = 0x5000;
+constexpr int KN_RETURN = 0x000D;
+#endif
 
 // Legacy graphic buffer flags used by the Westwood runtime.
 enum GBC_Enum : std::uint32_t {
