@@ -13,6 +13,7 @@ Status: Next steps. Scope: port `STARTUP.CPP`/`CONQUER.CPP` sequencing into `src
 ## Rendering and UI
 Status: Next steps. Scope: finish `DisplayClass::Draw_It/AI`, map helpers in `src/display.cpp`, `GScreenClass` in `src/gscreen.cpp`, and `MapStubClass`/`MapClass` replacements (`src/map_shim.cpp`, `src/gameplay_core_stub.cpp`), plus HUD/UI widgets (Sidebar/Tab/Radio/Theme, startup options). Hook the ported credit tab (`src/credits.cpp`) back into Sidebar/Tab update loops when those UI classes move over. Replace the remaining shape draw path (`CC_Draw_Shape` + `Build_Frame` LCW decode) so render callers hit real blits. Excludes audio or net hooks.
 Verify the restored TXTPRNT ColorXlat-style nibble translation keeps gradient/LED fonts aligned and shaded like the Win95 renderer now that glyph offsets decode correctly.
+Re-check 6pt/8pt text spacing after mirroring the legacy Simple_Text_Print x/y offsets so SDL text baselines/advances line up with the Win95 menus.
 Verify the nearest-neighbor SDL scale mode on present/title textures keeps text/UI pixels crisp across macOS/Windows output scaling.
 Spot-check menu button text after centering tweak in `src/textbtn.cpp` to ensure vertical/horizontal alignment matches the Win95 layout.
 

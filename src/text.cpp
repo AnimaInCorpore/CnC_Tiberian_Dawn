@@ -38,6 +38,72 @@ struct ParsedFont {
 ParsedFont g_current_font{};
 bool g_current_font_valid = false;
 bool g_reported_font_failure = false;
+const void* g_last_font_request = nullptr;
+TextPrintType g_last_font_type = TPF_LASTPOINT;
+
+TextPrintType Resolve_Font_Point(TextPrintType flag) {
+  const TextPrintType point = static_cast<TextPrintType>(flag & static_cast<TextPrintType>(0x000F));
+  if (point == TPF_LASTPOINT && g_last_font_type != TPF_LASTPOINT) {
+    return g_last_font_type;
+  }
+  return point;
+}
+
+TextPrintType Normalize_Text_Flag(TextPrintType flag, TextPrintType point) {
+  if (point == TPF_3POINT) {
+    flag = static_cast<TextPrintType>(flag & ~static_cast<TextPrintType>(TPF_DROPSHADOW | TPF_FULLSHADOW | TPF_NOSHADOW));
+  }
+  return flag;
+}
+
+void Apply_Font_Spacing(TextPrintType flag, TextPrintType point, int* xspace, int* yspace) {
+  int x = 1;
+  int y = 0;
+
+  switch (point) {
+    case TPF_MAP:
+    case TPF_6PT_GRAD:
+      x -= 1;
+      break;
+    case TPF_3POINT:
+      x += 1;
+      break;
+    case TPF_6POINT:
+      x -= 1;
+      break;
+    case TPF_8POINT:
+      x -= 2;
+      y -= 4;
+      break;
+    case TPF_LED:
+      x -= 4;
+      break;
+    case TPF_GREEN12:
+    case TPF_GREEN12_GRAD:
+    case TPF_VCR:
+    case TPF_LASTPOINT:
+    default:
+      break;
+  }
+
+  switch (flag &
+          static_cast<TextPrintType>(TPF_NOSHADOW | TPF_DROPSHADOW | TPF_FULLSHADOW | TPF_LIGHTSHADOW)) {
+    case TPF_NOSHADOW:
+      x -= 1;
+      y -= 2;
+      break;
+    case TPF_DROPSHADOW:
+    case TPF_FULLSHADOW:
+    case TPF_LIGHTSHADOW:
+      x -= 1;
+      break;
+    default:
+      break;
+  }
+
+  *xspace = x;
+  *yspace = y;
+}
 
 GraphicViewPortClass* Target_Page() {
   return LogicPage ? LogicPage : &HidPage;
@@ -171,10 +237,13 @@ bool Parse_Font(const void* font_ptr, ParsedFont* out) {
 }
 
 void Select_Font(TextPrintType flag) {
-  static const void* last_font = nullptr;
-  const TextPrintType type = static_cast<TextPrintType>(flag & static_cast<TextPrintType>(0x000F));
+  const TextPrintType point = Resolve_Font_Point(flag);
+  const TextPrintType normalized_flag = Normalize_Text_Flag(flag, point);
+  Apply_Font_Spacing(normalized_flag, point, &FontXSpacing, &FontYSpacing);
 
-  const void* requested = (type == TPF_LASTPOINT) ? last_font : Font_For_Type(type);
+  const void* requested =
+      (point == TPF_LASTPOINT && g_last_font_request) ? g_last_font_request : Font_For_Type(point);
+  const void* gradient = (point == TPF_6PT_GRAD) ? GradFont6Ptr : nullptr;
   if (!requested) {
     g_current_font_valid = false;
     FontHeight = 0;
@@ -194,11 +263,10 @@ void Select_Font(TextPrintType flag) {
   }
 
   Clear_Font_Failure_Report();
-  last_font = requested;
+  g_last_font_request = requested;
+  g_last_font_type = point;
   FontHeight = std::max(1, g_current_font.max_height);
-  FontYSpacing = 1;
-  Platform_Set_Fonts(requested, (type == TPF_6PT_GRAD) ? GradFont6Ptr : nullptr, FontHeight,
-                     FontYSpacing);
+  Platform_Set_Fonts(requested, gradient, FontHeight, FontYSpacing);
 }
 
 void Draw_Glyph(char ch, int x, int y, unsigned fore, unsigned back, bool fill_background) {
@@ -269,11 +337,14 @@ void Draw_String(const char* text, unsigned x, unsigned y, unsigned fore, unsign
                  TextPrintType flag) {
   if (!text) return;
 
-  Select_Font(flag);
+  const TextPrintType point = Resolve_Font_Point(flag);
+  const TextPrintType normalized_flag = Normalize_Text_Flag(flag, point);
+
+  Select_Font(normalized_flag);
   if (!g_current_font_valid) return;
 
   const int width = String_Pixel_Width(text);
-  switch (flag & (TPF_CENTER | TPF_RIGHT)) {
+  switch (normalized_flag & (TPF_CENTER | TPF_RIGHT)) {
     case TPF_CENTER:
       x -= static_cast<unsigned>(width / 2);
       break;
@@ -284,7 +355,7 @@ void Draw_String(const char* text, unsigned x, unsigned y, unsigned fore, unsign
       break;
   }
 
-  const bool shadow = (flag & TPF_NOSHADOW) == 0;
+  const bool shadow = (normalized_flag & TPF_NOSHADOW) == 0;
   const bool fill_background = back != TBLACK;
   unsigned cursor_x = x;
   for (const char* ptr = text; *ptr; ++ptr) {
@@ -351,25 +422,16 @@ int Char_Pixel_Width(int ch) {
   if (static_cast<unsigned>(static_cast<unsigned char>(ch)) >= g_current_font.glyph_count) {
     return 0;
   }
-  return std::max(1, static_cast<int>(g_current_font.widths[static_cast<unsigned char>(ch)])) +
-         FontXSpacing;
+  const int char_width =
+      std::max(1, static_cast<int>(g_current_font.widths[static_cast<unsigned char>(ch)]));
+  return std::max(0, char_width + FontXSpacing);
 }
 
 int String_Pixel_Width(char const* text) {
   if (!text || !g_current_font_valid) return 0;
   int width = 0;
   for (const char* ptr = text; *ptr; ++ptr) {
-    const unsigned char ch = static_cast<unsigned char>(*ptr);
-    if (ch >= g_current_font.glyph_count) {
-      continue;
-    }
-    const int char_width = std::max(1, static_cast<int>(g_current_font.widths[ch]));
-    if (*ptr == '\t') {
-      const int tab_width = std::max(g_current_font.max_width, kFontWidth);
-      width += (tab_width + FontXSpacing) * 4;
-    } else {
-      width += char_width + FontXSpacing;
-    }
+    width += Char_Pixel_Width(*ptr);
   }
   return width;
 }
@@ -379,7 +441,9 @@ void Conquer_Init_Fonts() { Select_Font(TPF_8POINT); }
 void Conquer_Clip_Text_Print(char const* text, unsigned x, unsigned y, unsigned fore,
                              unsigned back, TextPrintType flag, unsigned width, int const*) {
   if (!text) return;
-  Select_Font(flag);
+  const TextPrintType point = Resolve_Font_Point(flag);
+  const TextPrintType normalized_flag = Normalize_Text_Flag(flag, point);
+  Select_Font(normalized_flag);
   if (!g_current_font_valid) return;
 
   std::string clipped;
@@ -392,7 +456,7 @@ void Conquer_Clip_Text_Print(char const* text, unsigned x, unsigned y, unsigned 
     clipped.push_back(*ptr);
     current_width += advance;
   }
-  Draw_String(clipped.c_str(), x, y, fore, back, flag);
+  Draw_String(clipped.c_str(), x, y, fore, back, normalized_flag);
 }
 
 #if defined(__clang__)
@@ -403,7 +467,8 @@ void Conquer_Clip_Text_Print(char const* text, unsigned x, unsigned y, unsigned 
 void Fancy_Text_Print(char const* text, unsigned x, unsigned y, unsigned fore, unsigned back,
                       TextPrintType flag, ...) {
   if (!text) {
-    Select_Font(flag);
+    const TextPrintType point = Resolve_Font_Point(flag);
+    Select_Font(Normalize_Text_Flag(flag, point));
     return;
   }
 
@@ -419,7 +484,8 @@ void Fancy_Text_Print(char const* text, unsigned x, unsigned y, unsigned fore, u
 void Fancy_Text_Print(int text, unsigned x, unsigned y, unsigned fore, unsigned back,
                       TextPrintType flag, ...) {
   if (text == TXT_NONE) {
-    Select_Font(flag);
+    const TextPrintType point = Resolve_Font_Point(flag);
+    Select_Font(Normalize_Text_Flag(flag, point));
     return;
   }
 
