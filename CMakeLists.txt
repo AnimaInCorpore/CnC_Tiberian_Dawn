@@ -97,6 +97,8 @@ set(TD_SOURCES
   src/maingame.cpp
   src/map_shim.cpp
   src/menus.cpp
+  src/intro_port.cpp
+  src/movie_stub.cpp
   src/mixfile.cpp
   src/mmx_stub.cpp
   src/mousehelp.cpp

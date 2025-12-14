@@ -93,7 +93,7 @@
 | `INIT.CPP` | | To be ported. |
 | `INTERNET.CPP` | | To be ported. |
 | `INTERPAL.CPP` | | To be ported. |
-| `INTRO.CPP` | | To be ported. |
+| `INTRO.CPP` | `src/intro_port.cpp` | Minimal stub ported; `Choose_Side()` now triggers the intro movie (stub playback). Full VQA/interactive flow pending. |
 | `IOMAP.CPP` | | To be ported. |
 | `IOOBJ.CPP` | | To be ported. |
 | `IPX.CPP` | | To be ported. |

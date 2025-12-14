@@ -6,6 +6,7 @@
 #include "legacy/event.h"
 #include "legacy/externs.h"
 #include "legacy/gscreen.h"
+#include "legacy/intro.h"
 #include "legacy/nullmodem_stub.h"
 #include "legacy/cdfile.h"
 #include "legacy/windows_compat.h"
@@ -460,8 +461,10 @@ bool Select_Game(bool fade) {
       GameToPlay = GAME_IPX;
       break;
     case 6:  // Intro
-      GameToPlay = GAME_NORMAL;
-      break;
+      // Play the intro/choose-side sequence and then re-open the menu.
+      Choose_Side();
+      // Re-enter Select_Game so the user returns to the main menu after the intro.
+      return Select_Game(false);
     case 7:  // Exit
     default:
       ReadyToQuit = true;
