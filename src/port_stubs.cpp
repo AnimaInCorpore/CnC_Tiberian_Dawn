@@ -202,7 +202,7 @@ void Delay(int ticks) {
   std::this_thread::sleep_for(std::chrono::milliseconds(ticks));
 }
 
-void Dialog_Box(int, int, int, int) {}
+// Dialog_Box is implemented in src/dialog.cpp
 
 void Draw_Caption(int, int, int, int) {}
 

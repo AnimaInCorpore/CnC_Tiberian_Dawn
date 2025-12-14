@@ -130,6 +130,7 @@ set(TD_SOURCES
   src/slider.cpp
   src/special.cpp
   src/confdlg.cpp
+  src/dialog.cpp
   src/stats.cpp
   src/super.cpp
   src/tab.cpp
@@ -198,3 +199,7 @@ add_test(NAME combuf_tests COMMAND td_test_combuf)
 add_executable(td_test_comqueue src/tests/test_comqueue.cpp)
 target_link_libraries(td_test_comqueue PRIVATE td_port)
 add_test(NAME comqueue_tests COMMAND td_test_comqueue)
+
+add_executable(td_test_dialog src/tests/test_dialog.cpp)
+target_link_libraries(td_test_dialog PRIVATE td_port)
+add_test(NAME dialog_tests COMMAND td_test_dialog)

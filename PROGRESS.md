@@ -63,7 +63,7 @@
 | `DEBUG.CPP` | | To be ported. |
 | `DESCDLG.CPP` | | To be ported. |
 | `DIAL8.CPP` | | To be ported. |
-| `DIALOG.CPP` | | To be ported. |
+| `DIALOG.CPP` | `src/dialog.cpp` | Ported: `Dialog_Box`, `Format_Window_String`, `Window_Box`. |
 | `DISPLAY.CPP` | `src/display.cpp` | Palette tables rebuilt, fade routines wired, and display scaffolding moved to src/. |
 | `DOOR.CPP` | | To be ported. |
 | `DPMI.CPP` | | To be ported. |
