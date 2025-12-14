@@ -23,6 +23,31 @@
 #include "legacy/unit.h"
 #include "legacy/wwfile.h"
 
+#include "legacy/heap.h"
+
+#include <cstring>
+#include <new>
+
+#include "legacy/defines.h"
+#include "legacy/cell.h"
+#include "legacy/function.h"
+#include "legacy/aircraft.h"
+#include "legacy/anim.h"
+#include "legacy/bullet.h"
+#include "legacy/building.h"
+#include "legacy/factory.h"
+#include "legacy/house.h"
+#include "legacy/infantry.h"
+#include "legacy/overlay.h"
+#include "legacy/smudge.h"
+#include "legacy/team.h"
+#include "legacy/teamtype.h"
+#include "legacy/template.h"
+#include "legacy/terrain.h"
+#include "legacy/trigger.h"
+#include "legacy/unit.h"
+#include "legacy/wwfile.h"
+
 FixedHeapClass::FixedHeapClass(int size)
     : IsAllocated(false),
       Size(size),

@@ -70,13 +70,16 @@ set(TD_SOURCES
   src/const.cpp
   src/control.cpp
   src/coord.cpp
+  src/facing.cpp
   src/credits.cpp
+  src/ending.cpp
   src/debug.cpp
   src/display.cpp
   src/edit.cpp
   src/error_stub.cpp
   src/expand.cpp
   src/factory.cpp
+  src/drive.cpp
   src/door.cpp
   src/fly_stub.cpp
   src/gadget_control_stub.cpp
@@ -88,6 +91,7 @@ set(TD_SOURCES
   src/gscreen.cpp
   src/hdata.cpp
   src/heap.cpp
+  src/help.cpp
   src/dpmi.cpp
   src/house.cpp
   src/infantry.cpp
@@ -136,6 +140,7 @@ set(TD_SOURCES
   src/confdlg.cpp
   src/descdlg.cpp
   src/dialog.cpp
+  src/event.cpp
   src/stats.cpp
   src/super.cpp
   src/tab.cpp

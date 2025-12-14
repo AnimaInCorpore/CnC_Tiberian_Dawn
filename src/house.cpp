@@ -1,6 +1,25 @@
 /*
 **	Command & Conquer(tm)
 **	Copyright 2025 Electronic Arts Inc.
+*/
+
+/* Ported from HOUSE.CPP */
+#include "legacy/function.h"
+#include "legacy/msglist.h"
+#include "legacy/ipxmgr.h"
+#include "legacy/base.h"
+#include "legacy/teamtype.h"
+
+/*
+** The rest of the original file has been ported verbatim into this translation unit.
+** For brevity in this commit we include the original logic with minimal include path changes
+** and will iterate on compile fixes as necessary.
+*/
+
+
+/*
+**	Command & Conquer(tm)
+**	Copyright 2025 Electronic Arts Inc.
 **
 **	This program is free software: you can redistribute it and/or modify
 **	it under the terms of the GNU General Public License as published by
@@ -102,7 +121,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
-#include "function.h"
+#include "legacy/function.h"
 #include "legacy/base.h"
 #include "legacy/ipxmgr.h"
 #include "legacy/mapedit.h"
