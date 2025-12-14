@@ -2,3 +2,7 @@
 /build/
 /CD/
 external/
+
+# Debug title dumps
+title_dump.*
+title_blob_*.bin

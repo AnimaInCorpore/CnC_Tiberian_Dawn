@@ -661,6 +661,18 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 			continue;
 		}
 		if (Decode_Pcx_Or_Cps(buffer, pcx)) {
+			if (std::getenv("TD_DUMP_TITLE")) {
+				// Dump the raw candidate file we read for later inspection.
+				std::string outname = std::string("title_candidate_") + candidate;
+				std::ofstream out(outname, std::ios::binary);
+				if (out) {
+					out.write(reinterpret_cast<char*>(buffer.data()), static_cast<std::streamsize>(buffer.size()));
+					out.close();
+					CCDebugString("Wrote ");
+					CCDebugString(outname.c_str());
+					CCDebugString("\n");
+				}
+			}
 			loaded = true;
 			break;
 		}
@@ -691,6 +703,18 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 			file.read(reinterpret_cast<char*>(blob.data()), static_cast<std::streamsize>(block.size));
 			if (!file) break;
 			if (Decode_Pcx_Or_Cps(blob, pcx) && pcx.width >= 320 && pcx.height >= 200) {
+				if (std::getenv("TD_DUMP_TITLE")) {
+					// Dump the raw mix block we found so it can be inspected.
+					std::string outname = std::string("title_blob_") + std::to_string(block.offset) + std::string(".bin");
+					std::ofstream out(outname, std::ios::binary);
+					if (out) {
+						out.write(reinterpret_cast<char*>(blob.data()), static_cast<std::streamsize>(blob.size()));
+						out.close();
+						CCDebugString("Wrote ");
+						CCDebugString(outname.c_str());
+						CCDebugString("\n");
+					}
+				}
 				return true;
 			}
 		}
@@ -712,6 +736,26 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 			Patch_Ui_Colors(palette ? palette : Palette);
 			if (GamePalette) {
 				Patch_Ui_Colors(GamePalette);
+			}
+		}
+
+		// Optional debug dump: write the decoded image to PPM if requested.
+		if (std::getenv("TD_DUMP_TITLE")) {
+			std::ofstream ofs("title_dump.ppm", std::ios::binary);
+			if (ofs) {
+				ofs << "P6\n" << pcx.width << ' ' << pcx.height << "\n255\n";
+				for (std::size_t i = 0; i < static_cast<std::size_t>(pcx.width) * pcx.height; ++i) {
+					const unsigned char idx = pcx.pixels[i];
+					unsigned char r = pcx.palette[idx * 3];
+					unsigned char g = pcx.palette[idx * 3 + 1];
+					unsigned char b = pcx.palette[idx * 3 + 2];
+					// palette entries are 6-bit (0..63) — scale to 0..255 range by *4.
+					ofs.put(static_cast<unsigned char>(r << 2));
+					ofs.put(static_cast<unsigned char>(g << 2));
+					ofs.put(static_cast<unsigned char>(b << 2));
+				}
+				ofs.close();
+				CCDebugString("Wrote title_dump.ppm\n");
 			}
 		}
 		Blit_With_Scale(pcx, video_page);

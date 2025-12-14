@@ -221,3 +221,8 @@ add_test(NAME dial_and_door_tests COMMAND td_test_dial_and_door)
 add_executable(td_test_pcx_rle src/tests/test_pcx_rle.cpp)
 target_link_libraries(td_test_pcx_rle PRIVATE td_port)
 add_test(NAME pcx_rle_tests COMMAND td_test_pcx_rle)
+
+add_executable(extract_title src/tools/extract_title.cpp)
+target_link_libraries(extract_title PRIVATE td_port)
+
+add_executable(inspect_cps src/tools/inspect_cps.cpp)
