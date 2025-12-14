@@ -34,7 +34,7 @@
 | `TEXTBTN.CPP` | `src/textbtn.cpp` | Button labels now center horizontally/vertically using the active font height so menu text aligns cleanly inside the boxes. |
 | `ALLOC.CPP` | `src/alloc.cpp` | Legacy allocator collapsed onto the modern malloc-based wrapper (moved from the wwalloc port) while keeping the legacy entry points. |
 | `ANIM.CPP` | `src/anim.cpp` | Animation system moved to src/; keeps spawn/attach logic, scorch/crater side effects, and translucent draw path intact with nullptr-safe ownership handling. |
-| `AUDIO.CPP` | | To be ported. |
+| `AUDIO.CPP` | `src/audio.cpp` | Ported to src/; EVA/sfx logic retained and playback decision path wired. Added minimal playback stubs (`src/audio_play_stub.cpp`) — full decoder/mixer pending. |
 | `BASE.CPP` | | To be ported. |
 | `BBDATA.CPP` | `src/bbdata.cpp` | BulletTypeClass definitions and tables ported; shape loading now uses std::string paths and the modern file helpers. |
 | `BDATA.CPP` | `src/bdata.cpp` | Building type tables and helpers ported; loads cameos/buildup shapes via portable paths, initializes real Pointers/placement/repair logic, and sets the WEAP2 overlay hook. |
@@ -309,4 +309,5 @@
 | `WWALLOC.H` | `src/include/legacy/wwalloc.h` | Lowercase mirror retained for Linux-friendly includes. |
 
 ## Pending follow-ups
-- None currently.
+- Implement audio decoder/mixer (decode .AUD/.JUV/.Vxx and mix via SDL; add panning/priority and voice queue)
+
