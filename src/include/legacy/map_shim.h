@@ -71,6 +71,7 @@ struct MapCellStub {
 	void Adjust_Threat(HousesType, int) {}
 	bool Is_Generally_Clear() const { return true; }
 	int Reduce_Tiberium(int amount) { return amount; }
+	int Reduce_Wall(int damage) { return 0; }
 };
 
 struct MapColumnStub {

@@ -45,10 +45,10 @@
 | `CCFILE.CPP` | `src/ccfile.cpp` | Mix-aware file wrapper now opens embedded mix entries (cached or on-disk) via the portable RawFile/CDFile layer. |
 | `CDATA.CPP` | `src/cdata.cpp` | Stub added — full port pending. |
 | `CDFILE.CPP` | `src/cdfile.cpp` | CD/file search helper now walks configured paths before falling back to direct opens. |
-| `CELL.CPP` | | To be ported. |
-| `COMBAT.CPP` | | To be ported. |
-| `COMBUF.CPP` | | To be ported. |
-| `COMQUEUE.CPP` | | To be ported. |
+| `CELL.CPP` | `src/cell.cpp` | Partial port: core helpers implemented (constructor, lookup, redraw). |
+| `COMBAT.CPP` | `src/combat.cpp` | Ported: `Modify_Damage` and `Explosion_Damage` implemented. |
+| `COMBUF.CPP` | `src/combuf.cpp` | Ported core queue operations and timing helpers. |
+| `COMQUEUE.CPP` | `src/comqueue.cpp` | Ported circular send/recv queue (Next/Unqueue/Get semantics). |
 | `CONFDLG.CPP` | | To be ported. |
 | `CONNECT.CPP` | | To be ported. |
 | `CONQUER.CPP` | `src/maingame.cpp` | Main_Game loop ported from the legacy file; retains SDL_QUIT push on exit while routing through the original select/loop/dialog flow, with explicit SpecialDialog cases covered. |

@@ -53,11 +53,15 @@ set(TD_SOURCES
   src/bbdata.cpp
   src/bdata.cpp
   src/building.cpp
+  src/combat.cpp
   src/bullet.cpp
+  src/cell.cpp
+  src/combuf.cpp
   src/cargo.cpp
   src/ccfile.cpp
   src/ccdde.cpp
   src/cdata.cpp
+    src/comqueue.cpp
   src/cdfile.cpp
   src/checkbox.cpp
   src/cheklist.cpp
@@ -180,3 +184,13 @@ if(TD_BUILD_EXE)
     target_link_libraries(cnc_tiberian_dawn PRIVATE ${TD_SDL2MAIN_TARGET})
   endif()
 endif()
+
+enable_testing()
+
+add_executable(td_test_combuf src/tests/test_combuf.cpp)
+target_link_libraries(td_test_combuf PRIVATE td_port)
+add_test(NAME combuf_tests COMMAND td_test_combuf)
+
+add_executable(td_test_comqueue src/tests/test_comqueue.cpp)
+target_link_libraries(td_test_comqueue PRIVATE td_port)
+add_test(NAME comqueue_tests COMMAND td_test_comqueue)
