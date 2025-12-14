@@ -92,6 +92,7 @@ set(TD_SOURCES
   src/ipx95.cpp
   src/ipxaddr.cpp
   src/ipxconn.cpp
+  src/connect.cpp
   src/ipxgconn.cpp
   src/ipxmgr.cpp
   src/layer.cpp
@@ -110,6 +111,7 @@ set(TD_SOURCES
   src/mousehelp.cpp
   src/name_crc.cpp
   src/object.cpp
+  src/crew.cpp
   src/buffer_to_page.cpp
   src/keyframe_info.cpp
   src/platform_input.cpp
@@ -120,6 +122,7 @@ set(TD_SOURCES
   src/rand.cpp
   src/rawfile.cpp
   src/saveload_utils.cpp
+  src/dde.cpp
   src/runtime_sdl.cpp
   src/scroll.cpp
   src/source_helpers.cpp

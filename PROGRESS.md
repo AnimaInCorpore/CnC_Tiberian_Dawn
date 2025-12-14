@@ -50,7 +50,7 @@
 | `COMBUF.CPP` | `src/combuf.cpp` | Ported core queue operations and timing helpers. |
 | `COMQUEUE.CPP` | `src/comqueue.cpp` | Ported circular send/recv queue (Next/Unqueue/Get semantics). |
 | `CONFDLG.CPP` | `src/confdlg.cpp` | Ported — confirmation dialog implementation with safe string copy. |
-| `CONNECT.CPP` | | To be ported. |
+| `CONNECT.CPP` | `src/connect.cpp` | Ported (portable implementation; Time uses std::chrono). |
 | `CONQUER.CPP` | `src/maingame.cpp` | Main_Game loop ported from the legacy file; retains SDL_QUIT push on exit while routing through the original select/loop/dialog flow, with explicit SpecialDialog cases covered. |
 | `CONQUER.CPP` (source helpers) | `src/source_helpers.cpp` | `Source_From_Name`/`Name_From_Source` now follow the legacy lookup table instead of the placeholder mapping. |
 | `CONST.CPP` | `src/const.cpp` | Weapon/warhead tables and coordinate helpers brought over with lowercase includes and portable tables. |
@@ -58,8 +58,8 @@
 | `CONTROL.CPP` | `src/control.cpp` | Control gadgets now propagate peer redraws, return KN_BUTTON IDs when triggered, and keep peers wired via a portable nullptr-safe link. |
 | `COORD.CPP` | `src/coord.cpp` | Modernized coordinate helpers; `Cardinal_To_Fixed` and `Fixed_To_Cardinal` ported from `COORDA.ASM`. |
 | `CREDITS.CPP` | `src/credits.cpp` | Credit counter now ticks toward the player's funds, plays up/down cues, and redraws the tab with resolution scaling. |
-| `CREW.CPP` | | To be ported. |
-| `DDE.CPP` | | To be ported. |
+| `CREW.CPP` | `src/crew.cpp` | Ported (minimal stub; class implemented in header). |
+| `DDE.CPP` | `src/dde.cpp` | Ported (portable stub of DDE instance class). |
 | `DEBUG.CPP` | | To be ported. |
 | `DESCDLG.CPP` | | To be ported. |
 | `DIAL8.CPP` | | To be ported. |
