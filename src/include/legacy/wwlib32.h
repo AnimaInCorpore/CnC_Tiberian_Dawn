@@ -63,10 +63,14 @@ constexpr int KN_RALT = 0x0138;
 #if defined(TD_PORT_USE_SDL2)
 constexpr int KN_UP = SDLK_UP;
 constexpr int KN_DOWN = SDLK_DOWN;
+constexpr int KN_LEFT = SDLK_LEFT;
+constexpr int KN_RIGHT = SDLK_RIGHT;
 constexpr int KN_RETURN = SDLK_RETURN;
 #else
 constexpr int KN_UP = 0x4800;
 constexpr int KN_DOWN = 0x5000;
+constexpr int KN_LEFT = 0x4B00;
+constexpr int KN_RIGHT = 0x4D00;
 constexpr int KN_RETURN = 0x000D;
 #endif
 

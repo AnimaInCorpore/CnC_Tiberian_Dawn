@@ -49,7 +49,7 @@
 | `COMBAT.CPP` | `src/combat.cpp` | Ported: `Modify_Damage` and `Explosion_Damage` implemented. |
 | `COMBUF.CPP` | `src/combuf.cpp` | Ported core queue operations and timing helpers. |
 | `COMQUEUE.CPP` | `src/comqueue.cpp` | Ported circular send/recv queue (Next/Unqueue/Get semantics). |
-| `CONFDLG.CPP` | | To be ported. |
+| `CONFDLG.CPP` | `src/confdlg.cpp` | Ported — confirmation dialog implementation with safe string copy. |
 | `CONNECT.CPP` | | To be ported. |
 | `CONQUER.CPP` | `src/maingame.cpp` | Main_Game loop ported from the legacy file; retains SDL_QUIT push on exit while routing through the original select/loop/dialog flow, with explicit SpecialDialog cases covered. |
 | `CONQUER.CPP` (source helpers) | `src/source_helpers.cpp` | `Source_From_Name`/`Name_From_Source` now follow the legacy lookup table instead of the placeholder mapping. |

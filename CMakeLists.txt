@@ -126,6 +126,7 @@ set(TD_SOURCES
   src/shapebtn.cpp
   src/slider.cpp
   src/special.cpp
+  src/confdlg.cpp
   src/stats.cpp
   src/super.cpp
   src/tab.cpp
