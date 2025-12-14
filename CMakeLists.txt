@@ -217,3 +217,7 @@ add_test(NAME dialog_tests COMMAND td_test_dialog)
 add_executable(td_test_dial_and_door src/tests/test_dial_and_door.cpp)
 target_link_libraries(td_test_dial_and_door PRIVATE td_port)
 add_test(NAME dial_and_door_tests COMMAND td_test_dial_and_door)
+
+add_executable(td_test_pcx_rle src/tests/test_pcx_rle.cpp)
+target_link_libraries(td_test_pcx_rle PRIVATE td_port)
+add_test(NAME pcx_rle_tests COMMAND td_test_pcx_rle)

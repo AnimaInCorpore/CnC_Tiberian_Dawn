@@ -426,20 +426,23 @@ bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, Decoded
 	output.height = height;
 	output.pixels.assign(static_cast<std::size_t>(width) * height, 0);
 
+	// Decode RLE stream sequentially into the pixel buffer. PCX RLE runs may span
+	// across scanline boundaries, so treating rows independently can drop pixels
+	// or desynchronize the stream. Decode into a flat buffer to preserve runs.
 	std::size_t pos = 0;
-	for (int y = 0; y < height; ++y) {
-		int x = 0;
-		while (x < width && pos < pixel_data_size) {
-			unsigned char value = payload[pos++];
-			int count = 1;
-			if ((value & 0xC0) == 0xC0 && pos < pixel_data_size) {
-				count = value & 0x3F;
-				value = payload[pos++];
-			}
-			const int write_count = std::min(count, width - x);
-			std::fill_n(output.pixels.data() + (y * width) + x, write_count, value);
-			x += count;
+	const std::size_t total_pixels = static_cast<std::size_t>(width) * static_cast<std::size_t>(height);
+	std::size_t out_pos = 0;
+	while (out_pos < total_pixels && pos < pixel_data_size) {
+		unsigned char value = payload[pos++];
+		std::size_t count = 1;
+		if ((value & 0xC0) == 0xC0) {
+			if (pos >= pixel_data_size) break; // malformed stream
+			count = static_cast<std::size_t>(value & 0x3F);
+			value = payload[pos++];
 		}
+		const std::size_t write_count = std::min(count, total_pixels - out_pos);
+		std::fill_n(output.pixels.data() + out_pos, write_count, value);
+		out_pos += write_count;
 	}
 
 	output.has_palette = true;
