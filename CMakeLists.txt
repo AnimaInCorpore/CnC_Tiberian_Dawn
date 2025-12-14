@@ -56,6 +56,8 @@ set(TD_SOURCES
   src/bullet.cpp
   src/cargo.cpp
   src/ccfile.cpp
+  src/ccdde.cpp
+  src/cdata.cpp
   src/cdfile.cpp
   src/checkbox.cpp
   src/cheklist.cpp

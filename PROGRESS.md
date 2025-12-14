@@ -41,9 +41,9 @@
 | `BUILDING.CPP` | `src/building.cpp` | Ported to src/ — full building gameplay/AI/drawing logic implemented. |
 | `BULLET.CPP` | `src/bullet.cpp` | Projectile flight/fuse logic ported; keeps homing/arc/drop behaviors, shadow rendering, and explosion damage paths intact. |
 | `CARGO.CPP` | `src/cargo.cpp` | Cargo hold bookkeeping ported; attach/detach preserve the chained LIFO order and carry over save/load pointer coding. |
-| `CCDDE.CPP` | | To be ported. |
+| `CCDDE.CPP` | `src/ccdde.cpp` | Ported as a stubbed DDE server (portable implementation). |
 | `CCFILE.CPP` | `src/ccfile.cpp` | Mix-aware file wrapper now opens embedded mix entries (cached or on-disk) via the portable RawFile/CDFile layer. |
-| `CDATA.CPP` | | To be ported. |
+| `CDATA.CPP` | `src/cdata.cpp` | Stub added — full port pending. |
 | `CDFILE.CPP` | `src/cdfile.cpp` | CD/file search helper now walks configured paths before falling back to direct opens. |
 | `CELL.CPP` | | To be ported. |
 | `COMBAT.CPP` | | To be ported. |

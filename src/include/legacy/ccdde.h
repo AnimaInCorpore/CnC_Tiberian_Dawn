@@ -1,20 +1,42 @@
-/*
-**	Command & Conquer(tm)
-**	Copyright 2025 Electronic Arts Inc.
-**
-**	This program is free software: you can redistribute it and/or modify
-**	it under the terms of the GNU General Public License as published by
-**	the Free Software Foundation, either version 3 of the License, or
-**	(at your option) any later version.
-**
-**	This program is distributed in the hope that it will be useful,
-**	but WITHOUT ANY WARRANTY; without even the implied warranty of
-**	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-**	GNU General Public License for more details.
-**
-**	You should have received a copy of the GNU General Public License
-**	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+/* Portable DDE server shim for the ported build */
+#pragma once
+
+#include <cstdint>
+
+// This header replaces the legacy Windows DDE glue with a minimal,
+// cross-platform stub implementation that preserves the original
+// public API surface used by the rest of the port.
+
+class DDEServerClass {
+public:
+  DDEServerClass();
+  ~DDEServerClass();
+
+  char *Get_MPlayer_Game_Info();
+  int  Get_MPlayer_Game_Info_Length() const { return MPlayerGameInfoLength; }
+  bool Callback(unsigned char *data, long length);
+  void Delete_MPlayer_Game_Info();
+  void Enable();
+  void Disable();
+  int  Time_Since_Heartbeat() const;
+
+  enum {
+    DDE_PACKET_START_MPLAYER_GAME,
+    DDE_PACKET_GAME_RESULTS,
+    DDE_PACKET_HEART_BEAT,
+    DDE_TICKLE,
+    DDE_CONNECTION_FAILED
+  };
+
+private:
+  char *MPlayerGameInfo = nullptr;
+  int   MPlayerGameInfoLength = 0;
+  bool  IsEnabled = false;
+  int   LastHeartbeat = 0;
+};
+
+extern DDEServerClass DDEServer;
+extern bool Send_Data_To_DDE_Server(const char *data, int length, int packet_type);
 
 /***********************************************************************************************
  ***              C O N F I D E N T I A L  ---  W E S T W O O D  S T U D I O S               ***
@@ -41,7 +63,7 @@
 
 #include "compat.h"
 
-#if defined(TD_PORT_USE_SDL2)
+#if 0 // TD_PORT_USE_SDL2 (legacy DDE code disabled in port)
 // SDL2 port stub: DDE integration is not implemented.
 class DDEServerClass {
  public:
@@ -100,9 +122,4 @@ class DDEServerClass {
 
 };
 
-
-extern DDEServerClass DDEServer;
-extern BOOL Send_Data_To_DDE_Server (char *data, int length, int packet_type);
-
-
-#endif	//WIN32
+#endif // CCDDE legacy guards
