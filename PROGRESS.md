@@ -68,7 +68,7 @@
 | `DOOR.CPP` | `src/door.cpp` | Ported to src/ (door animation state machine; open/close logic). |
 | `DPMI.CPP` | `src/dpmi.cpp` | Ported to src/ with flat-memory `Swap()` implementation (no asm). |
 | `DRIVE.CPP` | | To be ported. |
-| `ENDING.CPP` | | To be ported. |
+| `ENDING.CPP` | `src/ending.cpp` | Ported: GDI/NOD ending sequences, movie playback and selection UI. |
 | `EVENT.CPP` | | To be ported. |
 | `EXPAND.CPP` | `src/expand.cpp` | Expansion detection now mirrors the original `EXPAND.DAT` probe so NEWMENU layouts gate off the real data file. |
 | `FACING.CPP` | | To be ported. |
