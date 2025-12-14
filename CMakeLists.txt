@@ -70,6 +70,7 @@ set(TD_SOURCES
   src/control.cpp
   src/coord.cpp
   src/credits.cpp
+  src/debug.cpp
   src/display.cpp
   src/edit.cpp
   src/error_stub.cpp
@@ -130,6 +131,7 @@ set(TD_SOURCES
   src/slider.cpp
   src/special.cpp
   src/confdlg.cpp
+  src/descdlg.cpp
   src/dialog.cpp
   src/stats.cpp
   src/super.cpp

@@ -60,8 +60,8 @@
 | `CREDITS.CPP` | `src/credits.cpp` | Credit counter now ticks toward the player's funds, plays up/down cues, and redraws the tab with resolution scaling. |
 | `CREW.CPP` | `src/crew.cpp` | Ported (minimal stub; class implemented in header). |
 | `DDE.CPP` | `src/dde.cpp` | Ported (portable stub of DDE instance class). |
-| `DEBUG.CPP` | | To be ported. |
-| `DESCDLG.CPP` | | To be ported. |
+| `DEBUG.CPP` | `src/debug.cpp` | Partial port: `Debug_Key` and `Self_Regulate` implemented; kept feature subset for SDL input. |
+| `DESCDLG.CPP` | `src/descdlg.cpp` | Ported `DescriptionClass::Process` (dialog UI with edit control and buttons). |
 | `DIAL8.CPP` | | To be ported. |
 | `DIALOG.CPP` | `src/dialog.cpp` | Ported: `Dialog_Box`, `Format_Window_String`, `Window_Box`. |
 | `DISPLAY.CPP` | `src/display.cpp` | Palette tables rebuilt, fade routines wired, and display scaffolding moved to src/. |
