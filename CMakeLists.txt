@@ -49,7 +49,7 @@ set(TD_SOURCES
   src/audio_stub.cpp
   src/audio.cpp
   src/audio_play_stub.cpp
-  src/base_stub.cpp
+  src/base.cpp
   src/bbdata.cpp
   src/bdata.cpp
   src/building.cpp

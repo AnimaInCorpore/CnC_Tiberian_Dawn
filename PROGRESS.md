@@ -35,10 +35,10 @@
 | `ALLOC.CPP` | `src/alloc.cpp` | Legacy allocator collapsed onto the modern malloc-based wrapper (moved from the wwalloc port) while keeping the legacy entry points. |
 | `ANIM.CPP` | `src/anim.cpp` | Animation system moved to src/; keeps spawn/attach logic, scorch/crater side effects, and translucent draw path intact with nullptr-safe ownership handling. |
 | `AUDIO.CPP` | `src/audio.cpp` | Ported to src/; EVA/sfx logic retained and playback decision path wired. Added minimal playback stubs (`src/audio_play_stub.cpp`) — full decoder/mixer pending. |
-| `BASE.CPP` | | To be ported. |
+| `BASE.CPP` | `src/base.cpp` | Ported to src/, implements base list parsing, save/load and node lookup. |
 | `BBDATA.CPP` | `src/bbdata.cpp` | BulletTypeClass definitions and tables ported; shape loading now uses std::string paths and the modern file helpers. |
 | `BDATA.CPP` | `src/bdata.cpp` | Building type tables and helpers ported; loads cameos/buildup shapes via portable paths, initializes real Pointers/placement/repair logic, and sets the WEAP2 overlay hook. |
-| `BUILDING.CPP` | | To be ported. |
+| `BUILDING.CPP` | `src/building.cpp` | Ported to src/ — full building gameplay/AI/drawing logic implemented. |
 | `BULLET.CPP` | `src/bullet.cpp` | Projectile flight/fuse logic ported; keeps homing/arc/drop behaviors, shadow rendering, and explosion damage paths intact. |
 | `CARGO.CPP` | `src/cargo.cpp` | Cargo hold bookkeeping ported; attach/detach preserve the chained LIFO order and carry over save/load pointer coding. |
 | `CCDDE.CPP` | | To be ported. |
