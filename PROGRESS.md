@@ -62,11 +62,11 @@
 | `DDE.CPP` | `src/dde.cpp` | Ported (portable stub of DDE instance class). |
 | `DEBUG.CPP` | `src/debug.cpp` | Partial port: `Debug_Key` and `Self_Regulate` implemented; kept feature subset for SDL input. |
 | `DESCDLG.CPP` | `src/descdlg.cpp` | Ported `DescriptionClass::Process` (dialog UI with edit control and buttons). |
-| `DIAL8.CPP` | | To be ported. |
+| `DIAL8.CPP` | `src/dial8.cpp` | Ported to src/ (gadget; hides/shows mouse, draws facing dial). |
 | `DIALOG.CPP` | `src/dialog.cpp` | Ported: `Dialog_Box`, `Format_Window_String`, `Window_Box`. |
 | `DISPLAY.CPP` | `src/display.cpp` | Palette tables rebuilt, fade routines wired, and display scaffolding moved to src/. |
-| `DOOR.CPP` | | To be ported. |
-| `DPMI.CPP` | | To be ported. |
+| `DOOR.CPP` | `src/door.cpp` | Ported to src/ (door animation state machine; open/close logic). |
+| `DPMI.CPP` | `src/dpmi.cpp` | Ported to src/ with flat-memory `Swap()` implementation (no asm). |
 | `DRIVE.CPP` | | To be ported. |
 | `ENDING.CPP` | | To be ported. |
 | `EVENT.CPP` | | To be ported. |

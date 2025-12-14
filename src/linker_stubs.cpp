@@ -335,14 +335,6 @@ int PowerClass::PowerButtonClass::Action(unsigned, KeyNumType&) { return 0; }
 void ScrollClass::Code_Pointers() {}
 void ScrollClass::Decode_Pointers() {}
 
-// --- Door ------------------------------------------------------------------------------------
-
-DoorClass::DoorClass() : Control(), Stages(0), State(IS_CLOSED), IsToRedraw(0) {}
-void DoorClass::AI() {}
-int DoorClass::Door_Stage() const { return 0; }
-bool DoorClass::Open_Door(int, int) { return true; }
-bool DoorClass::Close_Door(int, int) { return true; }
-bool DoorClass::Is_Ready_To_Open() { return true; }
 
 // --- Smudge ----------------------------------------------------------------------------------
 

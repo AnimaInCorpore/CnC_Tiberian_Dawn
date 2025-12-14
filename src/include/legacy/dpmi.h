@@ -40,7 +40,7 @@
 #include	<dos.h>
 #include	<stdlib.h>
 #include	<stdio.h>
-#include	<mem.h>
+#include	<cstring>
 
 
 extern void output(short port, short data);

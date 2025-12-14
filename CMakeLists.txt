@@ -64,6 +64,7 @@ set(TD_SOURCES
     src/comqueue.cpp
   src/cdfile.cpp
   src/checkbox.cpp
+  src/dial8.cpp
   src/cheklist.cpp
   src/colrlist.cpp
   src/const.cpp
@@ -76,6 +77,7 @@ set(TD_SOURCES
   src/error_stub.cpp
   src/expand.cpp
   src/factory.cpp
+  src/door.cpp
   src/fly_stub.cpp
   src/gadget_control_stub.cpp
   src/game.cpp
@@ -86,6 +88,7 @@ set(TD_SOURCES
   src/gscreen.cpp
   src/hdata.cpp
   src/heap.cpp
+  src/dpmi.cpp
   src/house.cpp
   src/infantry.cpp
   src/input_shim.cpp
@@ -205,3 +208,7 @@ add_test(NAME comqueue_tests COMMAND td_test_comqueue)
 add_executable(td_test_dialog src/tests/test_dialog.cpp)
 target_link_libraries(td_test_dialog PRIVATE td_port)
 add_test(NAME dialog_tests COMMAND td_test_dialog)
+
+add_executable(td_test_dial_and_door src/tests/test_dial_and_door.cpp)
+target_link_libraries(td_test_dial_and_door PRIVATE td_port)
+add_test(NAME dial_and_door_tests COMMAND td_test_dial_and_door)
