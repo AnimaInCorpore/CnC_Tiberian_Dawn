@@ -122,6 +122,7 @@ set(TD_SOURCES
   src/tcpip.cpp
   src/techno.cpp
   src/text.cpp
+  src/txtprnt.cpp
   src/textbtn.cpp
   src/toggle.cpp
   src/txtlabel.cpp

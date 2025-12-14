@@ -29,6 +29,7 @@
 | `ABSTRACT.CPP` | `src/abstract.cpp` | Abstract base logic now reports the correct RTTI/ownable mask, preserves the building distance fudge, and copies INI names with `std::strncpy`. |
 | `AIRCRAFT.CPP` | `src/aircraft.cpp` | Full aircraft gameplay/AI logic moved to src/, restoring the original missions, drawing, and targeting behavior; INI serialization now uses bounded snprintf formatting. |
 | `TEXT.CPP` (ColorXlat) | `src/text.cpp` | Glyph draw path now mirrors the legacy ColorXlat translation so gradient/LED fonts use their palette ramps instead of a flat foreground fill. |
+| `TXTPRNT.ASM` | `src/txtprnt.cpp` | Replaced assembly `Buffer_Print` and `ColorXlat` with portable implementations; provides `Buffer_Print()` and `Get_Font_Palette_Ptr()`. |
 | `TEXT.CPP` (spacing) | `src/text.cpp` | Font X/Y spacing now mirrors the legacy Simple_Text_Print rules per font/shadow flag, fixing misaligned SDL text runs. |
 | `TEXTBTN.CPP` | `src/textbtn.cpp` | Button labels now center horizontally/vertically using the active font height so menu text aligns cleanly inside the boxes. |
 | `ALLOC.CPP` | `src/alloc.cpp` | Legacy allocator collapsed onto the modern malloc-based wrapper (moved from the wwalloc port) while keeping the legacy entry points. |
@@ -55,7 +56,7 @@
 | `CONST.CPP` | `src/const.cpp` | Weapon/warhead tables and coordinate helpers brought over with lowercase includes and portable tables. |
 | `STARTUP.CPP` (bootstrap) | `src/port_stubs.cpp` | Init_Game/Select_Game/Main_Loop now allocate palettes/shape buffers, configure viewports, reset menu state, enable the DDE heartbeat stub, and pace the frame loop using the legacy timer defaults. |
 | `CONTROL.CPP` | `src/control.cpp` | Control gadgets now propagate peer redraws, return KN_BUTTON IDs when triggered, and keep peers wired via a portable nullptr-safe link. |
-| `COORD.CPP` | | To be ported. |
+| `COORD.CPP` | `src/coord.cpp` | Modernized coordinate helpers; `Cardinal_To_Fixed` and `Fixed_To_Cardinal` ported from `COORDA.ASM`. |
 | `CREDITS.CPP` | `src/credits.cpp` | Credit counter now ticks toward the player's funds, plays up/down cues, and redraws the tab with resolution scaling. |
 | `CREW.CPP` | | To be ported. |
 | `DDE.CPP` | | To be ported. |
