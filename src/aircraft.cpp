@@ -2568,7 +2568,7 @@ RadioMessageType AircraftClass::Receive_Message(RadioClass * from, RadioMessageT
 					*/
 					if (Transmit_Message(RADIO_NEED_TO_MOVE, from) == RADIO_ROGER) {
 						CELL cell;
-						DirType dir = Desired_Load_Dir(from, cell);
+						(void)Desired_Load_Dir(from, cell);
 
 						/*
 						**	If no adjacent free cells are detected, then passenger loading
@@ -2867,7 +2867,6 @@ bool AircraftClass::Cell_Seems_Ok(CELL cell, bool strict) const
 	**	are, then don't consider the location as valid.
 	*/
 	TARGET astarget = ::As_Target(cell);
-	bool ok = true;
 	for (int index = 0; index < Aircraft.Count(); index++) {
 		AircraftClass * air = Aircraft.Ptr(index);
 		if (air && (strict || air != this) && !air->IsInLimbo) {

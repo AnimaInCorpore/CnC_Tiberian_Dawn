@@ -1128,14 +1128,14 @@ void BuildingClass::AI(void)
 		/*
 		**	Possibly start repair process if the building is below half strength.
 		*/
-		int ratio = 0x0040;
+		unsigned ratio = 0x0040;
 		if (Scenario > 6) ratio = 0x0080;
 		if (Scenario > 10) ratio = 0x00C0;
 		if (Class->IsRepairable && Health_Ratio() <= ratio) {
 			if (House->Available_Money() >= REPAIR_THRESHHOLD) {
 				Repair(1);
 			} else {
-				if (IsTickedOff && Scenario > 2 && Random_Pick(0, 50) < Scenario && !Trigger) {
+				if (IsTickedOff && Scenario > 2 && static_cast<unsigned>(Random_Pick(0, 50)) < Scenario && !Trigger) {
 					Sell_Back(1);
 				}
 			}
@@ -4916,7 +4916,6 @@ CELL BuildingClass::Find_Exit_Cell(TechnoClass const * techno) const
 {
 	CELL const *ptr;
 	CELL origin = Coord_Cell(Coord);
-	bool found = false;
 
 	ptr = Class->ExitList;
 	if (ptr) {

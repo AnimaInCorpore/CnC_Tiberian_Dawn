@@ -35,141 +35,124 @@
  * Functions:                                                                                  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#ifndef DPMI_H
-#define DPMI_H
-#include	<dos.h>
-#include	<stdlib.h>
-#include	<stdio.h>
-#include	<cstring>
+ #ifndef DPMI_H
+ #define DPMI_H
+
+ #include <dos.h>
+ #include <cstdlib>
+ #include <cstdio>
+ #include <cstring>
+ #include <cstdint>
 
 
-extern void output(short port, short data);
+ extern void output(short port, short data);
+
+ class DOSSegmentClass {
+	 /*
+	 ** This is the selector/segment value. In real mode it is the segment,
+	 ** in protected mode it is the selector (also 16 bits). This value is
+	 ** moved into DS or ES when accessing memory. Note: in Watcom flat
+	 ** addressing, Selector == Segment<<4 (ex: 0x0A0000)
+	 */
+	 uintptr_t Selector;
+
+	 /*
+	 ** These are C equivalents for pushing and popping the DS segment register.
+	 */
+	 void Push_DS(void) {/*__emit__(0x1E);*/};
+	 void Pop_DS(void) {/*__emit__(0x1F);*/};
+
+ public:
+	 DOSSegmentClass(void);
+	 ~DOSSegmentClass(void);
+	 DOSSegmentClass(unsigned short segment, long size=(1024L*64L));
+
+	 uintptr_t Get_Selector(void);
+
+	 void Assign(unsigned short segment, long size=(1024L*64L));
+
+	 void Copy_To(void *source, int dest, int size);
+	 void Copy_From(void *dest, int source, int size);
+	 void Copy_Word_To(short data, int dest);
+	 void Copy_Byte_To(char data, int dest);
+	 void Copy_DWord_To(long data, int dest);
+	 short Copy_Word_From(int source);
+	 char Copy_Byte_From(int source);
+	 long Copy_DWord_From(int source);
+
+	 static void Copy(DOSSegmentClass &src, int soffset, DOSSegmentClass &dest, int doffset, int size);
+	 static void Swap(DOSSegmentClass &src, int soffset, DOSSegmentClass &dest, int doffset, int size);
+ };
 
 
-class DOSSegmentClass {
-		/*
-		**	This is the selector/segment value. In real mode it is the segment, in protected
-		**	mode it is the selector (also 16 bits). This value is moved into DS or ES when
-		**	accessing memory.
-		** Note: in Watcom flat addressing, Selector == Segment<<4 (ex: 0A0000h)
-		*/
-		unsigned int Selector;
+ inline DOSSegmentClass::DOSSegmentClass(void)
+ {
+	 Selector = 0xB0000;
+ }
 
-		/*
-		**	These are C equivalents for pushing and popping the DS segment register. By using
-		**	these, it is possible to create very small code that uses a segment and 
-		**	offset without damaging the DS register. These are especially useful in protected
-		**	mode, but they are legal in real mode as well.
-		*/
-		void Push_DS(void) {/*__emit__(0x1E);*/};
-		void Pop_DS(void) {/*__emit__(0x1F);*/};
+ inline DOSSegmentClass::~DOSSegmentClass(void)
+ {
+ }
 
-	public:
-		DOSSegmentClass(void);
-		~DOSSegmentClass(void);
-		DOSSegmentClass(unsigned short segment, long size=(1024L*64L));
+ inline void DOSSegmentClass::Copy_Word_To(short data, int dest)
+ {
+	 *(short *)(reinterpret_cast<void*>(Selector + dest)) = data;
+ }
 
-		unsigned int Get_Selector(void);
+ inline void DOSSegmentClass::Copy_Byte_To(char data, int dest)
+ {
+	 *(char *)(reinterpret_cast<void*>(Selector + dest)) = data;
+ }
 
-		/*
-		**	This routine is used to assign where the descriptor actually points to in
-		**	low DOS memory. In real mode, this is a simple segment assignment and the size
-		**	is always 64K regardless of what is specified. In protected mode, the segment
-		**	is used to update the selector and the size can be any length.
-		** In Watcom flat mode, it sets Selector == segment<<4
-		*/
-		void Assign(unsigned short segment, long size=(1024L*64L));
+ inline void DOSSegmentClass::Copy_DWord_To(long data, int dest)
+ {
+	 *(long *)(reinterpret_cast<void*>(Selector + dest)) = data;
+ }
 
-		/*
-		**	These routines will move the data to/from regular memory and the segment/descriptor
-		**	memory.
-		*/
-		void Copy_To(void *source, int dest, int size);
-		void Copy_From(void *dest, int source, int size);
-		void Copy_Word_To(short data, int dest);
-		void Copy_Byte_To(char data, int dest);
-		void Copy_DWord_To(long data, int dest);
-		short Copy_Word_From(int source);
-		char Copy_Byte_From(int source);
-		long Copy_DWord_From(int source);
+ inline DOSSegmentClass::DOSSegmentClass(unsigned short segment, long)
+ {
+	 Assign(segment);
+ }
 
-		/*
-		**	These routines move data around between sections of segmented (descriptor) memory.
-		**	Typically, this is used when accessing DOS memory in protected mode or when dealing
-		**	with hard memory areas such as the screen.
-		*/
-		static void Copy(DOSSegmentClass &src, int soffset, DOSSegmentClass &dest, int doffset, int size);
-		static void Swap(DOSSegmentClass &src, int soffset, DOSSegmentClass &dest, int doffset, int size);
-};
+ inline void DOSSegmentClass::Assign(unsigned short segment, long)
+ {
+	 Selector = static_cast<uintptr_t>(segment) << 4;
+ }
 
+ inline void DOSSegmentClass::Copy_To(void *source, int dest, int size)
+ {
+	 memmove(reinterpret_cast<void*>(Selector + dest), source, static_cast<std::size_t>(size));
+ }
 
-inline DOSSegmentClass::DOSSegmentClass(void)
-{
-	Selector = 0xB0000;
-}
+ inline void DOSSegmentClass::Copy_From(void *dest, int source, int size)
+ {
+	 memmove(dest, reinterpret_cast<void*>(Selector + source), static_cast<std::size_t>(size));
+ }
 
-inline DOSSegmentClass::~DOSSegmentClass(void)
-{
-}
+ inline void DOSSegmentClass::Copy(DOSSegmentClass &src, int soffset, DOSSegmentClass &dest, int doffset, int size) {
+	 memmove(reinterpret_cast<void*>(dest.Selector + doffset), reinterpret_cast<void*>(src.Selector + soffset), static_cast<std::size_t>(size));
+ }
 
-inline void DOSSegmentClass::Copy_Word_To(short data, int dest)
-{
-	*(short *)(Selector+dest) = data;
-}
+ inline short DOSSegmentClass::Copy_Word_From(int source)
+ {
+	 return *(short*)(reinterpret_cast<void*>(Selector + source));
+ }
 
-inline void DOSSegmentClass::Copy_Byte_To(char data, int dest)
-{
-	*(char *)(Selector+dest) = data;
-}
+ inline char DOSSegmentClass::Copy_Byte_From(int source)
+ {
+	 return *(char*)(reinterpret_cast<void*>(Selector + source));
+ }
 
-inline void DOSSegmentClass::Copy_DWord_To(long data, int dest)
-{
-	*(long *)(Selector+dest) = data;
-}
+ inline long DOSSegmentClass::Copy_DWord_From(int source)
+ {
+	 return *(long*)(reinterpret_cast<void*>(Selector + source));
+ }
 
-inline DOSSegmentClass::DOSSegmentClass(unsigned short segment, long)
-{
-	Assign(segment);
-}
+ inline uintptr_t DOSSegmentClass::Get_Selector(void)
+ {
+	 return Selector;
+ }
 
-inline void DOSSegmentClass::Assign(unsigned short segment, long)
-{
-	Selector = (long)(segment)<<4L;
-}
-
-inline void DOSSegmentClass::Copy_To(void *source, int dest, int size)
-{
-	memmove((void*)(Selector+dest), source, size);
-}
-
-inline void DOSSegmentClass::Copy_From(void *dest, int source, int size)
-{
-	memmove(dest, (void*)(Selector+source), size);
-}
-		
-inline void DOSSegmentClass::Copy(DOSSegmentClass &src, int soffset, DOSSegmentClass &dest, int doffset, int size) {
-	memmove((void*)(dest.Selector+doffset), (void*)(src.Selector+soffset), size);
-}
-
-inline short DOSSegmentClass::Copy_Word_From(int source)
-{
-	return *(short*)(Selector+source);
-}
-
-inline char DOSSegmentClass::Copy_Byte_From(int source)
-{
-	return *(char*)(Selector+source);
-}
-
-inline long DOSSegmentClass::Copy_DWord_From(int source)
-{
-	return *(long*)(Selector+source);
-}
-
-inline unsigned int DOSSegmentClass::Get_Selector(void)
-{
-	return Selector;
-}
-#endif
+ #endif
 
 

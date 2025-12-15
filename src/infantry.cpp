@@ -978,7 +978,7 @@ void InfantryClass::Assign_Target(TARGET target)
 	*/
 	if (!Target_Legal(NavCom) && Class->IsCapture && Class->Primary == WEAPON_NONE) {
 		BuildingClass const * building = As_Building(target);
-		if (building && building->Class->IsCaptureable && (GameToPlay != GAME_NORMAL || *building != STRUCT_EYE && Scenario < 13)) {
+		if (building && building->Class->IsCaptureable && (GameToPlay != GAME_NORMAL || (*building != STRUCT_EYE && Scenario < 13))) {
 			Assign_Destination(target);
 		}
 	}
@@ -1764,7 +1764,6 @@ short const * InfantryClass::Overlap_List(void) const
 FireErrorType InfantryClass::Can_Fire(TARGET target, int which) const
 {
 	Validate();
-	WeaponTypeClass const * weapon = (which == 0) ? &Weapons[Class->Primary] : &Weapons[Class->Secondary];
 
 #ifdef BOXING
 	/*

@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(TD_BUILD_EXE "Build the experimental cnc_tiberian_dawn executable" ON)
+option(TD_ENABLE_WERROR "Treat compiler warnings as errors (for CI/debug)" OFF)
 
 # --- SDL2 ---
 # SDL2 is the portability layer for the ported code. If SDL2 is not present
@@ -185,6 +186,17 @@ if(WIN32)
 endif()
 
 target_compile_definitions(td_port PUBLIC ${TD_COMMON_DEFS})
+
+if(TD_ENABLE_WERROR)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "^(Clang|GNU|AppleClang)$")
+    target_compile_options(td_port PUBLIC -Wall -Wextra -Werror
+      -Wno-unknown-pragmas
+      -Wno-overloaded-virtual
+      -Wno-self-assign
+      -Wno-reorder-ctor
+      -Wno-unused-parameter)
+  endif()
+endif()
 
 target_link_libraries(td_port PUBLIC ${TD_SDL2_TARGET})
 if(WIN32)

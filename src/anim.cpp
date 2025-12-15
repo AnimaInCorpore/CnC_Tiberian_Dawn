@@ -259,6 +259,8 @@ void AnimClass::Draw_It(int x, int y, WindowNumberType window)
 				case ANIM_ATOM_BLAST:
 					transtable = Map.UnitShadow;
 					break;
+				default:
+					break;
 			}
 
 			/*
@@ -1016,7 +1018,6 @@ void AnimClass::Middle(void)
 	*/
 	if (Class->IsFlameThrower) {
 		COORDINATE	c2 = Coord_Move(Center_Coord(), (DirType)((Class->Type - ANIM_FLAME_N)<<5), 0x00E0);
-		CELL	cell = Coord_Cell(c2);
 		COORDINATE	c3 = Map.Closest_Free_Spot(Coord_Move(Center_Coord(), (DirType)((Class->Type - ANIM_FLAME_N)<<5), 0x0140), true);
 
 		c2 = Map.Closest_Free_Spot(c2, true);

@@ -84,17 +84,17 @@ class GameOptionsClass : public OptionsClass {
 		void Process(void);
 
 	private:
-		int	OptionWidth;
-		int 	OptionHeight;
-		int 	OptionX;
-		int 	OptionY;
-		int 	ButtonWidth;
-		int 	OButtonHeight;
-		int 	CaptionYPos;
-		int 	ButtonY;
-		int 	Border1Len;
-		int 	Border2Len;
-		int 	ButtonResumeY;
+		[[maybe_unused]] int	OptionWidth;
+		[[maybe_unused]] int 	OptionHeight;
+		[[maybe_unused]] int 	OptionX;
+		[[maybe_unused]] int 	OptionY;
+		[[maybe_unused]] int 	ButtonWidth;
+		[[maybe_unused]] int 	OButtonHeight;
+		[[maybe_unused]] int 	CaptionYPos;
+		[[maybe_unused]] int 	ButtonY;
+		[[maybe_unused]] int 	Border1Len;
+		[[maybe_unused]] int 	Border2Len;
+		[[maybe_unused]] int 	ButtonResumeY;
 };
 
 #endif

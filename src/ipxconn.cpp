@@ -70,7 +70,7 @@ bool Set_Non_Blocking(SOCKET s) {
 	return ioctlsocket(s, FIONBIO, &mode) == 0;
 }
 
-int Last_Socket_Error() { return WSAGetLastError(); }
+[[maybe_unused]] int Last_Socket_Error() { return WSAGetLastError(); }
 #else
 using socket_len_t = socklen_t;
 using socket_t = int;
@@ -87,7 +87,7 @@ bool Set_Non_Blocking(socket_t s) {
 	return fcntl(s, F_SETFL, flags | O_NONBLOCK) == 0;
 }
 
-int Last_Socket_Error() { return errno; }
+[[maybe_unused]] int Last_Socket_Error() { return errno; }
 #endif
 
 constexpr unsigned short kIpxPortBase = 0x5000;

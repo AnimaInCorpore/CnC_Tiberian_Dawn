@@ -28,11 +28,11 @@ void Debug_Key(unsigned input)
             char filename[30];
 
             temp_page.Blit(SeenBuff, 0, 0, 0, 0, SeenBuff.Get_Width(), SeenBuff.Get_Height());
-            for (int lp = 0; lp < 99; lp++) {
+                for (int lp = 0; lp < 99; lp++) {
                 if (lp < 10) {
-                    sprintf(filename, "scrsht0%d.pcx", lp);
+                    snprintf(filename, sizeof(filename), "scrsht0%d.pcx", lp);
                 } else {
-                    sprintf(filename, "scrsht%d.pcx", lp);
+                    snprintf(filename, sizeof(filename), "scrsht%d.pcx", lp);
                 }
                 if (access(filename, F_OK) == -1)
                     break;

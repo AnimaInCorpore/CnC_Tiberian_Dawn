@@ -4,9 +4,7 @@
 #include <iostream>
 
 int main() {
-    const char* cd_subfolder = CDFileClass::Get_CD_Subfolder();
-
-    auto register_mix = [cd_subfolder](const char* filename) {
+    auto register_mix = [](const char* filename) {
         if (!filename) return;
         // Construct candidate paths similarly to Load_Title_Screen
         std::vector<std::string> paths;

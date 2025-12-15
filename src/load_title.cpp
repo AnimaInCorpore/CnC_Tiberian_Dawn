@@ -454,7 +454,7 @@ bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, Decoded
 	return true;
 }
 
-bool Decode_Pcx(const std::string& path, DecodedPcx& output) {
+[[maybe_unused]] bool Decode_Pcx(const std::string& path, DecodedPcx& output) {
 	std::ifstream file(path, std::ios::binary);
 	if (!file) {
 		return false;

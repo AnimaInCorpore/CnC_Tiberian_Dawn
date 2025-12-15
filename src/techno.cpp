@@ -784,7 +784,7 @@ TechnoClass::TechnoClass(HousesType house) :
 	/*
 	**	There is a chance that a vehicle will be a "lemon".
 	*/
-	if (Random_Pick(0, 255) < House->Class->Lemon) {
+	if (Random_Pick(0, 255) < static_cast<int>(House->Class->Lemon)) {
 		IsALemon = true;
 	}
 }
@@ -1614,7 +1614,7 @@ void TechnoClass::AI(void)
 			}
 		} else {
 
-			VisualType pre = Visual_Character(true);
+			// cached visual value not used; call Visual_Character() directly when needed
 			CloakingDevice.Graphic_Logic();
 			switch (Cloak) {
 
@@ -2216,7 +2216,7 @@ ActionType TechnoClass::What_Action(ObjectClass * object) const
 		/*
 		**	If firing is possible and legal, then return this action potential.
 		*/
-		bool control = Keyboard::Down(KN_LCTRL) || Keyboard::Down(KN_RCTRL);
+		// control key state not used here
 		if (IsOwnedByPlayer && (ctrldown || !House->Is_Ally(object)) && (ctrldown || object->Class_Of().IsLegalTarget || (Special.IsTreeTarget && object->What_Am_I() == RTTI_TERRAIN))) {
 			if (Can_Player_Move() || In_Range(object, 0)) {
 				return(ACTION_ATTACK);

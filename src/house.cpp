@@ -2087,7 +2087,6 @@ ProdFailType HouseClass::Begin_Production(RTTIType type, int id)
 	Validate();
 	int * factory = 0;
 	int result = true;
-	bool initial_start = false;
 	FactoryClass * fptr;
 	TechnoTypeClass const * tech = Fetch_Techno_Type(type, id);
 
@@ -2138,7 +2137,6 @@ ProdFailType HouseClass::Begin_Production(RTTIType type, int id)
 		if (!fptr) return(PROD_CANT);
 		*factory = Factories.ID(fptr);
 		result = (tech) ? fptr->Set(*tech, *this) : fptr->Set(id, *this);
-		initial_start = true;
 	}
 
 	if (result) {
@@ -3457,7 +3455,7 @@ TechnoTypeClass const * HouseClass::Suggest_New_Object(RTTIType objecttype) cons
 bool HouseClass::Flag_Remove(TARGET target, bool set_home)
 {
 	Validate();
-	int rc;
+	int rc = 0;
 
 	if (Target_Legal(target)) {
 

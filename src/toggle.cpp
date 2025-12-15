@@ -20,8 +20,8 @@ void ToggleClass::Turn_Off() {
 
 int ToggleClass::Action(unsigned flags, KeyNumType& key) {
   if (flags == 0) {
-    const bool hover = static_cast<unsigned>(Get_Mouse_X() - X) < Width &&
-                       static_cast<unsigned>(Get_Mouse_Y() - Y) < Height;
+    const bool hover = static_cast<unsigned>(Get_Mouse_X() - X) < static_cast<unsigned>(Width) &&
+              static_cast<unsigned>(Get_Mouse_Y() - Y) < static_cast<unsigned>(Height);
     if (hover) {
       if (!IsPressed) {
         IsPressed = true;

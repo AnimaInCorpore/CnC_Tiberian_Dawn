@@ -179,15 +179,15 @@ class TcpipManagerClass {
 
 
 		BOOL 					WinsockInitialised;
-		WSADATA				WinsockInfo;
+		[[maybe_unused]] WSADATA			WinsockInfo;
 		SOCKET				ListenSocket;
 		SOCKET				ConnectSocket;
 		SOCKET				UDPSocket;
-		IN_ADDR				ClientIPAddress;
-		HANDLE				Async;
-		char					HostBuff[MAXGETHOSTSTRUCT];
-		char					ClientName[128];
-		char					ReceiveBuffer[WS_RECEIVE_BUFFER_LEN];
+		[[maybe_unused]] IN_ADDR			ClientIPAddress;
+		[[maybe_unused]] HANDLE			Async;
+		[[maybe_unused]] char				HostBuff[MAXGETHOSTSTRUCT];
+		[[maybe_unused]] char					ClientName[128];
+		[[maybe_unused]] char					ReceiveBuffer[WS_RECEIVE_BUFFER_LEN];
 		//char					InBuffer[WS_IN_BUFFER_LEN];
 		//int					InBufferHead;
 		//int					InBufferTail;
@@ -196,19 +196,19 @@ class TcpipManagerClass {
 		//int					OutBufferTail;
 		BOOL					IsServer;
 		BOOL					Connected;
-		HostType				Server;
+		[[maybe_unused]] HostType			Server;
 		char					HostAddress[IP_ADDRESS_MAX];
 		ConnectStatusEnum ConnectStatus;
 		BOOL					UseUDP;
-		IN_ADDR				UDPIPAddress;
+		[[maybe_unused]] IN_ADDR			UDPIPAddress;
 		int					SocketReceiveBuffer;
 		int					SocketSendBuffer;
-		InternetBufferType ReceiveBuffers[WS_NUM_TX_BUFFERS];
-		InternetBufferType TransmitBuffers[WS_NUM_RX_BUFFERS];
-		int					TXBufferHead;
-		int					TXBufferTail;
-		int					RXBufferHead;
-		int					RXBufferTail;
+		[[maybe_unused]] InternetBufferType ReceiveBuffers[WS_NUM_TX_BUFFERS];
+		[[maybe_unused]] InternetBufferType TransmitBuffers[WS_NUM_RX_BUFFERS];
+		int					TXBufferHead [[maybe_unused]];
+		int					TXBufferTail [[maybe_unused]];
+		int					RXBufferHead [[maybe_unused]];
+		int					RXBufferTail [[maybe_unused]];
 
 };
 

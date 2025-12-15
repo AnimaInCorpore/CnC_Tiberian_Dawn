@@ -3611,7 +3611,6 @@ void UnitClass::Exit_Repair(void)
 		}
 	}
 	if (found) {
-		DirType	dir = Direction(cell);
 
 		Assign_Mission(MISSION_MOVE);
 		Assign_Destination(::As_Target(cell));

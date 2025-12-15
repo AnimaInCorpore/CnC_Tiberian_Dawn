@@ -95,7 +95,7 @@ void HelpClass::Draw_It(bool forced)
 
             if (Cost) {
                 char buffer[15];
-                sprintf(buffer, "$%d", Cost);
+                snprintf(buffer, sizeof(buffer), "$%d", Cost);
                 int width = String_Pixel_Width(buffer);
                 Fancy_Text_Print(buffer, DrawX, DrawY+FontHeight, Color, BLACK, TPF_MAP|TPF_NOSHADOW);
                 LogicPage->Draw_Rect(DrawX-1, DrawY+FontHeight, DrawX+width+1, DrawY+FontHeight+FontHeight-1, Color);

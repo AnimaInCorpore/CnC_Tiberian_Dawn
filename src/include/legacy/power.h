@@ -99,18 +99,18 @@ class PowerClass : public RadarClass
 	private:
 		int  Power_Height(int value);
 
-		unsigned IsActive:1;
+		[[maybe_unused]] unsigned IsActive:1;
 
-		int RecordedDrain;
-		int RecordedPower;
-		int DesiredDrainHeight;
-		int DesiredPowerHeight;
-		int DrainHeight;
-		int PowerHeight;
-		int DrainBounce;
-		int PowerBounce;
-		short PowerDir;
-		short DrainDir;
+		[[maybe_unused]] int RecordedDrain;
+		[[maybe_unused]] int RecordedPower;
+		[[maybe_unused]] int DesiredDrainHeight;
+		[[maybe_unused]] int DesiredPowerHeight;
+		[[maybe_unused]] int DrainHeight;
+		[[maybe_unused]] int PowerHeight;
+		[[maybe_unused]] int DrainBounce;
+		[[maybe_unused]] int PowerBounce;
+		[[maybe_unused]] short PowerDir;
+		[[maybe_unused]] short DrainDir;
 
 		/*
 		**	Points to the shape to use for the "desired" power level indicator.
