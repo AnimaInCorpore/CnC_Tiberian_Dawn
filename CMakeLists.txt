@@ -102,7 +102,13 @@ set(TD_SOURCES
   src/ipxmgr.cpp
   src/layer.cpp
   src/legacy_vtables.cpp
+  src/gameplay_core_stub.cpp
+  src/gameplay_shims.cpp
+  src/gameplay_class_stubs.cpp
+  src/base_stub.cpp
+  src/port_stubs.cpp
   src/link.cpp
+  src/tiny_linker_shims.cpp
   src/list.cpp
   src/load_title.cpp
   src/maingame.cpp
