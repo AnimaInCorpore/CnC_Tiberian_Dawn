@@ -11,6 +11,8 @@ extern int SampleType;
 #define SAMPLE_NONE 0
 #endif
 
+int SampleType = SAMPLE_NONE;
+
 /* The original file contains the full sound effect and EVA queues. This
  * port preserves the decision logic and file lookup while relying on the
  * playback primitives implemented elsewhere (Play_Sample, Is_Sample_Playing,

@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-option(TD_BUILD_EXE "Build the experimental cnc_tiberian_dawn executable" ON)
 option(TD_ENABLE_WERROR "Treat compiler warnings as errors (for CI/debug)" OFF)
 
 # --- SDL2 ---
@@ -56,13 +55,14 @@ set(TD_SOURCES
   src/building.cpp
   src/combat.cpp
   src/bullet.cpp
+  src/fuse.cpp
   src/cell.cpp
   src/combuf.cpp
   src/cargo.cpp
   src/ccfile.cpp
   src/ccdde.cpp
   src/cdata.cpp
-    src/comqueue.cpp
+  src/comqueue.cpp
   src/cdfile.cpp
   src/checkbox.cpp
   src/dial8.cpp
@@ -73,8 +73,6 @@ set(TD_SOURCES
   src/coord.cpp
   src/facing.cpp
   src/credits.cpp
-  src/ending.cpp
-  src/debug.cpp
   src/display.cpp
   src/edit.cpp
   src/error_stub.cpp
@@ -85,8 +83,6 @@ set(TD_SOURCES
   src/fly_stub.cpp
   src/gadget_control_stub.cpp
   src/game.cpp
-  src/gameplay_class_stubs.cpp
-  src/gameplay_core_stub.cpp
   src/gauge.cpp
   src/globals.cpp
   src/gscreen.cpp
@@ -107,7 +103,6 @@ set(TD_SOURCES
   src/layer.cpp
   src/legacy_vtables.cpp
   src/link.cpp
-  src/linker_stubs.cpp
   src/list.cpp
   src/load_title.cpp
   src/maingame.cpp
@@ -124,7 +119,6 @@ set(TD_SOURCES
   src/buffer_to_page.cpp
   src/keyframe_info.cpp
   src/platform_input.cpp
-  src/port_stubs.cpp
   src/power.cpp
   src/radar.cpp
   src/radio.cpp
@@ -139,6 +133,8 @@ set(TD_SOURCES
   src/slider.cpp
   src/special.cpp
   src/confdlg.cpp
+  src/strtrim.cpp
+  src/window.cpp
   src/descdlg.cpp
   src/dialog.cpp
   src/event.cpp
@@ -158,19 +154,8 @@ set(TD_SOURCES
   src/wwlib_runtime.cpp
   src/wwlib.cpp
 )
+
 # Legacy WinMain launcher intentionally excluded to keep the SDL path canonical.
-
-# --- Library with all ported sources ---
-add_library(td_port STATIC ${TD_SOURCES})
-
-target_include_directories(
-  td_port
-  PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/include/legacy
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/include
-    ${TD_SDL2_INCLUDE_DIRS}
-)
 
 set(TD_COMMON_DEFS
   TD_PORT_USE_SDL2
@@ -185,11 +170,22 @@ if(WIN32)
   )
 endif()
 
-target_compile_definitions(td_port PUBLIC ${TD_COMMON_DEFS})
+add_executable(cnc_tiberian_dawn src/main.cpp ${TD_SOURCES})
+
+target_include_directories(
+  cnc_tiberian_dawn
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/include/legacy
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/include
+    ${TD_SDL2_INCLUDE_DIRS}
+)
+
+target_compile_definitions(cnc_tiberian_dawn PRIVATE ${TD_COMMON_DEFS})
 
 if(TD_ENABLE_WERROR)
   if(CMAKE_CXX_COMPILER_ID MATCHES "^(Clang|GNU|AppleClang)$")
-    target_compile_options(td_port PUBLIC -Wall -Wextra -Werror
+    target_compile_options(cnc_tiberian_dawn PRIVATE -Wall -Wextra -Werror
       -Wno-unknown-pragmas
       -Wno-overloaded-virtual
       -Wno-self-assign
@@ -198,43 +194,10 @@ if(TD_ENABLE_WERROR)
   endif()
 endif()
 
-target_link_libraries(td_port PUBLIC ${TD_SDL2_TARGET})
+target_link_libraries(cnc_tiberian_dawn PRIVATE ${TD_SDL2_TARGET})
+if(TD_SDL2MAIN_TARGET AND NOT MINGW)
+  target_link_libraries(cnc_tiberian_dawn PRIVATE ${TD_SDL2MAIN_TARGET})
+endif()
 if(WIN32)
-  target_link_libraries(td_port PUBLIC ws2_32)
+  target_link_libraries(cnc_tiberian_dawn PRIVATE ws2_32)
 endif()
-
-# --- Optional executable (disabled by default until more gameplay code is ported) ---
-if(TD_BUILD_EXE)
-  add_executable(cnc_tiberian_dawn src/main.cpp)
-  target_link_libraries(cnc_tiberian_dawn PRIVATE td_port)
-  if(TD_SDL2MAIN_TARGET AND NOT MINGW)
-    target_link_libraries(cnc_tiberian_dawn PRIVATE ${TD_SDL2MAIN_TARGET})
-  endif()
-endif()
-
-enable_testing()
-
-add_executable(td_test_combuf src/tests/test_combuf.cpp)
-target_link_libraries(td_test_combuf PRIVATE td_port)
-add_test(NAME combuf_tests COMMAND td_test_combuf)
-
-add_executable(td_test_comqueue src/tests/test_comqueue.cpp)
-target_link_libraries(td_test_comqueue PRIVATE td_port)
-add_test(NAME comqueue_tests COMMAND td_test_comqueue)
-
-add_executable(td_test_dialog src/tests/test_dialog.cpp)
-target_link_libraries(td_test_dialog PRIVATE td_port)
-add_test(NAME dialog_tests COMMAND td_test_dialog)
-
-add_executable(td_test_dial_and_door src/tests/test_dial_and_door.cpp)
-target_link_libraries(td_test_dial_and_door PRIVATE td_port)
-add_test(NAME dial_and_door_tests COMMAND td_test_dial_and_door)
-
-add_executable(td_test_pcx_rle src/tests/test_pcx_rle.cpp)
-target_link_libraries(td_test_pcx_rle PRIVATE td_port)
-add_test(NAME pcx_rle_tests COMMAND td_test_pcx_rle)
-
-add_executable(extract_title src/tools/extract_title.cpp)
-target_link_libraries(extract_title PRIVATE td_port)
-
-add_executable(inspect_cps src/tools/inspect_cps.cpp)

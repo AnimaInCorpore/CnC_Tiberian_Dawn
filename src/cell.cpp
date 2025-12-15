@@ -36,6 +36,18 @@ CellClass::CellClass(void)
     InfType = HOUSE_NONE;
 }
 
+ObjectClass * CellClass::Cell_Occupier(void) const
+{
+    ObjectClass *ptr = OccupierPtr;
+
+    while (ptr && !ptr->IsActive) {
+        ptr = ptr->Next;
+        (const_cast<CellClass*>(this))->OccupierPtr = nullptr;
+    }
+
+    return ptr;
+}
+
 int CellClass::Cell_Color(bool override) const
 {
     Validate();
