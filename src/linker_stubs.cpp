@@ -418,14 +418,30 @@ void TeamTypeClass::operator delete(void* ptr) {
   TeamTypes.Free(static_cast<TeamTypeClass*>(ptr));
 }
 
-InfantryTypeClass const* const InfantryTypeClass::Pointers[INFANTRY_COUNT] = {nullptr};
+InfantryTypeClass const* const InfantryTypeClass::Pointers[INFANTRY_COUNT] __attribute__((visibility("default"))) = {nullptr};
 InfantryType InfantryTypeClass::From_Name(char const*) { return INFANTRY_NONE; }
-TemplateTypeClass const* const TemplateTypeClass::Pointers[TEMPLATE_COUNT] = {nullptr};
-TerrainTypeClass const* const TerrainTypeClass::Pointers[TERRAIN_COUNT] = {nullptr};
-SmudgeTypeClass const* const SmudgeTypeClass::Pointers[SMUDGE_COUNT] = {nullptr};
-OverlayTypeClass const* const OverlayTypeClass::Pointers[OVERLAY_COUNT] = {nullptr};
-UnitTypeClass const* const UnitTypeClass::Pointers[UNIT_COUNT] = {nullptr};
-void const* UnitTypeClass::WakeShapes = nullptr;
+TemplateTypeClass const* const TemplateTypeClass::Pointers[TEMPLATE_COUNT] __attribute__((visibility("default"))) = {nullptr};
+TerrainTypeClass const* const TerrainTypeClass::Pointers[TERRAIN_COUNT] __attribute__((visibility("default"))) = {nullptr};
+SmudgeTypeClass const* const SmudgeTypeClass::Pointers[SMUDGE_COUNT] __attribute__((visibility("default"))) = {nullptr};
+OverlayTypeClass const* const OverlayTypeClass::Pointers[OVERLAY_COUNT] __attribute__((visibility("default"))) = {nullptr};
+UnitTypeClass const* const UnitTypeClass::Pointers[UNIT_COUNT] __attribute__((visibility("default"))) = {nullptr};
+void const* UnitTypeClass::WakeShapes __attribute__((visibility("default"))) = nullptr;
+// Also expose mangled symbols directly to ensure they are available
+// to translation units that expect the class-static arrays as external
+// symbols (some legacy build configurations relied on these being
+// present in data translation units).
+SmudgeTypeClass const* const __attribute__((visibility("default"))) __ZN15SmudgeTypeClass8PointersE[SMUDGE_COUNT] = {nullptr};
+OverlayTypeClass const* const __attribute__((visibility("default"))) __ZN16OverlayTypeClass8PointersE[OVERLAY_COUNT] = {nullptr};
+InfantryTypeClass const* const __attribute__((visibility("default"))) __ZN17InfantryTypeClass8PointersE[INFANTRY_COUNT] = {nullptr};
+TemplateTypeClass const* const __attribute__((visibility("default"))) __ZN17TemplateTypeClass8PointersE[TEMPLATE_COUNT] = {nullptr};
+TerrainTypeClass const* const __attribute__((visibility("default"))) __ZN16TerrainTypeClass8PointersE[TERRAIN_COUNT] = {nullptr};
+UnitTypeClass const* const __attribute__((visibility("default"))) __ZN13UnitTypeClass8PointersE[UNIT_COUNT] = {nullptr};
+HouseTypeClass const* const __attribute__((visibility("default"))) __ZN14HouseTypeClass8PointersE[HOUSE_COUNT] = {nullptr};
+void const* __attribute__((visibility("default"))) __ZN13UnitTypeClass10WakeShapesE = nullptr;
+
+// Note: full data arrays live in their respective data translation units
+// (e.g., IDATA.CPP, SDATA.CPP). The minimal stubs above provide local
+// fallbacks for builds that omit those units.
 UnitTypeClass const& UnitTypeClass::As_Reference(UnitType unit) {
   alignas(UnitTypeClass) static unsigned char storage[sizeof(UnitTypeClass)] = {};
   static UnitTypeClass const& dummy = *reinterpret_cast<UnitTypeClass const*>(storage);

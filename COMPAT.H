@@ -84,6 +84,9 @@ extern "C" {
 
 extern unsigned char *Palette;
 extern unsigned char MDisabled;			// Is mouse disabled?
+#ifndef WORD
+typedef unsigned short WORD;
+#endif
 extern WORD Hard_Error_Occured;
 
 /*

@@ -45,7 +45,8 @@
  *   SmudgeTypeClass::One_Time -- Performs one-time initialization                             *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"defines.h"
+#include	"smudge.h"
 #include	"type.h"
 
 

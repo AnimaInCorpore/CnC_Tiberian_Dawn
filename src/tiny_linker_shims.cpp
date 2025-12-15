@@ -174,5 +174,5 @@ UnitType UnitTypeClass::From_Name(char const*) { return UNIT_NONE; }
 void FootClass::Debug_Dump(MonoClass*) const {}
 
 // TeamType minimal
-ObjectClass* TeamTypeClass::Create_One_Of() const { return nullptr; }
+TeamClass* TeamTypeClass::Create_One_Of() const { return nullptr; }
 
