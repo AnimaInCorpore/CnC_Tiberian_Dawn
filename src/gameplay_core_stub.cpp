@@ -55,21 +55,5 @@ int MapClass::Validate(void) { return 0; }
 
 void LogicClass::AI(void) {}
 
-UnitTrackerClass::UnitTrackerClass(int unit_count)
-    : UnitTotals(nullptr), UnitCount(unit_count), InNetworkFormat(0) {}
-
-UnitTrackerClass::~UnitTrackerClass(void) { delete[] UnitTotals; }
-
-void UnitTrackerClass::Increment_Unit_Total(int) {}
-
-void UnitTrackerClass::Decrement_Unit_Total(int) {}
-
-void UnitTrackerClass::Clear_Unit_Total(void) {}
-
-int UnitTrackerClass::Get_Unit_Total(int) { return 0; }
-
-long* UnitTrackerClass::Get_All_Totals(void) { return UnitTotals; }
-
-void UnitTrackerClass::To_Network_Format(void) { InNetworkFormat = 1; }
-
-void UnitTrackerClass::To_PC_Format(void) { InNetworkFormat = 0; }
+// UnitTrackerClass is implemented in utracker.cpp; do not provide
+// duplicate definitions here to avoid linker conflicts.

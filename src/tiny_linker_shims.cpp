@@ -44,20 +44,26 @@ UnitClass *As_Unit(TARGET) { return nullptr; }
 TechnoClass *As_Techno(TARGET) { return nullptr; }
 AircraftClass *As_Aircraft(unsigned short) { return nullptr; }
 
-bool Queue_Mission(TARGET, MissionType) { return false; }
-bool Queue_Mission(TARGET, MissionType, TARGET, TARGET) { return false; }
+// Stubbed mission helpers are defined in linker_small.cpp when necessary; avoid
+// duplicating them here.
+// bool Queue_Mission(TARGET, MissionType) { return false; }
+// bool Queue_Mission(TARGET, MissionType, TARGET, TARGET) { return false; }
 
-int Create_Air_Reinforcement(HouseClass *, AircraftType, int, MissionType, TARGET, TARGET) { return 0; }
+// int Create_Air_Reinforcement(HouseClass *, AircraftType, int, MissionType, TARGET, TARGET) { return 0; }
 
-bool WWWritePrivateProfileInt(char const *, char const *, int value, char *) { return value >= 0; }
-int WWGetPrivateProfileInt(char const *, char const *, int def, char *) { return def; }
+// Platform/profile helpers are provided by port_stubs.cpp; comment out the
+// duplicates here to prevent linker conflicts.
+// bool WWWritePrivateProfileInt(char const *, char const *, int value, char *) { return value >= 0; }
+// int WWGetPrivateProfileInt(char const *, char const *, int def, char *) { return def; }
 
 int Scan_Place_Object(ObjectClass *, CELL) { return 0; }
-int Distance_Coord(COORDINATE, COORDINATE) { return 0; }
-void const *Hires_Retrieve(char const *) { return nullptr; }
-void Validate_Error(char const *) {}
-int Version_Number(void) { return 0; }
-void *Load_Alloc_Data(FileClass &) { return nullptr; }
+// Use port_stubs.cpp implementations for these helpers to avoid duplicate
+// linkage.
+// int Distance_Coord(COORDINATE, COORDINATE) { return 0; }
+// void const *Hires_Retrieve(char const *) { return nullptr; }
+// void Validate_Error(char const *) {}
+// int Version_Number(void) { return 0; }
+// void *Load_Alloc_Data(FileClass &) { return nullptr; }
 
 void Unselect_All() {}
 
@@ -98,10 +104,11 @@ void MonoClass::Text_Print(int text, int x, int y, char attrib) { (void)text; (v
 void MonoClass::Draw_Box(int x, int y, int w, int h, char attrib, BoxStyleType thick) { (void)x; (void)y; (void)w; (void)h; (void)attrib; (void)thick; }
 
 // Free helpers from MONOC.H
+// Mono helpers are provided by port_stubs.cpp; comment out duplicates here.
 void Mono_Set_Cursor(int x, int y) { (void)x; (void)y; }
-int Mono_Printf(char const* string, ...) { (void)string; return 0; }
-void Mono_Clear_Screen(void) {}
-void Mono_Text_Print(void const* text, int x, int y, int attrib) { (void)text; (void)x; (void)y; (void)attrib; }
+// int Mono_Printf(char const* string, ...) { (void)string; return 0; }
+// void Mono_Clear_Screen(void) {}
+// void Mono_Text_Print(void const* text, int x, int y, int attrib) { (void)text; (void)x; (void)y; (void)attrib; }
 void Mono_Draw_Rect(int x, int y, int w, int h, int attrib, int thick) { (void)x; (void)y; (void)w; (void)h; (void)attrib; (void)thick; }
 void Mono_Print(void const* text) { (void)text; }
 int Mono_X(void) { return 0; }
@@ -124,6 +131,8 @@ int SmudgeClass::Validate() const { return 0; }
 
 // Message list minimal
 TextLabelClass* MessageListClass::Add_Message(char* txt, int color, TextPrintType t, int a, unsigned short b, unsigned short c) { (void)txt; (void)color; (void)t; (void)a; (void)b; (void)c; return nullptr; }
+MessageListClass::MessageListClass() {}
+MessageListClass::~MessageListClass() {}
 
 // Team minimal
 void TeamClass::Suspend_Teams(int priority) { (void)priority; }

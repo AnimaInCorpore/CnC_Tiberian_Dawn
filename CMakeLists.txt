@@ -105,12 +105,15 @@ set(TD_SOURCES
   src/legacy_vtables.cpp
   src/gameplay_core_stub.cpp
   src/gameplay_shims.cpp
-  src/gameplay_class_stubs.cpp
-  src/base_stub.cpp
+  src/gameplay_minimal_stubs.cpp
+  src/linker_small.cpp
   src/port_stubs.cpp
   src/link.cpp
   src/tiny_linker_shims.cpp
   src/list.cpp
+  # SDATA.CPP
+  # IDATA.CPP
+  # CDATA.CPP
   src/load_title.cpp
   src/maingame.cpp
   src/map_shim.cpp

@@ -261,6 +261,11 @@ int WWGetPrivateProfileInt(char const*, char const*, int def, char*) {
   return def;
 }
 
+bool WWWritePrivateProfileInt(char const* /*section*/, char const* /*entry*/, int value, char* /*profile*/) {
+  // Minimal behavior: writing succeeds when value is valid.
+  return value >= 0;
+}
+
 char* WWGetPrivateProfileString(char const*, char const*, char const* def,
                               char* dst, int dstlen, char*) {
   if (!dst || dstlen <= 0) return nullptr;
@@ -376,10 +381,9 @@ void Game_Startup(void*, int, int, int, bool) {}
 
 // -----------------------------------------------------------------------------
 // Missing gameplay/loop hooks
+// Note: EventClass constructors are implemented in event.cpp; avoid providing
+// duplicate definitions here to prevent linker conflicts.
 // -----------------------------------------------------------------------------
-EventClass::EventClass(EventType type) : Type(type), Frame(0), ID(0), IsExecuted(0), MPlayerID(0) {
-  std::memset(&Data, 0, sizeof(Data));
-}
 
 bool Init_Game(int, char**) {
   static bool initialized = false;
