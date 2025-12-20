@@ -22,6 +22,7 @@ Verify the nearest-neighbor SDL scale mode on present/title textures keeps text/
 Spot-check menu button text after centering tweak in `src/textbtn.cpp` to ensure vertical/horizontal alignment matches the Win95 layout.
 Decide whether to surface the `MonoClass` debug buffer (ported in `src/monoc.cpp`) via an SDL overlay or log sink for modern builds.
 Implement the `WWMouseClass` draw/erase overlay (cursor blit + restore) so the SDL render path shows the legacy cursor now that `GScreenClass::Blit_Display` uses it.
+Compare the main menu title background palette against Win95 output now that `src/load_title.cpp` no longer forces the first 16 UI colors.
 Confirm sidebar/radar button input wiring still routes through `GScreenClass::Buttons` once the real `MapClass` replaces the shim.
 Validate the palette interpolation fallback against Win95 output and tune the interpolation steps if the 2x scaled animations diverge.
 

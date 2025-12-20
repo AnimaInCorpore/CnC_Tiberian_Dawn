@@ -43,10 +43,15 @@ namespace {
 constexpr int kPaletteSize = 256 * 3;
 constexpr std::size_t kMaxScanSize = 2 * 1024 * 1024;
 
-unsigned char Expand_Pcx_Channel(unsigned char value) {
-	// Normalize palette bytes to 6-bit VGA scale.
+unsigned char Normalize_Pcx_Channel(unsigned char value) {
+	// Legacy PCX loader always downshifted palette entries to 6-bit.
+	return static_cast<unsigned char>(value >> 2);
+}
+
+unsigned char Normalize_Cps_Channel(unsigned char value) {
+	// CPS palettes are often already in 6-bit range; only downshift when needed.
 	if (value > 63) {
-		value = static_cast<unsigned char>(value >> 2);  // downscale 0..255 -> 0..63 without rounding up.
+		value = static_cast<unsigned char>(value >> 2);
 	}
 	return value;
 }
@@ -146,32 +151,6 @@ void Apply_Title_Palette(const unsigned char* source, unsigned char* dest) {
 	}
 }
 
-void Patch_Ui_Colors(unsigned char* palette) {
-	if (!palette) return;
-
-	static const unsigned char kUiColors[16 * 3] = {
-	    0,  0,  0,   // BLACK
-	    0,  0,  42,  // BLUE
-	    0,  42, 0,   // GREEN
-	    0,  42, 42,  // CYAN
-	    42, 0,  0,   // RED
-	    42, 0,  42,  // MAGENTA
-	    42, 21, 0,   // BROWN
-	    42, 42, 42,  // LTGREY
-	    21, 21, 21,  // DKGREY
-	    21, 21, 63,  // LTBLUE
-	    21, 63, 21,  // LTGREEN
-	    21, 63, 63,  // LTCYAN
-	    63, 21, 21,  // LTRED
-	    63, 21, 63,  // LTMAGENTA
-	    63, 63, 21,  // YELLOW
-	    63, 63, 63,  // WHITE
-	};
-
-	for (int i = 0; i < 16 * 3; ++i) {
-		palette[i] = kUiColors[i];
-	}
-}
 
 void Present_Title(GraphicViewPortClass* view) {
 	if (view == &HidPage) {
@@ -313,7 +292,7 @@ bool Decode_Cps(const std::vector<unsigned char>& data, DecodedPcx& output) {
 	output.has_palette = palette_bytes >= kPaletteSize;
 	if (output.has_palette) {
 		for (int index = 0; index < kPaletteSize; ++index) {
-			output.palette[index] = Expand_Pcx_Channel(palette_data[index]);
+			output.palette[index] = Normalize_Cps_Channel(palette_data[index]);
 		}
 	}
 
@@ -448,7 +427,7 @@ bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, Decoded
 	output.has_palette = true;
 	const unsigned char* palette_data = payload + palette_offset;
 	for (int index = 0; index < kPaletteSize; ++index) {
-		output.palette[index] = Expand_Pcx_Channel(palette_data[index]);
+		output.palette[index] = Normalize_Pcx_Channel(palette_data[index]);
 	}
 
 	return true;
@@ -733,10 +712,6 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 	if (loaded) {
 		if (pcx.has_palette) {
 			Apply_Title_Palette(pcx.palette, palette ? palette : Palette);
-			Patch_Ui_Colors(palette ? palette : Palette);
-			if (GamePalette) {
-				Patch_Ui_Colors(GamePalette);
-			}
 		}
 
 		// Optional debug dump: write the decoded image to PPM if requested.
