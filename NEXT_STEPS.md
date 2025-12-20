@@ -22,6 +22,7 @@ Status: Next steps. Scope: wire `CCMessageBox::Process` and audio entry points i
 
 ## Networking and multiplayer
 Status: Next steps. Scope: port IPX/Greenleaf stack (`IPX*.CPP`, `TCPIP.CPP`, `COMBUF/COMQUEUE`) onto SDL_net/standard sockets, preserving packet formats, session/lobby dialogs, determinism checks, and timeout behavior. Excludes local audio/render work.
+Port `PACKET.CPP` so PacketClass serialization uses the new `src/field.cpp` implementation for host/net conversions.
 
 ## Data loading and file I/O
 Status: Next steps. Scope: modernize MIX/raw/CC file handling (`MIXFILE.CPP`, `RAWFILE.CPP`, `CCFILE.CPP`) for cross-platform paths/endianness, and config/profile parsing for startup/save/load parity. Excludes gameplay logic changes.

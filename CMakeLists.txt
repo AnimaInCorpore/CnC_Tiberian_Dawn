@@ -56,6 +56,7 @@ set(TD_SOURCES
   src/combat.cpp
   src/bullet.cpp
   src/fuse.cpp
+  src/field.cpp
   src/cell.cpp
   src/combuf.cpp
   src/cargo.cpp

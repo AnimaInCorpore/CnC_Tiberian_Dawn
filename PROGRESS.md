@@ -73,7 +73,7 @@
 | `EXPAND.CPP` | `src/expand.cpp` | Expansion detection now mirrors the original `EXPAND.DAT` probe so NEWMENU layouts gate off the real data file. |
 | `FACING.CPP` | | To be ported. |
 | `FACTORY.CPP` | | To be ported. |
-| `FIELD.CPP` | | To be ported. |
+| `FIELD.CPP` | `src/field.cpp` | Ported to src/; moved to portable headers and retained original net byte-order conversions. |
 | `FINDPATH.CPP` | | To be ported. |
 | `FLASHER.CPP` | | To be ported. |
 | `FLY.CPP` | | To be ported. |
@@ -310,4 +310,3 @@
 
 ## Pending follow-ups
 - Implement audio decoder/mixer (decode .AUD/.JUV/.Vxx and mix via SDL; add panning/priority and voice queue)
-
