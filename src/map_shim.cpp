@@ -162,6 +162,8 @@ void MapStubClass::Set_Cursor(ObjectTypeClass const*) {}
 
 void MapStubClass::Set_Default_Mouse(MouseType, bool) {}
 
+void MapStubClass::Input(KeyNumType&, int, int) {}
+
 void MapStubClass::Set_Tactical_Position(COORDINATE coord) {
   TacticalCoord = coord;
 }

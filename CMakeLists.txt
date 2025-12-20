@@ -129,6 +129,9 @@ set(TD_SOURCES
   src/monoc.cpp
   src/mousehelp.cpp
   src/name_crc.cpp
+  src/noseqcon.cpp
+  src/nullconn.cpp
+  src/nullmgr.cpp
   src/object.cpp
   src/crew.cpp
   src/buffer_to_page.cpp

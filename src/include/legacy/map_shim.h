@@ -131,6 +131,7 @@ class MapStubClass
 		void Set_Cursor_Shape(short const* list);
 		void Set_Cursor(ObjectTypeClass const* object);
 		void Set_Default_Mouse(MouseType mouse, bool wwsmall = false);
+		void Input(KeyNumType& input, int x, int y);
 		void Set_Tactical_Position(COORDINATE coord);
 		bool Activate(int column);
 		bool Click_In_Radar(int x, int y, bool exact);

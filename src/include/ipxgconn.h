@@ -2,13 +2,13 @@
 
 #include "ipxconn.h"
 
-struct CommHeaderType {
+struct IPXCommHeaderType {
 	unsigned short Magic = 0;
 	unsigned short PacketID = 0;
 };
 
 struct GlobalHeaderType {
-	CommHeaderType Header{};
+	IPXCommHeaderType Header{};
 	IPXAddressClass Address{};
 	unsigned short ProductID = 0;
 };

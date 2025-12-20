@@ -4,15 +4,17 @@
 #include "legacy/ccdde.h"
 #include "legacy/function.h"
 #include "legacy/event.h"
+#include "legacy/connect.h"
 #include "legacy/externs.h"
 #include "legacy/gscreen.h"
 #include "legacy/intro.h"
-#include "legacy/nullmodem_stub.h"
+#include "legacy/nullmgr.h"
 #include "legacy/cdfile.h"
 #include "legacy/windows_compat.h"
 #include "legacy/logic.h"
 #include "legacy/options.h"
 #include "legacy/wwlib32.h"
+#include "legacy/jshell.h"
 #include "platform_input.h"
 #include "runtime_sdl.h"
 
@@ -29,7 +31,11 @@
 
 // Global ready flag and null modem instance expected by legacy code paths.
 bool ReadyToQuit = false;
-NullModemClass NullModem;
+NullModemClass NullModem(
+    16,
+    64,
+    (200 / sizeof(EventClass)) * sizeof(EventClass) + sizeof(CommHeaderType),
+    0x1234);
 DDEServerClass DDEServer;
 
 BOOL Send_Data_To_DDE_Server(char*, int, int) { return FALSE; }
@@ -165,6 +171,10 @@ int Bound(int value, int min, int max) {
 }
 
 void CCDebugString(char const* string) { std::fputs(string ? string : "", stderr); }
+
+int Check_Key(void) { return Keyboard::Check() != 0; }
+
+KeyNumType Get_Key(void) { return Keyboard::Get(); }
 
 // Mono helpers are implemented in src/monoc.cpp for the port build.
 

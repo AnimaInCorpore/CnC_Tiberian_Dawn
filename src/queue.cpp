@@ -76,7 +76,12 @@
  *   Print_Framesync_Values -- displays frame-sync variables               *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 #include "legacy/function.h"
-#include 	"tcpip.h"
+#include "legacy/connect.h"
+#include "legacy/connmgr.h"
+#include "legacy/ipxmgr.h"
+#include "legacy/nullmgr.h"
+#include "legacy/msglist.h"
+#include "tcpip.h"
 
 /********************************** Defines *********************************/
 #define SHOW_MONO	1
@@ -97,7 +102,7 @@ static unsigned long CRC[32] =
 	 0,0,0,0,0,0,0,0,0,0,
 	 0,0};
 
-static char *ColorNames[6] = {
+static const char *ColorNames[6] = {
 	"Yellow",
 	"Red",
 	"BlueGreen",
@@ -209,6 +214,8 @@ void Add_CRC(unsigned long *crc, unsigned long val);
 void Print_CRCs(EventClass *);
 
 extern void Keyboard_Process(KeyNumType &input);
+extern int Check_Key(void);
+extern KeyNumType Get_Key(void);
 void Dump_Packet_Too_Late_Stuff(EventClass *event);
 
 extern void Register_Game_End_Time(void);
@@ -838,9 +845,9 @@ static RetcodeType Wait_For_Players(int first_time, ConnManClass *net,
 	// Wait to hear from all other players
 	//------------------------------------------------------------------------
 	num_ready = 0;
-	retry_timer.Set (resend_delta, true);	// time to retry
-	dialog_timer.Set (dialog_time, true);	// time to show dlg
-	timeout_timer.Set (timeout, true);		// time to bail out
+	retry_timer.Set (resend_delta);	// time to retry
+	dialog_timer.Set (dialog_time);	// time to show dlg
+	timeout_timer.Set (timeout);		// time to bail out
 
 	while (1) {
 
@@ -854,7 +861,7 @@ static RetcodeType Wait_For_Players(int first_time, ConnManClass *net,
 		// number I'm on.
 		//---------------------------------------------------------------------
 		if (!retry_timer.Time()) {
-			retry_timer.Set (resend_delta, true);		// time to retry
+			retry_timer.Set (resend_delta);		// time to retry
 			Update_Queue_Mono (net, 3);
 			Send_FrameSync(net, my_sent);
 		}
@@ -896,9 +903,9 @@ static RetcodeType Wait_For_Players(int first_time, ConnManClass *net,
 				if (Handle_Timeout(net, their_frame, their_sent, their_recv)) {
 					Map.Flag_To_Redraw(true);	// erase modem reconnect dialog
 					Map.Render();
-					retry_timer.Set (resend_delta, true);
-					dialog_timer.Set (dialog_time, true);
-					timeout_timer.Set (timeout, true);
+					retry_timer.Set (resend_delta);
+					dialog_timer.Set (dialog_time);
+					timeout_timer.Set (timeout);
 				}
 				else {
 					return (RC_NOT_RESPONDING);
@@ -936,9 +943,9 @@ static RetcodeType Wait_For_Players(int first_time, ConnManClass *net,
 				//...............................................................
 				if (rc == RC_SERIAL_PROCESSED) {
 					net->Service();
-					retry_timer.Set (resend_delta, true);
-					dialog_timer.Set (dialog_time, true);
-					timeout_timer.Set (timeout, true);
+					retry_timer.Set (resend_delta);
+					dialog_timer.Set (dialog_time);
+					timeout_timer.Set (timeout);
 					continue;
 				}
 				//...............................................................
@@ -2201,7 +2208,7 @@ static int Build_Send_Packet(void *buf, int bufsize, int frame_delay,
  * HISTORY:                                                                *
  *   11/21/1995 DRD : Created.                                             *
  *=========================================================================*/
-static int Add_Uncompressed_Events(void *buf, int bufsize, int frame_delay,
+int Add_Uncompressed_Events(void *buf, int bufsize, int frame_delay,
 	int size, int cap)
 {
 	int num = 0;			// # of events processed
@@ -2277,7 +2284,7 @@ static int Add_Uncompressed_Events(void *buf, int bufsize, int frame_delay,
  * HISTORY:                                                                *
  *   11/21/1995 DRD : Created.                                             *
  *=========================================================================*/
-static int Add_Compressed_Events(void *buf, int bufsize, int frame_delay,
+int Add_Compressed_Events(void *buf, int bufsize, int frame_delay,
 	int size, int cap)
 {
 	int num = 0;							// # of events processed
@@ -2570,7 +2577,7 @@ static int Breakup_Receive_Packet(void *buf, int bufsize )
  * HISTORY:                                                                *
  *   11/21/1995 DRD : Created.                                             *
  *=========================================================================*/
-static int Extract_Uncompressed_Events(void *buf, int bufsize)
+int Extract_Uncompressed_Events(void *buf, int bufsize)
 {
 	int count = 0;
 	int pos = 0;
@@ -2628,7 +2635,7 @@ static int Extract_Uncompressed_Events(void *buf, int bufsize)
  * HISTORY:                                                                *
  *   11/21/1995 DRD : Created.                                             *
  *=========================================================================*/
-static int Extract_Compressed_Events(void *buf, int bufsize)
+int Extract_Compressed_Events(void *buf, int bufsize)
 {
 	int pos = 0;						// current buffer parsing position
 	int leftover = bufsize;			// # bytes left to process
@@ -3198,7 +3205,7 @@ static void Queue_Playback(void)
 		// If the user hit ESC, end the recording.  If this is an Attract-mode
 		// recording, end it no matter what the user does (any key or mouse).
 		//
-		if (key == KA_ESC || AllowAttract) {
+		if (key == KN_ESC || AllowAttract) {
 			GameActive = 0;
 			return;
 		}
@@ -4009,7 +4016,8 @@ static void Init_Queue_Mono(ConnManClass *net)
 		if (NetMonoMode==0) {
 			if (Frame==0 || NewMonoMode) {
 				net->Configure_Debug (0, sizeof (CommHeaderType),
-					sizeof(EventClass::EventType), EventClass::EventNames, 0);
+					sizeof(EventClass::EventType),
+					const_cast<char **>(EventClass::EventNames), 0);
 				net->Mono_Debug_Print (0,1);
 				NewMonoMode = 0;
 			}

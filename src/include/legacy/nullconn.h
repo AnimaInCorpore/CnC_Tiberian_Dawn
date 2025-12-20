@@ -49,7 +49,7 @@
 ********************************* Includes **********************************
 */
 #include "noseqcon.h"
-#include "commlib.h"
+#include "windows_compat.h"
 
 /*
 ********************************** Defines **********************************
@@ -117,10 +117,9 @@ class NullModemConnClass : public NonSequencedConnClass
 		int Send (char *buf, int buflen);
 
 		/*.....................................................................
-		This is the PORT value used by the GreenLeaf calls.
+		Transport handle (unused in the UDP-backed port).
 		.....................................................................*/
 		HANDLE PortHandle;
-		PORT *Port;
 
 		/*.....................................................................
 		This buffer is a staging area for data sent out; it includes the
@@ -137,4 +136,3 @@ class NullModemConnClass : public NonSequencedConnClass
 #endif
 
 /************************** end of nullconn.h ******************************/
-

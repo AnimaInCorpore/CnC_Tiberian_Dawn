@@ -68,7 +68,7 @@ using HANDLE = void*;
 #endif
 #include	"cell.h"
 #include	"getcd.h"
-#include	"nullmodem_stub.h"
+#include	"nullmgr.h"
 #include	"wintimer_stub.h"
 #include	"mmx_stub.h"
 

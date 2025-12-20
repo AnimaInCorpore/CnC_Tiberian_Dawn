@@ -46,7 +46,10 @@
 */
 #include "nullconn.h"
 #include "connmgr.h"
-#include "commlib.h"
+#include "defines.h"
+#include "compat.h"
+
+class GadgetClass;
 
 /*
 ***************************** Class Declaration *****************************
@@ -179,12 +182,6 @@ class NullModemClass : public ConnManClass
 		*/
 		NullModemConnClass *Connection;
 		int NumConnections;						// # connection objects in use
-
-		/*
-		**	This is the Greenleaf port handle.
-		*/
-		PORT *Port;
-		HANDLE	PortHandle;
 
 		int NumSend;
 		int NumReceive;

@@ -1,8 +1,9 @@
 #pragma once
 
 #include "ipxgconn.h"
+#include "legacy/connmgr.h"
 
-class IPXManagerClass {
+class IPXManagerClass : public ConnManClass {
 public:
 	static constexpr int CONNECT_MAX = 6;
 

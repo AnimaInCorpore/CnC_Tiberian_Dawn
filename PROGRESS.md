@@ -130,10 +130,10 @@
 | `MSGBOX.CPP` | | To be ported. |
 | `MSGLIST.CPP` | | To be ported. |
 | `NETDLG.CPP` | | To be ported. |
-| `NOSEQCON.CPP` | | To be ported. |
-| `NULLCONN.CPP` | | To be ported. |
+| `NOSEQCON.CPP` | `src/noseqcon.cpp` | Ported non-sequenced connection queue logic into src/ with modern headers. |
+| `NULLCONN.CPP` | `src/nullconn.cpp` | Ported NULL modem connection framing/CRC with UDP-backed send path. |
 | `NULLDLG.CPP` | | To be ported. |
-| `NULLMGR.CPP` | | To be ported. |
+| `NULLMGR.CPP` | `src/nullmgr.cpp` | Ported NULL modem manager with UDP-based transport, queue/timing, and buffer parsing. |
 | `OBJECT.CPP` | | To be ported. |
 | `ODATA.CPP` | | To be ported. |
 | `OPTIONS.CPP` | | To be ported. |
@@ -207,7 +207,7 @@
 | `CHEKLIST.H` | `src/include/legacy/cheklist.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `COLRLIST.H` | `src/include/legacy/colrlist.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `COMBUF.H` | `src/include/legacy/combuf.h` | Lowercase mirror retained for Linux-friendly includes. |
-| `COMQUEUE.H` | `src/include/legacy/comqueue.h` | Lowercase mirror retained for Linux-friendly includes. |
+| `COMQUEUE.H` | `src/include/legacy/comqueue.h` | Reuses the combuf queue entry structs to avoid duplicate typedef conflicts. |
 | `CONFDLG.H` | `src/include/legacy/confdlg.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `CONNECT.H` | `src/include/legacy/connect.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `CONNMGR.H` | `src/include/legacy/connmgr.h` | Lowercase mirror retained for Linux-friendly includes. |
