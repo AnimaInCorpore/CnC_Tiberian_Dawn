@@ -300,6 +300,14 @@ void __cdecl Prog_End(void);
 **	ANIM.CPP
 */
 void Shorten_Attached_Anims(ObjectClass * obj);
+using WSAOpenType = int;
+constexpr int WSA_OPEN_FROM_MEM = 1 << 0;
+constexpr int WSA_OPEN_TO_PAGE = 1 << 1;
+void* Open_Animation(char const* name, void* buffer, long length, WSAOpenType flags, void* palette);
+void Animate_Frame(void const* anim, GraphicBufferClass& dest, int frame);
+int Get_Animation_Frame_Count(void const* anim);
+void Close_Animation(void* anim);
+extern bool StreamLowImpact;
 
 /*
 **	AUDIO.CPP
@@ -310,6 +318,7 @@ void Speak_AI(void);
 void Stop_Speaking(void);
 void Sound_Effect(VocType voc, COORDINATE coord=0, int variation=1);
 bool Is_Speaking(void);
+int Play_Sample(void const* data, int priority, int volume, int pan = 0);
 
 /*
 **	COMBAT.CPP
@@ -334,6 +343,9 @@ TheaterType Theater_From_Name(char const *name);
 void Main_Game(int argc, char *argv[]);
 long VQ_Call_Back(unsigned char * buffer=NULL, long frame=0);
 void Call_Back(void);
+int Check_Key(void);
+int Get_Key(void);
+void Wait_Blit(void);
 char const *Language_Name(char const *basename);
 SourceType Source_From_Name(char const *name);
 char const *Name_From_Source(SourceType source);
@@ -344,6 +356,8 @@ void Register_Icon_Set(void *iconset, bool cache);
 void CC_Draw_Shape(void const * shapefile, int shapenum, int x, int y, WindowNumberType window, ShapeFlags_Type flags, void const * fadingdata=0, void const * ghostdata=0);
 void* Add_Long_To_Pointer(void* ptr, long offset);
 void Buffer_To_Page(int x, int y, int width, int height, void const* src, GraphicBufferClass& dest);
+void Buffer_To_Page(int x, int y, int width, int height, void const* src, GraphicViewPortClass& dest);
+void Buffer_To_Page(int x, int y, int width, int height, void const* src, GraphicViewPortClass* dest);
 void Go_Editor(bool flag);
 long MixFileHandler(VQAHandle *vqa, long action, void *buffer, long nbytes);
 
@@ -494,6 +508,9 @@ void *Build_Translucent_Table(void const *palette, TLucentType const *control, i
 void *Conquer_Build_Translucent_Table(void const *palette, TLucentType const *control, int count, void *buffer);
 void *Build_Fading_Table(void const *palette, void *dest, int color, int frac);
 void Fade_Palette_To(unsigned char *palette, int speed, void (*callback)(void));
+void Set_Palette(void const* palette);
+void Convert_RGB_To_HSV(unsigned r, unsigned g, unsigned b, unsigned* h, unsigned* s, unsigned* v);
+void Convert_HSV_To_RGB(unsigned h, unsigned s, unsigned v, unsigned* r, unsigned* g, unsigned* b);
 
 /*
 **	KEYFBUFF.ASM
@@ -511,6 +528,7 @@ unsigned short Get_Build_Frame_Y(void const *dataptr);
 unsigned short Get_Build_Frame_Width(void const *dataptr);
 unsigned short Get_Build_Frame_Height(void const *dataptr);
 bool Get_Build_Frame_Palette(void const *dataptr, void *palette);
+int Extract_Shape_Count(void const* shape);
 
 /*
 **	MAP.CPP

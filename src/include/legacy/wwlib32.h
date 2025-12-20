@@ -30,10 +30,23 @@ class GraphicBufferClass {
   GraphicBufferClass(int width, int height, void* data = nullptr);
   void Init(int width, int height, void* data = nullptr, int = 0, GBC_Enum flags = GBC_Enum{});
   void Blit(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width, int height) const;
+  void Blit(GraphicViewPortClass& dest) const;
+  void Blit(GraphicBufferClass& dest) const;
+  void Blit(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width, int height, bool) const;
+  void Blit(GraphicBufferClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width, int height) const;
+  void Fill_Rect(int x1, int y1, int x2, int y2, int color);
+  void Draw_Line(int x1, int y1, int x2, int y2, int color);
+  void Print(char const* text, int x, int y, int fore, int back);
+  void Print(int text_id, int x, int y, int fore, int back);
 
   bool Is_Valid() const;
   int Get_Width() const;
   int Get_Height() const;
+  bool Get_IsDirectDraw() const;
+  bool Lock();
+  void Unlock();
+  void* Get_Offset();
+  const void* Get_Offset() const;
   unsigned char* Get_Buffer();
   const unsigned char* Get_Buffer() const;
   void Clear() { std::fill(storage_.begin(), storage_.end(), 0); }
@@ -65,13 +78,29 @@ constexpr int KN_UP = SDLK_UP;
 constexpr int KN_DOWN = SDLK_DOWN;
 constexpr int KN_LEFT = SDLK_LEFT;
 constexpr int KN_RIGHT = SDLK_RIGHT;
+constexpr int KN_TAB = SDLK_TAB;
 constexpr int KN_RETURN = SDLK_RETURN;
+constexpr int KN_BACKSPACE = SDLK_BACKSPACE;
 #else
 constexpr int KN_UP = 0x4800;
 constexpr int KN_DOWN = 0x5000;
 constexpr int KN_LEFT = 0x4B00;
 constexpr int KN_RIGHT = 0x4D00;
+constexpr int KN_TAB = 0x0009;
 constexpr int KN_RETURN = 0x000D;
+constexpr int KN_BACKSPACE = 0x0008;
+#endif
+
+constexpr int KA_ESC = 0x001B;
+constexpr int KA_RETURN = 0x000D;
+constexpr int KA_BACKSPACE = 0x0008;
+constexpr int KA_TILDA = 0x007E;
+constexpr int WWKEY_VK_BIT = 0x1000;
+
+#if defined(TD_PORT_USE_SDL2)
+constexpr int KN_Q = SDLK_q;
+#else
+constexpr int KN_Q = 'q';
 #endif
 
 // Legacy graphic buffer flags used by the Westwood runtime.
@@ -134,6 +163,7 @@ class GraphicViewPortClass {
   void Remap(int x, int y, int width, int height, const unsigned char* table);
   void Put_Pixel(int x, int y, int color);
   int Get_Pixel(int x, int y) const;
+  void To_Buffer(int x, int y, int width, int height, void* dest, int dest_size) const;
   bool Contains(int x, int y) const;
   void Draw_Stamp(void const* iconset, int icon, int x, int y, void const* remap, int window);
   void Scale(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width, int height,
@@ -143,9 +173,14 @@ class GraphicViewPortClass {
   int Get_YPos() const;
   int Get_Width() const;
   int Get_Height() const;
+  int Get_XAdd() const;
+  int Get_Pitch() const;
+  void* Get_Offset();
+  const void* Get_Offset() const;
   GraphicBufferClass* Get_Graphic_Buffer() const;
   bool Get_IsDirectDraw() const;
   void Blit(const GraphicBufferClass& src, int src_x, int src_y, int dst_x, int dst_y, int width, int height);
+  void Blit(const GraphicBufferClass& src);
   void Blit(const GraphicViewPortClass& src, int src_x, int src_y, int dst_x, int dst_y, int width, int height);
   void Blit(const GraphicViewPortClass& src, int dst_x, int dst_y);
   void Blit(const GraphicViewPortClass& src);
@@ -235,6 +270,9 @@ extern SurfaceCollectionStub AllSurfaces;
 // The runtime keeps a "current" drawing surface that UI widgets reference.
 extern GraphicViewPortClass* LogicPage;
 GraphicViewPortClass* Set_Logic_Page(GraphicViewPortClass& page);
+GraphicViewPortClass* Set_Logic_Page(GraphicViewPortClass* page);
+GraphicViewPortClass* Set_Logic_Page(GraphicBufferClass& page);
+GraphicViewPortClass* Set_Logic_Page(GraphicBufferClass* page);
 
 // Video mode helpers expected by the legacy launch code.
 constexpr int RESET_MODE = -1;
@@ -267,6 +305,9 @@ void const* Set_Current_Font(void const* font);
 void const* Get_Current_Font();
 void Set_Gradient_Font_6(void const* font);
 void const* Get_Gradient_Font_6();
+inline void* Set_Font(void const* font) {
+  return const_cast<void*>(Set_Current_Font(font));
+}
 void Platform_Set_Fonts(const void* current_font, const void* gradient_font6,
                         int font_height, int font_y_spacing);
 

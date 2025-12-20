@@ -1,5 +1,6 @@
 #include "legacy/map_shim.h"
 #include "legacy/function.h"
+#include "legacy/gscreen.h"
 
 MapStubClass::MapStubClass()
     : PendingHouse(HOUSE_NONE),
@@ -13,6 +14,8 @@ MapStubClass::MapStubClass()
       TacPixelY(0),
       TacLeptonWidth(0),
       TacLeptonHeight(0),
+      RadY(0),
+      RadHeight(0),
       TacticalCoord(0),
       DesiredTacticalCoord(0),
       SpecialRadarFrame(0),
@@ -48,6 +51,8 @@ void MapStubClass::One_Time() {
   TacPixelY = 0;
   TacLeptonWidth = 0;
   TacLeptonHeight = 0;
+  RadY = 0;
+  RadHeight = 0;
   TacticalCoord = 0;
   DesiredTacticalCoord = 0;
   SpecialRadarFrame = 0;
@@ -204,6 +209,19 @@ void MapStubClass::Help_Text(int, int, int, int, bool, int) {}
 void MapStubClass::Zoom_Mode(CELL cell) {
   IsZoomed = true;
   TacticalCoord = Cell_Coord(cell);
+}
+
+void MapStubClass::Add_A_Button(GadgetClass& gadget) {
+  gadget.Remove();
+  if (GScreenClass::Buttons) {
+    GScreenClass::Buttons = static_cast<GadgetClass*>(&gadget.Add_Head(*GScreenClass::Buttons));
+  } else {
+    GScreenClass::Buttons = &gadget;
+  }
+}
+
+void MapStubClass::Remove_A_Button(GadgetClass& gadget) {
+  GScreenClass::Buttons = static_cast<GadgetClass*>(gadget.Remove());
 }
 
 COORDINATE MapStubClass::Closest_Free_Spot(COORDINATE coord, bool) const {

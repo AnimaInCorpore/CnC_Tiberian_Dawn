@@ -53,6 +53,7 @@ class OptionsClass {
 		void Fixup_Palette(void) const;
 		void Set_Shuffle(int on);
 		void Set_Repeat(int on);
+		void Set_Score_Vol(int volume) { Set_Score_Volume(volume); }
 		void Set_Score_Volume(int volume);
 		void Set_Sound_Volume(int volume, int feedback);
 		void Set_Brightness(int brightness);

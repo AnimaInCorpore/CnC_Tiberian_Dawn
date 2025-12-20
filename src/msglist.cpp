@@ -44,6 +44,7 @@
  *   MessageListClass::Set_Width -- sets allowable width of messages       *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+#include "msglist.h"
 #include "function.h"
 
 
@@ -805,4 +806,3 @@ void MessageListClass::Set_Width(int width)
 		}
 	}
 }
-

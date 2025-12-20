@@ -29,6 +29,7 @@
 #include <cstring>
 #include <cstdio>
 #include <limits>
+#include <cmath>
 
 namespace {
 
@@ -457,4 +458,84 @@ void Fade_Palette_To(unsigned char* target_palette, int speed, void (*callback)(
 
 	Copy_Palette(target_palette, Palette);
 	Copy_Palette(Palette, GamePalette);
+}
+
+void Set_Palette(void const* palette) {
+	if (!palette) return;
+	Prepare_Global_Palettes();
+	Copy_Palette(static_cast<const unsigned char*>(palette), Palette);
+	Copy_Palette(Palette, GamePalette);
+}
+
+void Convert_RGB_To_HSV(unsigned r, unsigned g, unsigned b, unsigned* h, unsigned* s, unsigned* v) {
+	if (!h || !s || !v) return;
+
+	const float rf = static_cast<float>(r) / 255.0f;
+	const float gf = static_cast<float>(g) / 255.0f;
+	const float bf = static_cast<float>(b) / 255.0f;
+	const float maxc = std::max({rf, gf, bf});
+	const float minc = std::min({rf, gf, bf});
+	const float delta = maxc - minc;
+
+	float hf = 0.0f;
+	if (delta > 0.0f) {
+		if (maxc == rf) {
+			hf = (gf - bf) / delta;
+		} else if (maxc == gf) {
+			hf = 2.0f + (bf - rf) / delta;
+		} else {
+			hf = 4.0f + (rf - gf) / delta;
+		}
+		hf *= 60.0f;
+		if (hf < 0.0f) {
+			hf += 360.0f;
+		}
+	}
+
+	const float sf = maxc <= 0.0f ? 0.0f : (delta / maxc);
+	const float vf = maxc;
+
+	*h = static_cast<unsigned>(std::lround(hf * 255.0f / 360.0f));
+	*s = static_cast<unsigned>(std::lround(sf * 255.0f));
+	*v = static_cast<unsigned>(std::lround(vf * 255.0f));
+}
+
+void Convert_HSV_To_RGB(unsigned h, unsigned s, unsigned v, unsigned* r, unsigned* g, unsigned* b) {
+	if (!r || !g || !b) return;
+
+	const float hf = (static_cast<float>(h) / 255.0f) * 360.0f;
+	const float sf = static_cast<float>(s) / 255.0f;
+	const float vf = static_cast<float>(v) / 255.0f;
+
+	if (sf <= 0.0f) {
+		const unsigned value = static_cast<unsigned>(std::lround(vf * 255.0f));
+		*r = value;
+		*g = value;
+		*b = value;
+		return;
+	}
+
+	const float sector = hf / 60.0f;
+	const int i = static_cast<int>(std::floor(sector)) % 6;
+	const float f = sector - std::floor(sector);
+	const float p = vf * (1.0f - sf);
+	const float q = vf * (1.0f - sf * f);
+	const float t = vf * (1.0f - sf * (1.0f - f));
+
+	float rf = vf;
+	float gf = t;
+	float bf = p;
+	switch (i) {
+		case 0: rf = vf; gf = t; bf = p; break;
+		case 1: rf = q; gf = vf; bf = p; break;
+		case 2: rf = p; gf = vf; bf = t; break;
+		case 3: rf = p; gf = q; bf = vf; break;
+		case 4: rf = t; gf = p; bf = vf; break;
+		case 5: rf = vf; gf = p; bf = q; break;
+		default: break;
+	}
+
+	*r = static_cast<unsigned>(std::lround(rf * 255.0f));
+	*g = static_cast<unsigned>(std::lround(gf * 255.0f));
+	*b = static_cast<unsigned>(std::lround(bf * 255.0f));
 }

@@ -48,6 +48,13 @@
 #include	"defines.h"
 #include	"smudge.h"
 #include	"type.h"
+#include	"conquer.h"
+#include	"display.h"
+#include	"externs.h"
+#include	"function.h"
+#include	"map_shim.h"
+#include	"mixfile.h"
+#include	"wwlib32.h"
 
 
 static SmudgeTypeClass const Crater1 (
@@ -471,4 +478,3 @@ void SmudgeTypeClass::Draw_It(int x, int y, int data) const
 void SmudgeTypeClass::One_Time(void)
 {
 }
-

@@ -51,6 +51,10 @@
 #ifndef MSGLIST_H
 #define MSGLIST_H
 
+#include "compat.h"
+#include "defines.h"
+#include "txtlabel.h"
+
 /*
 **	Class declaration
 */

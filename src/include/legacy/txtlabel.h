@@ -38,6 +38,9 @@
 #ifndef TXTLABEL_H
 #define TXTLABEL_H
 
+#include "defines.h"
+#include "gadget.h"
+
 class TextLabelClass : public GadgetClass
 {
 	public:
@@ -69,4 +72,3 @@ class TextLabelClass : public GadgetClass
 };
 
 #endif
-

@@ -40,6 +40,7 @@
 
 #include	"object.h"
 #include	"type.h"
+#include	"wwfile.h"
 
 /******************************************************************************
 **	This is the transitory form for smudges. They exist as independent objects

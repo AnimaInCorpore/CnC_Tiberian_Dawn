@@ -4,6 +4,7 @@ Tackle one chunk at a time; when a chunk has no remaining next steps, mark it wi
 ## Build system and source layout
 Status: Next steps. Scope: move legacy sources into `src/` with lowercase names, fix includes, strip Watcom/segmented keywords, and keep `CMakeLists.txt` in sync. Uppercase `src` filenames have been normalized; continue migrating the remaining legacy files. Excludes gameplay/runtime changes.
 Verify the SDL executable still links after adding the remaining ported stubs (base/gameplay/linker) to `CMakeLists.txt`.
+Port the remaining legacy helpers needed for link parity (`CONQUER.CPP`, `DIALOG.CPP`, `INI.CPP`, `SCENARIO.CPP`, `INIT.CPP`, `NETDLG.CPP`, `NULLDLG.CPP`, `KEYFRAME.CPP`, `MAPSEL.CPP`) so core utilities (Fading_Table_Name, Simple_Text_Print, Obfuscate, WSA helpers, etc.) move into `src/`.
 
 ## Platform abstraction with SDL
 Status: Next steps. Scope: create SDL2/SDL_net shims for video/audio/input/network only; replace DirectDraw/DirectSound/DirectInput/IPX/Greenleaf entry points while keeping call signatures so upper layers stay untouched.
@@ -19,6 +20,8 @@ Re-check 6pt/8pt text spacing after mirroring the legacy Simple_Text_Print x/y o
 Verify the nearest-neighbor SDL scale mode on present/title textures keeps text/UI pixels crisp across macOS/Windows output scaling.
 Spot-check menu button text after centering tweak in `src/textbtn.cpp` to ensure vertical/horizontal alignment matches the Win95 layout.
 Decide whether to surface the `MonoClass` debug buffer (ported in `src/monoc.cpp`) via an SDL overlay or log sink for modern builds.
+Confirm sidebar/radar button input wiring still routes through `GScreenClass::Buttons` once the real `MapClass` replaces the shim.
+Replace the palette interpolation assembly helpers with portable C/C++ implementations so `src/interpal.cpp` no longer depends on asm symbols.
 
 ## Audio and messaging
 Status: Next steps. Scope: wire `CCMessageBox::Process` and audio entry points in `src/linker_stubs.cpp`; rebuild `src/audio_stub.cpp` to match `AUDIO.CPP` mixing/streaming via SDL with original volume/priority/voice rules. Excludes rendering or net.

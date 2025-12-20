@@ -53,3 +53,16 @@ void Buffer_To_Page(int x, int y, int width, int height, void const* src, Graphi
     std::memcpy(dst_row_ptr, src_row_ptr, static_cast<std::size_t>(copy_width));
   }
 }
+
+void Buffer_To_Page(int x, int y, int width, int height, void const* src, GraphicViewPortClass& dest) {
+  auto* buffer = dest.Get_Graphic_Buffer();
+  if (!buffer) return;
+  const int offset_x = dest.Get_XPos();
+  const int offset_y = dest.Get_YPos();
+  Buffer_To_Page(x + offset_x, y + offset_y, width, height, src, *buffer);
+}
+
+void Buffer_To_Page(int x, int y, int width, int height, void const* src, GraphicViewPortClass* dest) {
+  if (!dest) return;
+  Buffer_To_Page(x, y, width, height, src, *dest);
+}

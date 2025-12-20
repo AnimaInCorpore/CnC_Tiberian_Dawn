@@ -312,6 +312,46 @@
 | `VISUDLG.H` | `src/include/legacy/visudlg.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `WWALLOC.H` | `src/include/legacy/wwalloc.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `MAP_SHIM.H` | `src/include/legacy/map_shim.h` | Map stub header updated with missing shim helpers/fields (cell effects + theater) needed by drive/overlay/terrain logic during the SDL bring-up. |
+| `MAP_SHIM.H` | `src/include/legacy/map_shim.h` | Added missing sidebar/radar shim members plus gadget helpers for the sidebar build path. |
+| `MAP_SHIM.CPP` | `src/map_shim.cpp` | Initialized radar geometry and wired shim add/remove button helpers into the shared button list. |
+| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added `KN_TAB` and `Set_Font` helper to align sidebar/font usage with SDL key constants. |
+| `OPTIONS.H` | `src/include/legacy/options.h` | Added legacy `Set_Score_Vol` alias for score volume control. |
+| `FUNCTION.H` | `src/include/legacy/function.h` | Declared palette helpers and RGB/HSV conversion utilities used by options and score flows. |
+| `DISPLAY.CPP` | `src/display.cpp` | Added palette setter plus HSV conversion helpers to support options palette adjustments. |
+| `MSGLIST.CPP` | `src/msglist.cpp` | Included the message list header so the class definitions are complete for compilation. |
+| `MSGLIST.H` | `src/include/legacy/msglist.h` | Added required includes so message list types/constants resolve. |
+| `TXTLABEL.H` | `src/include/legacy/txtlabel.h` | Added missing includes for gadget and text flag dependencies. |
+| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added legacy key constants and new blit/to-buffer helper declarations. |
+| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | Implemented buffer blit overload and viewport copy helpers for message dialogs. |
+| `FUNCTION.H` | `src/include/legacy/function.h` | Declared Buffer_To_Page overloads for viewports. |
+| `BUFFER_TO_PAGE.CPP` | `src/buffer_to_page.cpp` | Added viewport overloads for raw buffer copies. |
+| `FTIMER.H` | `src/include/legacy/ftimer.h` | Added CountDownTimerClass start helper for modal message timing. |
+| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added viewport blit overloads for message box restore paths. |
+| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | Implemented viewport blit overload for buffer restore in dialogs. |
+| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added buffer-to-buffer blit overloads used by message box saves. |
+| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | Implemented buffer-to-buffer blit for dialog buffer preservation. |
+| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added logic-page overloads and text print helpers for score rendering. |
+| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | Implemented buffer-backed logic pages and buffer text printing for score flows. |
+| `FUNCTION.H` | `src/include/legacy/function.h` | Declared Play_Sample for score audio hooks. |
+| `AUDIO.CPP` | `src/audio.cpp` | Removed duplicate default argument on Play_Sample declaration. |
+| `FUNCTION.H` | `src/include/legacy/function.h` | Added WSA animation declarations and StreamLowImpact flag used by score screens. |
+| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Added placeholder animation loaders and StreamLowImpact storage for score sequences. |
+| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added buffer blit/fill helpers needed by score screen drawing. |
+| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | Implemented buffer blit/fill helpers and Check_Key shim for score loops. |
+| `FUNCTION.H` | `src/include/legacy/function.h` | Added Close_Animation/Check_Key/Extract_Shape_Count declarations for score flow. |
+| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Added placeholder Close_Animation and Extract_Shape_Count to keep score playback building. |
+| `SCORE.CPP` | `src/score.cpp` | Fixed palette type and loop variable scoping for modern C++ builds. |
+| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added KN_Q/KA_TILDA constants and buffer line drawing hook. |
+| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | Implemented buffer line drawing and Get_Key shim. |
+| `FUNCTION.H` | `src/include/legacy/function.h` | Added Get_Key declaration for score name entry. |
+| `SCORE.CPP` | `src/score.cpp` | Updated multi-score palettes to unsigned char to avoid narrowing errors. |
+| `SCORE.CPP` | `src/score.cpp` | Aligned multi-score palette pointer types with unsigned char buffers. |
+| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added lock/offset and pitch helpers needed by palette interpolation. |
+| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | Implemented buffer/view offsets plus lock helpers for interpolation paths. |
+| `FUNCTION.H` | `src/include/legacy/function.h` | Added Wait_Blit declaration for interpolation flow. |
+| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Added Wait_Blit placeholder for palette interpolation paths. |
+| `SMUDGE.H` | `src/include/legacy/smudge.h` | Included `wwfile.h` so FileClass I/O methods resolve. |
+| `SDATA.CPP` | `src/sdata.cpp` | Added missing legacy includes for theater/mix/map helpers used by smudge setup. |
 
 ## Pending follow-ups
 - Implement audio decoder/mixer (decode .AUD/.JUV/.Vxx and mix via SDL; add panning/priority and voice queue)

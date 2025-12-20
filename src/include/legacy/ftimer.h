@@ -94,6 +94,7 @@ class CountDownTimerClass : public TCountDownTimerClass {
   CountDownTimerClass(int /*mode*/ = 0, long delay = 0) : TCountDownTimerClass(delay) {}
 
   void Set(long set) { TCountDownTimerClass::Set(set); }
+  void Start() { Started = Frame; }
   long Time() const { return TCountDownTimerClass::Time(); }
   void Clear() { TCountDownTimerClass::Clear(); }
   bool Expired() const { return TCountDownTimerClass::Expired(); }

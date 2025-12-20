@@ -2,6 +2,7 @@
 #include "legacy/defines.h"
 #include "legacy/display.h"
 #include "legacy/externs.h"
+#include "legacy/function.h"
 #include "legacy/gscreen.h"
 #include "runtime_sdl.h"
 
@@ -176,11 +177,92 @@ void GraphicBufferClass::Blit(GraphicViewPortClass& dest, int src_x, int src_y, 
   dest.Blit(*this, src_x, src_y, dst_x, dst_y, width, height);
 }
 
+void GraphicBufferClass::Blit(GraphicViewPortClass& dest) const {
+  dest.Blit(*this, 0, 0, 0, 0, width_, height_);
+}
+
+void GraphicBufferClass::Blit(GraphicBufferClass& dest) const {
+  if (!Is_Valid() || !dest.Is_Valid()) return;
+  const int copy_width = std::min(width_, dest.Get_Width());
+  const int copy_height = std::min(height_, dest.Get_Height());
+  const auto* src_buffer = Get_Buffer();
+  auto* dst_buffer = dest.Get_Buffer();
+  if (!src_buffer || !dst_buffer) return;
+  for (int y = 0; y < copy_height; ++y) {
+    std::memcpy(dst_buffer + y * dest.Get_Width(), src_buffer + y * width_,
+                static_cast<std::size_t>(copy_width));
+  }
+}
+
+void GraphicBufferClass::Blit(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width,
+                              int height, bool) const {
+  Blit(dest, src_x, src_y, dst_x, dst_y, width, height);
+}
+
+void GraphicBufferClass::Fill_Rect(int x1, int y1, int x2, int y2, int color) {
+  GraphicViewPortClass view(this, 0, 0, width_, height_);
+  view.Fill_Rect(x1, y1, x2, y2, color);
+}
+
+void GraphicBufferClass::Draw_Line(int x1, int y1, int x2, int y2, int color) {
+  GraphicViewPortClass view(this, 0, 0, width_, height_);
+  view.Draw_Line(x1, y1, x2, y2, color);
+}
+
+void GraphicBufferClass::Blit(GraphicBufferClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width,
+                              int height) const {
+  if (!Is_Valid() || !dest.Is_Valid()) return;
+  const auto* src_buffer = Get_Buffer();
+  auto* dst_buffer = dest.Get_Buffer();
+  if (!src_buffer || !dst_buffer) return;
+
+  const int dest_width = dest.Get_Width();
+  const int dest_height = dest.Get_Height();
+  const int src_width = width_;
+  const int src_height = height_;
+
+  for (int y = 0; y < height; ++y) {
+    const int source_y = src_y + y;
+    const int target_y = dst_y + y;
+    if (source_y < 0 || target_y < 0 || source_y >= src_height || target_y >= dest_height) continue;
+    for (int x = 0; x < width; ++x) {
+      const int source_x = src_x + x;
+      const int target_x = dst_x + x;
+      if (source_x < 0 || target_x < 0 || source_x >= src_width || target_x >= dest_width) continue;
+      dst_buffer[target_y * dest_width + target_x] = src_buffer[source_y * src_width + source_x];
+    }
+  }
+}
+
+void GraphicBufferClass::Print(char const* text, int x, int y, int fore, int back) {
+  if (!text) return;
+  GraphicViewPortClass view(this, 0, 0, width_, height_);
+  GraphicViewPortClass* old = LogicPage;
+  LogicPage = &view;
+  Simple_Text_Print(text, static_cast<unsigned>(x), static_cast<unsigned>(y),
+                    static_cast<unsigned>(fore), static_cast<unsigned>(back), TPF_8POINT);
+  LogicPage = old;
+}
+
+void GraphicBufferClass::Print(int text_id, int x, int y, int fore, int back) {
+  Print(Text_String(text_id), x, y, fore, back);
+}
+
 bool GraphicBufferClass::Is_Valid() const { return width_ > 0 && height_ > 0; }
 
 int GraphicBufferClass::Get_Width() const { return width_; }
 
 int GraphicBufferClass::Get_Height() const { return height_; }
+
+bool GraphicBufferClass::Get_IsDirectDraw() const { return false; }
+
+bool GraphicBufferClass::Lock() { return true; }
+
+void GraphicBufferClass::Unlock() {}
+
+void* GraphicBufferClass::Get_Offset() { return Get_Buffer(); }
+
+const void* GraphicBufferClass::Get_Offset() const { return Get_Buffer(); }
 
 unsigned char* GraphicBufferClass::Get_Buffer() { return storage_.empty() ? nullptr : storage_.data(); }
 
@@ -364,6 +446,35 @@ int GraphicViewPortClass::Get_Pixel(int x, int y) const {
   return buffer[rel_y * impl_->buffer->Get_Width() + rel_x];
 }
 
+void GraphicViewPortClass::To_Buffer(int x, int y, int width, int height, void* dest, int dest_size) const {
+  if (!dest || width <= 0 || height <= 0 || dest_size <= 0) return;
+  const auto* buffer = impl_->buffer ? impl_->buffer->Get_Buffer() : nullptr;
+  if (!buffer) return;
+
+  const int start_x = std::max(x, impl_->x);
+  const int start_y = std::max(y, impl_->y);
+  const int end_x = std::min(x + width, impl_->x + impl_->width);
+  const int end_y = std::min(y + height, impl_->y + impl_->height);
+  if (start_x >= end_x || start_y >= end_y) return;
+
+  const int copy_width = end_x - start_x;
+  const int copy_height = end_y - start_y;
+  if (dest_size < copy_width * copy_height) return;
+
+  const int buffer_width = impl_->buffer->Get_Width();
+  auto* out = static_cast<unsigned char*>(dest);
+  const int dest_x = start_x - x;
+  const int dest_y = start_y - y;
+
+  for (int row = 0; row < copy_height; ++row) {
+    const int src_row = (start_y - impl_->y) + row;
+    const int dst_row = dest_y + row;
+    const unsigned char* src_row_ptr = buffer + src_row * buffer_width + (start_x - impl_->x);
+    unsigned char* dst_row_ptr = out + dst_row * width + dest_x;
+    std::memcpy(dst_row_ptr, src_row_ptr, static_cast<std::size_t>(copy_width));
+  }
+}
+
 bool GraphicViewPortClass::Contains(int x, int y) const {
   return x >= impl_->x && y >= impl_->y && x < impl_->x + impl_->width && y < impl_->y + impl_->height;
 }
@@ -372,6 +483,22 @@ int GraphicViewPortClass::Get_XPos() const { return impl_->x; }
 int GraphicViewPortClass::Get_YPos() const { return impl_->y; }
 int GraphicViewPortClass::Get_Width() const { return impl_->width; }
 int GraphicViewPortClass::Get_Height() const { return impl_->height; }
+int GraphicViewPortClass::Get_XAdd() const { return 0; }
+int GraphicViewPortClass::Get_Pitch() const {
+  return impl_->buffer ? (impl_->buffer->Get_Width() - impl_->width) : 0;
+}
+void* GraphicViewPortClass::Get_Offset() {
+  if (!impl_->buffer) return nullptr;
+  auto* buffer = impl_->buffer->Get_Buffer();
+  if (!buffer) return nullptr;
+  return buffer + impl_->y * impl_->buffer->Get_Width() + impl_->x;
+}
+const void* GraphicViewPortClass::Get_Offset() const {
+  if (!impl_->buffer) return nullptr;
+  const auto* buffer = impl_->buffer->Get_Buffer();
+  if (!buffer) return nullptr;
+  return buffer + impl_->y * impl_->buffer->Get_Width() + impl_->x;
+}
 GraphicBufferClass* GraphicViewPortClass::Get_Graphic_Buffer() const { return impl_->buffer; }
 bool GraphicViewPortClass::Get_IsDirectDraw() const { return false; }
 
@@ -396,6 +523,10 @@ void GraphicViewPortClass::Blit(const GraphicBufferClass& src, int src_x, int sr
   if (this == &SeenBuff) {
     Present_View(*this);
   }
+}
+
+void GraphicViewPortClass::Blit(const GraphicBufferClass& src) {
+  Blit(src, 0, 0, impl_->x, impl_->y, src.Get_Width(), src.Get_Height());
 }
 
 void GraphicViewPortClass::Blit(const GraphicViewPortClass& src, int src_x, int src_y, int dst_x, int dst_y,
@@ -518,6 +649,25 @@ GraphicViewPortClass* Set_Logic_Page(GraphicViewPortClass& page) {
   return previous;
 }
 
+GraphicViewPortClass* Set_Logic_Page(GraphicViewPortClass* page) {
+  GraphicViewPortClass* previous = LogicPage;
+  LogicPage = page;
+  return previous;
+}
+
+GraphicViewPortClass* Set_Logic_Page(GraphicBufferClass& page) {
+  static GraphicViewPortClass buffer_view;
+  buffer_view.Configure(&page, 0, 0, page.Get_Width(), page.Get_Height());
+  return Set_Logic_Page(buffer_view);
+}
+
+GraphicViewPortClass* Set_Logic_Page(GraphicBufferClass* page) {
+  if (!page) {
+    return Set_Logic_Page(static_cast<GraphicViewPortClass*>(nullptr));
+  }
+  return Set_Logic_Page(*page);
+}
+
 bool Set_Video_Mode(int /*mode*/) { return true; }
 
 bool Set_Video_Mode(void* /*window*/, int /*width*/, int /*height*/, int /*bits_per_pixel*/) { return true; }
@@ -528,6 +678,8 @@ int KN_To_KA(int key) { return key; }
 void Clear_KeyBuffer() { Kbd.Clear(); }
 void Stuff_Key_Num(int key) { Kbd.Stuff(key); }
 int Key_Down(int key) { return Kbd.Down(key) ? 1 : 0; }
+int Check_Key() { return Check_Key_Num(); }
+int Get_Key() { return Get_Key_Num(); }
 
 int Get_Mouse_X() { return g_mouse_state.x; }
 int Get_Mouse_Y() { return g_mouse_state.y; }

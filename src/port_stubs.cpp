@@ -44,6 +44,7 @@ BOOL Send_Data_To_DDE_Server(char*, int, int) { return FALSE; }
 long _ShapeBufferSize = 512 * 1024;
 char* _ShapeBuffer = nullptr;
 bool OverlappedVideoBlits = false;
+bool StreamLowImpact = false;
 
 namespace {
 
@@ -131,6 +132,24 @@ void Configure_New_Game_From_Menu() {
     ScenDir = SCEN_DIR_EAST;
   }
 }
+
+void* Open_Animation(char const*, void*, long, WSAOpenType, void*) {
+  return nullptr;
+}
+
+void Animate_Frame(void const*, GraphicBufferClass&, int) {}
+
+int Get_Animation_Frame_Count(void const*) {
+  return 0;
+}
+
+void Close_Animation(void*) {}
+
+int Extract_Shape_Count(void const*) {
+  return 0;
+}
+
+void Wait_Blit(void) {}
 
 int Target_Frame_Milliseconds() {
   if (Options.GameSpeed > 0 && Options.GameSpeed < 500) {

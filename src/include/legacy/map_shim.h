@@ -20,6 +20,7 @@
 #define MAP_SHIM_H
 
 #include "defines.h"
+#include "gadget.h"
 #include "layer.h"
 #include <unordered_map>
 
@@ -157,6 +158,8 @@ class MapStubClass
 		void Help_Text(int text_id, int x = -1, int y = -1, int color = LTGREY, bool quick = false, int cost = 0);
 		void Zoom_Mode(CELL cell);
 		struct ZoomStub { void Enable() {} void Disable() {}; } Zoom;
+		void Add_A_Button(GadgetClass& gadget);
+		void Remove_A_Button(GadgetClass& gadget);
 
 		MapColumnStub Column[2];
 		LayerClass Layer[LAYER_COUNT];
@@ -174,6 +177,8 @@ class MapStubClass
 		int TacPixelY;
 		int TacLeptonWidth;
 		int TacLeptonHeight;
+		int RadY;
+		int RadHeight;
 
 		COORDINATE TacticalCoord;
 		COORDINATE DesiredTacticalCoord;
@@ -187,6 +192,9 @@ class MapStubClass
 		bool IsSidebarActive;
 		bool IsZoomed;
 		bool PlayerNamesEnabled;
+
+		GadgetClass RadarButton;
+		GadgetClass PowerButton;
 
 		unsigned char const* FadingShade;
 		unsigned char const* UnitShadow;
