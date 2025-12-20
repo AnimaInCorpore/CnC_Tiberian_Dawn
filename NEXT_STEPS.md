@@ -21,6 +21,7 @@ Re-check 6pt/8pt text spacing after mirroring the legacy Simple_Text_Print x/y o
 Verify the nearest-neighbor SDL scale mode on present/title textures keeps text/UI pixels crisp across macOS/Windows output scaling.
 Spot-check menu button text after centering tweak in `src/textbtn.cpp` to ensure vertical/horizontal alignment matches the Win95 layout.
 Decide whether to surface the `MonoClass` debug buffer (ported in `src/monoc.cpp`) via an SDL overlay or log sink for modern builds.
+Implement the `WWMouseClass` draw/erase overlay (cursor blit + restore) so the SDL render path shows the legacy cursor now that `GScreenClass::Blit_Display` uses it.
 Confirm sidebar/radar button input wiring still routes through `GScreenClass::Buttons` once the real `MapClass` replaces the shim.
 Validate the palette interpolation fallback against Win95 output and tune the interpolation steps if the 2x scaled animations diverge.
 

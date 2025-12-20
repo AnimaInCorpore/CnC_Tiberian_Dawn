@@ -111,6 +111,7 @@
 | `MAIN.CPP` | `src/main.cpp` | SDL bootstrap now requests a high-DPI window and nearest-neighbor scaling so UI/text pixels stay crisp. |
 | `WWLIB_RUNTIME.CPP` (present blit) | `src/wwlib_runtime.cpp` | Present texture now pins SDL texture scale mode to `nearest` to avoid blurry text when SDL scales the 8-bit buffer, and ModeX_Blit forwards legacy menu blits to the SDL presenter. |
 | `GSCREEN.CPP` | `src/gscreen.cpp` | Title screen blit texture also forces `nearest` scale mode to keep fonts/pixels sharp. |
+| `GSCREEN.CPP` | `src/gscreen.cpp` | Blit_Display now routes through SeenBuff blits with mouse draw/erase hooks so SDL presentation matches the legacy flow and palette conversion stays consistent. |
 | `MAP.CPP` | `src/gameplay_core_stub.cpp` | MapClass remains stubbed for now; removed duplicate Code/Decode pointer hooks in favor of `src/iomap.cpp`. |
 | `MAPEDDLG.CPP` | | To be ported. |
 | `MAPEDIT.CPP` | | To be ported. |

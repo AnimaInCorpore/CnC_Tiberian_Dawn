@@ -21,11 +21,7 @@
 #include "legacy/externs.h"
 #include "legacy/function.h"
 
-#include <SDL.h>
-
 #include <algorithm>
-
-#include "runtime_sdl.h"
 
 namespace {
 
@@ -107,77 +103,22 @@ void GScreenClass::Render(void) {
 }
 
 void GScreenClass::Blit_Display(void) {
-  Ensure_Page_Sizes();
+	Ensure_Page_Sizes();
 
-  GraphicViewPortClass* view = LogicPage ? LogicPage : &HidPage;
-  if (!view) {
-    return;
-  }
+	GraphicViewPortClass* view = LogicPage ? LogicPage : &HidPage;
+	if (!view) {
+		return;
+	}
 
-  GraphicBufferClass* buffer = view->Get_Graphic_Buffer();
-  if (!buffer || !buffer->Is_Valid()) {
-    return;
-  }
+	if (WWMouse) {
+		WWMouse->Draw_Mouse(view);
+	}
 
-  unsigned char* pixels = buffer->Get_Buffer();
-  const int pitch = buffer->Get_Width();
-  const int width = view->Get_Width();
-  const int height = view->Get_Height();
-  const int origin_x = view->Get_XPos();
-  const int origin_y = view->Get_YPos();
+	SeenBuff.Blit(*view);
 
-  if (!pixels || width <= 0 || height <= 0) {
-    return;
-  }
-
-  const unsigned char* palette = GamePalette ? GamePalette : Palette;
-  if (!palette) {
-    return;
-  }
-
-  SDL_Renderer* renderer = Runtime_Get_Sdl_Renderer();
-  if (!renderer) {
-    return;
-  }
-  int out_w = 0;
-  int out_h = 0;
-  if (SDL_GetRendererOutputSize(renderer, &out_w, &out_h) != 0 || out_w <= 0 || out_h <= 0) {
-    SDL_Window* window = Runtime_Get_Sdl_Window();
-    if (window) {
-      SDL_GetWindowSize(window, &out_w, &out_h);
-    }
-  }
-
-  SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(
-      pixels + origin_y * pitch + origin_x, width, height, 8, pitch, 0, 0, 0, 0);
-  if (!surface) {
-    return;
-  }
-
-  SDL_Color colors[256];
-  for (int i = 0; i < 256; ++i) {
-    const int offset = i * 3;
-    auto expand = [](int value) { return std::clamp(value * 4, 0, 255); };
-    colors[i].r = static_cast<Uint8>(expand(palette[offset + 0]));
-    colors[i].g = static_cast<Uint8>(expand(palette[offset + 1]));
-    colors[i].b = static_cast<Uint8>(expand(palette[offset + 2]));
-    colors[i].a = 255;
-  }
-  SDL_SetPaletteColors(surface->format->palette, colors, 0, 256);
-
-  SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-  SDL_FreeSurface(surface);
-
-  if (!texture) {
-    return;
-  }
-  SDL_SetTextureScaleMode(texture, SDL_ScaleModeNearest);
-
-  SDL_RenderClear(renderer);
-  SDL_RenderCopy(renderer, texture, NULL, NULL);
-  SDL_RenderPresent(renderer);
-
-  SDL_DestroyTexture(texture);
+	if (WWMouse) {
+		WWMouse->Erase_Mouse(view, false);
+	}
 }
 
 void GScreenClass::Set_Default_Mouse(MouseType, bool) {}
