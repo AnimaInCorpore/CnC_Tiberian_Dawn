@@ -3,7 +3,7 @@ Tackle one chunk at a time; when a chunk has no remaining next steps, mark it wi
 
 ## Build system and source layout
 Status: Next steps. Scope: move legacy sources into `src/` with lowercase names, fix includes, strip Watcom/segmented keywords, and keep `CMakeLists.txt` in sync. Uppercase `src` filenames have been normalized; continue migrating the remaining legacy files. Excludes gameplay/runtime changes.
-Verify the SDL executable still links after adding the remaining ported stubs (base/gameplay/linker) to `CMakeLists.txt`, and re-add `src/debug.cpp`/`src/ending.cpp` once score/interpolation/PCX helpers are ported.
+Verify the SDL executable still links after adding the remaining ported stubs (base/gameplay/linker) to `CMakeLists.txt`.
 
 ## Platform abstraction with SDL
 Status: Next steps. Scope: create SDL2/SDL_net shims for video/audio/input/network only; replace DirectDraw/DirectSound/DirectInput/IPX/Greenleaf entry points while keeping call signatures so upper layers stay untouched.

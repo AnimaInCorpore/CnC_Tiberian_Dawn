@@ -76,9 +76,11 @@ set(TD_SOURCES
   src/coord.cpp
   src/facing.cpp
   src/credits.cpp
+  src/debug.cpp
   src/display.cpp
   src/edit.cpp
   src/error_stub.cpp
+  src/ending.cpp
   src/expand.cpp
   src/factory.cpp
   src/drive.cpp
