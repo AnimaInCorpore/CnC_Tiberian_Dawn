@@ -56,6 +56,7 @@ set(TD_SOURCES
   src/combat.cpp
   src/bullet.cpp
   src/fuse.cpp
+  src/foot.cpp
   src/flasher.cpp
   src/field.cpp
   src/cell.cpp
@@ -106,12 +107,10 @@ set(TD_SOURCES
   src/layer.cpp
   src/legacy_vtables.cpp
   src/gameplay_core_stub.cpp
-  src/gameplay_shims.cpp
-  src/gameplay_minimal_stubs.cpp
-  src/linker_small.cpp
+  # src/gameplay_class_stubs.cpp (excluded: duplicates real implementations)
+  # src/linker_stubs.cpp (excluded: duplicates real implementations)
   src/port_stubs.cpp
   src/link.cpp
-  src/tiny_linker_shims.cpp
   src/list.cpp
   # SDATA.CPP
   # IDATA.CPP
@@ -120,6 +119,7 @@ set(TD_SOURCES
   src/maingame.cpp
   src/map_shim.cpp
   src/menus.cpp
+  src/mission.cpp
   src/intro_port.cpp
   src/movie_stub.cpp
   src/mixfile.cpp
@@ -156,7 +156,17 @@ set(TD_SOURCES
   src/tab.cpp
   src/tcpip.cpp
   src/techno.cpp
+  src/team.cpp
+  src/teamtype.cpp
   src/text.cpp
+  src/trigger.cpp
+  src/theme.cpp
+  src/target.cpp
+  src/reinf.cpp
+  src/queue.cpp
+  src/iomap.cpp
+  src/ioobj.cpp
+  src/findpath.cpp
   src/txtprnt.cpp
   src/textbtn.cpp
   src/toggle.cpp
@@ -184,6 +194,10 @@ if(WIN32)
 endif()
 
 add_executable(cnc_tiberian_dawn src/main.cpp ${TD_SOURCES})
+
+if(WIN32)
+  target_sources(cnc_tiberian_dawn PRIVATE src/platform_win32.cpp)
+endif()
 
 target_include_directories(
   cnc_tiberian_dawn

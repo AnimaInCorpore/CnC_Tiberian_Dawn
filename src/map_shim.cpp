@@ -100,10 +100,16 @@ bool MapStubClass::Coord_To_Pixel(COORDINATE, int& x, int& y) const {
   return false;
 }
 
+COORDINATE MapStubClass::Pixel_To_Coord(int, int) const { return 0; }
+
 bool MapStubClass::In_Radar(CELL) const { return true; }
 bool MapStubClass::In_View(CELL) const { return true; }
 
 void MapStubClass::Sight_From(CELL, int, bool) {}
+
+int MapStubClass::Cell_Distance(CELL, CELL) const { return 0; }
+
+int MapStubClass::Cell_Threat(CELL, HousesType) const { return 0; }
 
 CELL MapStubClass::Calculated_Cell(SourceType, HousesType) { return 0; }
 

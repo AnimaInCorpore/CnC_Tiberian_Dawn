@@ -111,6 +111,15 @@ RadarClass::RadarClass(void)
 	IsPlayerNames		= false;
 }
 
+void Fat_Put_Pixel(int x, int y, int color, int size, GraphicViewPortClass& port)
+{
+	for (int dy = 0; dy < size; ++dy) {
+		for (int dx = 0; dx < size; ++dx) {
+			port.Put_Pixel(x + dx, y + dy, color);
+		}
+	}
+}
+
 
 /***********************************************************************************************
  * RadarClass::One_Time -- Handles one time processing for the radar map.                      *

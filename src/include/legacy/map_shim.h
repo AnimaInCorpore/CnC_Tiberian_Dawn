@@ -28,6 +28,7 @@ class ObjectTypeClass;
 class TechnoClass;
 class BuildingClass;
 class UnitClass;
+class TriggerClass;
 
 struct MapCellStub {
 	MapCellStub() = default;
@@ -35,6 +36,7 @@ struct MapCellStub {
 	bool IsVisible = false;
 	bool IsMapped = false;
 	bool IsFlagged = false;
+	bool IsTrigger = false;
 	OverlayType Overlay = OVERLAY_NONE;
 	unsigned OverlayData = 0;
 	struct FlagData {
@@ -72,6 +74,8 @@ struct MapCellStub {
 	bool Is_Generally_Clear() const { return true; }
 	int Reduce_Tiberium(int amount) { return amount; }
 	int Reduce_Wall(int damage) { return 0; }
+	bool Goodie_Check(ObjectClass*) { return false; }
+	TriggerClass* Get_Trigger() const { return nullptr; }
 };
 
 struct MapColumnStub {
@@ -95,9 +99,12 @@ class MapStubClass
 
 		bool Push_Onto_TacMap(COORDINATE source, COORDINATE dest);
 		bool Coord_To_Pixel(COORDINATE coord, int& x, int& y) const;
+		COORDINATE Pixel_To_Coord(int x, int y) const;
 		bool In_Radar(CELL cell) const;
 		bool In_View(CELL cell) const;
 		void Sight_From(CELL cell, int sightRange, bool incremental = false);
+		int Cell_Distance(CELL cell, CELL other) const;
+		int Cell_Threat(CELL cell, HousesType house) const;
 
 		CELL Calculated_Cell(SourceType dir, HousesType house);
 		ObjectClass* Cell_Object(CELL cell, int x, int y);

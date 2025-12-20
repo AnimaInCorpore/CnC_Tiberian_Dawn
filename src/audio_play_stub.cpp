@@ -18,3 +18,17 @@ bool Is_Sample_Playing(void const * /*data*/) {
 
 void Stop_Sample_Playing(void const * /*data*/) {
 }
+
+void Sound_Callback() {}
+
+void Fade_Sample(int /*handle*/, int /*ticks*/) {}
+
+int File_Stream_Sample_Vol(char const* /*name*/, int /*volume*/, bool /*loop*/) {
+    return -1;
+}
+
+void Stop_Sample(int /*handle*/) {}
+
+int Sample_Status(int /*handle*/) {
+    return 0;
+}

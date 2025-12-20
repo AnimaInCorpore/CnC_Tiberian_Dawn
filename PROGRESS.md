@@ -75,10 +75,10 @@
 | `FLASHER.CPP` | `src/flasher.cpp` | Ported to src/; flash countdown toggles the blush flag and exposes mono debug output. |
 | `FACTORY.CPP` | `src/factory.cpp` | Ported to src/, switched to legacy include path, and replaced NULL with nullptr. |
 | `FIELD.CPP` | `src/field.cpp` | Ported to src/; moved to portable headers and retained original net byte-order conversions. |
-| `FINDPATH.CPP` | | To be ported. |
+| `FINDPATH.CPP` | `src/findpath.cpp` | Ported to src/ with pathfinding and FootClass path helpers restored. |
 | `FLASHER.CPP` | | To be ported. |
 | `FLY.CPP` | | To be ported. |
-| `FOOT.CPP` | | To be ported. |
+| `FOOT.CPP` | `src/foot.cpp` | Ported to src/ with legacy movement/mission logic intact and includes updated for the SDL build. |
 | `FUSE.CPP` | | To be ported. |
 | `GADGET.CPP` | | To be ported. |
 | `GAMEDLG.CPP` | | To be ported. |
@@ -95,8 +95,8 @@
 | `INTERNET.CPP` | | To be ported. |
 | `INTERPAL.CPP` | | To be ported. |
 | `INTRO.CPP` | `src/intro_port.cpp` | Minimal stub ported; `Choose_Side()` now triggers the intro movie (stub playback). Full VQA/interactive flow pending. |
-| `IOMAP.CPP` | | To be ported. |
-| `IOOBJ.CPP` | | To be ported. |
+| `IOMAP.CPP` | `src/iomap.cpp` | Ported to src/ with pointer coding helpers for map/UI classes restored. |
+| `IOOBJ.CPP` | `src/ioobj.cpp` | Ported to src/ with object save/load pointer coding and smudge/overlay helpers restored. |
 | `IPX.CPP` | | To be ported. |
 | `IPX95.CPP` | | To be ported. |
 | `IPXADDR.CPP` | | To be ported. |
@@ -124,6 +124,7 @@
 | `MIXFILE.CPP` | `src/mixfile.cpp` | Added XCC name-table support so mixed archives (e.g., CD1/CCLOCAL.MIX) with embedded filenames resolve fonts correctly. |
 | `MONOC.CPP` | `src/monoc.cpp` | Ported monochrome debug buffer to a heap-backed screen page and removed DOS/segment calls while keeping the original text/box routines. |
 | `MONOC.H` | `src/include/legacy/monoc.h` | Box character table now uses 8-bit storage to preserve IBM line-draw values without C++ narrowing errors. |
+| `MISSION.CPP` | `src/mission.cpp` | Ported to src/ with legacy mission state machine logic intact and includes updated for the SDL build. |
 | `MOUSE.CPP` | | To be ported. |
 | `MPLAYER.CPP` | | To be ported. |
 | `MSGBOX.CPP` | | To be ported. |
@@ -140,11 +141,11 @@
 | `PACKET.CPP` | | To be ported. |
 | `POWER.CPP` | `src/power.cpp` | Power bar UI ported; shapes are loaded via the modern MIX helpers and redraw logic mirrors the original radar/sidebar flow. |
 | `PROFILE.CPP` | | To be ported. |
-| `QUEUE.CPP` | | To be ported. |
+| `QUEUE.CPP` | `src/queue.cpp` | Ported to src/ with mission queue helper logic and pointer coding helpers. |
 | `RADAR.CPP` | | To be ported. |
 | `RAWFILE.CPP` | `src/rawfile.cpp` | RawFileClass rebuilt atop POSIX read/write/seek with simple error handling. |
 | `BUFFER_TO_PAGE` (legacy blit) | `src/buffer_to_page.cpp` | Raw 8-bit buffer copy now performs bounds-aware page blits instead of the stub. |
-| `REINF.CPP` | | To be ported. |
+| `REINF.CPP` | `src/reinf.cpp` | Ported to src/ with reinforcement creation logic wired for triggers. |
 | `SAVELOAD.CPP` | | To be ported. |
 | `SCENARIO.CPP` | | To be ported. |
 | `SCORE.CPP` | | To be ported. |
@@ -158,17 +159,17 @@
 | `STATS.CPP` | | To be ported. |
 | `SUPER.CPP` | | To be ported. |
 | `TARCOM.CPP` | | To be ported. |
-| `TARGET.CPP` | | To be ported. |
+| `TARGET.CPP` | `src/target.cpp` | Ported to src/ with target decoding helpers for units/buildings/cells. |
 | `TCPIP.CPP` | `src/tcpip.cpp` | Winsock shim stub tracks connection state, buffers, and PlanetWestwood globals. |
 | `TDATA.CPP` | | To be ported. |
-| `TEAM.CPP` | | To be ported. |
-| `TEAMTYPE.CPP` | | To be ported. |
+| `TEAM.CPP` | `src/team.cpp` | Ported to src/ with legacy team coordination logic and mission routing. |
+| `TEAMTYPE.CPP` | `src/teamtype.cpp` | Ported to src/ with team type tables, INI parsing, and mission name helpers intact. |
 | `TECHNO.CPP` | | To be ported. |
 | `TEMP.CPP` | | To be ported. |
 | `TEMPLATE.CPP` | | To be ported. |
 | `TERRAIN.CPP` | | To be ported. |
-| `THEME.CPP` | | To be ported. |
-| `TRIGGER.CPP` | | To be ported. |
+| `THEME.CPP` | `src/theme.cpp` | Ported to src/ with theme queueing and music selection logic preserved. |
+| `TRIGGER.CPP` | `src/trigger.cpp` | Ported to src/ with trigger parsing and execution logic preserved. |
 | `TURRET.CPP` | | To be ported. |
 | `UDATA.CPP` | | To be ported. |
 | `UNIT.CPP` | | To be ported. |
@@ -190,6 +191,7 @@
 | `WATCOM.H` | `src/include/legacy/watcom.h` | Watcom pragma wrappers swapped for GCC diagnostic helpers. |
 | `PLATFORM (new)` | `src/include/legacy/platform.h` | Win16/Watcom typedef shim that turns `near`/`far` keywords into no-ops. |
 | `WINDOWS_COMPAT (new)` | `src/include/legacy/windows_compat.h` | Win32 handle/struct typedef shim so the port never includes platform headers directly. |
+| `CMakeLists.txt` | `CMakeLists.txt` | Added missing ported sources and gated `src/platform_win32.cpp` behind `WIN32`, then pruned duplicate stub units (`src/base_stub.cpp`, `src/gameplay_minimal_stubs.cpp`, `src/gameplay_shims.cpp`, `src/gameplay_class_stubs.cpp`, `src/linker_small.cpp`, `src/linker_stubs.cpp`, `src/tiny_linker_shims.cpp`) to avoid duplicate symbols; `src/debug.cpp`/`src/ending.cpp` remain out until score/interpolation/PCX helpers are ported. |
 | `AIRCRAFT.H` | `src/include/legacy/aircraft.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `ANIM.H` | `src/include/legacy/anim.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `AUDIO.H` | `src/include/legacy/audio.h` | Lowercase mirror retained for Linux-friendly includes. |

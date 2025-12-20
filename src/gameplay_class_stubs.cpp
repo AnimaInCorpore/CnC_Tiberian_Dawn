@@ -22,6 +22,8 @@ MessageListClass::~MessageListClass() = default;
 void GameOptionsClass::Adjust_Variables_For_Resolution() {}
 void GameOptionsClass::Process() {}
 
+void ThemeClass::Queue_Song(ThemeType) {}
+
 IPXAddressClass::IPXAddressClass() : NetworkNumber{0}, NodeAddress{0} {}
 IPXAddressClass::IPXAddressClass(NetNumType net, NetNodeType node)
     : NetworkNumber{0}, NodeAddress{0} {

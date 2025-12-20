@@ -17,6 +17,16 @@
 */
 
 #include "legacy/ipxmgr.h"
+#include "legacy/defines.h"
+#include "legacy/event.h"
+
+IPXManagerClass Ipx(
+	sizeof(GlobalPacketType),                        // size of Global Channel packets
+	((546 - sizeof(CommHeaderType)) / sizeof(EventClass)) * sizeof(EventClass),
+	10,                                              // # entries in Global Queue
+	8,                                               // # entries in Private Queues
+	0x8813,                                         // Socket ID #
+	IPXGlobalConnClass::COMMAND_AND_CONQUER);         // Product ID #
 
 #include "legacy/ipx95.h"
 

@@ -803,20 +803,6 @@ CellClass *TrapCell = nullptr;				// for trapping a cell
 int TrapCheckHeap = 0;						// start checking the Heap
 
 
-#if 0
-/***************************************************************************
-**	This is the network IPX manager class.  It handles multiple remote
-** connections.  Declaring this class doesn't perform any allocations;
-** the class itself is 140 bytes.
-*/
-IPXManagerClass Ipx (
-	sizeof (GlobalPacketType),						// size of Global Channel packets
-	((546 - sizeof(CommHeaderType)) / sizeof(EventClass) ) * sizeof(EventClass),
-	10, 													// # entries in Global Queue
-	8, 													// # entries in Private Queues
-	VIRGIN_SOCKET, 									// Socket ID #
-	IPXGlobalConnClass::COMMAND_AND_CONQUER);	// Product ID #
-#endif
 
 //#if(TIMING_FIX)
 //
