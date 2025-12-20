@@ -43,7 +43,7 @@
 | `CARGO.CPP` | `src/cargo.cpp` | Cargo hold bookkeeping ported; attach/detach preserve the chained LIFO order and carry over save/load pointer coding. |
 | `CCDDE.CPP` | `src/ccdde.cpp` | Ported as a stubbed DDE server (portable implementation). |
 | `CCFILE.CPP` | `src/ccfile.cpp` | Mix-aware file wrapper now opens embedded mix entries (cached or on-disk) via the portable RawFile/CDFile layer. |
-| `CDATA.CPP` | `src/cdata.cpp` | Stub added — full port pending. |
+| `CDATA.CPP` | `src/cdata.cpp` | Ported to src/; template type tables restored (needs icon-set map helpers and viewport stamp/scale support). |
 | `CDFILE.CPP` | `src/cdfile.cpp` | CD/file search helper now walks configured paths before falling back to direct opens. |
 | `CELL.CPP` | `src/cell.cpp` | Partial port: core helpers implemented (constructor, lookup, redraw). |
 | `COMBAT.CPP` | `src/combat.cpp` | Ported: `Modify_Damage` and `Explosion_Damage` implemented. |
@@ -67,7 +67,7 @@
 | `DISPLAY.CPP` | `src/display.cpp` | Palette tables rebuilt, fade routines wired, and display scaffolding moved to src/. |
 | `DOOR.CPP` | `src/door.cpp` | Ported to src/ (door animation state machine; open/close logic). |
 | `DPMI.CPP` | `src/dpmi.cpp` | Ported to src/ with flat-memory `Swap()` implementation (no asm). |
-| `DRIVE.CPP` | | To be ported. |
+| `DRIVE.CPP` | `src/drive.cpp` | Ported to src/ with full legacy movement logic restored; replaces the earlier truncated stub. |
 | `ENDING.CPP` | `src/ending.cpp` | Ported: GDI/NOD ending sequences, movie playback and selection UI. |
 | `EVENT.CPP` | `src/event.cpp` | Ported event constructors and execution logic, including mission assignments, production, timing updates, and special handling. |
 | `EXPAND.CPP` | `src/expand.cpp` | Expansion detection now mirrors the original `EXPAND.DAT` probe so NEWMENU layouts gate off the real data file. |
@@ -82,18 +82,18 @@
 | `FUSE.CPP` | | To be ported. |
 | `GADGET.CPP` | | To be ported. |
 | `GAMEDLG.CPP` | | To be ported. |
-| `GOPTIONS.CPP` | | To be ported. |
+| `GOPTIONS.CPP` | `src/goptions.cpp` | Ported to src/; options dialog flow restored (needs SDL UI verification). |
 | `GSCREEN.CPP` | `src/gscreen.cpp` | Shadow-page setup and render/IO stubs recreated around modern buffers. |
 | `HDATA.CPP` | `src/hdata.cpp` | House type table migrated; colors/remap tables kept intact and Jurassic palette tweak guarded behind the Special/AreThingiesEnabled flags. |
 | `HEAP.CPP` | | To be ported. |
 | `HELP.CPP` | | To be ported. |
 | `HOUSE.CPP` | | To be ported. |
-| `IDATA.CPP` | | To be ported. |
+| `IDATA.CPP` | `src/idata.cpp` | Ported to src/; infantry type tables/constructors restored (depends on icon-set map helpers). |
 | `INFANTRY.CPP` | | To be ported. |
 | `INI.CPP` | | To be ported. |
 | `INIT.CPP` | | To be ported. |
 | `INTERNET.CPP` | | To be ported. |
-| `INTERPAL.CPP` | | To be ported. |
+| `INTERPAL.CPP` | `src/interpal.cpp` | Ported to src/; interpolation palette helpers restored. |
 | `INTRO.CPP` | `src/intro_port.cpp` | Minimal stub ported; `Choose_Side()` now triggers the intro movie (stub playback). Full VQA/interactive flow pending. |
 | `IOMAP.CPP` | `src/iomap.cpp` | Ported to src/ with pointer coding helpers for map/UI classes restored. |
 | `IOOBJ.CPP` | `src/ioobj.cpp` | Ported to src/ with object save/load pointer coding and smudge/overlay helpers restored. |
@@ -127,17 +127,17 @@
 | `MISSION.CPP` | `src/mission.cpp` | Ported to src/ with legacy mission state machine logic intact and includes updated for the SDL build. |
 | `MOUSE.CPP` | | To be ported. |
 | `MPLAYER.CPP` | | To be ported. |
-| `MSGBOX.CPP` | | To be ported. |
-| `MSGLIST.CPP` | | To be ported. |
+| `MSGBOX.CPP` | `src/msgbox.cpp` | Ported to src/; CCMessageBox UI logic restored. |
+| `MSGLIST.CPP` | `src/msglist.cpp` | Ported to src/; MessageListClass restored. |
 | `NETDLG.CPP` | | To be ported. |
 | `NOSEQCON.CPP` | `src/noseqcon.cpp` | Ported non-sequenced connection queue logic into src/ with modern headers. |
 | `NULLCONN.CPP` | `src/nullconn.cpp` | Ported NULL modem connection framing/CRC with UDP-backed send path. |
 | `NULLDLG.CPP` | | To be ported. |
 | `NULLMGR.CPP` | `src/nullmgr.cpp` | Ported NULL modem manager with UDP-based transport, queue/timing, and buffer parsing. |
 | `OBJECT.CPP` | | To be ported. |
-| `ODATA.CPP` | | To be ported. |
-| `OPTIONS.CPP` | | To be ported. |
-| `OVERLAY.CPP` | | To be ported. |
+| `ODATA.CPP` | `src/odata.cpp` | Ported to src/; overlay type tables/graphics restored. |
+| `OPTIONS.CPP` | `src/options.cpp` | Ported to src/; options settings and palette hooks restored. |
+| `OVERLAY.CPP` | `src/overlay.cpp` | Ported to src/; overlay object logic restored. |
 | `PACKET.CPP` | | To be ported. |
 | `POWER.CPP` | `src/power.cpp` | Power bar UI ported; shapes are loaded via the modern MIX helpers and redraw logic mirrors the original radar/sidebar flow. |
 | `PROFILE.CPP` | | To be ported. |
@@ -146,19 +146,19 @@
 | `RAWFILE.CPP` | `src/rawfile.cpp` | RawFileClass rebuilt atop POSIX read/write/seek with simple error handling. |
 | `BUFFER_TO_PAGE` (legacy blit) | `src/buffer_to_page.cpp` | Raw 8-bit buffer copy now performs bounds-aware page blits instead of the stub. |
 | `REINF.CPP` | `src/reinf.cpp` | Ported to src/ with reinforcement creation logic wired for triggers. |
-| `SAVELOAD.CPP` | | To be ported. |
+| `SAVELOAD.CPP` | | To be ported (needed for TechnoType target helpers). |
 | `SCENARIO.CPP` | | To be ported. |
-| `SCORE.CPP` | | To be ported. |
-| `SDATA.CPP` | | To be ported. |
+| `SCORE.CPP` | `src/score.cpp` | Ported to src/; score/ending UI helpers and globals restored. |
+| `SDATA.CPP` | `src/sdata.cpp` | Ported to src/; smudge type tables/graphics restored. |
 | `SEQCONN.CPP` | | To be ported. |
-| `SIDEBAR.CPP` | | To be ported. |
-| `SMUDGE.CPP` | | To be ported. |
+| `SIDEBAR.CPP` | `src/sidebar.cpp` | Ported to src/; sidebar UI logic restored. |
+| `SMUDGE.CPP` | `src/smudge.cpp` | Ported to src/; smudge object logic restored. |
 | `SOUNDDLG.CPP` | | To be ported. |
 | `SPECIAL.CPP` | `src/special.cpp` | Special options dialog wired with original checkbox logic and OK/Cancel flow. |
 | `STARTUP.CPP` | | To be ported. |
 | `STATS.CPP` | | To be ported. |
 | `SUPER.CPP` | | To be ported. |
-| `TARCOM.CPP` | | To be ported. |
+| `TARCOM.CPP` | `src/tarcom.cpp` | Ported to src/; targeting/command logic restored. |
 | `TARGET.CPP` | `src/target.cpp` | Ported to src/ with target decoding helpers for units/buildings/cells. |
 | `TCPIP.CPP` | `src/tcpip.cpp` | Winsock shim stub tracks connection state, buffers, and PlanetWestwood globals. |
 | `TDATA.CPP` | | To be ported. |
@@ -166,12 +166,12 @@
 | `TEAMTYPE.CPP` | `src/teamtype.cpp` | Ported to src/ with team type tables, INI parsing, and mission name helpers intact. |
 | `TECHNO.CPP` | | To be ported. |
 | `TEMP.CPP` | | To be ported. |
-| `TEMPLATE.CPP` | | To be ported. |
-| `TERRAIN.CPP` | | To be ported. |
+| `TEMPLATE.CPP` | `src/template.cpp` | Ported to src/; template object logic restored (depends on icon-set map helpers). |
+| `TERRAIN.CPP` | `src/terrain.cpp` | Ported to src/; terrain object logic restored. |
 | `THEME.CPP` | `src/theme.cpp` | Ported to src/ with theme queueing and music selection logic preserved. |
 | `TRIGGER.CPP` | `src/trigger.cpp` | Ported to src/ with trigger parsing and execution logic preserved. |
-| `TURRET.CPP` | | To be ported. |
-| `UDATA.CPP` | | To be ported. |
+| `TURRET.CPP` | `src/turret.cpp` | Ported to src/; turret control logic restored. |
+| `UDATA.CPP` | `src/udata.cpp` | Ported to src/; unit type tables/constructors restored. |
 | `UNIT.CPP` | | To be ported. |
 | `UTRACKER.CPP` | `src/utracker.cpp` | Unit tracker ported with network/PC byte-order conversion helpers. |
 | `VISUDLG.CPP` | | To be ported. |

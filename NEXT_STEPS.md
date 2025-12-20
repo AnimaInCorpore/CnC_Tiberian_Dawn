@@ -33,11 +33,11 @@ Confirm `EventClass::Execute` is wired into the network event dispatch path once
 Status: Next steps. Scope: modernize MIX/raw/CC file handling (`MIXFILE.CPP`, `RAWFILE.CPP`, `CCFILE.CPP`) for cross-platform paths/endianness, and config/profile parsing for startup/save/load parity. Excludes gameplay logic changes.
 Add a sanity check/log when required MIX archives (e.g. `GENERAL.MIX`/`CONQUER.MIX`) are missing now that text rendering depends on the CD font assets instead of stub glyphs.
 Add a debug assert around font header size in the SDL text path so regressions in packed parsing surface clearly now that we refuse to draw without valid font data.
-Resolve the current `src/iomap.cpp` build errors (TARGET pointer narrowing, missing `Theater` symbol, and `MouseClass::Load` declaration) so map save/load compiles cleanly again.
+Implement the missing icon-set helpers (`Get_Icon_Set_Map`, `Register_Icon_Set`) and viewport stamp/scale support (or refactor call sites) so `src/cdata.cpp`/`src/template.cpp` compile without graphics shims.
 
 ## Gameplay systems and AI
 Status: Next steps. Scope: port unit/structure/AI systems (`UNIT/TECHNO/BUILDING/INFANTRY/VEHICLE`, pathfinding `FINDPATH`/`VECTOR`, triggers/scripts, mission flow) ensuring deterministic timers/random seeds. Excludes platform or asset I/O changes. Cargo attach/detach/pointer coding now live in `src/cargo.cpp`; next tie it back into Foot/Unit load/unload once those files move. `src/bullet.cpp` now carries the projectile logic with the data tables in `src/bdata.cpp`; with `src/anim.cpp` ported, hook Foot/Unit/Building callers back into the real animation spawn/attach paths.
-Continue with `OPTIONS.CPP` (and related `HELP.CPP`/`SIDEBAR.CPP` pieces) after porting `src/theme.cpp` so the remaining UI and palette hooks link cleanly.
+Port `SAVELOAD.CPP` pieces that define TechnoType target helpers now that object pointer coding relies on them.
 Confirm factory production state (from `src/factory.cpp`) is reflected in the Sidebar/Tab UI once those classes are ported so build progress and completion behave like Win95.
 Validate the `FlasherClass` updates flow through Techno/Unit redraw paths once those classes are fully ported so flashing feedback matches Win95.
 Re-check turret/unit rotation redraw cadence when porting Techno/Unit so the now-restored FacingClass 1/32-zone transition matches Win95 visuals.

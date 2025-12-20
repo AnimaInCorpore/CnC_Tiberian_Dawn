@@ -86,6 +86,25 @@ set(TD_SOURCES
   src/drive.cpp
   src/door.cpp
   src/fly_stub.cpp
+  src/overlay.cpp
+  src/smudge.cpp
+  src/terrain.cpp
+  src/template.cpp
+  src/tarcom.cpp
+  src/turret.cpp
+  src/sidebar.cpp
+  src/options.cpp
+  src/goptions.cpp
+  src/msglist.cpp
+  src/msgbox.cpp
+  src/score.cpp
+  src/interpal.cpp
+  src/udata.cpp
+  src/idata.cpp
+  src/odata.cpp
+  src/sdata.cpp
+  src/cdata.cpp
+  src/tdata.cpp
   
   src/gadget_control_stub.cpp
   src/game.cpp

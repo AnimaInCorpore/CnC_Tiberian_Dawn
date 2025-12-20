@@ -1529,7 +1529,7 @@ void FootClass::Debug_Draw_Map(char *txt, CELL start, CELL dest, bool pause)
 			Fat_Put_Pixel(64 + (x*3), 8 + (y*3), color, 3, SeenBuff);
 		}
 	}
-	Set_Logic_Page(page);
+	Set_Logic_Page(*page);
 }
 
 void FootClass::Debug_Draw_Path(PathType *path)
