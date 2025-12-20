@@ -31,6 +31,7 @@ Add a debug assert around font header size in the SDL text path so regressions i
 
 ## Gameplay systems and AI
 Status: Next steps. Scope: port unit/structure/AI systems (`UNIT/TECHNO/BUILDING/INFANTRY/VEHICLE`, pathfinding `FINDPATH`/`VECTOR`, triggers/scripts, mission flow) ensuring deterministic timers/random seeds. Excludes platform or asset I/O changes. Cargo attach/detach/pointer coding now live in `src/cargo.cpp`; next tie it back into Foot/Unit load/unload once those files move. `src/bullet.cpp` now carries the projectile logic with the data tables in `src/bdata.cpp`; with `src/anim.cpp` ported, hook Foot/Unit/Building callers back into the real animation spawn/attach paths.
+Validate the `FlasherClass` updates flow through Techno/Unit redraw paths once those classes are fully ported so flashing feedback matches Win95.
 Re-check turret/unit rotation redraw cadence when porting Techno/Unit so the now-restored FacingClass 1/32-zone transition matches Win95 visuals.
 
 ## Assembly replacements

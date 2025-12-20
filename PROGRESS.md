@@ -72,6 +72,7 @@
 | `EVENT.CPP` | | To be ported. |
 | `EXPAND.CPP` | `src/expand.cpp` | Expansion detection now mirrors the original `EXPAND.DAT` probe so NEWMENU layouts gate off the real data file. |
 | `FACING.CPP` | `src/facing.cpp` | Ported to src/ with legacy facing rotation and adjustment logic preserved. |
+| `FLASHER.CPP` | `src/flasher.cpp` | Ported to src/; flash countdown toggles the blush flag and exposes mono debug output. |
 | `FACTORY.CPP` | | To be ported. |
 | `FIELD.CPP` | `src/field.cpp` | Ported to src/; moved to portable headers and retained original net byte-order conversions. |
 | `FINDPATH.CPP` | | To be ported. |
