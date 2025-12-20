@@ -17,6 +17,7 @@
 */
 
 #include "legacy/function.h"
+#include "legacy/msglist.h"
 #include "ccdde.h"
 #include <cstdio>
 

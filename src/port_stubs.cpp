@@ -148,16 +148,7 @@ int Bound(int value, int min, int max) {
 
 void CCDebugString(char const* string) { std::fputs(string ? string : "", stderr); }
 
-void Mono_Clear_Screen() {}
-
-int Mono_Printf(char const* fmt, ...) {
-  va_list args;
-  va_start(args, fmt);
-  int result = std::vfprintf(stderr, fmt, args);
-  std::fputc('\n', stderr);
-  va_end(args);
-  return result;
-}
+// Mono helpers are implemented in src/monoc.cpp for the port build.
 
 void* Load_Alloc_Data(FileClass& file) {
   const bool was_open = file.Is_Open();

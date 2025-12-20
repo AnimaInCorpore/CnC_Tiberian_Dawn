@@ -44,7 +44,7 @@ void TurretClass::Debug_Dump(MonoClass*) const {}
 int CCMessageBox::Process(char const*, char const*, char const*, char const*, bool) { return 0; }
 
 // Flasher minimal
-bool FlasherClass::Process() { if (FlashCount) { --FlashCount; IsBlushing = !IsBlushing; } return FlashCount != 0; }
+// FlasherClass implementation is provided by src/flasher.cpp in the port build.
 
 // Mission minimal
 MissionClass::MissionClass() : Mission(MISSION_NONE), SuspendedMission(MISSION_NONE), MissionQueue(MISSION_NONE), Status(0) {}
@@ -104,4 +104,3 @@ bool TriggerClass::Spring(EventType, ObjectClass*) { return false; }
 TriggerClass::~TriggerClass() = default;
 void* TriggerClass::operator new(std::size_t size) { return ::operator new(size); }
 void TriggerClass::operator delete(void* ptr) { ::operator delete(ptr); }
-

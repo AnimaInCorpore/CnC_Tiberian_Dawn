@@ -38,7 +38,7 @@ ObjectTypeClass const& DriveClass::Class_Of() const {
 	return dummy;
 }
 
-void FlasherClass::Debug_Dump(MonoClass*) const {}
+// FlasherClass implementation is provided by src/flasher.cpp in the port build.
 void OptionsClass::Fixup_Palette() const {}
 
 InfantryType InfantryTypeClass::From_Name(char const*) { return INFANTRY_NONE; }

@@ -20,6 +20,7 @@ Decide whether to surface the `MonoClass` debug buffer (ported in `src/monoc.cpp
 
 ## Audio and messaging
 Status: Next steps. Scope: wire `CCMessageBox::Process` and audio entry points in `src/linker_stubs.cpp`; rebuild `src/audio_stub.cpp` to match `AUDIO.CPP` mixing/streaming via SDL with original volume/priority/voice rules. Excludes rendering or net.
+Port `THEME.CPP` into `src/theme.cpp` so `ThemeClass::Queue_Song`/`Play_Song`/`AI` drive the real music flow instead of stubbed behavior.
 
 ## Networking and multiplayer
 Status: Next steps. Scope: port IPX/Greenleaf stack (`IPX*.CPP`, `TCPIP.CPP`, `COMBUF/COMQUEUE`) onto SDL_net/standard sockets, preserving packet formats, session/lobby dialogs, determinism checks, and timeout behavior. Excludes local audio/render work.

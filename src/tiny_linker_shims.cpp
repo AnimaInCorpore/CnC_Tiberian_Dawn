@@ -86,33 +86,12 @@ void DriveClass::AI() {}
 void DriveClass::Debug_Dump(MonoClass*) const {}
 
 ThemeClass::ThemeClass() = default;
+void ThemeClass::Queue_Song(ThemeType) {}
 
 // Parameterized DriveClass constructor (referenced by TurretClass etc.)
 DriveClass::DriveClass(UnitType type, HousesType house) : DriveClass() { (void)type; (void)house; }
 
-// Minimal MonoClass implementation to provide the vtable and basic methods.
-MonoClass::MonoClass() {}
-MonoClass::~MonoClass() {}
-void MonoClass::Clear(void) {}
-void MonoClass::Set_Cursor(int x, int y) { (void)x; (void)y; }
-void MonoClass::Print(char const* text) { (void)text; }
-void MonoClass::Print(int text) { (void)text; }
-void MonoClass::Printf(char const* text, ...) { (void)text; }
-void MonoClass::Printf(int text, ...) { (void)text; }
-void MonoClass::Text_Print(char const* text, int x, int y, char attrib) { (void)text; (void)x; (void)y; (void)attrib; }
-void MonoClass::Text_Print(int text, int x, int y, char attrib) { (void)text; (void)x; (void)y; (void)attrib; }
-void MonoClass::Draw_Box(int x, int y, int w, int h, char attrib, BoxStyleType thick) { (void)x; (void)y; (void)w; (void)h; (void)attrib; (void)thick; }
-
-// Free helpers from MONOC.H
-// Mono helpers are provided by port_stubs.cpp; comment out duplicates here.
-void Mono_Set_Cursor(int x, int y) { (void)x; (void)y; }
-// int Mono_Printf(char const* string, ...) { (void)string; return 0; }
-// void Mono_Clear_Screen(void) {}
-// void Mono_Text_Print(void const* text, int x, int y, int attrib) { (void)text; (void)x; (void)y; (void)attrib; }
-void Mono_Draw_Rect(int x, int y, int w, int h, int attrib, int thick) { (void)x; (void)y; (void)w; (void)h; (void)attrib; (void)thick; }
-void Mono_Print(void const* text) { (void)text; }
-int Mono_X(void) { return 0; }
-int Mono_Y(void) { return 0; }
+// MonoClass and mono helpers are provided by src/monoc.cpp in the port build.
 
 // Smudge minimal definitions
 SmudgeClass::SmudgeClass(SmudgeType type, COORDINATE pos, HousesType house) : SmudgeClass() { (void)type; (void)pos; (void)house; }
@@ -184,4 +163,3 @@ void FootClass::Debug_Dump(MonoClass*) const {}
 
 // TeamType minimal
 TeamClass* TeamTypeClass::Create_One_Of() const { return nullptr; }
-
