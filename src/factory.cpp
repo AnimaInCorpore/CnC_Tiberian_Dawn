@@ -54,7 +54,7 @@
  *   FactoryClass::Validate -- validates factory pointer													  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include "legacy/function.h"
 #include <algorithm>
 
 
@@ -112,8 +112,8 @@ FactoryClass::FactoryClass(void)
 	IsDifferent = false;
 	Balance		= 0;
 	SpecialItem = SPC_NONE;
-	Object 		= NULL;
-	House			= NULL;
+	Object = nullptr;
+	House = nullptr;
 	Set_Rate(0);
 	Set_Stage(0);
 }
@@ -234,7 +234,7 @@ void FactoryClass::operator delete(void *ptr)
 void FactoryClass::AI(void)
 {
 	Validate();
-	if (!IsSuspended && (Object != NULL || SpecialItem)) {
+	if (!IsSuspended && (Object != nullptr || SpecialItem)) {
 		int stages = 1;
 
 		/*
@@ -383,7 +383,7 @@ bool FactoryClass::Set(TechnoTypeClass const & object, HouseClass & house)
 	/*
 	**	If all was set up successfully, then return true.
 	*/
-	return(Object != NULL);
+	return(Object != nullptr);
 }
 
 
@@ -574,7 +574,7 @@ bool FactoryClass::Abandon(void)
 			*/
 			ScenarioInit++;
 			delete Object;
-			Object = NULL;
+			Object = nullptr;
 			ScenarioInit--;
 		}
 		if (SpecialItem) {
@@ -732,7 +732,7 @@ bool FactoryClass::Completed(void)
 {
 	Validate();
 	if (Object && Fetch_Stage() == STEP_COUNT) {
-		Object = NULL;
+		Object = nullptr;
 		IsSuspended = true;
 		IsDifferent = true;
 		Set_Stage(0);
@@ -750,4 +750,3 @@ bool FactoryClass::Completed(void)
 	}
 	return(false);
 }
-
