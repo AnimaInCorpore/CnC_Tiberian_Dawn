@@ -1,10 +1,27 @@
 # Next steps to port the project
 Tackle one chunk at a time; when a chunk has no remaining next steps, mark it with "Implementation done!".
 
+## Remove shims/stubs/fallbacks (parity blockers)
+Status: Next steps. Scope: remove all portability shims, linker stubs, and "fallback" behaviors and replace them with behavior-complete ports that match the Win95 C&C95 reference; success means the build no longer depends on `src/*stub*.cpp`, `src/*shim*.cpp`, or `src/include/legacy/*_stub.h`, and the UI/render/audio/net paths no longer contain non-canonical fallback code paths.
+Replace the dialog/background rendering stub: port `CC_Texture_Fill` and wire it into `Draw_Box` so green UI panels use `BTEXTURE.SHP` (no more solid-color fills in menus/dialogs).
+Remove the title-art fallback scan in `src/load_title.cpp` and restore the Win95 asset resolution/order (missing `HTITLE.PCX` should surface as an error, not silently pick another PCX/CPS).
+Replace `MapStubClass` (`src/map_shim.cpp`, `src/include/legacy/map_shim.h`) with the real map implementation so all `Map.*` calls have canonical behavior (cell lookups, redraw flags, radar, cursor, object overlap, tactical map projection).
+Remove `src/fly_stub.cpp` by porting `FLY.CPP` so aircraft/flight physics match Win95 (movement, collision, facing, speed limits).
+Replace `src/movie_stub.cpp` with real VQA playback (video timing, palette updates, input skip rules) so intro/cutscenes match Win95.
+Replace `src/audio_stub.cpp`/`src/audio_play_stub.cpp` and `src/include/legacy/audio_stub.h` with the real mixer/decoder/voice logic (SFX priority, volume curves, channel reservation, music/theme streaming) via SDL audio.
+Replace `src/error_stub.cpp`/`src/include/legacy/error_stub.h` with behavior-equivalent error handling (dialogs/logging + clean shutdown) and remove any debug-print/exit-only dummy paths.
+Replace `src/mmx_stub.cpp`/`src/mmx_stub.h` with a real (or platform-appropriate) MMX/CPU feature probe and ensure the optimized code paths are selected/disabled exactly like Win95 without noisy stderr prints.
+Remove palette/animation “fallback” code paths (e.g., `src/interpal_fallback.cpp`) and match the Win95 palette interpolation/animation timing exactly instead of approximating when data is missing.
+Replace `src/include/legacy/wintimer_stub.h` with a real timer implementation that matches Win95 tick granularity/jitter expectations and drives all timer users (`TickCount`, `ProcessTimer`, `FrameTimer`) deterministically.
+Replace `src/include/legacy/getcd.h` and `src/include/legacy/nullmodem_stub.h` placeholders with behavior-complete ports (or remove the code paths if they are truly Win95-only and replaced by canonical SDL equivalents).
+Replace `SurfaceCollectionStub` in `src/include/legacy/wwlib32.h` with a real SDL-backed surface/restore model (or an equivalent always-valid implementation) that matches Win95 lost-surface/restore semantics without silently masking failures.
+Remove `src/port_stubs.cpp` placeholders that return defaults/no-ops (WSA/animation open/close/frame, wait-blit, version/config/profile stubs) by porting the original implementations into the SDL runtime layer.
+Delete any leftover linker-only stub translation units once their real counterparts are linked (e.g., `src/gameplay_*stubs*.cpp`, `src/linker_*stubs*.cpp`, `src/pointer_stubs.cpp`, `src/tiny_linker_shims.cpp`) and keep `CMakeLists.txt` free of duplicate-symbol fallbacks.
+
 ## Build system and source layout
 Status: Next steps. Scope: move legacy sources into `src/` with lowercase names, fix includes, strip Watcom/segmented keywords, and keep `CMakeLists.txt` in sync. Uppercase `src` filenames have been normalized; continue migrating the remaining legacy files. Excludes gameplay/runtime changes.
-Verify the SDL executable still links after adding the remaining ported stubs (base/gameplay/linker) to `CMakeLists.txt`.
-Confirm the current `CMakeLists.txt` set stays free of duplicate stub objects now that `pointer_stubs`/`linker_small`/`gameplay_*` shims are pruned.
+Keep `CMakeLists.txt` free of stub-only translation units once real ports exist; prefer failing the build over silently linking fallbacks.
+Confirm there are no duplicate-symbol “safety net” objects (old linker shims, gameplay minimal stubs, pointer stubs) and remove the files once they are no longer referenced.
 Finish porting the remaining legacy helpers for link parity (full `CONQUER.CPP` keyboard/message handling, `LOADDLG.CPP` save/load dialog, real Build_Frame/keyframe decoding, and modem reconnect flows) so the current skeletons can be replaced with behavior-complete implementations.
 
 ## Platform abstraction with SDL
@@ -16,6 +33,7 @@ Finish the remaining menu branches in `src/port_stubs.cpp` (expansion/bonus/load
 
 ## Rendering and UI
 Status: Next steps. Scope: finish `DisplayClass::Draw_It/AI`, map helpers in `src/display.cpp`, `GScreenClass` in `src/gscreen.cpp`, and `MapStubClass`/`MapClass` replacements (`src/map_shim.cpp`, `src/gameplay_core_stub.cpp`), plus HUD/UI widgets (Sidebar/Tab/Radio/Theme, startup options). Hook the ported credit tab (`src/credits.cpp`) back into Sidebar/Tab update loops when those UI classes move over. Replace the remaining shape draw path (`CC_Draw_Shape` + `Build_Frame` LCW decode) so render callers hit real blits. Excludes audio or net hooks.
+Port the Win95 textured UI fill path (`CC_Texture_Fill` + `BTEXTURE.SHP`) and remove the current solid-fill `Draw_Box` implementation so all dialog/menu panels match Win95 visuals.
 Verify the restored TXTPRNT ColorXlat-style nibble translation keeps gradient/LED fonts aligned and shaded like the Win95 renderer now that glyph offsets decode correctly.
 Re-check 6pt/8pt text spacing after mirroring the legacy Simple_Text_Print x/y offsets so SDL text baselines/advances line up with the Win95 menus.
 Verify the nearest-neighbor SDL scale mode on present/title textures keeps text/UI pixels crisp across macOS/Windows output scaling.
@@ -24,10 +42,11 @@ Decide whether to surface the `MonoClass` debug buffer (ported in `src/monoc.cpp
 Implement the `WWMouseClass` draw/erase overlay (cursor blit + restore) so the SDL render path shows the legacy cursor now that `GScreenClass::Blit_Display` uses it.
 Compare the main menu title background palette against Win95 output now that `src/load_title.cpp` no longer forces the first 16 UI colors.
 Confirm sidebar/radar button input wiring still routes through `GScreenClass::Buttons` once the real `MapClass` replaces the shim.
-Validate the palette interpolation fallback against Win95 output and tune the interpolation steps if the 2x scaled animations diverge.
+Replace the palette interpolation fallback with the Win95-equivalent interpolation path and validate output/timing (especially 2x scaled animations) against Win95 captures.
 
 ## Audio and messaging
 Status: Next steps. Scope: wire `CCMessageBox::Process` and audio entry points in `src/linker_stubs.cpp`; rebuild `src/audio_stub.cpp` to match `AUDIO.CPP` mixing/streaming via SDL with original volume/priority/voice rules. Excludes rendering or net.
+Remove `src/audio_stub.cpp`/`src/audio_play_stub.cpp` entirely by porting the original audio pipeline (decoder + mixer) and validating SFX/music parity against Win95 captures.
 Hook `OptionsClass::Set_Score_Volume` into the eventual SDL music/stream volume path so menu volume sliders affect active theme playback.
 Port `THEME.CPP` into `src/theme.cpp` so `ThemeClass::Queue_Song`/`Play_Song`/`AI` drive the real music flow instead of stubbed behavior.
 
