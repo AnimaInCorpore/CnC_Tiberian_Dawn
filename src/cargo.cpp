@@ -62,18 +62,3 @@ FootClass* CargoClass::Detach_Object() {
 FootClass* CargoClass::Attached_Object() const {
   return Is_Something_Attached() ? CargoHold : nullptr;
 }
-
-void CargoClass::Code_Pointers() {
-  if (CargoHold) {
-    CargoHold = reinterpret_cast<FootClass*>(
-        static_cast<std::uintptr_t>(CargoHold->As_Target()));
-  }
-}
-
-void CargoClass::Decode_Pointers() {
-  if (CargoHold) {
-    CargoHold = static_cast<FootClass*>(As_Techno(
-        static_cast<TARGET>(reinterpret_cast<std::uintptr_t>(CargoHold))));
-    Check_Ptr(CargoHold, __FILE__, __LINE__);
-  }
-}

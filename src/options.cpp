@@ -204,7 +204,6 @@ void OptionsClass::Set_Score_Volume(int volume)
 {
 	volume = Bound(volume, 0, 255);
 	ScoreVolume = volume;
-	Set_Score_Vol(ScoreVolume);
 }
 
 

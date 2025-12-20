@@ -433,8 +433,6 @@ void DisplayClass::Mouse_Left_Up(bool, ObjectClass*, ActionType, bool) {}
 void DisplayClass::Mouse_Left_Press(int, int) {}
 void DisplayClass::Mouse_Left_Held(int, int) {}
 void DisplayClass::Mouse_Right_Press() {}
-void DisplayClass::Code_Pointers() {}
-void DisplayClass::Decode_Pointers() {}
 
 void Fade_Palette_To(unsigned char* target_palette, int speed, void (*callback)(void)) {
 	if (!target_palette) return;

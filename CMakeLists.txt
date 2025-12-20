@@ -50,7 +50,6 @@ set(TD_SOURCES
   src/audio.cpp
   src/audio_play_stub.cpp
   src/base.cpp
-  src/base_stub.cpp
   src/bbdata.cpp
   src/bdata.cpp
   src/building.cpp
@@ -120,7 +119,6 @@ set(TD_SOURCES
   src/bitblt_helpers.cpp
   src/soundvisu_helpers.cpp
   src/mouse_vtable.cpp
-  src/pointer_stubs.cpp
   src/gamedlg.cpp
   src/loaddlg.cpp
   
@@ -146,12 +144,9 @@ set(TD_SOURCES
   src/layer.cpp
   src/legacy_vtables.cpp
   src/gameplay_core_stub.cpp
-  src/gameplay_minimal_stubs.cpp
-  src/gameplay_shims.cpp
   # src/gameplay_class_stubs.cpp (excluded: duplicates real implementations)
   # src/linker_stubs.cpp (excluded: duplicates real implementations)
   src/port_stubs.cpp
-  src/linker_small.cpp
   src/link.cpp
   src/list.cpp
   # SDATA.CPP
@@ -216,7 +211,6 @@ set(TD_SOURCES
   src/textbtn.cpp
   src/toggle.cpp
   src/txtlabel.cpp
-  src/tiny_linker_shims.cpp
   src/unit.cpp
   src/utracker.cpp
   src/vector.cpp

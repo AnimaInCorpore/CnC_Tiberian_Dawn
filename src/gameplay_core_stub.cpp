@@ -47,10 +47,6 @@ void MapClass::Logic(void) {}
 
 void MapClass::Set_Map_Dimensions(int, int, int, int) {}
 
-void MapClass::Code_Pointers(void) {}
-
-void MapClass::Decode_Pointers(void) {}
-
 int MapClass::Validate(void) { return 0; }
 
 void LogicClass::AI(void) {}

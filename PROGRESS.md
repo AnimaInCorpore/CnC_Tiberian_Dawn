@@ -7,7 +7,7 @@
 | `VECTOR.H` | `src/vector.h` | Vector template modernized with RAII allocation and portable guards. |
 | `VECTOR.CPP` | `src/vector.cpp` | Boolean vector utilities rewritten around clear helpers and `std::memcpy`. |
 | `LINK.CPP` | `src/link.cpp` | Doubly linked helper now uses `nullptr` checks and RAII-friendly removal. |
-| `LAYER.CPP` | `src/layer.cpp` | Layer manager handles sorting and save/load helpers with portable pointer coding. |
+| `LAYER.CPP` | `src/layer.cpp` | Layer manager handles sorting; load/save and pointer coding live in `src/ioobj.cpp`. |
 | `LIST.CPP` | `src/list.cpp` | List gadget clamps indices, wires the scroll peers, and manages slider state in pure C++. |
 | `RADIO.CPP` | `src/radio.cpp` | Radio messaging logic wrapped in portable helpers with `nullptr`-safe contact handling. |
 | `TAB.CPP` | `src/tab.cpp` | Sidebar tab UI now lives in `src/` with `nullptr` guards and cleaned text drawing helpers. |
@@ -33,14 +33,14 @@
 | `TEXT.CPP` (spacing) | `src/text.cpp` | Font X/Y spacing now mirrors the legacy Simple_Text_Print rules per font/shadow flag, fixing misaligned SDL text runs. |
 | `TEXTBTN.CPP` | `src/textbtn.cpp` | Button labels now center horizontally/vertically using the active font height so menu text aligns cleanly inside the boxes. |
 | `ALLOC.CPP` | `src/alloc.cpp` | Legacy allocator collapsed onto the modern malloc-based wrapper (moved from the wwalloc port) while keeping the legacy entry points. |
-| `ANIM.CPP` | `src/anim.cpp` | Animation system moved to src/; keeps spawn/attach logic, scorch/crater side effects, and translucent draw path intact with nullptr-safe ownership handling. |
+| `ANIM.CPP` | `src/anim.cpp` | Animation system moved to src/; keeps spawn/attach logic, scorch/crater side effects, and translucent draw path intact with nullptr-safe ownership handling; load/save and pointer coding now come from `src/ioobj.cpp`. |
 | `AUDIO.CPP` | `src/audio.cpp` | Ported to src/; EVA/sfx logic retained and playback decision path wired. Added minimal playback stubs (`src/audio_play_stub.cpp`) — full decoder/mixer pending. |
 | `BASE.CPP` | `src/base.cpp` | Ported to src/, implements base list parsing, save/load and node lookup. |
 | `BBDATA.CPP` | `src/bbdata.cpp` | BulletTypeClass definitions and tables ported; shape loading now uses std::string paths and the modern file helpers. |
 | `BDATA.CPP` | `src/bdata.cpp` | Building type tables and helpers ported; loads cameos/buildup shapes via portable paths, initializes real Pointers/placement/repair logic, and sets the WEAP2 overlay hook. |
 | `BUILDING.CPP` | `src/building.cpp` | Ported to src/ — full building gameplay/AI/drawing logic implemented. |
 | `BULLET.CPP` | `src/bullet.cpp` | Projectile flight/fuse logic ported; keeps homing/arc/drop behaviors, shadow rendering, and explosion damage paths intact. |
-| `CARGO.CPP` | `src/cargo.cpp` | Cargo hold bookkeeping ported; attach/detach preserve the chained LIFO order and carry over save/load pointer coding. |
+| `CARGO.CPP` | `src/cargo.cpp` | Cargo hold bookkeeping ported; attach/detach preserve the chained LIFO order, while pointer coding now relies on `src/ioobj.cpp`. |
 | `CCDDE.CPP` | `src/ccdde.cpp` | Ported as a stubbed DDE server (portable implementation). |
 | `CCFILE.CPP` | `src/ccfile.cpp` | Mix-aware file wrapper now opens embedded mix entries (cached or on-disk) via the portable RawFile/CDFile layer. |
 | `CDATA.CPP` | `src/cdata.cpp` | Ported to src/; template type tables restored (needs icon-set map helpers and viewport stamp/scale support). |
@@ -64,7 +64,7 @@
 | `DESCDLG.CPP` | `src/descdlg.cpp` | Ported `DescriptionClass::Process` (dialog UI with edit control and buttons). |
 | `DIAL8.CPP` | `src/dial8.cpp` | Ported to src/ (gadget; hides/shows mouse, draws facing dial). |
 | `DIALOG.CPP` | `src/dialog.cpp` | Ported: `Dialog_Box`, `Format_Window_String`, `Window_Box`. |
-| `DISPLAY.CPP` | `src/display.cpp` | Palette tables rebuilt, fade routines wired, and display scaffolding moved to src/. |
+| `DISPLAY.CPP` | `src/display.cpp` | Palette tables rebuilt, fade routines wired, and display scaffolding moved to src/; pointer coding now handled in `src/iomap.cpp`. |
 | `DOOR.CPP` | `src/door.cpp` | Ported to src/ (door animation state machine; open/close logic). |
 | `DPMI.CPP` | `src/dpmi.cpp` | Ported to src/ with flat-memory `Swap()` implementation (no asm). |
 | `DRIVE.CPP` | `src/drive.cpp` | Ported to src/ with full legacy movement logic restored; Map shim call sites now rely on the stub cell type for compilation. |
@@ -77,13 +77,13 @@
 | `FIELD.CPP` | `src/field.cpp` | Ported to src/; moved to portable headers and retained original net byte-order conversions. |
 | `FINDPATH.CPP` | `src/findpath.cpp` | Ported to src/ with pathfinding and FootClass path helpers restored. |
 | `FLASHER.CPP` | | To be ported. |
-| `FLY.CPP` | | To be ported. |
+| `FLY.CPP` | `src/fly_stub.cpp` | Stub retained for FlyClass motion hooks; removed duplicate Aircraft pointer helpers now provided by `src/ioobj.cpp`. |
 | `FOOT.CPP` | `src/foot.cpp` | Ported to src/ with legacy movement/mission logic intact and includes updated for the SDL build. |
 | `FUSE.CPP` | | To be ported. |
 | `GADGET.CPP` | | To be ported. |
 | `GAMEDLG.CPP` | | To be ported. |
 | `GOPTIONS.CPP` | `src/goptions.cpp` | Ported to src/; options dialog flow restored (needs SDL UI verification). |
-| `GSCREEN.CPP` | `src/gscreen.cpp` | Shadow-page setup and render/IO stubs recreated around modern buffers. |
+| `GSCREEN.CPP` | `src/gscreen.cpp` | Shadow-page setup and render/IO stubs recreated around modern buffers; pointer coding now handled in `src/iomap.cpp`. |
 | `HDATA.CPP` | `src/hdata.cpp` | House type table migrated; colors/remap tables kept intact and Jurassic palette tweak guarded behind the Special/AreThingiesEnabled flags. |
 | `HEAP.CPP` | | To be ported. |
 | `HELP.CPP` | | To be ported. |
@@ -111,7 +111,7 @@
 | `MAIN.CPP` | `src/main.cpp` | SDL bootstrap now requests a high-DPI window and nearest-neighbor scaling so UI/text pixels stay crisp. |
 | `WWLIB_RUNTIME.CPP` (present blit) | `src/wwlib_runtime.cpp` | Present texture now pins SDL texture scale mode to `nearest` to avoid blurry text when SDL scales the 8-bit buffer, and ModeX_Blit forwards legacy menu blits to the SDL presenter. |
 | `GSCREEN.CPP` | `src/gscreen.cpp` | Title screen blit texture also forces `nearest` scale mode to keep fonts/pixels sharp. |
-| `MAP.CPP` | | To be ported. |
+| `MAP.CPP` | `src/gameplay_core_stub.cpp` | MapClass remains stubbed for now; removed duplicate Code/Decode pointer hooks in favor of `src/iomap.cpp`. |
 | `MAPEDDLG.CPP` | | To be ported. |
 | `MAPEDIT.CPP` | | To be ported. |
 | `MAPEDPLC.CPP` | | To be ported. |
@@ -124,7 +124,7 @@
 | `MIXFILE.CPP` | `src/mixfile.cpp` | Added XCC name-table support so mixed archives (e.g., CD1/CCLOCAL.MIX) with embedded filenames resolve fonts correctly. |
 | `MONOC.CPP` | `src/monoc.cpp` | Ported monochrome debug buffer to a heap-backed screen page and removed DOS/segment calls while keeping the original text/box routines. |
 | `MONOC.H` | `src/include/legacy/monoc.h` | Box character table now uses 8-bit storage to preserve IBM line-draw values without C++ narrowing errors. |
-| `MISSION.CPP` | `src/mission.cpp` | Ported to src/ with legacy mission state machine logic intact and includes updated for the SDL build. |
+| `MISSION.CPP` | `src/mission.cpp` | Ported to src/ with legacy mission state machine logic intact and includes updated for the SDL build; pointer coding now handled in `src/ioobj.cpp`. |
 | `MOUSE.CPP` | | To be ported. |
 | `MPLAYER.CPP` | | To be ported. |
 | `MSGBOX.CPP` | `src/msgbox.cpp` | Ported to src/; CCMessageBox UI logic restored. |
@@ -136,7 +136,7 @@
 | `NULLMGR.CPP` | `src/nullmgr.cpp` | Ported NULL modem manager with UDP-based transport, queue/timing, and buffer parsing. |
 | `OBJECT.CPP` | | To be ported. |
 | `ODATA.CPP` | `src/odata.cpp` | Ported to src/; overlay type tables/graphics restored. |
-| `OPTIONS.CPP` | `src/options.cpp` | Ported to src/; options settings and palette hooks restored. |
+| `OPTIONS.CPP` | `src/options.cpp` | Ported to src/; options settings and palette hooks restored, and the score-volume setter no longer recurses into itself. |
 | `OVERLAY.CPP` | `src/overlay.cpp` | Ported to src/; overlay object logic restored and map-shim access updated for stubbed cells. |
 | `PACKET.CPP` | | To be ported. |
 | `POWER.CPP` | `src/power.cpp` | Power bar UI ported; shapes are loaded via the modern MIX helpers and redraw logic mirrors the original radar/sidebar flow. |
@@ -191,7 +191,7 @@
 | `WATCOM.H` | `src/include/legacy/watcom.h` | Watcom pragma wrappers swapped for GCC diagnostic helpers. |
 | `PLATFORM (new)` | `src/include/legacy/platform.h` | Win16/Watcom typedef shim that turns `near`/`far` keywords into no-ops. |
 | `WINDOWS_COMPAT (new)` | `src/include/legacy/windows_compat.h` | Win32 handle/struct typedef shim so the port never includes platform headers directly. |
-| `CMakeLists.txt` | `CMakeLists.txt` | Added missing ported sources and gated `src/platform_win32.cpp` behind `WIN32`, then pruned duplicate stub units (`src/base_stub.cpp`, `src/gameplay_minimal_stubs.cpp`, `src/gameplay_shims.cpp`, `src/gameplay_class_stubs.cpp`, `src/linker_small.cpp`, `src/linker_stubs.cpp`, `src/tiny_linker_shims.cpp`) to avoid duplicate symbols; `src/debug.cpp`/`src/ending.cpp` are now linked. |
+| `CMakeLists.txt` | `CMakeLists.txt` | Added missing ported sources and gated `src/platform_win32.cpp` behind `WIN32`, then pruned duplicate stub units (`src/base_stub.cpp`, `src/gameplay_minimal_stubs.cpp`, `src/gameplay_shims.cpp`, `src/gameplay_class_stubs.cpp`, `src/linker_small.cpp`, `src/linker_stubs.cpp`, `src/tiny_linker_shims.cpp`, `src/pointer_stubs.cpp`) to avoid duplicate symbols; `src/debug.cpp`/`src/ending.cpp` are now linked. |
 | `AIRCRAFT.H` | `src/include/legacy/aircraft.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `ANIM.H` | `src/include/legacy/anim.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `AUDIO.H` | `src/include/legacy/audio.h` | Lowercase mirror retained for Linux-friendly includes. |

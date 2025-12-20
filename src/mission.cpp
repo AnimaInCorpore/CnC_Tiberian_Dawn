@@ -75,8 +75,6 @@ MissionClass::MissionClass(void)
 
 MissionClass::~MissionClass(void) = default;
 
-void MissionClass::Code_Pointers(void) {}
-void MissionClass::Decode_Pointers(void) {}
 
 
 int MissionClass::Mission_Sleep(void) {return TICKS_PER_SECOND*30;};

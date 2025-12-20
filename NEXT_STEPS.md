@@ -4,6 +4,7 @@ Tackle one chunk at a time; when a chunk has no remaining next steps, mark it wi
 ## Build system and source layout
 Status: Next steps. Scope: move legacy sources into `src/` with lowercase names, fix includes, strip Watcom/segmented keywords, and keep `CMakeLists.txt` in sync. Uppercase `src` filenames have been normalized; continue migrating the remaining legacy files. Excludes gameplay/runtime changes.
 Verify the SDL executable still links after adding the remaining ported stubs (base/gameplay/linker) to `CMakeLists.txt`.
+Confirm the current `CMakeLists.txt` set stays free of duplicate stub objects now that `pointer_stubs`/`linker_small`/`gameplay_*` shims are pruned.
 Finish porting the remaining legacy helpers for link parity (full `CONQUER.CPP` keyboard/message handling, `LOADDLG.CPP` save/load dialog, real Build_Frame/keyframe decoding, and modem reconnect flows) so the current skeletons can be replaced with behavior-complete implementations.
 
 ## Platform abstraction with SDL
@@ -25,6 +26,7 @@ Validate the palette interpolation fallback against Win95 output and tune the in
 
 ## Audio and messaging
 Status: Next steps. Scope: wire `CCMessageBox::Process` and audio entry points in `src/linker_stubs.cpp`; rebuild `src/audio_stub.cpp` to match `AUDIO.CPP` mixing/streaming via SDL with original volume/priority/voice rules. Excludes rendering or net.
+Hook `OptionsClass::Set_Score_Volume` into the eventual SDL music/stream volume path so menu volume sliders affect active theme playback.
 Port `THEME.CPP` into `src/theme.cpp` so `ThemeClass::Queue_Song`/`Play_Song`/`AI` drive the real music flow instead of stubbed behavior.
 
 ## Networking and multiplayer

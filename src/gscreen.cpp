@@ -180,8 +180,6 @@ void GScreenClass::Blit_Display(void) {
   SDL_DestroyTexture(texture);
 }
 
-void GScreenClass::Code_Pointers(void) {}
-void GScreenClass::Decode_Pointers(void) {}
 void GScreenClass::Set_Default_Mouse(MouseType, bool) {}
 bool GScreenClass::Override_Mouse_Shape(MouseType, bool) { return false; }
 void GScreenClass::Revert_Mouse_Shape(void) {}
