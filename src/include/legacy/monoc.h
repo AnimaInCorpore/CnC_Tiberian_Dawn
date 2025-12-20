@@ -38,6 +38,8 @@
 #ifndef MONOC_H
 #define MONOC_H
 
+#include <cstdint>
+
 //#include	"dpmi.h"
 //#include	"function.h"
 

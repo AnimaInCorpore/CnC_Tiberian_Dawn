@@ -16,6 +16,7 @@ Verify the restored TXTPRNT ColorXlat-style nibble translation keeps gradient/LE
 Re-check 6pt/8pt text spacing after mirroring the legacy Simple_Text_Print x/y offsets so SDL text baselines/advances line up with the Win95 menus.
 Verify the nearest-neighbor SDL scale mode on present/title textures keeps text/UI pixels crisp across macOS/Windows output scaling.
 Spot-check menu button text after centering tweak in `src/textbtn.cpp` to ensure vertical/horizontal alignment matches the Win95 layout.
+Decide whether to surface the `MonoClass` debug buffer (ported in `src/monoc.cpp`) via an SDL overlay or log sink for modern builds.
 
 ## Audio and messaging
 Status: Next steps. Scope: wire `CCMessageBox::Process` and audio entry points in `src/linker_stubs.cpp`; rebuild `src/audio_stub.cpp` to match `AUDIO.CPP` mixing/streaming via SDL with original volume/priority/voice rules. Excludes rendering or net.

@@ -124,6 +124,7 @@ set(TD_SOURCES
   src/movie_stub.cpp
   src/mixfile.cpp
   src/mmx_stub.cpp
+  src/monoc.cpp
   src/mousehelp.cpp
   src/name_crc.cpp
   src/object.cpp
