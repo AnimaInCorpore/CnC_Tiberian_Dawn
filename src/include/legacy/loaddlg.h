@@ -36,6 +36,10 @@
 #ifndef LOADDLG_H
 #define LOADDLG_H
 
+#include "defines.h"
+#include "vector.h"
+#include "list.h"
+
 class FileEntryClass {
 	public:
 		char Descr[40];				// save-game description

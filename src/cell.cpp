@@ -150,3 +150,24 @@ void CellClass::Redraw_Objects(bool forced)
         }
     }
 }
+
+int CellClass::Spot_Index(COORDINATE coord)
+{
+    COORDINATE rel = coord & 0x00FF00FFL;
+
+    if (Distance(rel, 0x00800080L) < 60) {
+        return 0;
+    }
+
+    int index = 0;
+    if (Coord_X(rel) > 0x80) index |= 0x01;
+    if (Coord_Y(rel) > 0x80) index |= 0x02;
+    return index + 1;
+}
+
+int CellClass::Clear_Icon(void) const
+{
+    Validate();
+    CELL cell = Cell_Number();
+    return (cell & 0x03) | ((cell >> 4) & 0x0C);
+}

@@ -499,6 +499,11 @@ char const* const CallWaitStrings[ CALL_WAIT_STRINGS_NUM ] = {
 #endif
 
 /***************************************************************************
+**	Modem globals
+*/
+ModemGameType ModemGameToPlay = MODEM_NULL_HOST;
+
+/***************************************************************************
 **	Index into scenario description list box
 */
 int ScenarioIdx;

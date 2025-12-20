@@ -4,7 +4,7 @@ Tackle one chunk at a time; when a chunk has no remaining next steps, mark it wi
 ## Build system and source layout
 Status: Next steps. Scope: move legacy sources into `src/` with lowercase names, fix includes, strip Watcom/segmented keywords, and keep `CMakeLists.txt` in sync. Uppercase `src` filenames have been normalized; continue migrating the remaining legacy files. Excludes gameplay/runtime changes.
 Verify the SDL executable still links after adding the remaining ported stubs (base/gameplay/linker) to `CMakeLists.txt`.
-Port the remaining legacy helpers needed for link parity (`CONQUER.CPP`, `DIALOG.CPP`, `INI.CPP`, `SCENARIO.CPP`, `INIT.CPP`, `NETDLG.CPP`, `NULLDLG.CPP`, `KEYFRAME.CPP`, `MAPSEL.CPP`) so core utilities (Fading_Table_Name, Simple_Text_Print, Obfuscate, WSA helpers, etc.) move into `src/`.
+Finish porting the remaining legacy helpers for link parity (full `CONQUER.CPP` keyboard/message handling, `LOADDLG.CPP` save/load dialog, real Build_Frame/keyframe decoding, and modem reconnect flows) so the current skeletons can be replaced with behavior-complete implementations.
 
 ## Platform abstraction with SDL
 Status: Next steps. Scope: create SDL2/SDL_net shims for video/audio/input/network only; replace DirectDraw/DirectSound/DirectInput/IPX/Greenleaf entry points while keeping call signatures so upper layers stay untouched.
@@ -21,7 +21,7 @@ Verify the nearest-neighbor SDL scale mode on present/title textures keeps text/
 Spot-check menu button text after centering tweak in `src/textbtn.cpp` to ensure vertical/horizontal alignment matches the Win95 layout.
 Decide whether to surface the `MonoClass` debug buffer (ported in `src/monoc.cpp`) via an SDL overlay or log sink for modern builds.
 Confirm sidebar/radar button input wiring still routes through `GScreenClass::Buttons` once the real `MapClass` replaces the shim.
-Replace the palette interpolation assembly helpers with portable C/C++ implementations so `src/interpal.cpp` no longer depends on asm symbols.
+Validate the palette interpolation fallback against Win95 output and tune the interpolation steps if the 2x scaled animations diverge.
 
 ## Audio and messaging
 Status: Next steps. Scope: wire `CCMessageBox::Process` and audio entry points in `src/linker_stubs.cpp`; rebuild `src/audio_stub.cpp` to match `AUDIO.CPP` mixing/streaming via SDL with original volume/priority/voice rules. Excludes rendering or net.
@@ -40,7 +40,6 @@ Validate the icon-set map offsets used by `Get_Icon_Set_Map` against real templa
 
 ## Gameplay systems and AI
 Status: Next steps. Scope: port unit/structure/AI systems (`UNIT/TECHNO/BUILDING/INFANTRY/VEHICLE`, pathfinding `FINDPATH`/`VECTOR`, triggers/scripts, mission flow) ensuring deterministic timers/random seeds. Excludes platform or asset I/O changes. Cargo attach/detach/pointer coding now live in `src/cargo.cpp`; next tie it back into Foot/Unit load/unload once those files move. `src/bullet.cpp` now carries the projectile logic with the data tables in `src/bdata.cpp`; with `src/anim.cpp` ported, hook Foot/Unit/Building callers back into the real animation spawn/attach paths.
-Port `SAVELOAD.CPP` pieces that define TechnoType target helpers now that object pointer coding relies on them.
 Confirm factory production state (from `src/factory.cpp`) is reflected in the Sidebar/Tab UI once those classes are ported so build progress and completion behave like Win95.
 Validate the `FlasherClass` updates flow through Techno/Unit redraw paths once those classes are fully ported so flashing feedback matches Win95.
 Re-check turret/unit rotation redraw cadence when porting Techno/Unit so the now-restored FacingClass 1/32-zone transition matches Win95 visuals.

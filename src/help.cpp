@@ -25,6 +25,8 @@ HelpClass::HelpClass(void)
     Cost = 0;
 }
 
+HelpClass::~HelpClass() = default;
+
 void HelpClass::Init_Clear(void)
 {
     TabClass::Init_Clear();

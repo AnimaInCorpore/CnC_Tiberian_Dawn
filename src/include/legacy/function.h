@@ -529,6 +529,7 @@ unsigned short Get_Build_Frame_Width(void const *dataptr);
 unsigned short Get_Build_Frame_Height(void const *dataptr);
 bool Get_Build_Frame_Palette(void const *dataptr, void *palette);
 int Extract_Shape_Count(void const* shape);
+void *Get_Shape_Header_Data(void *ptr);
 
 /*
 **	MAP.CPP
@@ -604,6 +605,7 @@ bool Queue_Options(void);
 bool Queue_Exit(void);
 void Queue_AI(void);
 void Add_CRC(unsigned long *crc, unsigned long val);
+unsigned long Calculate_CRC(void const *buffer, int length);
 
 /*
 **	RAND.CPP

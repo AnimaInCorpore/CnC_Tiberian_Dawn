@@ -4,15 +4,6 @@
 #include <cctype>
 #include <string>
 
-void Add_CRC(unsigned long* crc, unsigned long val) {
-  if (!crc) return;
-
-  const int hibit = (*crc & 0x80000000) ? 1 : 0;
-  *crc <<= 1;
-  *crc += val;
-  *crc += hibit;
-}
-
 unsigned long Compute_Name_CRC(char* name) {
   if (!name) return 0;
 

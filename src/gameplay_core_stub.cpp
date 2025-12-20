@@ -55,5 +55,7 @@ int MapClass::Validate(void) { return 0; }
 
 void LogicClass::AI(void) {}
 
+void LogicClass::Debug_Dump(MonoClass*) const {}
+
 // UnitTrackerClass is implemented in utracker.cpp; do not provide
 // duplicate definitions here to avoid linker conflicts.

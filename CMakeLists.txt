@@ -100,12 +100,28 @@ set(TD_SOURCES
   src/msgbox.cpp
   src/score.cpp
   src/interpal.cpp
+  src/interpal_fallback.cpp
   src/udata.cpp
   src/idata.cpp
   src/odata.cpp
   src/sdata.cpp
   src/cdata.cpp
   src/tdata.cpp
+  src/keyframe_helpers.cpp
+  src/init_helpers.cpp
+  src/scenario_helpers.cpp
+  src/ini_helpers.cpp
+  src/saveload_helpers.cpp
+  src/conquer_helpers.cpp
+  src/network_helpers.cpp
+  src/pcx_write.cpp
+  src/crc_helpers.cpp
+  src/bitblt_helpers.cpp
+  src/soundvisu_helpers.cpp
+  src/mouse_vtable.cpp
+  src/pointer_stubs.cpp
+  src/gamedlg.cpp
+  src/loaddlg.cpp
   
   src/gadget_control_stub.cpp
   src/game.cpp
@@ -189,8 +205,8 @@ set(TD_SOURCES
   src/target.cpp
   src/reinf.cpp
   src/queue.cpp
-  src/iomap.cpp
-  src/ioobj.cpp
+  # src/iomap.cpp
+  # src/ioobj.cpp
   src/findpath.cpp
   src/txtprnt.cpp
   src/textbtn.cpp

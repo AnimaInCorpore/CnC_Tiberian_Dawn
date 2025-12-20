@@ -183,6 +183,24 @@ void Pump_Sdl_Events() {
 
 }  // namespace
 
+void* Open_Animation(char const*, void*, long, WSAOpenType, void*) {
+  return nullptr;
+}
+
+void Animate_Frame(void const*, GraphicBufferClass&, int) {}
+
+int Get_Animation_Frame_Count(void const*) {
+  return 0;
+}
+
+void Close_Animation(void*) {}
+
+int Extract_Shape_Count(void const*) {
+  return 0;
+}
+
+void Wait_Blit(void) {}
+
 int Bound(int value, int min, int max) {
   if (value < min) return min;
   if (value > max) return max;
@@ -191,9 +209,6 @@ int Bound(int value, int min, int max) {
 
 void CCDebugString(char const* string) { std::fputs(string ? string : "", stderr); }
 
-int Check_Key(void) { return Keyboard::Check() != 0; }
-
-KeyNumType Get_Key(void) { return Keyboard::Get(); }
 
 // Mono helpers are implemented in src/monoc.cpp for the port build.
 
@@ -242,7 +257,6 @@ void Delay(int ticks) {
 
 // Dialog_Box is implemented in src/dialog.cpp
 
-void Draw_Caption(int, int, int, int) {}
 
 void Call_Back() {}
 
@@ -252,7 +266,6 @@ void* Add_Long_To_Pointer(void* ptr, long offset) {
 
 void Shake_Screen(int) {}
 
-bool Queue_Options() { return false; }
 
 void const* Hires_Retrieve(char const* /*name*/) { return nullptr; }
 
@@ -342,9 +355,6 @@ int Ram_Free() { return 16 * 1024 * 1024; }
 
 void Memory_Error_Handler(void) {}
 
-COORDINATE As_Coord(TARGET) { return 0; }
-ObjectClass* As_Object(TARGET) { return nullptr; }
-BuildingClass* As_Building(TARGET) { return nullptr; }
 
 void Draw_Box(int x, int y, int w, int h, BoxStyleEnum style, bool filled) {
   GraphicViewPortClass* page = LogicPage ? LogicPage : &HidPage;

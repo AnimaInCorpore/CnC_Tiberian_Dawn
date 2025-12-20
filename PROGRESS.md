@@ -352,6 +352,32 @@
 | `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Added Wait_Blit placeholder for palette interpolation paths. |
 | `SMUDGE.H` | `src/include/legacy/smudge.h` | Included `wwfile.h` so FileClass I/O methods resolve. |
 | `SDATA.CPP` | `src/sdata.cpp` | Added missing legacy includes for theater/mix/map helpers used by smudge setup. |
+| `HELP.CPP` | `src/help.cpp` | Added HelpClass destructor definition to satisfy vtable linkage. |
+| `CELL.CPP` | `src/cell.cpp` | Ported Spot_Index/Clear_Icon helpers used by infantry and radar plots. |
+| `GLOBALS.CPP` | `src/globals.cpp` | Restored ModemGameToPlay global so network flows link. |
+| `INTERPAL` | `src/interpal_fallback.cpp` | Added C++ palette interpolation and 2x scale fallbacks for non-ASM builds. |
+| `KEYFRAME.CPP` | `src/keyframe_helpers.cpp` | Added uncompressed shape toggles used by score playback. |
+| `TEXT.CPP` | `src/text.cpp` | Added Simple_Text_Print wrapper for legacy text calls. |
+| `INIT.CPP` | `src/init_helpers.cpp` | Ported Obfuscate helper for hidden option parsing. |
+| `SCENARIO.CPP` | `src/scenario_helpers.cpp` | Ported Restate_Mission dialog handler. |
+| `INI.CPP` | `src/ini_helpers.cpp` | Ported Scan_Place_Object placement helper. |
+| `SAVELOAD.CPP` | `src/saveload_helpers.cpp` | Ported TechnoType target conversions for save/load pointer coding. |
+| `CONQUER.CPP` | `src/conquer_helpers.cpp` | Added selection helpers, radar icon builder, and keyboard handler for tactical input. |
+| `NETDLG/NULLDLG` | `src/network_helpers.cpp` | Added network disconnect/reconnect dialog helpers for queue handling. |
+| `WINSTUB` | `src/pcx_write.cpp` | Implemented PCX writer for screenshot/debug output. |
+| `GAMEDLG.CPP` | `src/gamedlg.cpp` | Ported game controls dialog processing. |
+| `LOADDLG.CPP` | `src/loaddlg.cpp` | Added load dialog class skeleton to satisfy build. |
+| `GAMEPLAY_CORE_STUB` | `src/gameplay_core_stub.cpp` | Added LogicClass debug dump stub to satisfy debug calls. |
+| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Added global animation helper definitions for link parity. |
+| `CRC` | `src/crc_helpers.cpp` | Added Calculate_CRC helper used by obfuscation and legacy CRC checks. |
+| `FUNCTION.H` | `src/include/legacy/function.h` | Declared Calculate_CRC helper for obfuscation and network CRC usage. |
+| `FUNCTION.H` | `src/include/legacy/function.h` | Declared Get_Shape_Header_Data helper for radar icon extraction. |
+| `BITBLT` | `src/bitblt_helpers.cpp` | Added Bit_It_In_Scale fallback for score blits. |
+| `SOUND/VIDEO DLG` | `src/soundvisu_helpers.cpp` | Added no-op sound/visual controls handlers to satisfy options flow. |
+| `MOUSE.H` | `src/mouse_vtable.cpp` | Defined MouseClass VTable storage to satisfy serialization references. |
+| `LOADDLG.H` | `src/include/legacy/loaddlg.h` | Added missing includes for vector/list/defines types. |
+| `POINTER STUBS` | `src/pointer_stubs.cpp` | Added no-op pointer code/decode hooks to satisfy vtables after removing iomap/ioobj. |
+| `FLY_STUB.CPP` | `src/fly_stub.cpp` | Removed duplicate As_Movement_Coord stub to resolve linker conflicts. |
 
 ## Pending follow-ups
 - Implement audio decoder/mixer (decode .AUD/.JUV/.Vxx and mix via SDL; add panning/priority and voice queue)

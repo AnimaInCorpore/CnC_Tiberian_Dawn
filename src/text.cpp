@@ -504,4 +504,10 @@ void Fancy_Text_Print(int text, unsigned x, unsigned y, unsigned fore, unsigned 
 
 void CC_Draw_Text(int text) { Fancy_Text_Print(text, 0, 0, WHITE, TBLACK, TPF_8POINT); }
 
+void Simple_Text_Print(char const* text, unsigned x, unsigned y, unsigned fore, unsigned back,
+                       TextPrintType flag) {
+  Fancy_Text_Print(text, x, y, fore, back,
+                   static_cast<TextPrintType>(flag | TPF_DROPSHADOW));
+}
+
 char const* Extract_String(char const* /*text*/, int index) { return Lookup_Text(index); }

@@ -12,7 +12,6 @@ ImpactType FlyClass::Physics(COORDINATE& coord, DirType facing) {
 
 void FlyClass::Fly_Speed(int /*speed*/, MPHType /*maximum*/) {}
 
-COORDINATE As_Movement_Coord(TARGET target) { return static_cast<COORDINATE>(target); }
 
 void AircraftClass::Code_Pointers(void) {}
 void AircraftClass::Decode_Pointers(void) {}
