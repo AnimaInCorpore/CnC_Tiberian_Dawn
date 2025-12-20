@@ -165,9 +165,7 @@ void TemplateClass::Write_INI(char *buffer)
 	**	Find all templates and write them to the file.
 	*/
 	for (int index = 0; index < MAP_CELL_TOTAL; index++) {
-		CellClass * ptr;
-
-		ptr = &Map[index];
+		auto * ptr = &Map[index];
 		if (ptr->TType != TEMPLATE_NONE && ptr->TIcon == 0) {
 			sprintf(uname, "%03d", index);
 			sprintf(buf, "%s", TemplateTypeClass::As_Reference(ptr->TType).IniName);
@@ -278,7 +276,7 @@ bool TemplateClass::Mark(MarkType mark)
 			for (int x = 0; x < Class->Width; x++) {
 				CELL cell = Coord_Cell(Coord) + y*MAP_CELL_W + x;
 				if (Map.In_Radar(cell)) {
-					CellClass * cellptr = &Map[cell];
+										auto * cellptr = &Map[cell];
 					int number = y*Class->Width + x;
 
 					/*

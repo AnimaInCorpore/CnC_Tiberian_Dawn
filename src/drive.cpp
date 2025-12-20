@@ -227,7 +227,7 @@ void DriveClass::Approach_Target(void)
  *=============================================================================================*/
 void DriveClass::Overrun_Square(CELL cell, bool threaten)
 {
-	CellClass * cellptr = &Map[cell];
+	auto * cellptr = &Map[cell];
 
 	if (Class->IsCrusher) {
 		if (threaten) {
@@ -907,7 +907,7 @@ bool DriveClass::Start_Of_Move(void)
 				CELL cell = Adjacent_Cell(Coord_Cell(Center_Coord()), PrimaryFacing.Current());
 				if (Map.In_Radar(cell)) {
 					if (Can_Enter_Cell(cell) == MOVE_TEMP) {
-						CellClass * cellptr = &Map[cell];
+												auto * cellptr = &Map[cell];
 						TechnoClass * blockage = cellptr->Cell_Techno();
 						if (blockage && House->Is_Ally(blockage)) {
 							bool old = Special.IsScatter;
@@ -940,7 +940,7 @@ bool DriveClass::Start_Of_Move(void)
 		CELL cell = Adjacent_Cell(Coord_Cell(Center_Coord()), Path[0]);
 		if (Map.In_Radar(cell)) {
 			if (Can_Enter_Cell(cell) == MOVE_TEMP) {
-				CellClass * cellptr = &Map[cell];
+								auto * cellptr = &Map[cell];
 				TechnoClass * blockage = cellptr->Cell_Techno();
 				if (blockage && House->Is_Ally(blockage)) {
 					bool old = Special.IsScatter;
@@ -2085,29 +2085,29 @@ DriveClass::TrackType const DriveClass::Track12[] = {
 **	Drive out of weapon's factory.
 */
 DriveClass::TrackType const DriveClass::Track13[] = {
-	{XYP_COORD(10,-21),(DirType)(DIR_SW-10)},
-	{XYP_COORD(10,-21),(DirType)(DIR_SW-10)},
-	{XYP_COORD(10,-20),(DirType)(DIR_SW-10)},
-	{XYP_COORD(10,-20),(DirType)(DIR_SW-10)},
-	{XYP_COORD(9,-18),(DirType)(DIR_SW-10)},
-	{XYP_COORD(9,-18),(DirType)(DIR_SW-10)},
-	{XYP_COORD(9,-17),(DirType)(DIR_SW-10)},
-	{XYP_COORD(8,-16),(DirType)(DIR_SW-10)},
-	{XYP_COORD(8,-15),(DirType)(DIR_SW-10)},
-	{XYP_COORD(7,-14),(DirType)(DIR_SW-10)},
-	{XYP_COORD(7,-13),(DirType)(DIR_SW-10)},
-	{XYP_COORD(6,-12),(DirType)(DIR_SW-10)},
-	{XYP_COORD(6,-11),(DirType)(DIR_SW-10)},
-	{XYP_COORD(5,-10),(DirType)(DIR_SW-10)},
-	{XYP_COORD(5,-9),(DirType)(DIR_SW-10)},
-	{XYP_COORD(4,-8),(DirType)(DIR_SW-10)},
-	{XYP_COORD(4,-7),(DirType)(DIR_SW-10)},
-	{XYP_COORD(3,-6),(DirType)(DIR_SW-10)},
-	{XYP_COORD(3,-5),(DirType)(DIR_SW-9)},
-	{XYP_COORD(2,-4),(DirType)(DIR_SW-7)},
-	{XYP_COORD(2,-3),(DirType)(DIR_SW-5)},
-	{XYP_COORD(1,-2),(DirType)(DIR_SW-3)},
-	{XYP_COORD(1,-1),(DirType)(DIR_SW-1)},
+	{static_cast<COORDINATE>(XYP_COORD(10,-21)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(10,-21)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(10,-20)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(10,-20)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(9,-18)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(9,-18)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(9,-17)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(8,-16)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(8,-15)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(7,-14)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(7,-13)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(6,-12)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(6,-11)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(5,-10)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(5,-9)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(4,-8)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(4,-7)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(3,-6)),(DirType)(DIR_SW-10)},
+	{static_cast<COORDINATE>(XYP_COORD(3,-5)),(DirType)(DIR_SW-9)},
+	{static_cast<COORDINATE>(XYP_COORD(2,-4)),(DirType)(DIR_SW-7)},
+	{static_cast<COORDINATE>(XYP_COORD(2,-3)),(DirType)(DIR_SW-5)},
+	{static_cast<COORDINATE>(XYP_COORD(1,-2)),(DirType)(DIR_SW-3)},
+	{static_cast<COORDINATE>(XYP_COORD(1,-1)),(DirType)(DIR_SW-1)},
 
 	{0x00000000L,DIR_SW}
 };
@@ -2210,4 +2210,3 @@ DriveClass::TurnTrackType const DriveClass::TrackControl[67] = {
 	{12,	12,	DIR_SW_X2,	F_},															// Drive back into refinery.
 	{13,	13,	DIR_SW,	F_}																// Drive out of weapons factory.
 };
-

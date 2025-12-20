@@ -65,6 +65,7 @@ set(TD_SOURCES
   src/ccfile.cpp
   src/ccdde.cpp
   src/cdata.cpp
+  src/icon_set.cpp
   src/comqueue.cpp
   src/cdfile.cpp
   src/checkbox.cpp

@@ -1,5 +1,6 @@
 #include "legacy/wwlib32.h"
 #include "legacy/defines.h"
+#include "legacy/display.h"
 #include "legacy/externs.h"
 #include "legacy/gscreen.h"
 #include "runtime_sdl.h"
@@ -293,6 +294,34 @@ void GraphicViewPortClass::Draw_Rect(int x1, int y1, int x2, int y2, int color) 
   Draw_Line(x2, y1, x2, y2, color);
 }
 
+void GraphicViewPortClass::Draw_Stamp(void const* iconset, int icon, int x, int y, void const*, int) {
+  if (!iconset || !impl_->buffer) return;
+  const auto* base = static_cast<const unsigned char*>(iconset);
+
+  long map_offset = 0;
+  std::memcpy(&map_offset, base + 28, sizeof(map_offset));
+  const unsigned char* map = map_offset ? base + map_offset : nullptr;
+
+  int actual_icon = icon;
+  if (map) {
+    actual_icon = static_cast<int>(map[icon]);
+    if (actual_icon == 0xFF) return;
+  }
+
+  long data_offset = 0;
+  std::memcpy(&data_offset, base + 12, sizeof(data_offset));
+  if (data_offset <= 0) return;
+
+  const unsigned char* data =
+      base + data_offset + static_cast<long>(actual_icon) * (ICON_PIXEL_W * ICON_PIXEL_H);
+  for (int row = 0; row < ICON_PIXEL_H; ++row) {
+    for (int col = 0; col < ICON_PIXEL_W; ++col) {
+      const int color = data[row * ICON_PIXEL_W + col];
+      Put_Pixel(x + col, y + row, color);
+    }
+  }
+}
+
 void GraphicViewPortClass::Remap(int x, int y, int width, int height, const unsigned char* table) {
   auto* buffer = impl_->buffer ? impl_->buffer->Get_Buffer() : nullptr;
   if (!buffer || !table) return;
@@ -415,6 +444,26 @@ void GraphicViewPortClass::Blit(const GraphicViewPortClass& src, int dst_x, int 
 
 void GraphicViewPortClass::Blit(const GraphicViewPortClass& src) {
   Blit(src, src.Get_XPos(), src.Get_YPos(), src.Get_XPos(), src.Get_YPos(), src.Get_Width(), src.Get_Height());
+}
+
+void GraphicViewPortClass::Scale(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width,
+                                 int height, int, int, char*) {
+  auto* buffer = impl_->buffer ? impl_->buffer->Get_Buffer() : nullptr;
+  if (!buffer) return;
+  const int buffer_width = impl_->buffer->Get_Width();
+  const int buffer_height = impl_->buffer->Get_Height();
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      const int src_abs_x = impl_->x + src_x + x;
+      const int src_abs_y = impl_->y + src_y + y;
+      if (src_abs_x < 0 || src_abs_y < 0 || src_abs_x >= buffer_width || src_abs_y >= buffer_height) {
+        continue;
+      }
+      const int color = buffer[src_abs_y * buffer_width + src_abs_x];
+      dest.Put_Pixel(dst_x + x, dst_y + y, color);
+    }
+  }
 }
 
 // --- WWMouseClass -----------------------------------------------------------

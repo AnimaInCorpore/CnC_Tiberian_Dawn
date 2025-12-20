@@ -224,7 +224,7 @@ bool SmudgeClass::Mark(MarkType mark)
 				for (int h = 0; h < Class->Height; h++) {
 					CELL newcell = origin + w + (h*MAP_CELL_W);
 					if (Map.In_Radar(newcell)) {
-						CellClass * cell = &Map[newcell];
+						auto * cell = &Map[newcell];
 
 						if (Class->IsBib) {
 							cell->Smudge = Class->Type;
@@ -355,9 +355,7 @@ void SmudgeClass::Write_INI(char *buffer)
 	**	Find all templates and write them to the file.
 	*/
 	for (CELL index = 0; index < MAP_CELL_TOTAL; index++) {
-		CellClass * ptr;
-
-		ptr = &Map[index];
+		auto * ptr = &Map[index];
 		if (ptr->Smudge != SMUDGE_NONE) {
 			SmudgeTypeClass const * stype = &SmudgeTypeClass::As_Reference(ptr->Smudge);
 			if (!stype->IsBib) {
@@ -392,7 +390,7 @@ void SmudgeClass::Disown(CELL cell)
 	if (Class->IsBib) {
 		for (int w = 0; w < Class->Width; w++) {
 			for (int h = 0; h < Class->Height; h++) {
-				CellClass & cellptr = Map[cell + w + (h*MAP_CELL_W)];
+				auto & cellptr = Map[cell + w + (h*MAP_CELL_W)];
 
 				if (cellptr.Overlay == OVERLAY_NONE || !OverlayTypeClass::As_Reference(cellptr.Overlay).IsWall) {
 					cellptr.Smudge = SMUDGE_NONE;

@@ -33,7 +33,7 @@ Confirm `EventClass::Execute` is wired into the network event dispatch path once
 Status: Next steps. Scope: modernize MIX/raw/CC file handling (`MIXFILE.CPP`, `RAWFILE.CPP`, `CCFILE.CPP`) for cross-platform paths/endianness, and config/profile parsing for startup/save/load parity. Excludes gameplay logic changes.
 Add a sanity check/log when required MIX archives (e.g. `GENERAL.MIX`/`CONQUER.MIX`) are missing now that text rendering depends on the CD font assets instead of stub glyphs.
 Add a debug assert around font header size in the SDL text path so regressions in packed parsing surface clearly now that we refuse to draw without valid font data.
-Implement the missing icon-set helpers (`Get_Icon_Set_Map`, `Register_Icon_Set`) and viewport stamp/scale support (or refactor call sites) so `src/cdata.cpp`/`src/template.cpp` compile without graphics shims.
+Validate the icon-set map offsets used by `Get_Icon_Set_Map` against real template assets and finish the scaling math in `GraphicViewPortClass::Scale` once the renderer is hooked up.
 
 ## Gameplay systems and AI
 Status: Next steps. Scope: port unit/structure/AI systems (`UNIT/TECHNO/BUILDING/INFANTRY/VEHICLE`, pathfinding `FINDPATH`/`VECTOR`, triggers/scripts, mission flow) ensuring deterministic timers/random seeds. Excludes platform or asset I/O changes. Cargo attach/detach/pointer coding now live in `src/cargo.cpp`; next tie it back into Foot/Unit load/unload once those files move. `src/bullet.cpp` now carries the projectile logic with the data tables in `src/bdata.cpp`; with `src/anim.cpp` ported, hook Foot/Unit/Building callers back into the real animation spawn/attach paths.

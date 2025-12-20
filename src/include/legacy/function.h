@@ -339,6 +339,8 @@ SourceType Source_From_Name(char const *name);
 char const *Name_From_Source(SourceType source);
 FacingType KN_To_Facing(int input);
 void const *Get_Radar_Icon(void const *shapefile, int shapenum, int frames, int zoomfactor);
+void *Get_Icon_Set_Map(void const *iconset);
+void Register_Icon_Set(void *iconset, bool cache);
 void CC_Draw_Shape(void const * shapefile, int shapenum, int x, int y, WindowNumberType window, ShapeFlags_Type flags, void const * fadingdata=0, void const * ghostdata=0);
 void* Add_Long_To_Pointer(void* ptr, long offset);
 void Buffer_To_Page(int x, int y, int width, int height, void const* src, GraphicBufferClass& dest);
@@ -591,6 +593,7 @@ void Add_CRC(unsigned long *crc, unsigned long val);
 int Sim_IRandom(int minval, int maxval);
 int IRandom(int minval, int maxval);
 int Sim_Random(void);
+inline int Random() { return Sim_Random(); }
 
 /*
 **	REINF.CPP

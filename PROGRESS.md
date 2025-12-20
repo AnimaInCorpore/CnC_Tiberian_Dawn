@@ -67,7 +67,7 @@
 | `DISPLAY.CPP` | `src/display.cpp` | Palette tables rebuilt, fade routines wired, and display scaffolding moved to src/. |
 | `DOOR.CPP` | `src/door.cpp` | Ported to src/ (door animation state machine; open/close logic). |
 | `DPMI.CPP` | `src/dpmi.cpp` | Ported to src/ with flat-memory `Swap()` implementation (no asm). |
-| `DRIVE.CPP` | `src/drive.cpp` | Ported to src/ with full legacy movement logic restored; replaces the earlier truncated stub. |
+| `DRIVE.CPP` | `src/drive.cpp` | Ported to src/ with full legacy movement logic restored; Map shim call sites now rely on the stub cell type for compilation. |
 | `ENDING.CPP` | `src/ending.cpp` | Ported: GDI/NOD ending sequences, movie playback and selection UI. |
 | `EVENT.CPP` | `src/event.cpp` | Ported event constructors and execution logic, including mission assignments, production, timing updates, and special handling. |
 | `EXPAND.CPP` | `src/expand.cpp` | Expansion detection now mirrors the original `EXPAND.DAT` probe so NEWMENU layouts gate off the real data file. |
@@ -137,7 +137,7 @@
 | `OBJECT.CPP` | | To be ported. |
 | `ODATA.CPP` | `src/odata.cpp` | Ported to src/; overlay type tables/graphics restored. |
 | `OPTIONS.CPP` | `src/options.cpp` | Ported to src/; options settings and palette hooks restored. |
-| `OVERLAY.CPP` | `src/overlay.cpp` | Ported to src/; overlay object logic restored. |
+| `OVERLAY.CPP` | `src/overlay.cpp` | Ported to src/; overlay object logic restored and map-shim access updated for stubbed cells. |
 | `PACKET.CPP` | | To be ported. |
 | `POWER.CPP` | `src/power.cpp` | Power bar UI ported; shapes are loaded via the modern MIX helpers and redraw logic mirrors the original radar/sidebar flow. |
 | `PROFILE.CPP` | | To be ported. |
@@ -152,7 +152,7 @@
 | `SDATA.CPP` | `src/sdata.cpp` | Ported to src/; smudge type tables/graphics restored. |
 | `SEQCONN.CPP` | | To be ported. |
 | `SIDEBAR.CPP` | `src/sidebar.cpp` | Ported to src/; sidebar UI logic restored. |
-| `SMUDGE.CPP` | `src/smudge.cpp` | Ported to src/; smudge object logic restored. |
+| `SMUDGE.CPP` | `src/smudge.cpp` | Ported to src/; smudge object logic restored and map-shim access updated for stubbed cells. |
 | `SOUNDDLG.CPP` | | To be ported. |
 | `SPECIAL.CPP` | `src/special.cpp` | Special options dialog wired with original checkbox logic and OK/Cancel flow. |
 | `STARTUP.CPP` | | To be ported. |
@@ -166,7 +166,7 @@
 | `TEAMTYPE.CPP` | `src/teamtype.cpp` | Ported to src/ with team type tables, INI parsing, and mission name helpers intact. |
 | `TECHNO.CPP` | | To be ported. |
 | `TEMP.CPP` | | To be ported. |
-| `TEMPLATE.CPP` | `src/template.cpp` | Ported to src/; template object logic restored (depends on icon-set map helpers). |
+| `TEMPLATE.CPP` | `src/template.cpp` | Ported to src/; template object logic restored (depends on icon-set map helpers) and map-shim access updated. |
 | `TERRAIN.CPP` | `src/terrain.cpp` | Ported to src/; terrain object logic restored. |
 | `THEME.CPP` | `src/theme.cpp` | Ported to src/ with theme queueing and music selection logic preserved. |
 | `TRIGGER.CPP` | `src/trigger.cpp` | Ported to src/ with trigger parsing and execution logic preserved. |
@@ -180,14 +180,14 @@
 | `COMPAT.H` | `src/include/legacy/compat.h` | Palette/buffer macros and legacy globals wrapped in portable defaults. |
 | `DEFINES.H` | `src/include/legacy/defines.h` | Lowercase mirror preserving gameplay feature toggles until modernization. |
 | `EXTERNS.H` | `src/include/legacy/externs.h` | Lowercase copy to keep the sprawling extern declarations accessible. |
-| `FUNCTION.H` | `src/include/legacy/function.h` | Lowercase mirror ensuring the UI hierarchy declarations keep compiling. |
+| `FUNCTION.H` | `src/include/legacy/function.h` | Lowercase mirror ensuring the UI hierarchy declarations keep compiling; added icon-set helper declarations used by the template pipeline. |
 | `MISSION.H` | `src/include/legacy/mission.h` | Lowercase copy of the mission AI declarations for case-sensitive builds. |
 | `OBJECT.H` | `src/include/legacy/object.h` | Lowercase mirror safeguarding the core object hierarchy headers. |
 | `REAL.H` | `src/include/legacy/real.h` | Lowercase copy retaining the original fixed-point math helpers. |
 | `TARGET.H` | `src/include/legacy/target.h` | Lowercase mirror for the targeting helper declarations. |
 | `TYPE.H` | `src/include/legacy/type.h` | Lowercase copy of the shared enums/typedefs used throughout the game. |
 | `WWFILE.H` | `src/include/legacy/wwfile.h` | FileClass interface refreshed with `std::size_t` and a namespace alias. |
-| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Navigation key constants now mirror SDL keycodes for menu/input handling. |
+| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Navigation key constants now mirror SDL keycodes for menu/input handling; added viewport stamp/scale helpers used by template previews. |
 | `WATCOM.H` | `src/include/legacy/watcom.h` | Watcom pragma wrappers swapped for GCC diagnostic helpers. |
 | `PLATFORM (new)` | `src/include/legacy/platform.h` | Win16/Watcom typedef shim that turns `near`/`far` keywords into no-ops. |
 | `WINDOWS_COMPAT (new)` | `src/include/legacy/windows_compat.h` | Win32 handle/struct typedef shim so the port never includes platform headers directly. |
@@ -311,6 +311,7 @@
 | `UTRACKER.H` | `src/include/legacy/utracker.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `VISUDLG.H` | `src/include/legacy/visudlg.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `WWALLOC.H` | `src/include/legacy/wwalloc.h` | Lowercase mirror retained for Linux-friendly includes. |
+| `MAP_SHIM.H` | `src/include/legacy/map_shim.h` | Map stub header updated with missing shim helpers/fields (cell effects + theater) needed by drive/overlay/terrain logic during the SDL bring-up. |
 
 ## Pending follow-ups
 - Implement audio decoder/mixer (decode .AUD/.JUV/.Vxx and mix via SDL; add panning/priority and voice queue)

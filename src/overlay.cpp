@@ -215,7 +215,7 @@ bool OverlayClass::Mark(MarkType mark)
 	if (ObjectClass::Mark(mark)) {
 		if (mark == MARK_DOWN) {
 			CELL	cell = Coord_Cell(Coord);
-			CellClass * cellptr = &Map[cell];
+			auto * cellptr = &Map[cell];
 
 			/*
 			**	Road placement occurs in two steps. First the foundation is placed, but only
@@ -418,7 +418,7 @@ void OverlayClass::Write_INI(char *buffer)
 	**	Write the unit data out.
 	*/
 	for (index = 0; index < MAP_CELL_TOTAL; index++) {
-		CellClass	* cellptr = &Map[index];
+		auto * cellptr = &Map[index];
 
 		if (cellptr->Overlay != OVERLAY_NONE) {
 			sprintf(uname, "%03d", index);

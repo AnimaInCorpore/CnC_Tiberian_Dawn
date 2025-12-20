@@ -135,6 +135,9 @@ class GraphicViewPortClass {
   void Put_Pixel(int x, int y, int color);
   int Get_Pixel(int x, int y) const;
   bool Contains(int x, int y) const;
+  void Draw_Stamp(void const* iconset, int icon, int x, int y, void const* remap, int window);
+  void Scale(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width, int height,
+             int xscale, int yscale, char* remap = nullptr);
 
   int Get_XPos() const;
   int Get_YPos() const;

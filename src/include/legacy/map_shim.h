@@ -37,8 +37,12 @@ struct MapCellStub {
 	bool IsMapped = false;
 	bool IsFlagged = false;
 	bool IsTrigger = false;
+	TemplateType TType = TEMPLATE_NONE;
+	unsigned char TIcon = 0;
 	OverlayType Overlay = OVERLAY_NONE;
 	unsigned OverlayData = 0;
+	SmudgeType Smudge = SMUDGE_NONE;
+	unsigned char SmudgeData = 0;
 	struct FlagData {
 		struct OccupyData {
 			unsigned Center : 1;
@@ -70,6 +74,11 @@ struct MapCellStub {
 	void Redraw_Objects() {}
 	void Recalc_Attributes() {}
 	void Wall_Update() {}
+	void Shimmer() {}
+	void Tiberium_Adjust() {}
+	void Concrete_Calc() {}
+	CELL Cell_Number() const { return 0; }
+	MapCellStub& Adjacent_Cell(FacingType) { return *this; }
 	void Adjust_Threat(HousesType, int) {}
 	bool Is_Generally_Clear() const { return true; }
 	int Reduce_Tiberium(int amount) { return amount; }
@@ -156,6 +165,7 @@ class MapStubClass
 		ObjectTypeClass const* PendingObject;
 		ObjectClass* PendingObjectPtr;
 
+		TheaterType Theater = THEATER_TEMPERATE;
 		int MapCellX;
 		int MapCellY;
 		int MapCellWidth;
