@@ -108,6 +108,24 @@ void Reset_Game_State_For_Menu() {
   Map.Set_Default_Mouse(MOUSE_NORMAL, false);
 }
 
+void Configure_New_Game_From_Menu() {
+  CarryOverMoney = 0;
+  Scenario = 1;
+  BuildLevel = 1;
+  ScenPlayer = SCEN_PLAYER_GDI;
+  ScenDir = SCEN_DIR_EAST;
+  Whom = HOUSE_GOOD;
+
+#ifndef DEMO
+  Choose_Side();
+#endif
+
+  if (Special.IsJurassic && AreThingiesEnabled) {
+    ScenPlayer = SCEN_PLAYER_JP;
+    ScenDir = SCEN_DIR_EAST;
+  }
+}
+
 int Target_Frame_Milliseconds() {
   if (Options.GameSpeed > 0 && Options.GameSpeed < 500) {
     return static_cast<int>(Options.GameSpeed);
@@ -440,7 +458,11 @@ bool Select_Game(bool fade) {
 
   switch (selection) {
     case 0:  // New missions (expansion)
+      Configure_New_Game_From_Menu();
+      GameToPlay = GAME_NORMAL;
+      break;
     case 1:  // Start new game
+      Configure_New_Game_From_Menu();
       GameToPlay = GAME_NORMAL;
       break;
     case 2:  // Bonus missions
