@@ -69,7 +69,7 @@
 | `DPMI.CPP` | `src/dpmi.cpp` | Ported to src/ with flat-memory `Swap()` implementation (no asm). |
 | `DRIVE.CPP` | | To be ported. |
 | `ENDING.CPP` | `src/ending.cpp` | Ported: GDI/NOD ending sequences, movie playback and selection UI. |
-| `EVENT.CPP` | | To be ported. |
+| `EVENT.CPP` | `src/event.cpp` | Ported event constructors and execution logic, including mission assignments, production, timing updates, and special handling. |
 | `EXPAND.CPP` | `src/expand.cpp` | Expansion detection now mirrors the original `EXPAND.DAT` probe so NEWMENU layouts gate off the real data file. |
 | `FACING.CPP` | `src/facing.cpp` | Ported to src/ with legacy facing rotation and adjustment logic preserved. |
 | `FLASHER.CPP` | `src/flasher.cpp` | Ported to src/; flash countdown toggles the blush flag and exposes mono debug output. |
