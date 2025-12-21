@@ -49,6 +49,19 @@ SDL_Texture* g_present_texture = nullptr;
 int g_present_width = 0;
 int g_present_height = 0;
 
+struct CursorState {
+  const unsigned char* shape = nullptr;  // Expected to be width*height bytes of palette indices (0 treated as transparent).
+  int hot_x = 0;
+  int hot_y = 0;
+  bool clip_enabled = false;
+  int clip_left = 0;
+  int clip_top = 0;
+  int clip_right = 0;
+  int clip_bottom = 0;
+};
+
+CursorState g_cursor{};
+
 Uint32 Palette_Index_To_ARGB(const unsigned char* palette, int index) {
   index = std::clamp(index, 0, 255);
   const int offset = index * 3;
@@ -598,19 +611,92 @@ void GraphicViewPortClass::Scale(GraphicViewPortClass& dest, int src_x, int src_
 }
 
 // --- WWMouseClass -----------------------------------------------------------
-struct WWMouseClass::Impl {};
+struct WWMouseClass::Impl {
+  int width = 0;
+  int height = 0;
+  bool is_drawn = false;
+  int last_x = 0;
+  int last_y = 0;
+  std::vector<unsigned char> saved;
+};
 
 WWMouseClass::WWMouseClass() : impl_(std::make_unique<Impl>()) {}
-WWMouseClass::WWMouseClass(GraphicViewPortClass* /*page*/, int /*width*/, int /*height*/)
-    : impl_(std::make_unique<Impl>()) {}
+WWMouseClass::WWMouseClass(GraphicViewPortClass* /*page*/, int width, int height)
+    : impl_(std::make_unique<Impl>()) {
+  impl_->width = std::max(1, width);
+  impl_->height = std::max(1, height);
+  impl_->saved.assign(static_cast<std::size_t>(impl_->width) * impl_->height, 0);
+}
 WWMouseClass::WWMouseClass(WWMouseClass&&) noexcept = default;
 WWMouseClass& WWMouseClass::operator=(WWMouseClass&&) noexcept = default;
 WWMouseClass::~WWMouseClass() = default;
 
-void WWMouseClass::Draw_Mouse(GraphicViewPortClass* /*page*/) {}
-void WWMouseClass::Erase_Mouse(GraphicViewPortClass* /*page*/, bool /*force*/) {}
-void WWMouseClass::Clear_Cursor_Clip() {}
-void WWMouseClass::Set_Cursor_Clip() {}
+void WWMouseClass::Draw_Mouse(GraphicViewPortClass* page) {
+  if (!page || !g_cursor.shape) return;
+
+  const int mouse_x = Get_Mouse_X();
+  const int mouse_y = Get_Mouse_Y();
+  const int draw_x = mouse_x - g_cursor.hot_x;
+  const int draw_y = mouse_y - g_cursor.hot_y;
+
+  // If we are already drawn at this position, don't do work twice.
+  if (impl_->is_drawn && impl_->last_x == draw_x && impl_->last_y == draw_y) {
+    return;
+  }
+
+  // If the cursor is drawn elsewhere, erase it first.
+  if (impl_->is_drawn) {
+    Erase_Mouse(page, true);
+  }
+
+  impl_->last_x = draw_x;
+  impl_->last_y = draw_y;
+  impl_->is_drawn = true;
+
+  // Save background, then draw cursor.
+  for (int y = 0; y < impl_->height; ++y) {
+    for (int x = 0; x < impl_->width; ++x) {
+      const int px = draw_x + x;
+      const int py = draw_y + y;
+      const std::size_t idx = static_cast<std::size_t>(y) * impl_->width + x;
+      impl_->saved[idx] = static_cast<unsigned char>(page->Get_Pixel(px, py));
+    }
+  }
+
+  for (int y = 0; y < impl_->height; ++y) {
+    for (int x = 0; x < impl_->width; ++x) {
+      const int px = draw_x + x;
+      const int py = draw_y + y;
+      if (g_cursor.clip_enabled) {
+        if (px < g_cursor.clip_left || px > g_cursor.clip_right || py < g_cursor.clip_top || py > g_cursor.clip_bottom) {
+          continue;
+        }
+      }
+      const unsigned char color = g_cursor.shape[static_cast<std::size_t>(y) * impl_->width + x];
+      if (color != 0) {
+        page->Put_Pixel(px, py, color);
+      }
+    }
+  }
+}
+
+void WWMouseClass::Erase_Mouse(GraphicViewPortClass* page, bool /*force*/) {
+  if (!page || !impl_->is_drawn) return;
+  for (int y = 0; y < impl_->height; ++y) {
+    for (int x = 0; x < impl_->width; ++x) {
+      const int px = impl_->last_x + x;
+      const int py = impl_->last_y + y;
+      const std::size_t idx = static_cast<std::size_t>(y) * impl_->width + x;
+      page->Put_Pixel(px, py, impl_->saved[idx]);
+    }
+  }
+  impl_->is_drawn = false;
+}
+
+void WWMouseClass::Clear_Cursor_Clip() { g_cursor.clip_enabled = false; }
+void WWMouseClass::Set_Cursor_Clip() {
+  g_cursor.clip_enabled = false;
+}
 
 // --- WWKeyboardClass --------------------------------------------------------
 struct WWKeyboardClass::Impl : KeyboardImpl {};
@@ -687,6 +773,12 @@ int Get_Mouse_Y() { return g_mouse_state.y; }
 void Update_Mouse_Position(int x, int y) {
   g_mouse_state.x = x;
   g_mouse_state.y = y;
+}
+
+void Set_Mouse_Cursor(int hotx, int hoty, void const* shape) {
+  g_cursor.hot_x = hotx;
+  g_cursor.hot_y = hoty;
+  g_cursor.shape = static_cast<const unsigned char*>(shape);
 }
 
 void Set_Font_Palette_Range(void const* palette, int first, int count) {

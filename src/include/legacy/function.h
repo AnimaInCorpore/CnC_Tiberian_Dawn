@@ -529,6 +529,7 @@ unsigned short Get_Build_Frame_Width(void const *dataptr);
 unsigned short Get_Build_Frame_Height(void const *dataptr);
 bool Get_Build_Frame_Palette(void const *dataptr, void *palette);
 int Extract_Shape_Count(void const* shape);
+void* Extract_Shape(void const* shape, int index);
 void *Get_Shape_Header_Data(void *ptr);
 
 /*
@@ -545,6 +546,11 @@ int Check_Menu(int menu, char const *text[], char *selection, long field, int in
 int Do_Menu(char const **strings, bool blue);
 extern int UnknownKey;
 int Main_Menu(unsigned long timeout);
+
+/*
+**	MOUSE.CPP
+*/
+void Set_Mouse_Cursor(int hotx, int hoty, void const* shape);
 
 /*
 ** MPLAYER.CPP

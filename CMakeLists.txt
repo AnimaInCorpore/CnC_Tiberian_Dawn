@@ -162,6 +162,7 @@ set(TD_SOURCES
   src/mixfile.cpp
 	  src/mmx.cpp
   src/monoc.cpp
+  src/mouse.cpp
   src/mousehelp.cpp
   src/name_crc.cpp
   src/noseqcon.cpp
@@ -186,6 +187,7 @@ set(TD_SOURCES
   src/slider.cpp
   src/special.cpp
   src/confdlg.cpp
+  src/shapeblock.cpp
   src/strtrim.cpp
   src/window.cpp
   src/descdlg.cpp
