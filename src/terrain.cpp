@@ -890,8 +890,8 @@ void TerrainClass::Write_INI(char *buffer)
 		terrain = Terrains.Ptr(index);
 		if (!terrain->IsInLimbo && terrain->IsActive) {
 
-			sprintf(uname, "%d", Coord_Cell(terrain->Coord));
-			sprintf(buf, "%s,%s",
+			snprintf(uname, sizeof(uname), "%d", Coord_Cell(terrain->Coord));
+			snprintf(buf, sizeof(buf), "%s,%s",
 				terrain->Class->IniName,
 				terrain->Trigger ? terrain->Trigger->Get_Name() : "None" );
 			WWWritePrivateProfileString(INI_Name(), uname, buf, buffer);

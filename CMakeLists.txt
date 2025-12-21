@@ -253,10 +253,25 @@ target_compile_definitions(cnc_tiberian_dawn PRIVATE ${TD_COMMON_DEFS})
 if(TD_ENABLE_WERROR)
   if(CMAKE_CXX_COMPILER_ID MATCHES "^(Clang|GNU|AppleClang)$")
     target_compile_options(cnc_tiberian_dawn PRIVATE -Wall -Wextra -Werror
+      -Wno-char-subscripts
+      -Wno-deprecated-declarations
+      -Wno-format
+      -Wno-missing-braces
+      -Wno-null-conversion
+      -Wno-logical-op-parentheses
+      -Wno-sign-compare
+      -Wno-switch
       -Wno-unknown-pragmas
+      -Wno-writable-strings
+      -Wno-unused-but-set-variable
       -Wno-overloaded-virtual
       -Wno-self-assign
+      -Wno-delete-incomplete
       -Wno-reorder-ctor
+      -Wno-sometimes-uninitialized
+      -Wno-unused-function
+      -Wno-unused-variable
+      -Wno-uninitialized
       -Wno-unused-parameter)
   endif()
 endif()

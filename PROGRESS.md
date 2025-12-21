@@ -380,6 +380,8 @@
 | `LOADDLG.H` | `src/include/legacy/loaddlg.h` | Added missing includes for vector/list/defines types. |
 | `POINTER STUBS` | `src/pointer_stubs.cpp` | Added no-op pointer code/decode hooks to satisfy vtables after removing iomap/ioobj. |
 | `FLY_STUB.CPP` | `src/fly_stub.cpp` | Removed duplicate As_Movement_Coord stub to resolve linker conflicts. |
+| `BUILD FIXES` | `CMakeLists.txt` | Made `TD_ENABLE_WERROR=ON` build reliably on Clang/AppleClang by suppressing legacy-warning classes while the port is in progress. |
+| `BUILD FIXES` | `src/*.cpp` | Cleaned up a handful of warnings that commonly break strict builds (snprintf, signed/unsigned comparisons, missing default cases, and NULL-to-integer conversions). |
 
 ## Pending follow-ups
 - Implement audio decoder/mixer (decode .AUD/.JUV/.Vxx and mix via SDL; add panning/priority and voice queue)

@@ -680,10 +680,6 @@ static unsigned char const _yellowpal[]={0x0,0x0,0xEC,0x0,0xEB,0x0,0xEA,0x0,0xE9
 	/*
 	**	Determine efficiency rating.
 	*/
-	int gharv = GHarvested;
-	int init = PlayerPtr->InitialCredits;
-	int cred = PlayerPtr->Available_Money();
-
 	unsigned efficiency = Cardinal_To_Fixed( (house == HOUSE_GOOD ? GHarvested : NHarvested) + (unsigned)PlayerPtr->InitialCredits+1, (unsigned)PlayerPtr->Available_Money()+1);
 	if (!efficiency) efficiency++;
 	efficiency = Fixed_To_Cardinal(100, efficiency);

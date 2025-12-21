@@ -274,9 +274,6 @@ void SidebarClass::Init_IO(void)
 	/*
 	** Add the sidebar's buttons only if we're not in editor mode.
 	*/
-	int buttonspacing = (SideBarWidth - (ButtonOneWidth + ButtonTwoWidth + ButtonThreeWidth)) / 4;
-
-
 	if (!Debug_Map) {
 		/*
 		** Set the button widths based on the string that goes in them.
@@ -299,8 +296,6 @@ void SidebarClass::Init_IO(void)
 		** find the spacing between buttons by getting remaining width
 		** and dividing it between the buttons.
 		*/
-		int buttonspacing = (SideBarWidth - (Repair.Width + Upgrade.Width + Zoom.Width)) / 4;
-
 		Repair.IsSticky = true;
 		Repair.ID = BUTTON_REPAIR;
 		Repair.X = 484;
@@ -950,10 +945,7 @@ bool SidebarClass::Activate(int control)
 	bool old = IsSidebarActive;
 
 		int sidex 		= SeenBuff.Get_Width() - SideBarWidth;
-		int sidey 		= Map.RadY + Map.RadHeight;
-		int topheight	= 13;
 		int sidewidth  = SeenBuff.Get_Width() - sidex;
-		int sideheight = SeenBuff.Get_Height() - sidey;
 
 	if (PlaybackGame)
 		return (old);
@@ -1075,7 +1067,7 @@ SidebarClass::StripClass::StripClass(void)
  *=============================================================================================*/
 void SidebarClass::StripClass::One_Time(int )
 {
-	static char *_file[3] = {
+	static const char *_file[3] = {
 		"ION",
 		"ATOM",
 		"BOMB"
@@ -1095,10 +1087,10 @@ void SidebarClass::StripClass::One_Time(int )
 	char buffer[_MAX_FNAME];
 
 	for (int lp = 0; lp < 3; lp++) {
-		if ( Get_Resolution_Factor() ) {
-			sprintf(buffer, "%sICNH", _file[lp]);
+		if (factor) {
+			snprintf(buffer, sizeof(buffer), "%sICNH", _file[lp]);
 		} else {
-			sprintf(buffer, "%sICON", _file[lp]);
+			snprintf(buffer, sizeof(buffer), "%sICON", _file[lp]);
 		}
 		_makepath(fullname, NULL, NULL, buffer, ".SHP");
 		SpecialShapes[lp] = MixFileClass::Retrieve(fullname);
@@ -1224,7 +1216,7 @@ void SidebarClass::StripClass::Init_Theater(TheaterType theater)
 	//if (theater != LastTheater) {
 
 
-		static char *_file[3] = {
+		static const char *_file[3] = {
 			"ION",
 			"ATOM",
 			"BOMB"
@@ -1235,10 +1227,10 @@ void SidebarClass::StripClass::Init_Theater(TheaterType theater)
 		void const * cameo_ptr;
 
 		for (int lp = 0; lp < 3; lp++) {
-			if ( Get_Resolution_Factor() ) {
-				sprintf(buffer, "%sICNH", _file[lp]);
+			if (factor) {
+				snprintf(buffer, sizeof(buffer), "%sICNH", _file[lp]);
 			} else {
-				sprintf(buffer, "%sICON", _file[lp]);
+				snprintf(buffer, sizeof(buffer), "%sICON", _file[lp]);
 			}
 			_makepath(fullname, NULL, NULL, buffer, Theaters[theater].Suffix);
 			cameo_ptr = MixFileClass::Retrieve(fullname);
@@ -1542,11 +1534,11 @@ bool SidebarClass::StripClass::AI(KeyNumType & input, int , int )
 	**	If this is scroll button for this side strip, then scroll the strip as
 	**	indicated.
 	*/
-	if (input == (UpButton[ID].ID|KN_BUTTON)) {	// && !IsScrolling
+	if (input == (KeyNumType)(UpButton[ID].ID|KN_BUTTON)) {	// && !IsScrolling
 		UpButton[ID].IsPressed = false;
 		Scroll(true);
 	}
-	if (input == (DownButton[ID].ID|KN_BUTTON)) {	// && !IsScrolling
+	if (input == (KeyNumType)(DownButton[ID].ID|KN_BUTTON)) {	// && !IsScrolling
 		DownButton[ID].IsPressed = false;
 		Scroll(false);
 	}
@@ -1661,6 +1653,9 @@ bool SidebarClass::StripClass::AI(KeyNumType & input, int , int )
 									OutList.Add(EventClass(EventClass::PLACE, pending->What_Am_I(), -1));
 									Speak(VOX_UNIT_READY);
 									break;
+
+								default:
+									break;
 							}
 						}
 					}
@@ -1722,9 +1717,9 @@ void SidebarClass::StripClass::Draw_It(bool complete)
 		**	them. Their Y offset may be adjusted if the strip is in the process of scrolling.
 		*/
 		for (int i = 0; i < MAX_VISIBLE + (IsScrolling ? 1 : 0); i++) {
-			bool production;
-			bool completed;
-			int  stage;
+			bool production = false;
+			bool completed = false;
+			int  stage = 0;
 			bool darken = false;
 			void const * shapefile = 0;
 			int shapenum = 0;
@@ -1746,7 +1741,7 @@ void SidebarClass::StripClass::Draw_It(bool complete)
 			**	Fetch the shape number for the object type located at this current working
 			**	slot. This shape pointer is used to draw the underlying graphic there.
 			*/
-			if ((unsigned)index < BuildableCount) {
+			if ((unsigned)index < (unsigned)BuildableCount) {
 				ObjectTypeClass const * obj = NULL;
 				int spc  = 0;
 
@@ -1784,6 +1779,9 @@ void SidebarClass::StripClass::Draw_It(bool complete)
 							case RTTI_AIRCRAFTTYPE:
 								isbusy = (PlayerPtr->AircraftFactory != -1);
 								remapper = PlayerPtr->Remap_Table(false, true);
+								break;
+
+							default:
 								break;
 						}
 						shapefile = obj->Get_Cameo_Data();
@@ -1832,6 +1830,9 @@ void SidebarClass::StripClass::Draw_It(bool complete)
 							completed = PlayerPtr->NukeStrike.Is_Ready();
 							stage = PlayerPtr->NukeStrike.Anim_Stage();
 							darken = false;
+							break;
+
+						default:
 							break;
 					}
 				}
@@ -2531,5 +2532,3 @@ bool SidebarClass::StripClass::Abandon_Production(int factory)
 	}
 	return(abandon);
 }
-
-

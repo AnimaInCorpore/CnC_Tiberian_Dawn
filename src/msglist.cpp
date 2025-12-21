@@ -543,7 +543,7 @@ int MessageListClass::Manage (void)
 		/*.....................................................................
 		If this message's time is up, remove it from the list
 		.....................................................................*/
-		if (txtlabel->UserData != 0 && TickCount.Time() > txtlabel->UserData) {
+		if (txtlabel->UserData != 0 && TickCount.Time() > (unsigned long)txtlabel->UserData) {
 			/*..................................................................
 			If we're about to delete the edit message, clear our edit message
 			values.

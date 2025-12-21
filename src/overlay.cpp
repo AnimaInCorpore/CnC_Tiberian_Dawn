@@ -309,7 +309,7 @@ bool OverlayClass::Mark(MarkType mark)
 								*/
 								static FacingType _face[4] = {FACING_N, FACING_E, FACING_S, FACING_W};
 
-								for (int index = 0; index < (sizeof(_face)/sizeof(_face[0])); index++) {
+								for (size_t index = 0; index < (sizeof(_face)/sizeof(_face[0])); index++) {
 									cellptr->Adjacent_Cell(_face[index]).Concrete_Calc();
 								}
 							}
@@ -421,8 +421,8 @@ void OverlayClass::Write_INI(char *buffer)
 		auto * cellptr = &Map[index];
 
 		if (cellptr->Overlay != OVERLAY_NONE) {
-			sprintf(uname, "%03d", index);
-			sprintf(buf, "%s", OverlayTypeClass::As_Reference(cellptr->Overlay).IniName);
+			snprintf(uname, sizeof(uname), "%03d", index);
+			snprintf(buf, sizeof(buf), "%s", OverlayTypeClass::As_Reference(cellptr->Overlay).IniName);
 			WWWritePrivateProfileString(INI_Name(), uname, buf, buffer);
 		}
 	}

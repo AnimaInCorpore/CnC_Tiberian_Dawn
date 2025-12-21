@@ -937,7 +937,7 @@ void FootClass::Approach_Target(void)
 			for (int range = maxrange; range > 0x0080; range -= 0x0100) {
 				static int _angles[] = {0, 8, -8, 16, -16, 24, -24, 32, -32, 48, -48, 64, -64};
 
-				for (int index = 0; index < (sizeof(_angles)/sizeof(_angles[0])); index++) {
+				for (size_t index = 0; index < (sizeof(_angles)/sizeof(_angles[0])); index++) {
 					trycoord = Coord_Move(tcoord, (DirType)(dir + _angles[index]), range);
 
 					if (::Distance(trycoord, tcoord) < range) {
@@ -1335,6 +1335,9 @@ void FootClass::Active_Click_With(ActionType action, CELL cell)
 		case ACTION_ATTACK:
 			Player_Assign_Mission(MISSION_ATTACK, ::As_Target(cell));
 			break;
+
+		default:
+			break;
 	}
 }
 
@@ -1545,6 +1548,9 @@ RadioMessageType FootClass::Receive_Message(RadioClass * from, RadioMessageType 
 				TechnoClass::Receive_Message(from, message, param);
 				return(RADIO_ROGER);
 			}
+			break;
+
+		default:
 			break;
 	}
 	return(TechnoClass::Receive_Message(from, message, param));

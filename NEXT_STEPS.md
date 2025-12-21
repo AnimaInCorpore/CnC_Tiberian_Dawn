@@ -20,6 +20,7 @@ Delete any leftover linker-only stub translation units once their real counterpa
 
 ## Build system and source layout
 Status: Next steps. Scope: move legacy sources into `src/` with lowercase names, fix includes, strip Watcom/segmented keywords, and keep `CMakeLists.txt` in sync. Uppercase `src` filenames have been normalized; continue migrating the remaining legacy files. Excludes gameplay/runtime changes.
+Audit `TD_ENABLE_WERROR` suppression list in `CMakeLists.txt` and retire `-Wno-*` entries by fixing the underlying warnings as modules are fully ported (keep CI strictness meaningful).
 Keep `CMakeLists.txt` free of stub-only translation units once real ports exist; prefer failing the build over silently linking fallbacks.
 Confirm there are no duplicate-symbol “safety net” objects (old linker shims, gameplay minimal stubs, pointer stubs) and remove the files once they are no longer referenced.
 Finish porting the remaining legacy helpers for link parity (full `CONQUER.CPP` keyboard/message handling, `LOADDLG.CPP` save/load dialog, real Build_Frame/keyframe decoding, and modem reconnect flows) so the current skeletons can be replaced with behavior-complete implementations.

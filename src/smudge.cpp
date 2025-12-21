@@ -160,7 +160,7 @@ void SmudgeClass::operator delete(void *ptr)
 SmudgeClass::SmudgeClass(SmudgeType type, COORDINATE pos, HousesType house) :
 	Class(&SmudgeTypeClass::As_Reference(type))
 {
-	if (pos != -1) {
+	if (pos != (COORDINATE)-1) {
 		ToOwn = house;
 		if (!Unlimbo(pos)) {
 			delete this;
@@ -359,8 +359,8 @@ void SmudgeClass::Write_INI(char *buffer)
 		if (ptr->Smudge != SMUDGE_NONE) {
 			SmudgeTypeClass const * stype = &SmudgeTypeClass::As_Reference(ptr->Smudge);
 			if (!stype->IsBib) {
-				sprintf(uname, "%03d", index);
-				sprintf(buf, "%s,%d,%d", stype->IniName, index, ptr->SmudgeData);
+				snprintf(uname, sizeof(uname), "%03d", index);
+				snprintf(buf, sizeof(buf), "%s,%d,%d", stype->IniName, index, ptr->SmudgeData);
 				WWWritePrivateProfileString(INI_Name(), uname, buf, buffer);
 			}
 		}

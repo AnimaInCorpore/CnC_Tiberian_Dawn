@@ -167,8 +167,8 @@ void TemplateClass::Write_INI(char *buffer)
 	for (int index = 0; index < MAP_CELL_TOTAL; index++) {
 		auto * ptr = &Map[index];
 		if (ptr->TType != TEMPLATE_NONE && ptr->TIcon == 0) {
-			sprintf(uname, "%03d", index);
-			sprintf(buf, "%s", TemplateTypeClass::As_Reference(ptr->TType).IniName);
+			snprintf(uname, sizeof(uname), "%03d", index);
+			snprintf(buf, sizeof(buf), "%s", TemplateTypeClass::As_Reference(ptr->TType).IniName);
 			WWWritePrivateProfileString(INI_Name(), uname, buf, buffer);
 		}
 	}

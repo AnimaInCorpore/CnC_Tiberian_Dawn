@@ -419,7 +419,7 @@ COORDINATE DriveClass::Smooth_Turn(COORDINATE adj, DirType *dir)
 	DirType	workdir = *dir;
 	int	x,y;
 	int   temp;
-	TrackControlType flags = TrackControl[TrackNumber].Flag;
+	TrackControlType flags = TrackControl[(unsigned char)TrackNumber].Flag;
 
 	x = Coord_X(adj);
 	y = Coord_Y(adj);
@@ -612,7 +612,7 @@ bool DriveClass::While_Moving(void)
 		FacingType		nextface;		// Next facing queued in path.
 		bool				adj;				// Is a turn coming up?
 
-		track = &TrackControl[TrackNumber];
+		track = &TrackControl[(unsigned char)TrackNumber];
 		if (IsOnShortTrack) {
 			tracknum = track->StartTrack;
 		} else {
@@ -642,9 +642,9 @@ bool DriveClass::While_Moving(void)
 
 			actual -= PIXEL_LEPTON_W;
 
-			offset = ptr[TrackIndex].Offset;
+			offset = ptr[(unsigned char)TrackIndex].Offset;
 			if (offset || !TrackIndex) {
-				dir = ptr[TrackIndex].Facing;
+				dir = ptr[(unsigned char)TrackIndex].Facing;
 				Coord = Smooth_Turn(offset, &dir);
 
 				PrimaryFacing.Set(dir);
@@ -713,6 +713,9 @@ bool DriveClass::While_Moving(void)
 									Special.IsScatter = old;
 								}
 								break;
+
+							default:
+								break;
 						}
 					}
 				}
@@ -723,7 +726,7 @@ bool DriveClass::While_Moving(void)
 				Coord = Head_To_Coord();
 				Stop_Driver();
 				TrackNumber = -1;
-				TrackIndex = NULL;
+				TrackIndex = 0;
 
 				/*
 				**	Perform "per cell" activities.
@@ -1098,10 +1101,10 @@ bool DriveClass::Start_Of_Move(void)
 		**	Reserve the destination cell so that it won't become
 		**	occupied AS this unit is moving into it.
 		*/
-		if (cando != MOVE_OK) {
+	if (cando != MOVE_OK) {
 		 	Path[0] = FACING_NONE;		// Path is blocked!
 			TrackNumber = -1;
-		 	dest = NULL;
+		 	dest = 0;
 		} else {
 
 			Overrun_Square(Coord_Cell(dest), true);
@@ -1114,12 +1117,12 @@ bool DriveClass::Start_Of_Move(void)
 
 			IsOnShortTrack = false;
 			TrackNumber = facing * FACING_COUNT + nextface;
-			if (TrackControl[TrackNumber].Track == 0) {
+			if (TrackControl[(unsigned char)TrackNumber].Track == 0) {
 				Path[0] = FACING_NONE;
 				TrackNumber = -1;
 				return(true);
 			} else {
-				if (TrackControl[TrackNumber].Flag & F_D) {
+				if (TrackControl[(unsigned char)TrackNumber].Flag & F_D) {
 					/*
 					**	If the middle cell of a two cell track contains a crate,
 					**	the check for goodies before movement starts.
@@ -1155,7 +1158,7 @@ bool DriveClass::Start_Of_Move(void)
 
 						Path[0] = FACING_NONE;		// Path is blocked!
 						TrackNumber = -1;
-						dest = NULL;
+						dest = 0;
 						if (cando == MOVE_DESTROYABLE) {
 
 							if (Map[destcell].Cell_Object()) {
@@ -1529,7 +1532,7 @@ void DriveClass::Mark_Track(COORDINATE headto, MarkType type)
 			** If we have not passed the per cell process point we need
 			** to deal with it.
 			*/
-			int tracknum = TrackControl[TrackNumber].Track;
+			int tracknum = TrackControl[(unsigned char)TrackNumber].Track;
 			if (tracknum) {
 				TrackType const * ptr = RawTracks[tracknum - 1].Track;
 				int cellidx = RawTracks[tracknum - 1].Cell;

@@ -114,7 +114,7 @@ void GameOptionsClass::Process(void)
 	int maxwidth = 0;
 	int resfactor = (SeenBuff.Get_Width() == 320) ? 1 : 2;
 
-	for (int index = 0; index < sizeof(_constants)/sizeof(_constants[0]); index++ ) {
+	for (size_t index = 0; index < sizeof(_constants)/sizeof(_constants[0]); index++ ) {
 		int text = _constants[index].Text;
 		buttonsel[index] = NULL;
 
@@ -380,7 +380,7 @@ void GameOptionsClass::Process(void)
 #endif
 						BreakoutAllowed = true;
 						char buffer[25];
-						sprintf(buffer, "%s.VQA", BriefMovie);
+						snprintf(buffer, sizeof(buffer), "%s.VQA", BriefMovie);
 						if (CCFileClass(buffer).Is_Available()) {
 							Play_Movie(BriefMovie);
 						} else {
