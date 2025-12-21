@@ -3,7 +3,7 @@ Tackle one chunk at a time; when a chunk has no remaining next steps, mark it wi
 
 ## Remove shims/stubs/fallbacks (parity blockers)
 Status: Next steps. Scope: remove all portability shims, linker stubs, and "fallback" behaviors and replace them with behavior-complete ports that match the Win95 C&C95 reference; success means the build no longer depends on `src/*stub*.cpp`, `src/*shim*.cpp`, or `src/include/legacy/*_stub.h`, and the UI/render/audio/net paths no longer contain non-canonical fallback code paths.
-Replace the dialog/background rendering stub: port `CC_Texture_Fill` and wire it into `Draw_Box` so green UI panels use `BTEXTURE.SHP` (no more solid-color fills in menus/dialogs).
+Implementation done!: Replaced the dialog/background rendering stub by porting `CC_Texture_Fill` and wiring it into `Draw_Box` so green UI panels use `BTEXTURE.SHP` (no more solid-color fills in menus/dialogs).
 Remove the title-art fallback scan in `src/load_title.cpp` and restore the Win95 asset resolution/order (missing `HTITLE.PCX` should surface as an error, not silently pick another PCX/CPS).
 Replace `MapStubClass` (`src/map_shim.cpp`, `src/include/legacy/map_shim.h`) with the real map implementation so all `Map.*` calls have canonical behavior (cell lookups, redraw flags, radar, cursor, object overlap, tactical map projection).
 Replace `src/movie_stub.cpp` with real VQA playback (video timing, palette updates, input skip rules) so intro/cutscenes match Win95.

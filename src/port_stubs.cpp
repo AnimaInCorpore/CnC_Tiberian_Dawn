@@ -479,53 +479,6 @@ int Ram_Free() { return 16 * 1024 * 1024; }
 void Memory_Error_Handler(void) {}
 
 
-void Draw_Box(int x, int y, int w, int h, BoxStyleEnum style, bool filled) {
-  GraphicViewPortClass* page = LogicPage ? LogicPage : &HidPage;
-  if (!page) return;
-
-  struct BoxColors {
-    int fill;
-    int highlight;
-    int shadow;
-  };
-
-  BoxColors colors{DKGREY, WHITE, BLACK};
-  switch (style) {
-    case BOXSTYLE_DOWN:
-      colors = {DKGREY, BLACK, LTGREY};
-      break;
-    case BOXSTYLE_DIS_DOWN:
-    case BOXSTYLE_DIS_RAISED:
-      colors = {LTGREY, DKGREY, BLACK};
-      break;
-    case BOXSTYLE_GREEN_DOWN:
-    case BOXSTYLE_GREEN_BOX:
-    case BOXSTYLE_GREEN_BORDER:
-      colors = {CC_GREEN, BLACK, DKGREY};
-      break;
-    case BOXSTYLE_GREEN_RAISED:
-      colors = {CC_GREEN, WHITE, DKGREY};
-      break;
-    default:
-      break;
-  }
-
-  const int right = x + w - 1;
-  const int bottom = y + h - 1;
-
-  if (filled) {
-    page->Fill_Rect(x, y, right, bottom, colors.fill);
-  }
-
-  // Top/left edges.
-  page->Draw_Line(x, y, right, y, colors.highlight);
-  page->Draw_Line(x, y, x, bottom, colors.highlight);
-
-  // Bottom/right edges.
-  page->Draw_Line(x, bottom, right, bottom, colors.shadow);
-  page->Draw_Line(right, y, right, bottom, colors.shadow);
-}
-
 bool Confine_Rect(int* x, int* y, int width, int height, int max_width, int max_height) {
   if (!x || !y) return false;
   bool adjusted = false;

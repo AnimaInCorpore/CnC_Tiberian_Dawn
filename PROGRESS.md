@@ -32,6 +32,7 @@
 | `TXTPRNT.ASM` | `src/txtprnt.cpp` | Replaced assembly `Buffer_Print` and `ColorXlat` with portable implementations; provides `Buffer_Print()` and `Get_Font_Palette_Ptr()`. |
 | `TEXT.CPP` (spacing) | `src/text.cpp` | Font X/Y spacing now mirrors the legacy Simple_Text_Print rules per font/shadow flag, fixing misaligned SDL text runs. |
 | `TEXTBTN.CPP` | `src/textbtn.cpp` | Button labels now center horizontally/vertically using the active font height so menu text aligns cleanly inside the boxes. |
+| `DIALOG.CPP` (`Draw_Box`/`CC_Texture_Fill`) | `src/dialog.cpp` | Restored the Win95 `Draw_Box` renderer (including textured green fills via `BTEXTURE.SHP`) and removed the solid-fill stub implementation. |
 | `ALLOC.CPP` | `src/alloc.cpp` | Legacy allocator collapsed onto the modern malloc-based wrapper (moved from the wwalloc port) while keeping the legacy entry points. |
 | `ANIM.CPP` | `src/anim.cpp` | Animation system moved to src/; keeps spawn/attach logic, scorch/crater side effects, and translucent draw path intact with nullptr-safe ownership handling; load/save and pointer coding now come from `src/ioobj.cpp`. |
 | `AUDIO.CPP` | `src/audio.cpp` | Ported to src/; EVA/sfx logic retained and playback decision path wired. Added minimal playback stubs (`src/audio_play_stub.cpp`) — full decoder/mixer pending. |
