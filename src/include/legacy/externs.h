@@ -70,7 +70,7 @@ using HANDLE = void*;
 #include	"getcd.h"
 #include	"nullmgr.h"
 #include	"wintimer_stub.h"
-#include	"mmx_stub.h"
+#include	"mmx.h"
 
 #include	"techno.h"
 #include	"type.h"

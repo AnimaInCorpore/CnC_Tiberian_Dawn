@@ -1,5 +1,5 @@
 #include "legacy/wwalloc.h"
-#include "legacy/error_stub.h"
+#include "legacy/error.h"
 
 #include <cstdlib>
 #include <cstring>

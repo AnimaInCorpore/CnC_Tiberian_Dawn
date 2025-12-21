@@ -80,7 +80,7 @@ set(TD_SOURCES
   src/debug.cpp
   src/display.cpp
   src/edit.cpp
-  src/error_stub.cpp
+	  src/error.cpp
   src/ending.cpp
   src/expand.cpp
   src/factory.cpp
@@ -160,7 +160,7 @@ set(TD_SOURCES
   src/intro_port.cpp
   src/movie_stub.cpp
   src/mixfile.cpp
-  src/mmx_stub.cpp
+	  src/mmx.cpp
   src/monoc.cpp
   src/mousehelp.cpp
   src/name_crc.cpp

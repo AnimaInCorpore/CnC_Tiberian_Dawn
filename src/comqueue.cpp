@@ -175,4 +175,115 @@ void CommQueueClass::Mono_Debug_Print(int refresh) {
 #endif
 }
 
-void CommQueueClass::Mono_Debug_Print2(int) { /* stub */ }
+void CommQueueClass::Mono_Debug_Print2(int refresh) {
+#ifdef WWLIB32_H
+  int i;
+  char txt[80];
+  int val = 0;
+
+  struct CommHdr {
+    unsigned short MagicNumber;
+    unsigned char Code;
+    unsigned long PacketID;
+  } * hdr;
+
+  if (refresh) {
+    Mono_Clear_Screen();
+    Mono_Printf("ﾚﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄｿ\n");
+    Mono_Printf("ｳ                                                                             ｳ\n");
+    Mono_Printf("ｳ                                                                             ｳ\n");
+    Mono_Printf("ｳ                                                                             ｳ\n");
+    Mono_Printf("ﾃﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾂﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄｴ\n");
+    Mono_Printf("ｳ              Send Queue              ｳ             Receive Queue            ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ ID  Ct Type   Data  Name         ACK ｳ ID  Rd Type   Data  Name         ACK ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ｳ                                      ｳ                                      ｳ\n");
+    Mono_Printf("ﾀﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾁﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾄﾙ");
+  }
+
+  for (i = 0; i < MaxSend; i++) {
+    Mono_Set_Cursor(1, 8 + i);
+    if (SendQueue[i].IsActive) {
+      hdr = reinterpret_cast<CommHdr*>(SendQueue[i].Buffer);
+      hdr->MagicNumber = hdr->MagicNumber;
+      hdr->Code = hdr->Code;
+      std::sprintf(txt, "%4d %2d %-5s  ", static_cast<int>(hdr->PacketID),
+                   SendQueue[i].SendCount,
+                   ConnectionClass::Command_Name(hdr->Code));
+
+      if (DebugSize && (DebugOffset + DebugSize) <= SendQueue[i].BufLen) {
+        if (DebugSize == 1) {
+          val = *(SendQueue[i].Buffer + DebugOffset);
+        } else if (DebugSize == 2) {
+          val = *((short*)(SendQueue[i].Buffer + DebugOffset));
+        } else if (DebugSize == 4) {
+          val = *((int*)(SendQueue[i].Buffer + DebugOffset));
+        }
+        std::sprintf(txt + std::strlen(txt), "%4d  ", val);
+
+        if (DebugMaxNames && val > 0 && val < DebugMaxNames) {
+          std::sprintf(txt + std::strlen(txt), "%-12s  %x", DebugNames[val],
+                       SendQueue[i].IsACK);
+        } else {
+          std::sprintf(txt + std::strlen(txt), "              %x",
+                       SendQueue[i].IsACK);
+        }
+      }
+      Mono_Printf(txt);
+    } else {
+      Mono_Printf("____ __                            _");
+    }
+  }
+
+  for (i = 0; i < MaxReceive; i++) {
+    Mono_Set_Cursor(40, 8 + i);
+    if (ReceiveQueue[i].IsActive) {
+      hdr = reinterpret_cast<CommHdr*>(ReceiveQueue[i].Buffer);
+      hdr->MagicNumber = hdr->MagicNumber;
+      hdr->Code = hdr->Code;
+      std::sprintf(txt, "%4d %2d %-5s  ", static_cast<int>(hdr->PacketID),
+                   ReceiveQueue[i].IsRead,
+                   ConnectionClass::Command_Name(hdr->Code));
+
+      if (DebugSize && (DebugOffset + DebugSize) <= SendQueue[i].BufLen) {
+        if (DebugSize == 1) {
+          val = *(ReceiveQueue[i].Buffer + DebugOffset);
+        } else if (DebugSize == 2) {
+          val = *((short*)(ReceiveQueue[i].Buffer + DebugOffset));
+        } else if (DebugSize == 4) {
+          val = *((int*)(ReceiveQueue[i].Buffer + DebugOffset));
+        }
+        std::sprintf(txt + std::strlen(txt), "%4d  ", val);
+
+        if (DebugMaxNames && val > 0 && val < DebugMaxNames) {
+          std::sprintf(txt + std::strlen(txt), "%-12s  %x", DebugNames[val],
+                       ReceiveQueue[i].IsACK);
+        } else {
+          std::sprintf(txt + std::strlen(txt), "              %x",
+                       ReceiveQueue[i].IsACK);
+        }
+      }
+      Mono_Printf(txt);
+    } else {
+      Mono_Printf("____ __                            _");
+    }
+  }
+#else
+  refresh = refresh;
+#endif
+}

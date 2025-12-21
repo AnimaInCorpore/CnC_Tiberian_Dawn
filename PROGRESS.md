@@ -48,7 +48,7 @@
 | `CELL.CPP` | `src/cell.cpp` | Partial port: core helpers implemented (constructor, lookup, redraw). |
 | `COMBAT.CPP` | `src/combat.cpp` | Ported: `Modify_Damage` and `Explosion_Damage` implemented. |
 | `COMBUF.CPP` | `src/combuf.cpp` | Ported core queue operations and timing helpers. |
-| `COMQUEUE.CPP` | `src/comqueue.cpp` | Ported circular send/recv queue (Next/Unqueue/Get semantics). |
+| `COMQUEUE.CPP` | `src/comqueue.cpp` | Ported circular send/recv queue (Next/Unqueue/Get semantics) and restored `Mono_Debug_Print2` packet dump output. |
 | `CONFDLG.CPP` | `src/confdlg.cpp` | Ported — confirmation dialog implementation with safe string copy. |
 | `CONNECT.CPP` | `src/connect.cpp` | Ported (portable implementation; Time uses std::chrono). |
 | `CONQUER.CPP` | `src/maingame.cpp` | Main_Game loop ported from the legacy file; retains SDL_QUIT push on exit while routing through the original select/loop/dialog flow, with explicit SpecialDialog cases covered. |
@@ -194,6 +194,8 @@
 | `PLATFORM (new)` | `src/include/legacy/platform.h` | Win16/Watcom typedef shim that turns `near`/`far` keywords into no-ops. |
 | `WINDOWS_COMPAT (new)` | `src/include/legacy/windows_compat.h` | Win32 handle/struct typedef shim so the port never includes platform headers directly. |
 | `CMakeLists.txt` | `CMakeLists.txt` | Added missing ported sources and gated `src/platform_win32.cpp` behind `WIN32`, then pruned duplicate stub units (`src/base_stub.cpp`, `src/gameplay_minimal_stubs.cpp`, `src/gameplay_shims.cpp`, `src/gameplay_class_stubs.cpp`, `src/linker_small.cpp`, `src/linker_stubs.cpp`, `src/tiny_linker_shims.cpp`, `src/pointer_stubs.cpp`) to avoid duplicate symbols; `src/debug.cpp`/`src/ending.cpp` are now linked. |
+| `STARTUP.CPP` (error exit) | `src/error.cpp` + `src/include/legacy/error.h` | Ported `Print_Error_End_Exit`/`Print_Error_Exit` and restored the allocation failure callbacks without dummy `printf/exit` stubs. |
+| `MMX.ASM` | `src/mmx.cpp` + `src/include/legacy/mmx.h` | Replaced the MMX detection stub with a CPUID-based probe; the patch-table init is a no-op in the SDL renderer path. |
 | `AIRCRAFT.H` | `src/include/legacy/aircraft.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `ANIM.H` | `src/include/legacy/anim.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `AUDIO.H` | `src/include/legacy/audio.h` | Lowercase mirror retained for Linux-friendly includes. |

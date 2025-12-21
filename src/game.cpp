@@ -6,7 +6,7 @@
 #include "legacy/msgbox.h"
 #include "legacy/audio_stub.h"
 #include "legacy/wwalloc.h"
-#include "legacy/error_stub.h"
+#include "legacy/error.h"
 #include "legacy/externs.h"
 #include "legacy/mixfile.h"
 #include "legacy/ccfile.h"
