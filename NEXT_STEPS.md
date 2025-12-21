@@ -7,13 +7,13 @@ Replace the dialog/background rendering stub: port `CC_Texture_Fill` and wire it
 Remove the title-art fallback scan in `src/load_title.cpp` and restore the Win95 asset resolution/order (missing `HTITLE.PCX` should surface as an error, not silently pick another PCX/CPS).
 Replace `MapStubClass` (`src/map_shim.cpp`, `src/include/legacy/map_shim.h`) with the real map implementation so all `Map.*` calls have canonical behavior (cell lookups, redraw flags, radar, cursor, object overlap, tactical map projection).
 Replace `src/movie_stub.cpp` with real VQA playback (video timing, palette updates, input skip rules) so intro/cutscenes match Win95.
-Replace `src/audio_stub.cpp`/`src/audio_play_stub.cpp` and `src/include/legacy/audio_stub.h` with the real mixer/decoder/voice logic (SFX priority, volume curves, channel reservation, music/theme streaming) via SDL audio.
+Finish the SDL audio port by matching Win95 mixer behavior (pan law, priority/channel reservation, fades/stops, music/theme streaming) and retire the remaining “stub” naming once parity is reached.
 Audit remaining stub-only units in the build (`src/audio_play_stub.cpp`, `src/movie_stub.cpp`, `src/map_shim.cpp`, `src/gameplay_core_stub.cpp`, and `src/port_stubs.cpp`) and either port their backing modules or remove the fallback code paths so the build fails loudly when functionality is missing.
 Remove palette/animation “fallback” code paths (e.g., `src/interpal_fallback.cpp`) and match the Win95 palette interpolation/animation timing exactly instead of approximating when data is missing.
 Replace `src/include/legacy/wintimer_stub.h` with a real timer implementation that matches Win95 tick granularity/jitter expectations and drives all timer users (`TickCount`, `ProcessTimer`, `FrameTimer`) deterministically.
 Replace `src/include/legacy/getcd.h` and `src/include/legacy/nullmodem_stub.h` placeholders with behavior-complete ports (or remove the code paths if they are truly Win95-only and replaced by canonical SDL equivalents).
 Replace `SurfaceCollectionStub` in `src/include/legacy/wwlib32.h` with a real SDL-backed surface/restore model (or an equivalent always-valid implementation) that matches Win95 lost-surface/restore semantics without silently masking failures.
-Remove `src/port_stubs.cpp` placeholders that return defaults/no-ops (WSA/animation open/close/frame, wait-blit, version/config/profile stubs) by porting the original implementations into the SDL runtime layer.
+Remove remaining `src/port_stubs.cpp` placeholders that return defaults/no-ops (version/config/profile stubs, CD probing, setup/profile persistence) by porting the original implementations into the SDL runtime layer.
 Delete any leftover linker-only stub translation units once their real counterparts are linked (e.g., `src/gameplay_*stubs*.cpp`, `src/linker_*stubs*.cpp`, `src/pointer_stubs.cpp`, `src/tiny_linker_shims.cpp`) and keep `CMakeLists.txt` free of duplicate-symbol fallbacks.
 
 ## Build system and source layout
@@ -21,7 +21,7 @@ Status: Next steps. Scope: move legacy sources into `src/` with lowercase names,
 Audit `TD_ENABLE_WERROR` suppression list in `CMakeLists.txt` and retire `-Wno-*` entries by fixing the underlying warnings as modules are fully ported (keep CI strictness meaningful).
 Keep `CMakeLists.txt` free of stub-only translation units once real ports exist; prefer failing the build over silently linking fallbacks.
 Confirm there are no duplicate-symbol “safety net” objects (old linker shims, gameplay minimal stubs, pointer stubs) and remove the files once they are no longer referenced.
-Finish porting the remaining legacy helpers for link parity (full `CONQUER.CPP` keyboard/message handling, `LOADDLG.CPP` save/load dialog, real Build_Frame/keyframe decoding, and modem reconnect flows) so the current skeletons can be replaced with behavior-complete implementations.
+Finish porting the remaining legacy helpers for link parity (full `CONQUER.CPP` keyboard/message handling, `LOADDLG.CPP` save/load dialog, and modem reconnect flows) so the current skeletons can be replaced with behavior-complete implementations.
 
 ## Platform abstraction with SDL
 Status: Next steps. Scope: create SDL2/SDL_net shims for video/audio/input/network only; replace DirectDraw/DirectSound/DirectInput/IPX/Greenleaf entry points while keeping call signatures so upper layers stay untouched.
@@ -31,7 +31,7 @@ Status: Next steps. Scope: port `STARTUP.CPP`/`CONQUER.CPP` sequencing into `src
 Finish the remaining menu branches in `src/port_stubs.cpp` (expansion/bonus/load/multiplayer/intro) now that start-new-game config is wired to the main menu.
 
 ## Rendering and UI
-Status: Next steps. Scope: finish `DisplayClass::Draw_It/AI`, map helpers in `src/display.cpp`, `GScreenClass` in `src/gscreen.cpp`, and `MapStubClass`/`MapClass` replacements (`src/map_shim.cpp`, `src/gameplay_core_stub.cpp`), plus HUD/UI widgets (Sidebar/Tab/Radio/Theme, startup options). Hook the ported credit tab (`src/credits.cpp`) back into Sidebar/Tab update loops when those UI classes move over. Replace the remaining shape draw path (`CC_Draw_Shape` + `Build_Frame` LCW decode) so render callers hit real blits. Excludes audio or net hooks.
+Status: Next steps. Scope: finish `DisplayClass::Draw_It/AI`, map helpers in `src/display.cpp`, `GScreenClass` in `src/gscreen.cpp`, and `MapStubClass`/`MapClass` replacements (`src/map_shim.cpp`, `src/gameplay_core_stub.cpp`), plus HUD/UI widgets (Sidebar/Tab/Radio/Theme, startup options). Hook the ported credit tab (`src/credits.cpp`) back into Sidebar/Tab update loops when those UI classes move over. Excludes audio or net hooks.
 Port the Win95 textured UI fill path (`CC_Texture_Fill` + `BTEXTURE.SHP`) and remove the current solid-fill `Draw_Box` implementation so all dialog/menu panels match Win95 visuals.
 Verify the restored TXTPRNT ColorXlat-style nibble translation keeps gradient/LED fonts aligned and shaded like the Win95 renderer now that glyph offsets decode correctly.
 Re-check 6pt/8pt text spacing after mirroring the legacy Simple_Text_Print x/y offsets so SDL text baselines/advances line up with the Win95 menus.

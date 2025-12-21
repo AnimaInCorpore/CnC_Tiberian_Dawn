@@ -339,11 +339,11 @@
 | `FUNCTION.H` | `src/include/legacy/function.h` | Declared Play_Sample for score audio hooks. |
 | `AUDIO.CPP` | `src/audio.cpp` | Removed duplicate default argument on Play_Sample declaration. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Added WSA animation declarations and StreamLowImpact flag used by score screens. |
-| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Added placeholder animation loaders and StreamLowImpact storage for score sequences. |
+| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Ported WSA/SHP drawing entry points: `Open_Animation`/`Animate_Frame`/`Get_Animation_Frame_Count`/`Close_Animation`, `Extract_Shape_Count`, and `CC_Draw_Shape` now decode and blit frames (incl. fade/translucency tables) for score/UI flows. |
 | `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added buffer blit/fill helpers needed by score screen drawing. |
 | `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | Implemented buffer blit/fill helpers and Check_Key shim for score loops. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Added Close_Animation/Check_Key/Extract_Shape_Count declarations for score flow. |
-| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Added placeholder Close_Animation and Extract_Shape_Count to keep score playback building. |
+| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Removed placeholder Close_Animation/Extract_Shape_Count by wiring them into the real keyframe decoder. |
 | `SCORE.CPP` | `src/score.cpp` | Fixed palette type and loop variable scoping for modern C++ builds. |
 | `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added KN_Q/KA_TILDA constants and buffer line drawing hook. |
 | `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | Implemented buffer line drawing and Get_Key shim. |
@@ -353,14 +353,14 @@
 | `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added lock/offset and pitch helpers needed by palette interpolation. |
 | `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | Implemented buffer/view offsets plus lock helpers for interpolation paths. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Added Wait_Blit declaration for interpolation flow. |
-| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Added Wait_Blit placeholder for palette interpolation paths. |
+| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Kept `Wait_Blit` as a no-op (SDL path does not require explicit blitter waits). |
 | `SMUDGE.H` | `src/include/legacy/smudge.h` | Included `wwfile.h` so FileClass I/O methods resolve. |
 | `SDATA.CPP` | `src/sdata.cpp` | Added missing legacy includes for theater/mix/map helpers used by smudge setup. |
 | `HELP.CPP` | `src/help.cpp` | Added HelpClass destructor definition to satisfy vtable linkage. |
 | `CELL.CPP` | `src/cell.cpp` | Ported Spot_Index/Clear_Icon helpers used by infantry and radar plots. |
 | `GLOBALS.CPP` | `src/globals.cpp` | Restored ModemGameToPlay global so network flows link. |
 | `INTERPAL` | `src/interpal_fallback.cpp` | Added C++ palette interpolation and 2x scale fallbacks for non-ASM builds. |
-| `KEYFRAME.CPP` | `src/keyframe_helpers.cpp` | Added uncompressed shape toggles used by score playback. |
+| `KEYFRAME.CPP` | `src/keyframe_helpers.cpp` | Added uncompressed shape toggles and ported `Build_Frame` by implementing Westwood `Format80` (LCW) + `Format40` (XOR delta) decode for SHP/WSA frames. |
 | `TEXT.CPP` | `src/text.cpp` | Added Simple_Text_Print wrapper for legacy text calls. |
 | `INIT.CPP` | `src/init_helpers.cpp` | Ported Obfuscate helper for hidden option parsing. |
 | `SCENARIO.CPP` | `src/scenario_helpers.cpp` | Ported Restate_Mission dialog handler. |
@@ -386,4 +386,4 @@
 | `BUILD FIXES` | `src/*.cpp` | Cleaned up a handful of warnings that commonly break strict builds (snprintf, signed/unsigned comparisons, missing default cases, and NULL-to-integer conversions). |
 
 ## Pending follow-ups
-- Implement audio decoder/mixer (decode .AUD/.JUV/.Vxx and mix via SDL; add panning/priority and voice queue)
+- Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).

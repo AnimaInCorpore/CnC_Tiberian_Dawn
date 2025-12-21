@@ -28,6 +28,7 @@
 #include <new>
 #include <string>
 #include <thread>
+#include <vector>
 
 // Global ready flag and null modem instance expected by legacy code paths.
 bool ReadyToQuit = false;
@@ -133,23 +134,24 @@ void Configure_New_Game_From_Menu() {
   }
 }
 
-void* Open_Animation(char const*, void*, long, WSAOpenType, void*) {
-  return nullptr;
+struct WsaAnimationHandle {
+  std::vector<unsigned char> owned;
+  const void* data = nullptr;
+};
+
+GraphicViewPortClass& Active_Draw_Page() {
+  if (LogicPage) return *LogicPage;
+  return HidPage;
 }
 
-void Animate_Frame(void const*, GraphicBufferClass&, int) {}
-
-int Get_Animation_Frame_Count(void const*) {
-  return 0;
+unsigned char Apply_Translucent_Table(unsigned char src_color, unsigned char dst_color,
+                                      void const* table) {
+  if (!table) return src_color;
+  const auto* bytes = static_cast<const unsigned char*>(table);
+  const unsigned char entry = bytes[src_color];
+  if (entry == 0xFF) return src_color;
+  return bytes[256 + static_cast<int>(entry) * 256 + dst_color];
 }
-
-void Close_Animation(void*) {}
-
-int Extract_Shape_Count(void const*) {
-  return 0;
-}
-
-void Wait_Blit(void) {}
 
 int Target_Frame_Milliseconds() {
   if (Options.GameSpeed > 0 && Options.GameSpeed < 500) {
@@ -180,26 +182,7 @@ void Pump_Sdl_Events() {
 #endif
   }
 }
-
 }  // namespace
-
-void* Open_Animation(char const*, void*, long, WSAOpenType, void*) {
-  return nullptr;
-}
-
-void Animate_Frame(void const*, GraphicBufferClass&, int) {}
-
-int Get_Animation_Frame_Count(void const*) {
-  return 0;
-}
-
-void Close_Animation(void*) {}
-
-int Extract_Shape_Count(void const*) {
-  return 0;
-}
-
-void Wait_Blit(void) {}
 
 int Bound(int value, int min, int max) {
   if (value < min) return min;
@@ -237,8 +220,148 @@ void* Load_Alloc_Data(FileClass& file) {
   return buffer;
 }
 
-void CC_Draw_Shape(void const*, int, int, int, WindowNumberType, unsigned int,
-                   void const*, void const*) {}
+void* Open_Animation(char const* name, void* buffer, long length, WSAOpenType flags,
+                     void* palette) {
+  auto* handle = new (std::nothrow) WsaAnimationHandle();
+  if (!handle) return nullptr;
+
+  const bool from_mem = (flags & WSA_OPEN_FROM_MEM) != 0;
+  if (from_mem && buffer && length > 0) {
+    handle->data = buffer;
+  } else {
+    void const* mix_ptr = MixFileClass::Retrieve(name);
+    if (mix_ptr) {
+      handle->data = mix_ptr;
+    } else {
+      CCFileClass file(name);
+      if (!file.Open(READ)) {
+        delete handle;
+        return nullptr;
+      }
+
+      const long size = file.Size();
+      if (size <= 0) {
+        file.Close();
+        delete handle;
+        return nullptr;
+      }
+
+      handle->owned.resize(static_cast<std::size_t>(size));
+      const long read = file.Read(handle->owned.data(), size);
+      file.Close();
+      if (read != size) {
+        delete handle;
+        return nullptr;
+      }
+      handle->data = handle->owned.data();
+    }
+  }
+
+  if (palette && handle->data) {
+    Get_Build_Frame_Palette(handle->data, palette);
+  }
+
+  return handle;
+}
+
+void Animate_Frame(void const* anim, GraphicBufferClass& dest, int frame) {
+  if (!anim) return;
+  const auto* handle = static_cast<const WsaAnimationHandle*>(anim);
+  if (!handle->data) return;
+
+  const int width = static_cast<int>(Get_Build_Frame_Width(handle->data));
+  const int height = static_cast<int>(Get_Build_Frame_Height(handle->data));
+  if (width <= 0 || height <= 0) return;
+
+  static std::vector<unsigned char> temp;
+  temp.resize(static_cast<std::size_t>(width) * static_cast<std::size_t>(height));
+  Build_Frame(handle->data, static_cast<unsigned short>(frame), temp.data());
+
+  const int dst_width = std::min(width, dest.Get_Width());
+  const int dst_height = std::min(height, dest.Get_Height());
+  unsigned char* dst = dest.Get_Buffer();
+  const int pitch = dest.Get_Width();
+
+  for (int y = 0; y < dst_height; ++y) {
+    std::memcpy(dst + y * pitch, temp.data() + y * width, static_cast<std::size_t>(dst_width));
+  }
+}
+
+int Get_Animation_Frame_Count(void const* anim) {
+  if (!anim) return 0;
+  const auto* handle = static_cast<const WsaAnimationHandle*>(anim);
+  return handle->data ? static_cast<int>(Get_Build_Frame_Count(handle->data)) : 0;
+}
+
+void Close_Animation(void* anim) {
+  delete static_cast<WsaAnimationHandle*>(anim);
+}
+
+int Extract_Shape_Count(void const* shape) {
+  if (!shape) return 0;
+  return static_cast<int>(Get_Build_Frame_Count(Get_Shape_Header_Data(const_cast<void*>(shape))));
+}
+
+void Wait_Blit(void) {}
+
+void CC_Draw_Shape(void const* shapefile, int shapenum, int x, int y, WindowNumberType window,
+                   unsigned int flags, void const* fadingdata, void const* ghostdata) {
+  if (!shapefile) return;
+
+  shapefile = Get_Shape_Header_Data(const_cast<void*>(shapefile));
+
+  const int width = static_cast<int>(Get_Build_Frame_Width(shapefile));
+  const int height = static_cast<int>(Get_Build_Frame_Height(shapefile));
+  if (width <= 0 || height <= 0) return;
+
+  if ((flags & SHAPE_CENTER) != 0) {
+    x -= width / 2;
+    y -= height / 2;
+  }
+  if ((flags & SHAPE_WIN_REL) != 0) {
+    x += WindowList[window][WINDOWX] << 3;
+    y += WindowList[window][WINDOWY];
+  }
+
+  static std::vector<unsigned char> temp;
+  temp.resize(static_cast<std::size_t>(width) * static_cast<std::size_t>(height));
+  Build_Frame(shapefile, static_cast<unsigned short>(shapenum), temp.data());
+
+  GraphicViewPortClass& dest_view = Active_Draw_Page();
+  unsigned char* dst = static_cast<unsigned char*>(dest_view.Get_Offset());
+  const int dst_pitch = dest_view.Get_Pitch();
+
+  const int clip_x0 = dest_view.Get_XPos();
+  const int clip_y0 = dest_view.Get_YPos();
+  const int clip_x1 = clip_x0 + dest_view.Get_Width();
+  const int clip_y1 = clip_y0 + dest_view.Get_Height();
+
+  for (int sy = 0; sy < height; ++sy) {
+    const int dy = y + sy;
+    if (dy < clip_y0 || dy >= clip_y1) continue;
+
+    for (int sx = 0; sx < width; ++sx) {
+      const int dx = x + sx;
+      if (dx < clip_x0 || dx >= clip_x1) continue;
+
+      unsigned char src_color = temp[static_cast<std::size_t>(sy) * width + sx];
+      if (src_color == 0) continue;
+
+      if (fadingdata && ((flags & SHAPE_FADING) != 0)) {
+        src_color = static_cast<const unsigned char*>(fadingdata)[src_color];
+      }
+
+      unsigned char* dst_pixel = dst + (dy - clip_y0) * dst_pitch + (dx - clip_x0);
+      const unsigned char dst_color = *dst_pixel;
+
+      if (ghostdata && (((flags & SHAPE_GHOST) != 0) || ((flags & SHAPE_TRANS) != 0))) {
+        src_color = Apply_Translucent_Table(src_color, dst_color, ghostdata);
+      }
+
+      *dst_pixel = src_color;
+    }
+  }
+}
 
 int Get_Resolution_Factor() { return 1; }
 
@@ -267,7 +390,7 @@ void* Add_Long_To_Pointer(void* ptr, long offset) {
 void Shake_Screen(int) {}
 
 
-void const* Hires_Retrieve(char const* /*name*/) { return nullptr; }
+void const* Hires_Retrieve(char const* name) { return MixFileClass::Retrieve(name); }
 
 void Validate_Error(char const*) {}
 

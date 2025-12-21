@@ -8,6 +8,8 @@ SDL_AudioDeviceID g_audio_device = 0;
 SDL_AudioSpec g_audio_spec{};
 }
 
+extern "C" void Audio_Mix_Callback(void* userdata, Uint8* stream, int len);
+
 bool Audio_Init(void* /*window_handle*/, int rate, bool sixteen_bit, int num_channels, int audio_buffer_size) {
   if (SDL_WasInit(SDL_INIT_AUDIO) == 0) {
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
@@ -21,7 +23,8 @@ bool Audio_Init(void* /*window_handle*/, int rate, bool sixteen_bit, int num_cha
   desired.format = sixteen_bit ? AUDIO_S16SYS : AUDIO_U8;
   desired.channels = num_channels > 0 ? static_cast<Uint8>(num_channels) : 2;
   desired.samples = audio_buffer_size > 0 ? static_cast<Uint16>(audio_buffer_size) : 2048;
-  desired.callback = nullptr;  // Pull-based audio; silence by default.
+  desired.callback = Audio_Mix_Callback;
+  desired.userdata = nullptr;
 
   SDL_AudioDeviceID device =
       SDL_OpenAudioDevice(nullptr, 0, &desired, &g_audio_spec, 0);
@@ -44,3 +47,7 @@ void Sound_End() {
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
   }
 }
+
+SDL_AudioDeviceID Audio_Get_Device() { return g_audio_device; }
+
+SDL_AudioSpec const* Audio_Get_Spec() { return &g_audio_spec; }

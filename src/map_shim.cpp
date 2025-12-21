@@ -1,6 +1,7 @@
 #include "legacy/map_shim.h"
 #include "legacy/function.h"
 #include "legacy/gscreen.h"
+#include "legacy/display.h"
 
 MapStubClass::MapStubClass()
     : PendingHouse(HOUSE_NONE),
@@ -74,6 +75,15 @@ void MapStubClass::One_Time() {
     remap_row[1] = nullptr;
   }
 
+  // Point to the real effect/remap tables built by DisplayClass so shapes can
+  // render with the correct fade/translucency behavior even while the full
+  // tactical map implementation is still being migrated.
+  FadingShade = DisplayClass::FadingShade;
+  UnitShadow = DisplayClass::UnitShadow;
+  FadingLight = DisplayClass::FadingLight;
+  WhiteTranslucentTable = DisplayClass::WhiteTranslucentTable;
+  TranslucentTable = DisplayClass::TranslucentTable;
+
   for (auto& column : Column) {
     column.IsToRedraw = false;
   }
@@ -108,11 +118,21 @@ bool MapStubClass::Coord_To_Pixel(COORDINATE, int& x, int& y) const {
 COORDINATE MapStubClass::Pixel_To_Coord(int, int) const { return 0; }
 
 bool MapStubClass::In_Radar(CELL) const { return true; }
-bool MapStubClass::In_View(CELL) const { return true; }
+bool MapStubClass::In_View(CELL cell) const {
+  if (MapCellWidth <= 0 || MapCellHeight <= 0) return true;
+  const int x = Cell_X(cell);
+  const int y = Cell_Y(cell);
+  return x >= MapCellX && x < (MapCellX + MapCellWidth) && y >= MapCellY &&
+         y < (MapCellY + MapCellHeight);
+}
 
 void MapStubClass::Sight_From(CELL, int, bool) {}
 
-int MapStubClass::Cell_Distance(CELL, CELL) const { return 0; }
+int MapStubClass::Cell_Distance(CELL cell, CELL other) const {
+  const int dx = std::abs(Cell_X(cell) - Cell_X(other));
+  const int dy = std::abs(Cell_Y(cell) - Cell_Y(other));
+  return std::max(dx, dy);
+}
 
 int MapStubClass::Cell_Threat(CELL, HousesType) const { return 0; }
 
