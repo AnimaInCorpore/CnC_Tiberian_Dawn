@@ -86,7 +86,7 @@ set(TD_SOURCES
   src/factory.cpp
   src/drive.cpp
   src/door.cpp
-  src/fly_stub.cpp
+  src/fly.cpp
   src/overlay.cpp
   src/smudge.cpp
   src/terrain.cpp

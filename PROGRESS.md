@@ -77,7 +77,7 @@
 | `FIELD.CPP` | `src/field.cpp` | Ported to src/; moved to portable headers and retained original net byte-order conversions. |
 | `FINDPATH.CPP` | `src/findpath.cpp` | Ported to src/ with pathfinding and FootClass path helpers restored. |
 | `FLASHER.CPP` | | To be ported. |
-| `FLY.CPP` | `src/fly_stub.cpp` | Stub retained for FlyClass motion hooks; removed duplicate Aircraft pointer helpers now provided by `src/ioobj.cpp`. |
+| `FLY.CPP` | `src/fly.cpp` | Ported FlyClass movement/physics and speed throttle logic; removed `src/fly_stub.cpp`. |
 | `FOOT.CPP` | `src/foot.cpp` | Ported to src/ with legacy movement/mission logic intact and includes updated for the SDL build. |
 | `FUSE.CPP` | | To be ported. |
 | `GADGET.CPP` | | To be ported. |
@@ -379,7 +379,7 @@
 | `MOUSE.H` | `src/mouse_vtable.cpp` | Defined MouseClass VTable storage to satisfy serialization references. |
 | `LOADDLG.H` | `src/include/legacy/loaddlg.h` | Added missing includes for vector/list/defines types. |
 | `POINTER STUBS` | `src/pointer_stubs.cpp` | Added no-op pointer code/decode hooks to satisfy vtables after removing iomap/ioobj. |
-| `FLY_STUB.CPP` | `src/fly_stub.cpp` | Removed duplicate As_Movement_Coord stub to resolve linker conflicts. |
+| `FLY_STUB.CPP` | | `src/fly_stub.cpp` retired after porting `src/fly.cpp`; prior cleanup removed duplicate As_Movement_Coord stub to resolve linker conflicts. |
 | `BUILD FIXES` | `CMakeLists.txt` | Made `TD_ENABLE_WERROR=ON` build reliably on Clang/AppleClang by suppressing legacy-warning classes while the port is in progress. |
 | `BUILD FIXES` | `src/*.cpp` | Cleaned up a handful of warnings that commonly break strict builds (snprintf, signed/unsigned comparisons, missing default cases, and NULL-to-integer conversions). |
 

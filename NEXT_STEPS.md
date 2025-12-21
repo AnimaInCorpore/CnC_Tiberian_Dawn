@@ -6,7 +6,6 @@ Status: Next steps. Scope: remove all portability shims, linker stubs, and "fall
 Replace the dialog/background rendering stub: port `CC_Texture_Fill` and wire it into `Draw_Box` so green UI panels use `BTEXTURE.SHP` (no more solid-color fills in menus/dialogs).
 Remove the title-art fallback scan in `src/load_title.cpp` and restore the Win95 asset resolution/order (missing `HTITLE.PCX` should surface as an error, not silently pick another PCX/CPS).
 Replace `MapStubClass` (`src/map_shim.cpp`, `src/include/legacy/map_shim.h`) with the real map implementation so all `Map.*` calls have canonical behavior (cell lookups, redraw flags, radar, cursor, object overlap, tactical map projection).
-Remove `src/fly_stub.cpp` by porting `FLY.CPP` so aircraft/flight physics match Win95 (movement, collision, facing, speed limits).
 Replace `src/movie_stub.cpp` with real VQA playback (video timing, palette updates, input skip rules) so intro/cutscenes match Win95.
 Replace `src/audio_stub.cpp`/`src/audio_play_stub.cpp` and `src/include/legacy/audio_stub.h` with the real mixer/decoder/voice logic (SFX priority, volume curves, channel reservation, music/theme streaming) via SDL audio.
 Replace `src/error_stub.cpp`/`src/include/legacy/error_stub.h` with behavior-equivalent error handling (dialogs/logging + clean shutdown) and remove any debug-print/exit-only dummy paths.
