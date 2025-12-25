@@ -138,17 +138,30 @@ bool Decode_Pcx_Or_Cps(const std::vector<unsigned char>& data, DecodedPcx& outpu
 void Apply_Title_Palette(const unsigned char* source, unsigned char* dest) {
 	if (!source) return;
 
-	unsigned char* target = dest ? dest : Palette;
-	if (target) {
-		std::memcpy(target, source, kPaletteSize);
-	}
-
+	// Ensure GamePalette exists and reflect the title's full palette there.
 	if (!GamePalette) {
 		GamePalette = new unsigned char[kPaletteSize];
+		std::fill_n(GamePalette, kPaletteSize, 0);
 	}
-	if (GamePalette) {
-		std::memcpy(GamePalette, source, kPaletteSize);
+	std::memcpy(GamePalette, source, kPaletteSize);
+
+	// Apply to the active palette or dest, but preserve the first 16 entries
+	// which the UI/font code relies upon.
+	unsigned char* target = dest ? dest : Palette;
+	if (!target) {
+		// If there is no active palette, allocate and initialize from GamePalette.
+		target = new unsigned char[kPaletteSize];
+		std::memcpy(target, GamePalette, kPaletteSize);
+		if (!dest) {
+			Palette = target;
+		}
+		return;
 	}
+
+	// Preserve indices 0..15 (first 16 palette entries); copy indices 16..255.
+	const int start_index = 16;
+	const int start_byte = start_index * 3;
+	std::memcpy(target + start_byte, source + start_byte, kPaletteSize - start_byte);
 }
 
 
