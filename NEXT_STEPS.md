@@ -53,6 +53,7 @@ Port `THEME.CPP` into `src/theme.cpp` so `ThemeClass::Queue_Song`/`Play_Song`/`A
 
 ## Networking and multiplayer
 Status: Next steps. Scope: port IPX/Greenleaf stack (`IPX*.CPP`, `TCPIP.CPP`, `COMBUF/COMQUEUE`) onto SDL_net/standard sockets, preserving packet formats, session/lobby dialogs, determinism checks, and timeout behavior. Excludes local audio/render work.
+Confirm the portable CCDDE replacement (`src/ccdde.cpp` + `src/dde.cpp`) matches the Win95 WChat expectations (packet framing, heartbeats, start-game payload) and document the external helper port/env vars (`TD_DDE_PORT`, `TD_DDE_LISTEN_PORT`) for tooling integration.
 Port `PACKET.CPP` so PacketClass serialization uses the new `src/field.cpp` implementation for host/net conversions.
 Confirm `EventClass::Execute` is wired into the network event dispatch path once the IPX/COMMS layers are ported (timing/response events should still adjust `MPlayerMaxAhead`).
 

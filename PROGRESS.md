@@ -388,6 +388,9 @@
 | `FLY_STUB.CPP` | | `src/fly_stub.cpp` retired after porting `src/fly.cpp`; prior cleanup removed duplicate As_Movement_Coord stub to resolve linker conflicts. |
 | `BUILD FIXES` | `CMakeLists.txt` | Made `TD_ENABLE_WERROR=ON` build reliably on Clang/AppleClang by suppressing legacy-warning classes while the port is in progress. |
 | `BUILD FIXES` | `src/*.cpp` | Cleaned up a handful of warnings that commonly break strict builds (snprintf, signed/unsigned comparisons, missing default cases, and NULL-to-integer conversions). |
+| `CCDDE.CPP` | `src/ccdde.cpp` | Replaced the `Send_Data_To_DDE_Server` stub with a portable UDP localhost implementation for launcher/lobby integration. |
+| `DDE.CPP` | `src/dde.cpp` | Implemented a cross-platform DDE replacement using loopback UDP sockets (client poke + optional server bind) to preserve the legacy API surface. |
+| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Removed the duplicate `Send_Data_To_DDE_Server` stub so the CCDDE implementation is authoritative. |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).

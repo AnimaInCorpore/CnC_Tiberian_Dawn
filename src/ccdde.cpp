@@ -5,8 +5,13 @@
 #include "legacy/port_stubs.h" // for CCDebugString
 
 #include <arpa/inet.h>
+#include <cerrno>
+#include <cstdlib>
 #include <cstring>
 #include <memory>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
 
 
@@ -100,8 +105,48 @@ int DDEServerClass::Time_Since_Heartbeat() const
   return static_cast<int>(ProcessTimer.Time() - LastHeartbeat);
 }
 
-bool Send_Data_To_DDE_Server(const char * /*data*/, int /*length*/, int /*packet_type*/)
+bool Send_Data_To_DDE_Server(const char* data, int length, int packet_type)
 {
-  CCDebugString("C&C95 - DDE poke not implemented in port.\n");
-  return false;
+  if (!data || length < 0) {
+    length = 0;
+  }
+
+  // Portable replacement for Windows DDE pokes: send UDP packets to localhost.
+  // An external helper (e.g. a launcher/lobby) can bind this port and emulate
+  // the original WChat integration.
+  const char* env_port = std::getenv("TD_DDE_PORT");
+  int port = env_port ? std::atoi(env_port) : 48765;
+  if (port <= 0 || port > 65535) {
+    port = 48765;
+  }
+
+  int sock = ::socket(AF_INET, SOCK_DGRAM, 0);
+  if (sock < 0) {
+    return false;
+  }
+
+  sockaddr_in addr{};
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons(static_cast<uint16_t>(port));
+  addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+  const uint32_t payload_len = static_cast<uint32_t>(length);
+  const uint32_t packet_len = payload_len + 2u * sizeof(uint32_t);
+  std::unique_ptr<unsigned char[]> buffer(new (std::nothrow) unsigned char[packet_len]);
+  if (!buffer) {
+    ::close(sock);
+    return false;
+  }
+
+  uint32_t* header = reinterpret_cast<uint32_t*>(buffer.get());
+  header[0] = htonl(packet_len);
+  header[1] = htonl(static_cast<uint32_t>(packet_type));
+  if (payload_len && data) {
+    std::memcpy(buffer.get() + 2u * sizeof(uint32_t), data, payload_len);
+  }
+
+  const ssize_t sent = ::sendto(sock, buffer.get(), packet_len, 0,
+                                reinterpret_cast<const sockaddr*>(&addr), sizeof(addr));
+  ::close(sock);
+  return sent == static_cast<ssize_t>(packet_len);
 }

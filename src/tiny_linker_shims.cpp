@@ -39,37 +39,9 @@ void Fat_Put_Pixel(int x, int y, int color, int size, GraphicViewPortClass &port
       port.Put_Pixel(x + dx, y + dy, color);
 }
 
-CELL As_Cell(TARGET target) { return static_cast<CELL>(target); }
-UnitClass *As_Unit(TARGET) { return nullptr; }
-TechnoClass *As_Techno(TARGET) { return nullptr; }
-AircraftClass *As_Aircraft(unsigned short) { return nullptr; }
-
-// Stubbed mission helpers are defined in linker_small.cpp when necessary; avoid
-// duplicating them here.
-// bool Queue_Mission(TARGET, MissionType) { return false; }
-// bool Queue_Mission(TARGET, MissionType, TARGET, TARGET) { return false; }
-
-// int Create_Air_Reinforcement(HouseClass *, AircraftType, int, MissionType, TARGET, TARGET) { return 0; }
-
-// Platform/profile helpers are provided by port_stubs.cpp; comment out the
-// duplicates here to prevent linker conflicts.
-// bool WWWritePrivateProfileInt(char const *, char const *, int value, char *) { return value >= 0; }
-// int WWGetPrivateProfileInt(char const *, char const *, int def, char *) { return def; }
-
-int Scan_Place_Object(ObjectClass *, CELL) { return 0; }
-// Use port_stubs.cpp implementations for these helpers to avoid duplicate
-// linkage.
-// int Distance_Coord(COORDINATE, COORDINATE) { return 0; }
-// void const *Hires_Retrieve(char const *) { return nullptr; }
-// void Validate_Error(char const *) {}
-// int Version_Number(void) { return 0; }
-// void *Load_Alloc_Data(FileClass &) { return nullptr; }
-
-void Unselect_All() {}
-
-TechnoTypeClass const* Fetch_Techno_Type(RTTIType, int) { return nullptr; }
-
-bool Create_Special_Reinforcement(HouseClass*, TechnoTypeClass const*, TechnoTypeClass const*, TeamMissionType, int) { return false; }
+// Target conversion, selection helpers, reinforcement, and place-scan routines
+// are implemented in their original translation units (e.g. target.cpp,
+// conquer_helpers.cpp, reinf.cpp, ini_helpers.cpp). Avoid duplicating them here.
 
 // Minimal DriveClass helpers (only methods referenced by other classes)
 void DriveClass::Fixup_Path(PathType*) {}

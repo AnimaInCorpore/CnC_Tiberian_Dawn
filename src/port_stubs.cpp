@@ -39,8 +39,6 @@ NullModemClass NullModem(
     0x1234);
 DDEServerClass DDEServer;
 
-BOOL Send_Data_To_DDE_Server(char*, int, int) { return FALSE; }
-
 // Shape buffer backing store; allocated lazily to match the original runtime.
 long _ShapeBufferSize = 512 * 1024;
 char* _ShapeBuffer = nullptr;
