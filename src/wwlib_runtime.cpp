@@ -141,7 +141,27 @@ void Present_View(const GraphicViewPortClass& view) {
 
 }  // namespace
 
-SurfaceCollectionStub AllSurfaces;
+SurfaceCollection AllSurfaces;
+
+void SurfaceCollection::Set_Surface_Focus(bool focused) {
+  if (!focused) {
+    had_focus_ = false;
+    return;
+  }
+  if (!had_focus_) {
+    SurfacesRestored = true;
+  }
+  had_focus_ = true;
+}
+
+void SurfaceCollection::Restore_Surfaces() { SurfacesRestored = true; }
+
+void SurfaceCollection::Release() {
+  SurfacesRestored = false;
+  had_focus_ = true;
+}
+
+void SurfaceCollection::Remove_DD_Surface(void* /*surface*/) {}
 
 // --- TimerClass -----------------------------------------------------------
 TimerClass::TimerClass() { Reset(0); }
@@ -695,7 +715,13 @@ void WWMouseClass::Erase_Mouse(GraphicViewPortClass* page, bool /*force*/) {
 
 void WWMouseClass::Clear_Cursor_Clip() { g_cursor.clip_enabled = false; }
 void WWMouseClass::Set_Cursor_Clip() {
-  g_cursor.clip_enabled = false;
+  // Mirror the legacy behaviour: clip the cursor to the active screen bounds.
+  // The game UI assumes the cursor cannot leave the drawable region.
+  g_cursor.clip_enabled = true;
+  g_cursor.clip_left = 0;
+  g_cursor.clip_top = 0;
+  g_cursor.clip_right = std::max(0, ScreenWidth - 1);
+  g_cursor.clip_bottom = std::max(0, ScreenHeight - 1);
 }
 
 // --- WWKeyboardClass --------------------------------------------------------
@@ -754,9 +780,45 @@ GraphicViewPortClass* Set_Logic_Page(GraphicBufferClass* page) {
   return Set_Logic_Page(*page);
 }
 
-bool Set_Video_Mode(int /*mode*/) { return true; }
+namespace {
+void Apply_Sdl_Video_Mode(int width, int height) {
+  if (width <= 0 || height <= 0) return;
+  SDL_Window* window = Runtime_Get_Sdl_Window();
+  SDL_Renderer* renderer = Runtime_Get_Sdl_Renderer();
+  if (!window || !renderer) return;
 
-bool Set_Video_Mode(void* /*window*/, int /*width*/, int /*height*/, int /*bits_per_pixel*/) { return true; }
+  SDL_SetWindowSize(window, width, height);
+  SDL_RenderSetLogicalSize(renderer, width, height);
+  SDL_RenderSetIntegerScale(renderer, SDL_TRUE);
+  Destroy_Present_Texture();
+}
+}  // namespace
+
+bool Set_Video_Mode(int mode) {
+  // The legacy runtime used a mode integer; the port maps this onto the
+  // current screen size defaults and reconfigures SDL's logical output.
+  if (mode == RESET_MODE) {
+    Apply_Sdl_Video_Mode(ScreenWidth, ScreenHeight);
+    return true;
+  }
+  if (mode == MCGA_MODE) {
+    ScreenWidth = DEFAULT_SCREEN_WIDTH;
+    ScreenHeight = 400;
+    Apply_Sdl_Video_Mode(ScreenWidth, ScreenHeight);
+    return true;
+  }
+  // Unknown modes are treated as "keep current".
+  Apply_Sdl_Video_Mode(ScreenWidth, ScreenHeight);
+  return true;
+}
+
+bool Set_Video_Mode(void* /*window*/, int width, int height, int /*bits_per_pixel*/) {
+  if (width <= 0 || height <= 0) return false;
+  ScreenWidth = width;
+  ScreenHeight = height;
+  Apply_Sdl_Video_Mode(ScreenWidth, ScreenHeight);
+  return true;
+}
 
 int Get_Key_Num() { return Kbd.Get(); }
 int Check_Key_Num() { return Kbd.Check(); }
@@ -771,6 +833,10 @@ int Get_Mouse_X() { return g_mouse_state.x; }
 int Get_Mouse_Y() { return g_mouse_state.y; }
 
 void Update_Mouse_Position(int x, int y) {
+  if (g_cursor.clip_enabled) {
+    x = std::clamp(x, g_cursor.clip_left, g_cursor.clip_right);
+    y = std::clamp(y, g_cursor.clip_top, g_cursor.clip_bottom);
+  }
   g_mouse_state.x = x;
   g_mouse_state.y = y;
 }
@@ -832,8 +898,9 @@ void Platform_Set_Fonts(const void* current_font, const void* gradient_font6, in
 
 void Platform_Update_Mouse_State(const PlatformMouseState& state) {
   g_mouse_state = state;
-  Kbd.MouseQX = state.x;
-  Kbd.MouseQY = state.y;
+  Update_Mouse_Position(state.x, state.y);
+  Kbd.MouseQX = g_mouse_state.x;
+  Kbd.MouseQY = g_mouse_state.y;
 }
 
 void Platform_Queue_Key_Event(int key, bool pressed) {

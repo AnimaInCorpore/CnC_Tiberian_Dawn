@@ -255,17 +255,21 @@ class WWKeyboardClass {
   friend void Platform_Queue_Key_Event(int key, bool pressed);
 };
 
-// Minimal stub for the DirectDraw surface manager used by the original runtime.
-struct SurfaceCollectionStub {
+// Minimal surface manager replacement for the original DirectDraw collection.
+// The legacy UI mainly consults the SurfacesRestored flag after losing focus.
+struct SurfaceCollection {
   bool SurfacesRestored = false;
 
-  void Set_Surface_Focus(bool) {}
-  void Restore_Surfaces() { SurfacesRestored = false; }
-  void Release() { SurfacesRestored = false; }
-  void Remove_DD_Surface(void*) {}
+  void Set_Surface_Focus(bool focused);
+  void Restore_Surfaces();
+  void Release();
+  void Remove_DD_Surface(void* surface);
+
+ private:
+  bool had_focus_ = true;
 };
 
-extern SurfaceCollectionStub AllSurfaces;
+extern SurfaceCollection AllSurfaces;
 
 // The runtime keeps a "current" drawing surface that UI widgets reference.
 extern GraphicViewPortClass* LogicPage;

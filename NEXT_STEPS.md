@@ -39,9 +39,11 @@ Verify the nearest-neighbor SDL scale mode on present/title textures keeps text/
 Spot-check menu button text after centering tweak in `src/textbtn.cpp` to ensure vertical/horizontal alignment matches the Win95 layout.
 Decide whether to surface the `MonoClass` debug buffer (ported in `src/monoc.cpp`) via an SDL overlay or log sink for modern builds.
 Implementation done!: Implemented the `WWMouseClass` draw/erase overlay (cursor blit + restore) so the SDL render path shows the legacy cursor now that `GScreenClass::Blit_Display` uses it.
+Implementation done!: Replaced wwlib runtime stubs for video mode switching, cursor clipping, and surface restore tracking so SDL builds can correctly constrain the cursor and respond to focus loss.
 Compare the main menu title background palette against Win95 output now that `src/load_title.cpp` no longer forces the first 16 UI colors.
 Confirm sidebar/radar button input wiring still routes through `GScreenClass::Buttons` once the real `MapClass` replaces the shim.
 Replace the palette interpolation fallback with the Win95-equivalent interpolation path and validate output/timing (especially 2x scaled animations) against Win95 captures.
+Wire SDL window focus events to `AllSurfaces.Set_Surface_Focus(...)` so dialogs that watch `AllSurfaces.SurfacesRestored` behave like Win95 when the window is deactivated/reactivated.
 
 ## Audio and messaging
 Status: Next steps. Scope: wire `CCMessageBox::Process` and audio entry points in `src/linker_stubs.cpp`; rebuild `src/audio_stub.cpp` to match `AUDIO.CPP` mixing/streaming via SDL with original volume/priority/voice rules. Excludes rendering or net.
