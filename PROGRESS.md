@@ -96,7 +96,8 @@
 | `INIT.CPP` | | To be ported. |
 | `INTERNET.CPP` | | To be ported. |
 | `INTERPAL.CPP` | `src/interpal.cpp` | Ported to src/; interpolation palette helpers restored. |
-| `INTRO.CPP` | `src/intro_port.cpp` | Minimal stub ported; `Choose_Side()` now triggers the intro movie (stub playback). Full VQA/interactive flow pending. |
+| `INTRO.CPP` | `src/intro_port.cpp` | Minimal port; `Choose_Side()` now triggers the intro movie (VQA playback) and the full interactive flow is pending. |
+| `CONQUER.CPP` (VQA playback path) | `src/movie.cpp`, `src/vqa_decoder.cpp`, `src/vqa_decoder.h` | Replaced the simulated/timing-only movie stub with a real classic (8-bit) Westwood VQA decoder (LCW/Format80) and wired `Play_Movie()` to decode frames, apply per-frame palettes, and blit into the SDL software pages. |
 | `IOMAP.CPP` | `src/iomap.cpp` | Ported to src/ with pointer coding helpers for map/UI classes restored. |
 | `IOOBJ.CPP` | `src/ioobj.cpp` | Ported to src/ with object save/load pointer coding and smudge/overlay helpers restored. |
 | `IPX.CPP` | | To be ported. |

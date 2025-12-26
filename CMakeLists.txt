@@ -157,6 +157,7 @@ set(TD_SOURCES
   src/mission.cpp
   src/intro_port.cpp
   src/movie.cpp
+  src/vqa_decoder.cpp
   src/mixfile.cpp
 	  src/mmx.cpp
   src/monoc.cpp

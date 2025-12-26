@@ -9,7 +9,7 @@ Remove the title-art fallback scan in `src/load_title.cpp` and restore the Win95
 Replace `MapStubClass` (`src/map_shim.cpp`, `src/include/legacy/map_shim.h`) with the real map implementation so all `Map.*` calls have canonical behavior (cell lookups, redraw flags, radar, cursor, object overlap, tactical map projection).
 Replace `src/movie.cpp` with real VQA playback (video timing, palette updates, input skip rules) so intro/cutscenes match Win95.
 Finish the SDL audio port by matching Win95 mixer behavior (pan law, priority/channel reservation, fades/stops, music/theme streaming) and retire the remaining “stub” naming once parity is reached.
-Audit remaining stub-only units in the build (`src/movie.cpp` and any `src/*stub*.cpp` reintroduced) and either port their backing modules or remove the fallback code paths so the build fails loudly when functionality is missing.
+Verify VQA movie parity details (centering/cropping rules, audio playback + EVA captions, palette interpolation special-cases like `RETRO.VQA`) now that `src/movie.cpp` uses a real decoder instead of a timing stub.
 Remove palette/animation “fallback” code paths (e.g., `src/interpal_fallback.cpp`) and match the Win95 palette interpolation/animation timing exactly instead of approximating when data is missing.
 Remove any remaining Win95-only `WinTimerClass` usage; the port should rely on `TimerClass`/`CountDownTimerClass` (`TickCount`, `ProcessTimer`, `FrameTimer`) for deterministic timing.
 Replace `src/include/legacy/getcd.h` placeholder with a behavior-complete port (or remove the code paths if they are truly Win95-only and replaced by canonical SDL equivalents).
