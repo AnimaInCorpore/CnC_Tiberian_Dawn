@@ -57,6 +57,7 @@
 | `CONQUER.CPP` (source helpers) | `src/source_helpers.cpp` | `Source_From_Name`/`Name_From_Source` now follow the legacy lookup table instead of the placeholder mapping. |
 | `CONST.CPP` | `src/const.cpp` | Weapon/warhead tables and coordinate helpers brought over with lowercase includes and portable tables. |
 | `STARTUP.CPP` (bootstrap) | `src/port_runtime.cpp` | Init_Game/Select_Game/Main_Loop now allocate palettes/shape buffers, configure viewports, reset menu state, enable the DDE heartbeat stub, pace the frame loop using the legacy timer defaults, apply the legacy "start new game" scenario defaults when the first menu option is chosen, and make `Call_Back()` service SDL events + focus restore + blit/present for fades and modal UI loops. |
+| `STARTUP.CPP` (bootstrap) | `src/port_runtime.cpp` | Initialized the global fixed heaps (`Units`, `Buildings`, `TeamTypes`, etc.) via `Set_Heap()` in `Init_Game()` so scenario loads can allocate objects (fixes crash in `TeamTypeClass::Init()` during `Clear_Scenario()`). |
 | `CONTROL.CPP` | `src/control.cpp` | Control gadgets now propagate peer redraws, return KN_BUTTON IDs when triggered, and keep peers wired via a portable nullptr-safe link. |
 | `COORD.CPP` | `src/coord.cpp` | Modernized coordinate helpers; `Cardinal_To_Fixed` and `Fixed_To_Cardinal` ported from `COORDA.ASM`. |
 | `CREDITS.CPP` | `src/credits.cpp` | Credit counter now ticks toward the player's funds, plays up/down cues, and redraws the tab with resolution scaling. |

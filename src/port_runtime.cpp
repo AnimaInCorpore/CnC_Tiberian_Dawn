@@ -52,6 +52,28 @@ constexpr int kPaletteSize = 256 * 3;
 constexpr unsigned long kMenuTimeoutMs = 60 * 1000;
 constexpr int kDefaultFrameMs = 66;
 
+void Ensure_Object_Heaps() {
+  static bool initialized = false;
+  if (initialized) return;
+  initialized = true;
+
+  Units.Set_Heap(UNIT_MAX);
+  Factories.Set_Heap(FACTORY_MAX);
+  Terrains.Set_Heap(TERRAIN_MAX);
+  Templates.Set_Heap(TEMPLATE_MAX);
+  Smudges.Set_Heap(SMUDGE_MAX);
+  Overlays.Set_Heap(OVERLAY_MAX);
+  Infantry.Set_Heap(INFANTRY_MAX);
+  Bullets.Set_Heap(BULLET_MAX);
+  Buildings.Set_Heap(BUILDING_MAX);
+  Anims.Set_Heap(ANIM_MAX);
+  Aircraft.Set_Heap(AIRCRAFT_MAX);
+  Triggers.Set_Heap(TRIGGER_MAX);
+  TeamTypes.Set_Heap(TEAMTYPE_MAX);
+  Teams.Set_Heap(TEAM_MAX);
+  Houses.Set_Heap(HOUSE_MAX);
+}
+
 void Ensure_Shape_Buffer() {
   if (_ShapeBuffer || _ShapeBufferSize <= 0) return;
   char* buffer = new (std::nothrow) char[_ShapeBufferSize];
@@ -538,6 +560,7 @@ bool Init_Game(int, char**) {
   GameInFocus = true;
   SpecialDialog = SDLG_NONE;
 
+  Ensure_Object_Heaps();
   Ensure_Shape_Buffer();
   Ensure_Palettes();
   if (!Palette) {
