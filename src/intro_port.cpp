@@ -1,18 +1,19 @@
-/* Minimal port of the intro chooser so the Intro menu button works.
- * The original Choose_Side() provides a complex interactive flow; for
- * now play the configured intro movie and return to the menu.
- */
-
 #include "legacy/intro.h"
-#include "legacy/function.h"
 #include "legacy/externs.h"
+#include "legacy/defines.h"
+#include "legacy/function.h"
+#include "legacy/msgbox.h"
 
 void Choose_Side(void) {
-  // If IntroMovie is configured, use it, otherwise fall back to the
-  // classic INTRO2 movie used by the original.
-  if (IntroMovie[0]) {
-    Play_Movie(IntroMovie);
+  // Ported behavior: allow the player to pick the campaign side.
+  // The Win95 build also plays an interactive animation + briefing VQAs;
+  // movie playback is handled separately via Play_Movie().
+  const int selection = CCMessageBox(0).Process("Choose your side:", "GDI", "Nod");
+  if (selection == 0) {
+    Whom = HOUSE_GOOD;
+    ScenPlayer = SCEN_PLAYER_GDI;
   } else {
-    Play_Movie("INTRO2", THEME_NONE, false);
+    Whom = HOUSE_BAD;
+    ScenPlayer = SCEN_PLAYER_NOD;
   }
 }

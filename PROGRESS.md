@@ -391,6 +391,7 @@
 | `CCDDE.CPP` | `src/ccdde.cpp` | Replaced the `Send_Data_To_DDE_Server` stub with a portable UDP localhost implementation for launcher/lobby integration. |
 | `DDE.CPP` | `src/dde.cpp` | Implemented a cross-platform DDE replacement using loopback UDP sockets (client poke + optional server bind) to preserve the legacy API surface. |
 | `PORT_STUBS.CPP` | `src/port_runtime.cpp` | Removed the duplicate `Send_Data_To_DDE_Server` stub so the CCDDE implementation is authoritative. |
+| `INTRO.CPP` (`Choose_Side`) | `src/intro_port.cpp` | Replaced the placeholder intro handler with a real side-selection dialog that sets `Whom` and `ScenPlayer` (GDI/Nod). |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).
