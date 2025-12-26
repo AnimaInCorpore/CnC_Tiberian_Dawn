@@ -167,7 +167,7 @@ void Sound_Effect(VocType voc, COORDINATE coord, int variation)
     distance = 0xFF;
     pan_value = 0;
     if (coord && !Map.In_View(cell_pos)) {
-        /* Map.Cell_Distance can be missing on the Map stub; use a conservative default. */
+        /* Map.Cell_Distance may be unavailable during early init; use a conservative default. */
         distance = MAP_CELL_W;
         distance = Cardinal_To_Fixed(MAP_CELL_W, distance);
         distance = MIN(distance, 0xFFu);

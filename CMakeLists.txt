@@ -145,8 +145,6 @@ set(TD_SOURCES
   src/layer.cpp
   src/legacy_vtables.cpp
   src/map.cpp
-  # src/gameplay_class_stubs.cpp (excluded: duplicates real implementations)
-  # src/linker_stubs.cpp (excluded: duplicates real implementations)
   src/port_runtime.cpp
   src/link.cpp
   src/list.cpp

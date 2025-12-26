@@ -284,7 +284,7 @@ constexpr int DEFAULT_SCREEN_WIDTH = 640;
 constexpr int DEFAULT_SCREEN_HEIGHT = 480;
 
 // Timer source hint used by the countdown timers. The original differentiated
-// hardware timers; the stub just keeps the symbolic value.
+// hardware timers; the port keeps the symbolic value for compatibility.
 constexpr int BT_SYSTEM = 0;
 
 bool Set_Video_Mode(int mode);

@@ -197,7 +197,7 @@
 | `WATCOM.H` | `src/include/legacy/watcom.h` | Watcom pragma wrappers swapped for GCC diagnostic helpers. |
 | `PLATFORM (new)` | `src/include/legacy/platform.h` | Win16/Watcom typedef shim that turns `near`/`far` keywords into no-ops. |
 | `WINDOWS_COMPAT (new)` | `src/include/legacy/windows_compat.h` | Win32 handle/struct typedef shim so the port never includes platform headers directly. |
-| `CMakeLists.txt` | `CMakeLists.txt` | Added missing ported sources and gated `src/platform_win32.cpp` behind `WIN32`, then pruned duplicate stub units (`src/base_stub.cpp`, `src/gameplay_minimal_stubs.cpp`, `src/gameplay_shims.cpp`, `src/gameplay_class_stubs.cpp`, `src/linker_small.cpp`, `src/linker_stubs.cpp`, `src/tiny_linker_shims.cpp`, `src/pointer_stubs.cpp`) to avoid duplicate symbols; `src/debug.cpp`/`src/ending.cpp` are now linked. |
+| `CMakeLists.txt` | `CMakeLists.txt` | Added missing ported sources and gated `src/platform_win32.cpp` behind `WIN32`, then pruned duplicate stub units (`src/base_stub.cpp`, `src/gameplay_minimal_stubs.cpp`, `src/gameplay_shims.cpp`, `src/tiny_linker_shims.cpp`) to avoid duplicate symbols; `src/debug.cpp`/`src/ending.cpp` are now linked. |
 | `STARTUP.CPP` (error exit) | `src/error.cpp` + `src/include/legacy/error.h` | Ported `Print_Error_End_Exit`/`Print_Error_Exit` and restored the allocation failure callbacks without dummy `printf/exit` stubs. |
 | `MMX.ASM` | `src/mmx.cpp` + `src/include/legacy/mmx.h` | Replaced the MMX detection stub with a CPUID-based probe; the patch-table init is a no-op in the SDL renderer path. |
 | `AIRCRAFT.H` | `src/include/legacy/aircraft.h` | Lowercase mirror retained for Linux-friendly includes. |
@@ -384,7 +384,7 @@
 | `SOUND/VIDEO DLG` | `src/soundvisu_helpers.cpp` | Added no-op sound/visual controls handlers to satisfy options flow. |
 | `MOUSE.H` | `src/mouse_vtable.cpp` | Defined MouseClass VTable storage to satisfy serialization references. |
 | `LOADDLG.H` | `src/include/legacy/loaddlg.h` | Added missing includes for vector/list/defines types. |
-| `POINTER STUBS` | `src/pointer_stubs.cpp` | Added no-op pointer code/decode hooks to satisfy vtables after removing iomap/ioobj. |
+| `HEAP.CPP` / `COMBUF.CPP` | `src/heap.cpp`, `src/combuf.cpp` | Restored original heap Save/Load pointer coding flow and ported `CommBufferClass::Mono_Debug_Print2` so networking debug output matches the Win95 mono view again. |
 | `FLY_STUB.CPP` | | `src/fly_stub.cpp` retired after porting `src/fly.cpp`; prior cleanup removed duplicate As_Movement_Coord stub to resolve linker conflicts. |
 | `BUILD FIXES` | `CMakeLists.txt` | Made `TD_ENABLE_WERROR=ON` build reliably on Clang/AppleClang by suppressing legacy-warning classes while the port is in progress. |
 | `BUILD FIXES` | `src/*.cpp` | Cleaned up a handful of warnings that commonly break strict builds (snprintf, signed/unsigned comparisons, missing default cases, and NULL-to-integer conversions). |

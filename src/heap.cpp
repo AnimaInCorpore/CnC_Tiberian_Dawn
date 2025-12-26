@@ -175,26 +175,68 @@ FixedIHeapClass::~FixedIHeapClass(void) = default;
 
 template <class T>
 int TFixedIHeapClass<T>::Save(FileClass& file) {
-  // Stubbed persistence for porting: just acknowledge the write.
-  (void)file;
+  int idx = 0;
+
+  if (file.Write(&ActiveCount, sizeof(ActiveCount)) != sizeof(ActiveCount)) {
+    return false;
+  }
+
+  for (int i = 0; i < ActiveCount; ++i) {
+    idx = ID(Ptr(i));
+    if (file.Write(&idx, sizeof(idx)) != sizeof(idx)) {
+      return false;
+    }
+    if (!Ptr(i)->Save(file)) {
+      return false;
+    }
+  }
+
   return true;
 }
 
 template <class T>
 int TFixedIHeapClass<T>::Load(FileClass& file) {
-  // Stubbed load for porting: do nothing and report success.
-  (void)file;
+  int a_count = 0;
+
+  if (file.Read(&a_count, sizeof(a_count)) != sizeof(a_count)) {
+    return false;
+  }
+
+  if (a_count > TotalCount) {
+    return false;
+  }
+
+  for (int i = 0; i < a_count; ++i) {
+    int idx = 0;
+    if (file.Read(&idx, sizeof(idx)) != sizeof(idx)) {
+      return false;
+    }
+
+    T* ptr = reinterpret_cast<T*>((*this)[idx]);
+    FreeFlag[idx] = true;
+    ActiveCount++;
+    ActivePointers.Add(ptr);
+
+    if (!ptr->Load(file)) {
+      return false;
+    }
+  }
+
   return true;
 }
 
 template <class T>
 void TFixedIHeapClass<T>::Code_Pointers(void) {
-  // Stubbed no-op.
+  for (int i = 0; i < ActiveCount; ++i) {
+    Ptr(i)->Code_Pointers();
+  }
 }
 
 template <class T>
 void TFixedIHeapClass<T>::Decode_Pointers(void) {
-  // Stubbed no-op.
+  for (int i = 0; i < ActiveCount; ++i) {
+    Ptr(i)->Decode_Pointers();
+  }
 }
 
 template class TFixedIHeapClass<UnitClass>;

@@ -2,7 +2,6 @@
 #include "ccdde.h"
 #include "legacy/externs.h"
 #include "legacy/wwlib32.h"
-#include "legacy/port_stubs.h" // for CCDebugString
 
 #include <arpa/inet.h>
 #include <cerrno>
@@ -19,7 +18,7 @@ DDEServerClass::DDEServerClass()
 {
   MPlayerGameInfo = nullptr;
   MPlayerGameInfoLength = 0;
-  IsEnabled = true; // DDE stubs are enabled by default in the port
+  IsEnabled = true;
   LastHeartbeat = 0;
 }
 

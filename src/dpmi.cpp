@@ -1,5 +1,5 @@
 /*
-**	Command & Conquer(tm) — DPMI portability stubs
+**	Command & Conquer(tm) — DPMI portability layer
 */
 
 #include "function.h"
