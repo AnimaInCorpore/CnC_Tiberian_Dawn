@@ -127,6 +127,7 @@ set(TD_SOURCES
   src/gauge.cpp
   src/globals.cpp
   src/gscreen.cpp
+  src/logic.cpp
   src/hdata.cpp
   src/heap.cpp
   src/help.cpp
@@ -143,7 +144,7 @@ set(TD_SOURCES
   src/ipxmgr.cpp
   src/layer.cpp
   src/legacy_vtables.cpp
-  src/gameplay_core_stub.cpp
+  src/map.cpp
   # src/gameplay_class_stubs.cpp (excluded: duplicates real implementations)
   # src/linker_stubs.cpp (excluded: duplicates real implementations)
   src/port_stubs.cpp
@@ -154,7 +155,6 @@ set(TD_SOURCES
   # CDATA.CPP
   src/load_title.cpp
   src/maingame.cpp
-  src/map_shim.cpp
   src/menus.cpp
   src/mission.cpp
   src/intro_port.cpp
@@ -224,7 +224,6 @@ set(TD_SOURCES
 
 set(TD_COMMON_DEFS
   TD_PORT_USE_SDL2
-  SCENARIO_EDITOR
 )
 if(WIN32)
   list(APPEND TD_COMMON_DEFS

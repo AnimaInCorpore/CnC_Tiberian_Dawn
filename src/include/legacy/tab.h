@@ -24,7 +24,7 @@ class TabClass : public SidebarClass {
 
   CreditClass Credits;
 
- protected:
+ public:
   unsigned IsToRedraw : 1;
   int Eva_Width;
   int Tab_Height;

@@ -52,7 +52,6 @@
 #include	"display.h"
 #include	"externs.h"
 #include	"function.h"
-#include	"map_shim.h"
 #include	"mixfile.h"
 #include	"wwlib32.h"
 

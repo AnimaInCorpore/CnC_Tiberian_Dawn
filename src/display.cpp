@@ -427,7 +427,10 @@ bool DisplayClass::Is_Spot_Free(COORDINATE) const { return true; }
 COORDINATE DisplayClass::Closest_Free_Spot(COORDINATE coord, bool) const { return coord; }
 void DisplayClass::Sell_Mode_Control(int) {}
 void DisplayClass::Repair_Mode_Control(int) {}
-MouseType DisplayClass::Get_Mouse_Shape() const { return MOUSE_NORMAL; }
+void DisplayClass::Set_Cursor(ObjectTypeClass const* object) {
+	PendingObject = object;
+	Set_Cursor_Shape(object ? object->Occupy_List(true) : nullptr);
+}
 void DisplayClass::Mouse_Left_Release(CELL, int, int, ObjectClass*, ActionType, bool) {}
 void DisplayClass::Mouse_Left_Up(bool, ObjectClass*, ActionType, bool) {}
 void DisplayClass::Mouse_Left_Press(int, int) {}

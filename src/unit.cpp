@@ -1742,7 +1742,7 @@ void UnitClass::Per_Cell_Process(bool center)
 	/*
 	**	Destroy any crushable wall that is driven over by a tracked vehicle.
 	*/
-	MapCellStub* cellptr = &Map[cell];
+	CellClass* cellptr = &Map[cell];
 	if (center && Class->Speed == SPEED_TRACK && cellptr->Overlay != OVERLAY_NONE) {
 		OverlayTypeClass const * optr = &OverlayTypeClass::As_Reference(cellptr->Overlay);
 
@@ -2172,7 +2172,7 @@ bool UnitClass::Harvesting(void)
 {
 	Validate();
 	CELL	cell = Coord_Cell(Coord);
-	MapCellStub* ptr = &Map[cell];
+	CellClass* ptr = &Map[cell];
 
 	/*
 	**	Keep waiting if still heading toward a spot to harvest.
@@ -2672,7 +2672,7 @@ MoveBitType UnitClass::Blocking_Object(TechnoClass const *techno, CELL cell) con
 	** There are some extra checks we need to make if the techno is a unit
 	*/
 	bool unit = (techno->What_Am_I() == RTTI_INFANTRY || techno->What_Am_I() == RTTI_UNIT);
-	MapCellStub const* cellptr = &Map[cell];
+	CellClass const* cellptr = &Map[cell];
 
 	if (House->Is_Ally(techno)) {
 
@@ -2777,7 +2777,7 @@ MoveBitType UnitClass::Blocking_Object(TechnoClass const *techno, CELL cell) con
 MoveType UnitClass::Can_Enter_Cell(CELL cell, FacingType ) const
 {
 	Validate();
-	MapCellStub const* cellptr = &Map[cell];
+	CellClass const* cellptr = &Map[cell];
 
 	if ((unsigned)cell >= MAP_CELL_TOTAL) return(MOVE_NO);
 
@@ -3751,7 +3751,7 @@ DirType UnitClass::Desired_Load_Dir(ObjectClass * passenger, CELL & moveto) cons
 		if (passenger) {
 			value = (passenger->Can_Enter_Cell(cellnum) == MOVE_OK || Coord_Cell(passenger->Coord) == cellnum) ? 128 : -128;
 		} else {
-			MapCellStub* cell = &Map[cellnum];
+			CellClass* cell = &Map[cellnum];
 			if (Ground[cell->Land_Type()].Cost[SPEED_FOOT] == 0 || cell->Flag.Occupy.Building || cell->Flag.Occupy.Vehicle || cell->Flag.Occupy.Monolith || (cell->Flag.Composite & 0x01F) == 0x01F) {
 				value = -128;
 			} else {

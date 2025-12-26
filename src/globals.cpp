@@ -36,7 +36,6 @@
 
 #include "legacy/function.h"
 #include "legacy/mapedit.h"
-#include "legacy/map_shim.h"
 #include "legacy/windows_compat.h"
 #include "legacy/connect.h"
 #include "legacy/base.h"
@@ -281,7 +280,11 @@ ThemeClass Theme;
 /***************************************************************************
 **	This is the main control class for the map.
 */
-MapStubClass Map;
+#ifdef SCENARIO_EDITOR
+MapEditClass Map;
+#else
+MouseClass Map;
+#endif
 
 /**************************************************************************
 **	The running game score is handled by this class (and member functions).

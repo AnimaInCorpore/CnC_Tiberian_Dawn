@@ -39,7 +39,7 @@ void Explosion_Damage(COORDINATE coord, unsigned strength, TechnoClass * source,
     cell = Coord_Cell(coord);
     if ((unsigned)cell >= MAP_CELL_TOTAL) return;
 
-    MapCellStub * cellptr = &Map[cell];
+    CellClass * cellptr = &Map[cell];
     ObjectClass * impacto = cellptr->Cell_Occupier();
 
     count = 0;

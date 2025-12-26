@@ -1304,7 +1304,7 @@ bool TechnoClass::Evaluate_Cell(ThreatType method, int mask, CELL cell, int rang
 	**	Fetch the techno object from the cell. If there is no
 	**	techno object there, then bail.
 	*/
-	MapCellStub* cellptr = &Map[cell];
+	CellClass* cellptr = &Map[cell];
 	TechnoClass const * tentative = (TechnoClass const *)cellptr->Cell_Occupier();
 	while (tentative) {
 		if (tentative->Is_Techno() && !House->Is_Ally(tentative)) break;
@@ -2257,7 +2257,7 @@ ActionType TechnoClass::What_Action(ObjectClass * object) const
  *=============================================================================================*/
 ActionType TechnoClass::What_Action(CELL cell) const
 {
-        MapCellStub const* cellptr = &Map[cell];
+        CellClass const* cellptr = &Map[cell];
 	OverlayTypeClass const * optr = NULL;
 
 	bool ctrldown = Keyboard::Down(KN_LCTRL) || Keyboard::Down(KN_RCTRL);

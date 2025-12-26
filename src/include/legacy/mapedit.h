@@ -53,6 +53,7 @@
 */
 #include	"function.h"
 #include "mouse.h"
+#include "teamtype.h"
 
 /*
 ********************************** Defines **********************************

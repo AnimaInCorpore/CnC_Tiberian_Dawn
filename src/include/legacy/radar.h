@@ -106,7 +106,7 @@ class RadarClass: public DisplayClass
 		void Draw_Names(void);
 		int Is_Zoomed(void) {return IsZoomed;}
 
-	protected:
+	public:
 
 		/*
 		**	Radar map constant values.
@@ -163,7 +163,7 @@ class RadarClass: public DisplayClass
 		*/
 		static TacticalClass RadarButton;
 
-	private:
+	public:
 
 		/*
 		**	The current radar position as the upper left corner cell for the

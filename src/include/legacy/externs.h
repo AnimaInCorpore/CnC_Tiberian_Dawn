@@ -155,8 +155,13 @@ extern GameOptionsClass 		Options;
 
 extern LogicClass 				Logic;
 
-class MapStubClass;
-extern MapStubClass 				Map;
+class MapEditClass;
+#ifdef SCENARIO_EDITOR
+extern MapEditClass 				Map;
+#else
+class MouseClass;
+extern MouseClass 				Map;
+#endif
 extern ScoreClass 				Score;
 extern MonoClass 					MonoArray[MonoClass::MAX_MONO_PAGES];
 extern MixFileClass *			ScoreMix;

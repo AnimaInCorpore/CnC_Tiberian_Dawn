@@ -7,7 +7,7 @@
 #include "legacy/function.h"
 #include "legacy/goptions.h"
 #include "legacy/jshell.h"
-#include "legacy/map_shim.h"
+#include "legacy/display.h"
 #include "legacy/wwlib32.h"
 
 // Legacy functions declared here in the original file.

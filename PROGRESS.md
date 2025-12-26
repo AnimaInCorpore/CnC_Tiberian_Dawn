@@ -375,7 +375,7 @@
 | `WINSTUB` | `src/pcx_write.cpp` | Implemented PCX writer for screenshot/debug output. |
 | `GAMEDLG.CPP` | `src/gamedlg.cpp` | Ported game controls dialog processing. |
 | `LOADDLG.CPP` | `src/loaddlg.cpp` | Added load dialog class skeleton to satisfy build. |
-| `GAMEPLAY_CORE_STUB` | `src/gameplay_core_stub.cpp` | Added LogicClass debug dump stub to satisfy debug calls. |
+| `MAP.CPP` / `LOGIC.CPP` | `src/map.cpp` / `src/logic.cpp` | Restored the original map/logic runtime and removed the linked gameplay/map stub units; the global `Map` is now a real `DisplayClass` instance again. |
 | `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Added global animation helper definitions for link parity. |
 | `CRC` | `src/crc_helpers.cpp` | Added Calculate_CRC helper used by obfuscation and legacy CRC checks. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Declared Calculate_CRC helper for obfuscation and network CRC usage. |

@@ -118,6 +118,8 @@ class DisplayClass: public MapClass
 		static unsigned char RemapTables[HOUSE_COUNT][3][256];
 		static unsigned char FadingGreen[256];
 		static unsigned char FadingYellow[256];
+
+	public:
 		static unsigned char FadingRed[256];
 		static unsigned char TranslucentTable[(MAGIC_COL_COUNT+1)*256];
 		static unsigned char WhiteTranslucentTable[(1+1)*256];
@@ -153,7 +155,6 @@ class DisplayClass: public MapClass
 		virtual bool Map_Cell(CELL cell, HouseClass *house);
 		virtual CELL Click_Cell_Calc(int x, int y);
 		virtual void Help_Text(int , int =-1, int =-1, int =YELLOW, bool =false, int =0) {};
-		virtual MouseType Get_Mouse_Shape(void) const = 0;
 		virtual bool Scroll_Map(DirType facing, int & distance, bool really);
 		virtual void Refresh_Cells(CELL cell, short const *list);
 		virtual void Set_View_Dimensions(int x, int y, int width=-1, int height=-1);
@@ -188,6 +189,7 @@ class DisplayClass: public MapClass
 		short const *  Text_Overlap_List(char const * text, int x, int y, int lines = 1);
 		bool  Is_Spot_Free(COORDINATE coord) const;
 		COORDINATE  Closest_Free_Spot(COORDINATE coord, bool any=false) const;
+		void Set_Cursor(ObjectTypeClass const *object);
 		void  Sell_Mode_Control(int control);
 		void  Repair_Mode_Control(int control);
 

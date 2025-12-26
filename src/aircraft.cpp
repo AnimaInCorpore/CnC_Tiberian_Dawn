@@ -2756,7 +2756,7 @@ MoveType AircraftClass::Can_Enter_Cell(CELL cell, FacingType ) const
 	Validate();
 	if (!Map.In_Radar(cell)) return(MOVE_NO);
 
-	MapCellStub* cellptr = &Map[cell];
+		CellClass* cellptr = &Map[cell];
 
 	if (!cellptr->Cell_Occupier() ||
 		!cellptr->Cell_Occupier()->Is_Techno() ||
