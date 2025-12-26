@@ -30,7 +30,9 @@ Status: Next steps. Scope: create SDL2/SDL_net shims for video/audio/input/netwo
 
 ## Startup and main loop parity
 Status: Next steps. Scope: port `STARTUP.CPP`/`CONQUER.CPP` sequencing into `src/port_runtime.cpp`/`src/game.cpp` (heap sizing, mix/font preload, intro gating, CD/MMX probes, mouse/setup checks, DDE/network teardown) and wire the restored `src/menus.cpp` selections into the real flows (expansion/bonus dialogs, load/intro handling) instead of placeholder GameToPlay switches. Exercise the Special dialog flow end-to-end (checkbox toggles commit and return to the map) now that the stub hooks are present. Excludes rendering/audio/UI internals.
-Finish the remaining menu branches in `src/port_runtime.cpp` (expansion/bonus/load/multiplayer/intro) now that start-new-game config is wired to the main menu.
+Finish the remaining menu branches in `src/port_runtime.cpp` (expansion/bonus/load/multiplayer) now that `Start_Scenario()` is wired for “Start New Game”.
+Port the campaign “map selection” flow (`Map_Selection`) instead of ending the scenario immediately after win/lose in the SDL runtime.
+Replace the current `Force_CD_Available` always-true behavior with a real asset-availability check (and a user-visible prompt) that matches the Win95 logic.
 
 ## Rendering and UI
 Status: Next steps. Scope: finish `DisplayClass::Draw_It/AI`, map helpers in `src/display.cpp`, `GScreenClass` in `src/gscreen.cpp`, and `MapStubClass`/`MapClass` replacements (`src/map_shim.cpp`, `src/gameplay_core_stub.cpp`), plus HUD/UI widgets (Sidebar/Tab/Radio/Theme, startup options). Hook the ported credit tab (`src/credits.cpp`) back into Sidebar/Tab update loops when those UI classes move over. Excludes audio or net hooks.

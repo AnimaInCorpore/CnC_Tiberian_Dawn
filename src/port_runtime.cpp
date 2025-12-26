@@ -15,6 +15,7 @@
 #include "legacy/options.h"
 #include "legacy/wwlib32.h"
 #include "legacy/jshell.h"
+#include "legacy/msglist.h"
 #include "platform_input.h"
 #include "runtime_sdl.h"
 
@@ -181,6 +182,8 @@ void Pump_Sdl_Events() {
   }
 }
 }  // namespace
+
+extern void Keyboard_Process(KeyNumType& input);
 
 int Bound(int value, int min, int max) {
   if (value < min) return min;
@@ -476,6 +479,20 @@ int Ram_Free() { return 16 * 1024 * 1024; }
 
 void Memory_Error_Handler(void) {}
 
+bool Force_CD_Available(int cd) {
+  // The SDL port typically runs with all assets available locally (either from MIX
+  // archives on disk or via configured CD subfolders). Treat "-2" as "no CD needed"
+  // (matches the legacy convention) and accept other values for now.
+  if (cd == -2) return true;
+  return true;
+}
+
+void Map_Selection(void) {
+  // The legacy build transitions to the campaign globe or multiplayer map selection.
+  // For the current port milestone, end the scenario so we return to the main menu.
+  GameActive = false;
+}
+
 
 bool Confine_Rect(int* x, int* y, int width, int height, int max_width, int max_height) {
   if (!x || !y) return false;
@@ -569,6 +586,7 @@ bool Select_Game(bool fade) {
     return false;
   }
 
+  const bool wants_scenario = (selection == 0 || selection == 1 || selection == 2 || selection == 4);
   switch (selection) {
     case 0:  // New missions (expansion)
       Configure_New_Game_From_Menu();
@@ -601,44 +619,127 @@ bool Select_Game(bool fade) {
       return false;
   }
 
+  if (wants_scenario && !Debug_Map) {
+    if (selection == 4) {
+      CCDebugString("Load mission is not wired yet.\n");
+      return Select_Game(false);
+    }
+
+    Set_Scenario_Name(ScenarioName, Scenario, ScenPlayer, ScenDir);
+
+    Hide_Mouse();
+    Fade_Palette_To(BlackPalette, FADE_PALETTE_MEDIUM, Call_Back);
+    HiddenPage.Clear();
+    VisiblePage.Clear();
+    Show_Mouse();
+
+    CCDebugString("Starting scenario from main menu.\n");
+    if (!Start_Scenario(ScenarioName)) {
+      CCDebugString("Start_Scenario failed.\n");
+      return false;
+    }
+
+    const int factor = (SeenBuff.Get_Width() == 320) ? 1 : 2;
+    Messages.Init(Map.TacPixelX, Map.TacPixelY, 6, MAX_MESSAGE_LENGTH, 6 * factor + 1);
+
+    Set_Logic_Page(SeenBuff);
+    Map.Flag_To_Redraw(true);
+    Call_Back();
+    Map.Render();
+  }
+
   return true;
 }
 
 #include "legacy/map.h"
 
 bool Main_Loop() {
+  static auto last_frame = std::chrono::steady_clock::now();
+
   Configure_Game_Viewports();
+  Pump_Sdl_Events();
+  if (ReadyToQuit) {
+    return true;
+  }
 
   const int frame_ms = Target_Frame_Milliseconds();
 
-  while (!ReadyToQuit) {
-    const auto frame_start = std::chrono::steady_clock::now();
-    Pump_Sdl_Events();
+  if (!PlaybackGame) {
+    if (SpecialDialog == SDLG_NONE && GameInFocus) {
+      if (WWMouse) {
+        WWMouse->Erase_Mouse(&HidPage, true);
+      }
 
-    if (ReadyToQuit) {
-      break;
-    }
-
-    GadgetClass* gadgets = GScreenClass::Buttons;
-    if (gadgets) {
-      gadgets->Input();
-    }
-
-    if (SpecialDialog == SDLG_NONE) {
+      KeyNumType input = KN_NONE;
+      int x = 0;
+      int y = 0;
+      Map.Input(input, x, y);
+      if (input) {
+        Keyboard_Process(input);
+      }
       Map.Render();
     }
-
-    GScreenClass::Blit_Display();
-    ++Frame;
-
-    const auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-                                std::chrono::steady_clock::now() - frame_start)
-                                .count();
-    if (elapsed_ms < frame_ms) {
-      SDL_Delay(static_cast<Uint32>(frame_ms - elapsed_ms));
-    }
   }
-  return true;
+
+  Map.Layer[LAYER_GROUND].Sort();
+  Logic.AI();
+
+  if (Messages.Manage()) {
+    HiddenPage.Clear();
+    Map.Flag_To_Redraw(true);
+  }
+
+  Queue_AI();
+
+  Score.ElapsedTime += TIMER_SECOND / TICKS_PER_SECOND;
+  Call_Back();
+
+  if (EndCountDown) EndCountDown--;
+
+  if (PlayerWins) {
+    if (WWMouse) {
+      WWMouse->Erase_Mouse(&HidPage, true);
+    }
+    PlayerLoses = false;
+    PlayerWins = false;
+    PlayerRestarts = false;
+    Map.Help_Text(TXT_NONE);
+    Do_Win();
+  }
+
+  if (PlayerLoses) {
+    if (WWMouse) {
+      WWMouse->Erase_Mouse(&HidPage, true);
+    }
+    PlayerWins = false;
+    PlayerLoses = false;
+    PlayerRestarts = false;
+    Map.Help_Text(TXT_NONE);
+    Do_Lose();
+  }
+
+  if (PlayerRestarts) {
+    if (WWMouse) {
+      WWMouse->Erase_Mouse(&HidPage, true);
+    }
+    PlayerWins = false;
+    PlayerLoses = false;
+    PlayerRestarts = false;
+    Map.Help_Text(TXT_NONE);
+    Do_Restart();
+  }
+
+  ++Frame;
+
+  const auto now = std::chrono::steady_clock::now();
+  const auto elapsed_ms =
+      std::chrono::duration_cast<std::chrono::milliseconds>(now - last_frame).count();
+  if (elapsed_ms < frame_ms) {
+    SDL_Delay(static_cast<Uint32>(frame_ms - elapsed_ms));
+  }
+  last_frame = std::chrono::steady_clock::now();
+
+  return !GameActive;
 }
 
 bool Map_Edit_Loop() { return true; }

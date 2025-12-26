@@ -109,8 +109,8 @@ set(TD_SOURCES
   src/tdata.cpp
   src/keyframe_helpers.cpp
   src/init_helpers.cpp
-  src/scenario_helpers.cpp
-  src/ini_helpers.cpp
+  src/scenario.cpp
+  src/ini.cpp
   src/saveload_helpers.cpp
   src/conquer_helpers.cpp
   src/network_helpers.cpp

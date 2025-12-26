@@ -540,3 +540,93 @@ void Convert_HSV_To_RGB(unsigned h, unsigned s, unsigned v, unsigned* r, unsigne
 	*g = static_cast<unsigned>(std::lround(gf * 255.0f));
 	*b = static_cast<unsigned>(std::lround(bf * 255.0f));
 }
+
+void DisplayClass::Write_INI(char* buffer) {
+	char entry[20];
+
+	WWWritePrivateProfileString("MAP", "Theater", Theaters[Theater].Name, buffer);
+	WWWritePrivateProfileInt("MAP", "X", MapCellX, buffer);
+	WWWritePrivateProfileInt("MAP", "Y", MapCellY, buffer);
+	WWWritePrivateProfileInt("MAP", "Width", MapCellWidth, buffer);
+	WWWritePrivateProfileInt("MAP", "Height", MapCellHeight, buffer);
+
+	for (int i = 0; i < WAYPT_COUNT; i++) {
+		std::sprintf(entry, "%d", i);
+		WWWritePrivateProfileInt("Waypoints", entry, Waypoint[i], buffer);
+	}
+
+	WWWritePrivateProfileString("CellTriggers", nullptr, nullptr, buffer);
+
+	for (CELL cell = 0; cell < MAP_CELL_TOTAL; cell++) {
+		if ((*this)[cell].IsTrigger) {
+			TriggerClass const* trig = CellTriggers[cell];
+			std::sprintf(entry, "%d", cell);
+						if (trig) {
+							WWWritePrivateProfileString("CellTriggers", entry, trig->Get_Name(), buffer);
+						}
+		}
+	}
+}
+
+void DisplayClass::Compute_Start_Pos(void) {
+	long x = 0;
+	long y = 0;
+	long num = 0;
+
+	for (int i = 0; i < Infantry.Count(); i++) {
+		InfantryClass* infp = Infantry.Ptr(i);
+		if (!infp->IsInLimbo && infp->House == PlayerPtr) {
+			x += static_cast<long>(Coord_XCell(infp->Coord));
+			y += static_cast<long>(Coord_YCell(infp->Coord));
+			num++;
+		}
+	}
+
+	for (int i = 0; i < Units.Count(); i++) {
+		UnitClass* unitp = Units.Ptr(i);
+		if (!unitp->IsInLimbo && unitp->House == PlayerPtr) {
+			x += static_cast<long>(Coord_XCell(unitp->Coord));
+			y += static_cast<long>(Coord_YCell(unitp->Coord));
+			num++;
+		}
+	}
+
+	for (int i = 0; i < Buildings.Count(); i++) {
+		BuildingClass* bldgp = Buildings.Ptr(i);
+		if (!bldgp->IsInLimbo && bldgp->House == PlayerPtr) {
+			x += (static_cast<long>(Coord_XCell(bldgp->Coord)) << 4);
+			y += (static_cast<long>(Coord_YCell(bldgp->Coord)) << 4);
+			num += 16;
+		}
+	}
+
+	if (num > 0) {
+		x /= num;
+		y /= num;
+	} else {
+		x = 0;
+		y = 0;
+	}
+
+	x -= (Lepton_To_Cell(TacLeptonWidth) / 2);
+	y -= (Lepton_To_Cell(TacLeptonHeight) / 2);
+
+	if (x < MapCellX) {
+		x = MapCellX;
+	}
+	if (x + Lepton_To_Cell(TacLeptonWidth) > MapCellX + MapCellWidth) {
+		x = MapCellX + MapCellWidth - Lepton_To_Cell(TacLeptonWidth);
+	}
+
+	if (y < MapCellY) {
+		y = MapCellY;
+	}
+	if (y + Lepton_To_Cell(TacLeptonHeight) > MapCellY + MapCellHeight) {
+		y = MapCellY + MapCellHeight - Lepton_To_Cell(TacLeptonHeight);
+	}
+
+	Set_Tactical_Position(Cell_Coord(XY_Cell(static_cast<int>(x), static_cast<int>(y))));
+	for (int index = 0; index < static_cast<int>(sizeof(Views) / sizeof(Views[0])); index++) {
+		Views[index] = Coord_Cell(TacticalCoord);
+	}
+}

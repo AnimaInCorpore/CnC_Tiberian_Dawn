@@ -368,8 +368,8 @@
 | `KEYFRAME.CPP` | `src/keyframe_helpers.cpp` | Added uncompressed shape toggles and ported `Build_Frame` by implementing Westwood `Format80` (LCW) + `Format40` (XOR delta) decode for SHP/WSA frames. |
 | `TEXT.CPP` | `src/text.cpp` | Added Simple_Text_Print wrapper for legacy text calls. |
 | `INIT.CPP` | `src/init_helpers.cpp` | Ported Obfuscate helper for hidden option parsing. |
-| `SCENARIO.CPP` | `src/scenario_helpers.cpp` | Ported Restate_Mission dialog handler. |
-| `INI.CPP` | `src/ini_helpers.cpp` | Ported Scan_Place_Object placement helper. |
+| `SCENARIO.CPP` | `src/scenario.cpp` | Ported scenario load/start + win/lose/restart flow so the menu can launch missions. |
+| `INI.CPP` | `src/ini.cpp` | Ported scenario INI naming + parsing so `Start_Scenario()` can load mission data. |
 | `SAVELOAD.CPP` | `src/saveload_helpers.cpp` | Ported TechnoType target conversions for save/load pointer coding. |
 | `CONQUER.CPP` | `src/conquer_helpers.cpp` | Added selection helpers, radar icon builder, and keyboard handler for tactical input. |
 | `NETDLG/NULLDLG` | `src/network_helpers.cpp` | Added network disconnect/reconnect dialog helpers for queue handling. |
@@ -393,6 +393,8 @@
 | `DDE.CPP` | `src/dde.cpp` | Implemented a cross-platform DDE replacement using loopback UDP sockets (client poke + optional server bind) to preserve the legacy API surface. |
 | `PORT_STUBS.CPP` | `src/port_runtime.cpp` | Removed the duplicate `Send_Data_To_DDE_Server` stub so the CCDDE implementation is authoritative. |
 | `INTRO.CPP` (`Choose_Side`) | `src/intro_port.cpp` | Replaced the placeholder intro handler with a real side-selection dialog that sets `Whom` and `ScenPlayer` (GDI/Nod). |
+| `DISPLAY.CPP` | `src/display.cpp` | Restored `DisplayClass::Compute_Start_Pos`/`Write_INI` implementations needed by scenario INI workflows. |
+| `FUNCTION.H` | `src/include/legacy/function.h` | Declared `Invalidate_Cached_Icons` and implemented it for the SDL icon path. |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).

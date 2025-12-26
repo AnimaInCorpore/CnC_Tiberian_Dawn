@@ -14,3 +14,8 @@ void* Get_Icon_Set_Map(void const* iconset) {
 void Register_Icon_Set(void*, bool) {
   // SDL rendering does not require DirectDraw-style icon caching.
 }
+
+void Invalidate_Cached_Icons() {
+  // The original Win95 build invalidated cached icon surfaces between scenarios.
+  // The SDL renderer rebuilds icon state on demand, so nothing is required here.
+}
