@@ -382,7 +382,12 @@ void Delay(int ticks) {
 // Dialog_Box is implemented in src/dialog.cpp
 
 
-void Call_Back() {}
+void Call_Back() {
+  Pump_Sdl_Events();
+  AllSurfaces.Set_Surface_Focus(GameInFocus);
+  GScreenClass::Blit_Display();
+  SDL_Delay(1);
+}
 
 void* Add_Long_To_Pointer(void* ptr, long offset) {
   return static_cast<unsigned char*>(ptr) + offset;

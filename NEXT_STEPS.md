@@ -15,7 +15,7 @@ Remove palette/animation “fallback” code paths (e.g., `src/interpal_fallback
 Remove any remaining Win95-only `WinTimerClass` usage; the port should rely on `TimerClass`/`CountDownTimerClass` (`TickCount`, `ProcessTimer`, `FrameTimer`) for deterministic timing.
 Replace `src/include/legacy/getcd.h` placeholder with a behavior-complete port (or remove the code paths if they are truly Win95-only and replaced by canonical SDL equivalents).
 Replace `SurfaceCollectionStub` in `src/include/legacy/wwlib32.h` with a real SDL-backed surface/restore model (or an equivalent always-valid implementation) that matches Win95 lost-surface/restore semantics without silently masking failures.
-Remove remaining `src/port_runtime.cpp` placeholders that return defaults/no-ops (version/config/profile stubs, CD probing, setup/profile persistence) by porting the original implementations into the SDL runtime layer.
+Remove remaining `src/port_runtime.cpp` placeholders that return defaults/no-ops (version/config/profile stubs, CD probing, setup/profile persistence) by porting the original implementations into the SDL runtime layer (note: `Call_Back()` now pumps SDL events and presents for palette fades/modal loops).
 Implementation done!: Removed leftover linker-only stub translation units (`src/gameplay_class_stubs.cpp`, `src/linker_stubs.cpp`, `src/pointer_stubs.cpp`, `src/linker_small.cpp`) and kept `CMakeLists.txt` free of duplicate-symbol fallbacks.
 
 ## Build system and source layout
