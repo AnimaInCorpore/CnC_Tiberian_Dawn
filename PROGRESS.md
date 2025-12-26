@@ -101,11 +101,11 @@
 | `IOMAP.CPP` | `src/iomap.cpp` | Ported to src/ with pointer coding helpers for map/UI classes restored. |
 | `IOOBJ.CPP` | `src/ioobj.cpp` | Ported to src/ with object save/load pointer coding and smudge/overlay helpers restored. |
 | `IPX.CPP` | | To be ported. |
-| `IPX95.CPP` | | To be ported. |
+| `IPX95.CPP` | `src/ipx95.cpp` | Implemented the Win95 IPX95 entry points (`IPX_Send_Packet95`/`IPX_Broadcast_Packet95`/`IPX_Get_Outstanding_Buffer95`) on top of the UDP-backed `IPXConnClass`, restoring packet send/receive behavior instead of returning stub values. |
 | `IPXADDR.CPP` | | To be ported. |
 | `IPXCONN.CPP` | | To be ported. |
 | `IPXGCONN.CPP` | | To be ported. |
-| `IPXMGR.CPP` | `src/ipxmgr.cpp` | Simplified IPX manager stub retains global channel plumbing and connection bookkeeping. |
+| `IPXMGR.CPP` | `src/ipxmgr.cpp` | IPX manager now tracks send/receive counters and computes basic response-time stats from observed traffic, replacing placeholder return values while keeping the UDP transport layer. |
 | `JSHELL.CPP` | | To be ported. |
 | `KEYFRAME.CPP` | `src/keyframe_info.cpp` | Frame metadata/palette accessors ported; `Build_Frame`/LCW decode still pending. |
 | `LOADDLG.CPP` | | To be ported. |
