@@ -6,7 +6,7 @@ This repo tracks the ongoing modern port of the released Command & Conquer (Tibe
 ## Project Scope
 - Port legacy `.CPP`/`.H` files into a `src/` hierarchy that compiles with `g++`/Clang using `-std=gnu++14`.
 - Retire DOS/16-bit branches and focus every translation unit on the Win32 behavior so future SDL/Emscripten backends match the original game.
-- Replace missing third-party SDKs (DirectX 5, Greenleaf GCL, HMI SOS) with portable shims; until then, dependent subsystems remain stubbed.
+- Replace missing third-party SDKs (DirectX 5, Greenleaf GCL, HMI SOS) with portable implementations; until then, dependent subsystems remain unported/incomplete.
 - Track porting progress and header modernization in `PROGRESS.md` and `AGENTS.md`.
 
 ## Dependencies

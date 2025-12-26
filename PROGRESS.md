@@ -43,7 +43,7 @@
 | `BUILDING.CPP` | `src/building.cpp` | Ported to src/ — full building gameplay/AI/drawing logic implemented. |
 | `BULLET.CPP` | `src/bullet.cpp` | Projectile flight/fuse logic ported; keeps homing/arc/drop behaviors, shadow rendering, and explosion damage paths intact. |
 | `CARGO.CPP` | `src/cargo.cpp` | Cargo hold bookkeeping ported; attach/detach preserve the chained LIFO order, while pointer coding now relies on `src/ioobj.cpp`. |
-| `CCDDE.CPP` | `src/ccdde.cpp` | Ported as a stubbed DDE server (portable implementation). |
+| `CCDDE.CPP` | `src/ccdde.cpp` | Ported as a portable localhost UDP implementation for launcher/lobby messaging. |
 | `CCFILE.CPP` | `src/ccfile.cpp` | Mix-aware file wrapper now opens embedded mix entries (cached or on-disk) via the portable RawFile/CDFile layer. |
 | `CDATA.CPP` | `src/cdata.cpp` | Ported to src/; template type tables restored (needs icon-set map helpers and viewport stamp/scale support). |
 | `CDFILE.CPP` | `src/cdfile.cpp` | CD/file search helper now walks configured paths before falling back to direct opens. |
@@ -61,8 +61,8 @@
 | `CONTROL.CPP` | `src/control.cpp` | Control gadgets now propagate peer redraws, return KN_BUTTON IDs when triggered, and keep peers wired via a portable nullptr-safe link. |
 | `COORD.CPP` | `src/coord.cpp` | Modernized coordinate helpers; `Cardinal_To_Fixed` and `Fixed_To_Cardinal` ported from `COORDA.ASM`. |
 | `CREDITS.CPP` | `src/credits.cpp` | Credit counter now ticks toward the player's funds, plays up/down cues, and redraws the tab with resolution scaling. |
-| `CREW.CPP` | `src/crew.cpp` | Ported (minimal stub; class implemented in header). |
-| `DDE.CPP` | `src/dde.cpp` | Ported (portable stub of DDE instance class). |
+| `CREW.CPP` | `src/crew.cpp` | Ported (original translation unit is effectively empty; header-only helpers remain in `crew.h`). |
+| `DDE.CPP` | `src/dde.cpp` | Ported as a portable localhost UDP implementation that preserves the legacy API surface. |
 | `DEBUG.CPP` | `src/debug.cpp` | Partial port: `Debug_Key` and `Self_Regulate` implemented; kept feature subset for SDL input. |
 | `DESCDLG.CPP` | `src/descdlg.cpp` | Ported `DescriptionClass::Process` (dialog UI with edit control and buttons). |
 | `DIAL8.CPP` | `src/dial8.cpp` | Ported to src/ (gadget; hides/shows mouse, draws facing dial). |
@@ -70,7 +70,7 @@
 | `DISPLAY.CPP` | `src/display.cpp` | Palette tables rebuilt, fade routines wired, and display scaffolding moved to src/; pointer coding now handled in `src/iomap.cpp`. |
 | `DOOR.CPP` | `src/door.cpp` | Ported to src/ (door animation state machine; open/close logic). |
 | `DPMI.CPP` | `src/dpmi.cpp` | Ported to src/ with flat-memory `Swap()` implementation (no asm). |
-| `DRIVE.CPP` | `src/drive.cpp` | Ported to src/ with full legacy movement logic restored; Map shim call sites now rely on the stub cell type for compilation. |
+| `DRIVE.CPP` | `src/drive.cpp` | Ported to src/ with full legacy movement logic restored; Map shim call sites use the port’s compatibility layer. |
 | `ENDING.CPP` | `src/ending.cpp` | Ported: GDI/NOD ending sequences, movie playback and selection UI. |
 | `EVENT.CPP` | `src/event.cpp` | Ported event constructors and execution logic, including mission assignments, production, timing updates, and special handling. |
 | `EXPAND.CPP` | `src/expand.cpp` | Expansion detection now mirrors the original `EXPAND.DAT` probe so NEWMENU layouts gate off the real data file. |
@@ -168,7 +168,7 @@
 | `SUPER.CPP` | | To be ported. |
 | `TARCOM.CPP` | `src/tarcom.cpp` | Ported to src/; targeting/command logic restored. |
 | `TARGET.CPP` | `src/target.cpp` | Ported to src/ with target decoding helpers for units/buildings/cells. |
-| `TCPIP.CPP` | `src/tcpip.cpp` | Winsock shim stub tracks connection state, buffers, and PlanetWestwood globals. |
+| `TCPIP.CPP` | `src/tcpip.cpp` | Portable UDP-backed implementation for session messaging (PlanetWestwood globals + basic send/receive path). |
 | `TDATA.CPP` | | To be ported. |
 | `TEAM.CPP` | `src/team.cpp` | Ported to src/ with legacy team coordination logic and mission routing. |
 | `TEAMTYPE.CPP` | `src/teamtype.cpp` | Ported to src/ with team type tables, INI parsing, and mission name helpers intact. |
@@ -321,7 +321,7 @@
 | `UTRACKER.H` | `src/include/legacy/utracker.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `VISUDLG.H` | `src/include/legacy/visudlg.h` | Lowercase mirror retained for Linux-friendly includes. |
 | `WWALLOC.H` | `src/include/legacy/wwalloc.h` | Lowercase mirror retained for Linux-friendly includes. |
-| `MAP_SHIM.H` | `src/include/legacy/map_shim.h` | Map stub header updated with missing shim helpers/fields (cell effects + theater) needed by drive/overlay/terrain logic during the SDL bring-up. |
+| `MAP_SHIM.H` | `src/include/legacy/map_shim.h` | Map compatibility header updated with missing shim helpers/fields (cell effects + theater) needed by drive/overlay/terrain logic during the SDL bring-up. |
 | `MAP_SHIM.H` | `src/include/legacy/map_shim.h` | Added missing sidebar/radar shim members plus gadget helpers for the sidebar build path. |
 | `MAP_SHIM.CPP` | `src/map_shim.cpp` | Initialized radar geometry and wired shim add/remove button helpers into the shared button list. |
 | `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added `KN_TAB` and `Set_Font` helper to align sidebar/font usage with SDL key constants. |
@@ -393,6 +393,7 @@
 | `CCDDE.CPP` | `src/ccdde.cpp` | Replaced the `Send_Data_To_DDE_Server` stub with a portable UDP localhost implementation for launcher/lobby integration. |
 | `DDE.CPP` | `src/dde.cpp` | Implemented a cross-platform DDE replacement using loopback UDP sockets (client poke + optional server bind) to preserve the legacy API surface. |
 | `PORT_STUBS.CPP` | `src/port_runtime.cpp` | Removed the duplicate `Send_Data_To_DDE_Server` stub so the CCDDE implementation is authoritative. |
+| Tracking | `PROGRESS.md`, `NEXT_STEPS.md`, `README.md` | Removed stale “stubbed” wording where implementations are now present (DDE/CCDDE/TCPIP/Map shim notes) and kept follow-ups scoped to incomplete subsystems. |
 | `INTRO.CPP` (`Choose_Side`) | `src/intro_port.cpp` | Replaced the placeholder intro handler with a real side-selection dialog that sets `Whom` and `ScenPlayer` (GDI/Nod). |
 | `DISPLAY.CPP` | `src/display.cpp` | Restored `DisplayClass::Compute_Start_Pos`/`Write_INI` implementations needed by scenario INI workflows. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Declared `Invalidate_Cached_Icons` and implemented it for the SDL icon path. |

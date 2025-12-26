@@ -31,10 +31,10 @@ Status: Next steps. Scope: audio + movies are required for a “real game” exp
 ## Multiplayer and networking
 Status: Next steps. Scope: restore Win95 multiplayer flows once single-player is playable.
 - Port packet serialization and endianness helpers for the multiplayer event stream (`PACKET.CPP` → `src/packet.cpp` using `src/field.cpp`).
-- Replace remaining TCP/IP and session stubs with behavior-complete ports (timeouts, lobby dialogs, determinism checks) while keeping the UDP-backed IPX95 path (`src/tcpip.cpp`, `src/connect.cpp`).
+- Complete the remaining TCP/IP + session behavior (timeouts, lobby dialogs, determinism checks) while keeping the UDP-backed IPX95 path (`src/tcpip.cpp`, `src/connect.cpp`).
 - Keep the portable CCDDE replacement aligned with Win95 WChat expectations and document the integration knobs (`src/ccdde.cpp`, `src/dde.cpp`).
 
-## Clean-up (remove remaining stubs/fallbacks)
+## Clean-up (remove remaining fallbacks)
 Status: Next steps. Scope: eliminate “it runs but isn’t canonical” behaviors once playability is proven.
 - Remove palette/animation fallback paths and match Win95 interpolation/animation timing (`src/interpal_fallback.cpp`, `src/interpal.cpp`).
 - Replace the dummy CD probe in `src/include/legacy/getcd.h` with a real implementation (or remove the Win95-only code paths entirely if the SDL/data-dir path is canonical).
