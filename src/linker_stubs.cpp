@@ -31,7 +31,7 @@
 #include "legacy/bullet.h"
 #include "legacy/stage.h"
 #include "legacy/cargo.h"
-#include "legacy/audio_stub.h"
+#include "legacy/audio.h"
 #include "legacy/ipxmgr.h"
 #include "legacy/ipxconn.h"
 #include "legacy/ipxgconn.h"

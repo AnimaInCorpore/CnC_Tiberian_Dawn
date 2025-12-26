@@ -4,7 +4,7 @@
 #include "legacy/wwlib32.h"
 #include "legacy/msgbox.h"
 #include "legacy/msgbox.h"
-#include "legacy/audio_stub.h"
+#include "legacy/audio.h"
 #include "legacy/wwalloc.h"
 #include "legacy/error.h"
 #include "legacy/externs.h"
@@ -410,11 +410,6 @@ void __cdecl Prog_End(void) {
 		CCDebugString("C&C95 - Deleting mouse object.\n");
 		delete WWMouse;
 		WWMouse = nullptr;
-	}
-	if (WindowsTimer) {
-		CCDebugString("C&C95 - Deleting windows timer.\n");
-		delete WindowsTimer;
-		WindowsTimer = nullptr;
 	}
 
 	if (Palette) {

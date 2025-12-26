@@ -46,9 +46,9 @@ set(TD_SOURCES
   src/aircraft.cpp
   src/anim.cpp
   src/alloc.cpp
-  src/audio_stub.cpp
+  src/platform_audio_sdl.cpp
   src/audio.cpp
-  src/audio_play_stub.cpp
+  src/audio_play.cpp
   src/base.cpp
   src/bbdata.cpp
   src/bdata.cpp
@@ -122,7 +122,7 @@ set(TD_SOURCES
   src/gamedlg.cpp
   src/loaddlg.cpp
   
-  src/gadget_control_stub.cpp
+  src/gadget_control.cpp
   src/game.cpp
   src/gauge.cpp
   src/globals.cpp
@@ -134,7 +134,7 @@ set(TD_SOURCES
   src/dpmi.cpp
   src/house.cpp
   src/infantry.cpp
-  src/input_shim.cpp
+  src/keyboard_globals.cpp
   src/ipx.cpp
   src/ipx95.cpp
   src/ipxaddr.cpp
@@ -147,7 +147,7 @@ set(TD_SOURCES
   src/map.cpp
   # src/gameplay_class_stubs.cpp (excluded: duplicates real implementations)
   # src/linker_stubs.cpp (excluded: duplicates real implementations)
-  src/port_stubs.cpp
+  src/port_runtime.cpp
   src/link.cpp
   src/list.cpp
   # SDATA.CPP
@@ -158,7 +158,7 @@ set(TD_SOURCES
   src/menus.cpp
   src/mission.cpp
   src/intro_port.cpp
-  src/movie_stub.cpp
+  src/movie.cpp
   src/mixfile.cpp
 	  src/mmx.cpp
   src/monoc.cpp

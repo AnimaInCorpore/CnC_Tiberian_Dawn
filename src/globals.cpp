@@ -1009,7 +1009,6 @@ int AreThingiesEnabled = false;
 **
 */
 
-WinTimerClass	*WindowsTimer=nullptr;
 
 
 /*

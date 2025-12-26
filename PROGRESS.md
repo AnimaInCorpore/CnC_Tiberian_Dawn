@@ -36,7 +36,7 @@
 | `WWLIB32` (video/mouse/surfaces) | `src/wwlib_runtime.cpp`, `src/include/legacy/wwlib32.h` | Replaced the remaining wwlib runtime stubs with SDL-backed video mode updates, real cursor clipping, and focus/restore tracking via `AllSurfaces`. |
 | `ALLOC.CPP` | `src/alloc.cpp` | Legacy allocator collapsed onto the modern malloc-based wrapper (moved from the wwalloc port) while keeping the legacy entry points. |
 | `ANIM.CPP` | `src/anim.cpp` | Animation system moved to src/; keeps spawn/attach logic, scorch/crater side effects, and translucent draw path intact with nullptr-safe ownership handling; load/save and pointer coding now come from `src/ioobj.cpp`. |
-| `AUDIO.CPP` | `src/audio.cpp` | Ported to src/; EVA/sfx logic retained and playback decision path wired. Added minimal playback stubs (`src/audio_play_stub.cpp`) — full decoder/mixer pending. |
+| `AUDIO.CPP` | `src/audio.cpp` | Ported to src/; EVA/sfx logic retained and playback decision path wired. SDL playback backend lives in `src/audio_play.cpp` (AUD decode + mixer + theme helpers). |
 | `BASE.CPP` | `src/base.cpp` | Ported to src/, implements base list parsing, save/load and node lookup. |
 | `BBDATA.CPP` | `src/bbdata.cpp` | BulletTypeClass definitions and tables ported; shape loading now uses std::string paths and the modern file helpers. |
 | `BDATA.CPP` | `src/bdata.cpp` | Building type tables and helpers ported; loads cameos/buildup shapes via portable paths, initializes real Pointers/placement/repair logic, and sets the WEAP2 overlay hook. |
@@ -56,7 +56,7 @@
 | `CONQUER.CPP` | `src/maingame.cpp` | Main_Game loop ported from the legacy file; retains SDL_QUIT push on exit while routing through the original select/loop/dialog flow, with explicit SpecialDialog cases covered. |
 | `CONQUER.CPP` (source helpers) | `src/source_helpers.cpp` | `Source_From_Name`/`Name_From_Source` now follow the legacy lookup table instead of the placeholder mapping. |
 | `CONST.CPP` | `src/const.cpp` | Weapon/warhead tables and coordinate helpers brought over with lowercase includes and portable tables. |
-| `STARTUP.CPP` (bootstrap) | `src/port_stubs.cpp` | Init_Game/Select_Game/Main_Loop now allocate palettes/shape buffers, configure viewports, reset menu state, enable the DDE heartbeat stub, pace the frame loop using the legacy timer defaults, and apply the legacy "start new game" scenario defaults when the first menu option is chosen. |
+| `STARTUP.CPP` (bootstrap) | `src/port_runtime.cpp` | Init_Game/Select_Game/Main_Loop now allocate palettes/shape buffers, configure viewports, reset menu state, enable the DDE heartbeat stub, pace the frame loop using the legacy timer defaults, and apply the legacy "start new game" scenario defaults when the first menu option is chosen. |
 | `CONTROL.CPP` | `src/control.cpp` | Control gadgets now propagate peer redraws, return KN_BUTTON IDs when triggered, and keep peers wired via a portable nullptr-safe link. |
 | `COORD.CPP` | `src/coord.cpp` | Modernized coordinate helpers; `Cardinal_To_Fixed` and `Fixed_To_Cardinal` ported from `COORDA.ASM`. |
 | `CREDITS.CPP` | `src/credits.cpp` | Credit counter now ticks toward the player's funds, plays up/down cues, and redraws the tab with resolution scaling. |
@@ -343,11 +343,11 @@
 | `FUNCTION.H` | `src/include/legacy/function.h` | Declared Play_Sample for score audio hooks. |
 | `AUDIO.CPP` | `src/audio.cpp` | Removed duplicate default argument on Play_Sample declaration. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Added WSA animation declarations and StreamLowImpact flag used by score screens. |
-| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Ported WSA/SHP drawing entry points: `Open_Animation`/`Animate_Frame`/`Get_Animation_Frame_Count`/`Close_Animation`, `Extract_Shape_Count`, and `CC_Draw_Shape` now decode and blit frames (incl. fade/translucency tables) for score/UI flows. |
+| `PORT_STUBS.CPP` | `src/port_runtime.cpp` | Ported WSA/SHP drawing entry points: `Open_Animation`/`Animate_Frame`/`Get_Animation_Frame_Count`/`Close_Animation`, `Extract_Shape_Count`, and `CC_Draw_Shape` now decode and blit frames (incl. fade/translucency tables) for score/UI flows. |
 | `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added buffer blit/fill helpers needed by score screen drawing. |
 | `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | Implemented buffer blit/fill helpers and Check_Key shim for score loops. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Added Close_Animation/Check_Key/Extract_Shape_Count declarations for score flow. |
-| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Removed placeholder Close_Animation/Extract_Shape_Count by wiring them into the real keyframe decoder. |
+| `PORT_STUBS.CPP` | `src/port_runtime.cpp` | Removed placeholder Close_Animation/Extract_Shape_Count by wiring them into the real keyframe decoder. |
 | `SCORE.CPP` | `src/score.cpp` | Fixed palette type and loop variable scoping for modern C++ builds. |
 | `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added KN_Q/KA_TILDA constants and buffer line drawing hook. |
 | `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | Implemented buffer line drawing and Get_Key shim. |
@@ -357,7 +357,7 @@
 | `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added lock/offset and pitch helpers needed by palette interpolation. |
 | `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | Implemented buffer/view offsets plus lock helpers for interpolation paths. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Added Wait_Blit declaration for interpolation flow. |
-| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Kept `Wait_Blit` as a no-op (SDL path does not require explicit blitter waits). |
+| `PORT_STUBS.CPP` | `src/port_runtime.cpp` | Kept `Wait_Blit` as a no-op (SDL path does not require explicit blitter waits). |
 | `SMUDGE.H` | `src/include/legacy/smudge.h` | Included `wwfile.h` so FileClass I/O methods resolve. |
 | `SDATA.CPP` | `src/sdata.cpp` | Added missing legacy includes for theater/mix/map helpers used by smudge setup. |
 | `HELP.CPP` | `src/help.cpp` | Added HelpClass destructor definition to satisfy vtable linkage. |
@@ -376,7 +376,7 @@
 | `GAMEDLG.CPP` | `src/gamedlg.cpp` | Ported game controls dialog processing. |
 | `LOADDLG.CPP` | `src/loaddlg.cpp` | Added load dialog class skeleton to satisfy build. |
 | `MAP.CPP` / `LOGIC.CPP` | `src/map.cpp` / `src/logic.cpp` | Restored the original map/logic runtime and removed the linked gameplay/map stub units; the global `Map` is now a real `DisplayClass` instance again. |
-| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Added global animation helper definitions for link parity. |
+| `PORT_STUBS.CPP` | `src/port_runtime.cpp` | Added global animation helper definitions for link parity. |
 | `CRC` | `src/crc_helpers.cpp` | Added Calculate_CRC helper used by obfuscation and legacy CRC checks. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Declared Calculate_CRC helper for obfuscation and network CRC usage. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Declared Get_Shape_Header_Data helper for radar icon extraction. |
@@ -390,7 +390,7 @@
 | `BUILD FIXES` | `src/*.cpp` | Cleaned up a handful of warnings that commonly break strict builds (snprintf, signed/unsigned comparisons, missing default cases, and NULL-to-integer conversions). |
 | `CCDDE.CPP` | `src/ccdde.cpp` | Replaced the `Send_Data_To_DDE_Server` stub with a portable UDP localhost implementation for launcher/lobby integration. |
 | `DDE.CPP` | `src/dde.cpp` | Implemented a cross-platform DDE replacement using loopback UDP sockets (client poke + optional server bind) to preserve the legacy API surface. |
-| `PORT_STUBS.CPP` | `src/port_stubs.cpp` | Removed the duplicate `Send_Data_To_DDE_Server` stub so the CCDDE implementation is authoritative. |
+| `PORT_STUBS.CPP` | `src/port_runtime.cpp` | Removed the duplicate `Send_Data_To_DDE_Server` stub so the CCDDE implementation is authoritative. |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).

@@ -1,7 +1,7 @@
 /* Ported from AUDIO.CPP -- EVA and SFX control logic. */
 #include "function.h"
 
-// Playback primitives (implemented in audio_play_stub.cpp for now)
+// Playback primitives (implemented in src/audio_play.cpp for the SDL port build)
 extern int Play_Sample(void const *data, int priority, int volume, int pan);
 extern bool Is_Sample_Playing(void const *data);
 extern void Stop_Sample_Playing(void const *data);

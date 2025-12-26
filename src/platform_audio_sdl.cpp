@@ -1,4 +1,6 @@
-#include "audio_stub.h"
+// SDL2 audio device management for the portable build.
+
+#include "legacy/audio.h"
 
 #include <SDL.h>
 #include <cstdio>
@@ -6,7 +8,7 @@
 namespace {
 SDL_AudioDeviceID g_audio_device = 0;
 SDL_AudioSpec g_audio_spec{};
-}
+}  // namespace
 
 extern "C" void Audio_Mix_Callback(void* userdata, Uint8* stream, int len);
 
@@ -26,15 +28,14 @@ bool Audio_Init(void* /*window_handle*/, int rate, bool sixteen_bit, int num_cha
   desired.callback = Audio_Mix_Callback;
   desired.userdata = nullptr;
 
-  SDL_AudioDeviceID device =
-      SDL_OpenAudioDevice(nullptr, 0, &desired, &g_audio_spec, 0);
+  SDL_AudioDeviceID device = SDL_OpenAudioDevice(nullptr, 0, &desired, &g_audio_spec, 0);
   if (device == 0) {
     std::fprintf(stderr, "SDL_OpenAudioDevice failed: %s\n", SDL_GetError());
     return false;
   }
 
   g_audio_device = device;
-  SDL_PauseAudioDevice(g_audio_device, 0);  // Start playback (silence).
+  SDL_PauseAudioDevice(g_audio_device, 0);  // Start playback (silence until mixed).
   return true;
 }
 
@@ -51,3 +52,4 @@ void Sound_End() {
 SDL_AudioDeviceID Audio_Get_Device() { return g_audio_device; }
 
 SDL_AudioSpec const* Audio_Get_Spec() { return &g_audio_spec; }
+

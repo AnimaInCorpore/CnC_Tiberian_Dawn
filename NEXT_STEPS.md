@@ -6,14 +6,14 @@ Status: Next steps. Scope: remove all portability shims, linker stubs, and "fall
 Implementation done!: Replaced the dialog/background rendering stub by porting `CC_Texture_Fill` and wiring it into `Draw_Box` so green UI panels use `BTEXTURE.SHP` (no more solid-color fills in menus/dialogs).
 Remove the title-art fallback scan in `src/load_title.cpp` and restore the Win95 asset resolution/order (missing `HTITLE.PCX` should surface as an error, not silently pick another PCX/CPS).
 Replace `MapStubClass` (`src/map_shim.cpp`, `src/include/legacy/map_shim.h`) with the real map implementation so all `Map.*` calls have canonical behavior (cell lookups, redraw flags, radar, cursor, object overlap, tactical map projection).
-Replace `src/movie_stub.cpp` with real VQA playback (video timing, palette updates, input skip rules) so intro/cutscenes match Win95.
+Replace `src/movie.cpp` with real VQA playback (video timing, palette updates, input skip rules) so intro/cutscenes match Win95.
 Finish the SDL audio port by matching Win95 mixer behavior (pan law, priority/channel reservation, fades/stops, music/theme streaming) and retire the remaining “stub” naming once parity is reached.
-Audit remaining stub-only units in the build (`src/audio_play_stub.cpp`, `src/movie_stub.cpp`, and `src/port_stubs.cpp`) and either port their backing modules or remove the fallback code paths so the build fails loudly when functionality is missing.
+Audit remaining stub-only units in the build (`src/movie.cpp` and any `src/*stub*.cpp` reintroduced) and either port their backing modules or remove the fallback code paths so the build fails loudly when functionality is missing.
 Remove palette/animation “fallback” code paths (e.g., `src/interpal_fallback.cpp`) and match the Win95 palette interpolation/animation timing exactly instead of approximating when data is missing.
-Replace `src/include/legacy/wintimer_stub.h` with a real timer implementation that matches Win95 tick granularity/jitter expectations and drives all timer users (`TickCount`, `ProcessTimer`, `FrameTimer`) deterministically.
-Replace `src/include/legacy/getcd.h` and `src/include/legacy/nullmodem_stub.h` placeholders with behavior-complete ports (or remove the code paths if they are truly Win95-only and replaced by canonical SDL equivalents).
+Remove any remaining Win95-only `WinTimerClass` usage; the port should rely on `TimerClass`/`CountDownTimerClass` (`TickCount`, `ProcessTimer`, `FrameTimer`) for deterministic timing.
+Replace `src/include/legacy/getcd.h` placeholder with a behavior-complete port (or remove the code paths if they are truly Win95-only and replaced by canonical SDL equivalents).
 Replace `SurfaceCollectionStub` in `src/include/legacy/wwlib32.h` with a real SDL-backed surface/restore model (or an equivalent always-valid implementation) that matches Win95 lost-surface/restore semantics without silently masking failures.
-Remove remaining `src/port_stubs.cpp` placeholders that return defaults/no-ops (version/config/profile stubs, CD probing, setup/profile persistence) by porting the original implementations into the SDL runtime layer.
+Remove remaining `src/port_runtime.cpp` placeholders that return defaults/no-ops (version/config/profile stubs, CD probing, setup/profile persistence) by porting the original implementations into the SDL runtime layer.
 Delete any leftover linker-only stub translation units once their real counterparts are linked (e.g., `src/gameplay_*stubs*.cpp`, `src/linker_*stubs*.cpp`, `src/pointer_stubs.cpp`, `src/tiny_linker_shims.cpp`) and keep `CMakeLists.txt` free of duplicate-symbol fallbacks.
 
 ## Build system and source layout
@@ -27,8 +27,8 @@ Finish porting the remaining legacy helpers for link parity (full `CONQUER.CPP` 
 Status: Next steps. Scope: create SDL2/SDL_net shims for video/audio/input/network only; replace DirectDraw/DirectSound/DirectInput/IPX/Greenleaf entry points while keeping call signatures so upper layers stay untouched.
 
 ## Startup and main loop parity
-Status: Next steps. Scope: port `STARTUP.CPP`/`CONQUER.CPP` sequencing into `src/port_stubs.cpp`/`src/game.cpp` (heap sizing, mix/font preload, intro gating, CD/MMX probes, mouse/setup checks, DDE/network teardown) and wire the restored `src/menus.cpp` selections into the real flows (expansion/bonus dialogs, load/intro handling) instead of placeholder GameToPlay switches. Exercise the Special dialog flow end-to-end (checkbox toggles commit and return to the map) now that the stub hooks are present. Excludes rendering/audio/UI internals.
-Finish the remaining menu branches in `src/port_stubs.cpp` (expansion/bonus/load/multiplayer/intro) now that start-new-game config is wired to the main menu.
+Status: Next steps. Scope: port `STARTUP.CPP`/`CONQUER.CPP` sequencing into `src/port_runtime.cpp`/`src/game.cpp` (heap sizing, mix/font preload, intro gating, CD/MMX probes, mouse/setup checks, DDE/network teardown) and wire the restored `src/menus.cpp` selections into the real flows (expansion/bonus dialogs, load/intro handling) instead of placeholder GameToPlay switches. Exercise the Special dialog flow end-to-end (checkbox toggles commit and return to the map) now that the stub hooks are present. Excludes rendering/audio/UI internals.
+Finish the remaining menu branches in `src/port_runtime.cpp` (expansion/bonus/load/multiplayer/intro) now that start-new-game config is wired to the main menu.
 
 ## Rendering and UI
 Status: Next steps. Scope: finish `DisplayClass::Draw_It/AI`, map helpers in `src/display.cpp`, `GScreenClass` in `src/gscreen.cpp`, and `MapStubClass`/`MapClass` replacements (`src/map_shim.cpp`, `src/gameplay_core_stub.cpp`), plus HUD/UI widgets (Sidebar/Tab/Radio/Theme, startup options). Hook the ported credit tab (`src/credits.cpp`) back into Sidebar/Tab update loops when those UI classes move over. Excludes audio or net hooks.
@@ -46,8 +46,7 @@ Replace the palette interpolation fallback with the Win95-equivalent interpolati
 Wire SDL window focus events to `AllSurfaces.Set_Surface_Focus(...)` so dialogs that watch `AllSurfaces.SurfacesRestored` behave like Win95 when the window is deactivated/reactivated.
 
 ## Audio and messaging
-Status: Next steps. Scope: wire `CCMessageBox::Process` and audio entry points in `src/linker_stubs.cpp`; rebuild `src/audio_stub.cpp` to match `AUDIO.CPP` mixing/streaming via SDL with original volume/priority/voice rules. Excludes rendering or net.
-Remove `src/audio_stub.cpp`/`src/audio_play_stub.cpp` entirely by porting the original audio pipeline (decoder + mixer) and validating SFX/music parity against Win95 captures.
+Status: Next steps. Scope: finish the SDL audio port by validating SFX/music parity against Win95 captures (volume law, pan, priority/reservation, fades/stops) and removing remaining placeholder theme/music behaviors.
 Hook `OptionsClass::Set_Score_Volume` into the eventual SDL music/stream volume path so menu volume sliders affect active theme playback.
 Port `THEME.CPP` into `src/theme.cpp` so `ThemeClass::Queue_Song`/`Play_Song`/`AI` drive the real music flow instead of stubbed behavior.
 

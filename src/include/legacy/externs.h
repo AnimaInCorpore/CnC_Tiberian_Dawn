@@ -69,7 +69,7 @@ using HANDLE = void*;
 #include	"cell.h"
 #include	"getcd.h"
 #include	"nullmgr.h"
-#include	"wintimer_stub.h"
+// WinTimerClass was a Win95-only timer helper; the port uses TimerClass/CountDownTimerClass instead.
 #include	"mmx.h"
 
 #include	"techno.h"
@@ -423,7 +423,6 @@ extern WWKeyboardClass	Kbd;
 extern WWKeyboardClass* _Kbd;
 extern int In_Debugger;
 extern WWMouseClass	*WWMouse;
-extern WinTimerClass	*WindowsTimer;
 extern HANDLE hInstance;
 extern int AllDone;
 extern "C" bool MMXAvailable;

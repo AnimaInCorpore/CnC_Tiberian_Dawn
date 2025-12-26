@@ -13,7 +13,6 @@
 
 #include "ftimer.h"
 #include "windows_compat.h"
-#include "wintimer_stub.h"
 
 class BufferClass;
 class FileClass;
