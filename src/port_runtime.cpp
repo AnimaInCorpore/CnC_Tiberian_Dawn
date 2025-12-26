@@ -18,6 +18,7 @@
 #include "legacy/msglist.h"
 #include "platform_input.h"
 #include "runtime_sdl.h"
+#include "port_debug.h"
 
 #include <algorithm>
 #include <cmath>
@@ -435,6 +436,13 @@ bool Parse_Command_Line(int argc, char** argv) {
     std::transform(lower.begin(), lower.end(), lower.begin(),
                    [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
 
+    if (lower == "-d" || lower == "--debug" || lower == "--verbose" || lower == "-v") {
+      Debug_Flag = true;
+      SDL_setenv("TD_VERBOSE", "1", 1);
+      TD_Debugf("Debug mode enabled via argv: %s", arg.c_str());
+      continue;
+    }
+
     if (lower == "gdi" || lower == "-gdi" || lower == "--gdi" || lower == "--cd=gdi") {
       cd_disc = "GDI";
       continue;
@@ -448,6 +456,7 @@ bool Parse_Command_Line(int argc, char** argv) {
   if (!cd_disc.empty()) {
     CDFileClass::Set_CD_Subfolder(cd_disc.c_str());
     CCDebugString(cd_disc == "GDI" ? "Using GDI disc assets.\n" : "Using NOD disc assets.\n");
+    TD_Debugf("CD subfolder set to: %s", cd_disc.c_str());
   }
 
   return true;
@@ -554,6 +563,7 @@ void Game_Startup(void*, int, int, int, bool) {}
 bool Init_Game(int, char**) {
   static bool initialized = false;
   CCDebugString("Init_Game: initializing runtime scaffolding.\n");
+  TD_Debugf("Init_Game: begin");
 
   ReadyToQuit = false;
   AllDone = 0;
@@ -576,6 +586,7 @@ bool Init_Game(int, char**) {
   Logic.One_Time();
   Options.One_Time();
   Map.One_Time();
+  TD_Debugf("Init_Game: One_Time complete (Logic/Options/Map)");
 
   if (!initialized) {
     // Prime the palette buffers so menu fades have valid targets.
@@ -584,6 +595,7 @@ bool Init_Game(int, char**) {
     }
     initialized = true;
   }
+  TD_Debugf("Init_Game: done");
   return true;
 }
 
@@ -592,6 +604,7 @@ bool Select_Game(bool fade) {
     return false;
   }
 
+  TD_Debugf("Select_Game: enter fade=%s", fade ? "true" : "false");
   DDEServer.Enable();
   Configure_Game_Viewports();
   Reset_Game_State_For_Menu();
@@ -608,7 +621,9 @@ bool Select_Game(bool fade) {
   Keyboard::Clear();
   TickCount.Reset(0);
 
+  TD_Debugf("Select_Game: entering Main_Menu timeout=%lu", static_cast<unsigned long>(kMenuTimeoutMs));
   const int selection = Main_Menu(kMenuTimeoutMs);
+  TD_Debugf("Select_Game: Main_Menu returned selection=%d", selection);
   if (selection < 0) {
     ReadyToQuit = true;
     return false;
@@ -654,6 +669,7 @@ bool Select_Game(bool fade) {
     }
 
     Set_Scenario_Name(ScenarioName, Scenario, ScenPlayer, ScenDir);
+    TD_Debugf("Select_Game: scenario root computed: %s", ScenarioName);
 
     Hide_Mouse();
     Fade_Palette_To(BlackPalette, FADE_PALETTE_MEDIUM, Call_Back);
@@ -662,10 +678,13 @@ bool Select_Game(bool fade) {
     Show_Mouse();
 
     CCDebugString("Starting scenario from main menu.\n");
+    TD_Debugf("Select_Game: calling Start_Scenario(%s)", ScenarioName);
     if (!Start_Scenario(ScenarioName)) {
       CCDebugString("Start_Scenario failed.\n");
+      TD_Debugf("Select_Game: Start_Scenario returned failure");
       return false;
     }
+    TD_Debugf("Select_Game: Start_Scenario returned success");
 
     const int factor = (SeenBuff.Get_Width() == 320) ? 1 : 2;
     Messages.Init(Map.TacPixelX, Map.TacPixelY, 6, MAX_MESSAGE_LENGTH, 6 * factor + 1);

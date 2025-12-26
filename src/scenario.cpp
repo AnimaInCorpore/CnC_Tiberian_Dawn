@@ -47,6 +47,7 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #include "legacy/function.h"
+#include "port_debug.h"
 
 #include "legacy/base.h"
 extern int PreserveVQAScreen;
@@ -72,6 +73,12 @@ extern int PreserveVQAScreen;
  *=============================================================================================*/
 bool Start_Scenario(char *root, bool briefing)
 {
+	TD_Debugf("Start_Scenario: root=%s briefing=%s Scenario=%d ScenPlayer=%d Whom=%d",
+	          root ? root : "(null)",
+	          briefing ? "true" : "false",
+	          Scenario,
+	          static_cast<int>(ScenPlayer),
+	          static_cast<int>(Whom));
 
 	if (!Read_Scenario(root)) {
 		CCDebugString ("C&C95 - Failed to read scenario.\n");

@@ -11,6 +11,7 @@
 #include "legacy/mixfile.h"
 #include "legacy/ccfile.h"
 #include "legacy/defines.h"
+#include "port_debug.h"
 
 #include <array>
 #include <cctype>
@@ -291,6 +292,7 @@ namespace {
 
 void Game_Startup(int argc, char* argv[]) {
 	CCDebugString("C&C95 - Starting up.\n");
+	TD_Debugf("Game_Startup: argc=%d", argc);
 
 	if (Ram_Free() < 5000000) {
 		std::fprintf(stderr, "Insufficient RAM available.\n");
@@ -303,6 +305,7 @@ void Game_Startup(int argc, char* argv[]) {
 		Kbd.Get();
 		return;
 	}
+	TD_Debugf("Game_Startup: Parse_Command_Line complete (Debug_Flag=%s)", Debug_Flag ? "true" : "false");
 
 	RawFileClass cfile("CONQUER.INI");
 
@@ -320,7 +323,11 @@ void Game_Startup(int argc, char* argv[]) {
 	}
 
 	CDFileClass::Set_CD_Drive(CDList.Get_First_CD_Drive());
+	TD_Debugf("Game_Startup: CD drive=%d subfolder=%s",
+	          CDFileClass::Get_CD_Drive(),
+	          CDFileClass::Get_CD_Subfolder() ? CDFileClass::Get_CD_Subfolder() : "(null)");
     Initialize_Font_Resources();
+	TD_Debugf("Game_Startup: font resources initialized");
 
 	if (cfile.Is_Available()) {
 		char* cdata = static_cast<char*>(Load_Alloc_Data(cfile));
@@ -332,6 +339,7 @@ void Game_Startup(int argc, char* argv[]) {
 
 		CCDebugString("C&C95 - Initialising audio.\n");
 		SoundOn = Audio_Init(nullptr, 16, false, 11025 * 2, 0);
+		TD_Debugf("Game_Startup: Audio_Init returned SoundOn=%s", SoundOn ? "true" : "false");
 
 		Palette = new unsigned char[768];
 

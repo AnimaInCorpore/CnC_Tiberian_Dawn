@@ -399,6 +399,7 @@
 | `FUNCTION.H` | `src/include/legacy/function.h` | Declared `Invalidate_Cached_Icons` and implemented it for the SDL icon path. |
 | `MPLAYER.CPP` (`Surrender_Dialog`) | `src/port_runtime.cpp` | Ported the in-game surrender confirmation dialog (OK/Cancel) and removed the unconditional “accept” stub. |
 | `WWALLOC` (`Ram_Free`/`Heap_Size`) | `src/alloc.cpp` | Removed placeholder “infinite RAM” return; allocations are now tracked with a size header and `Ram_Free` reports remaining bytes based on `SDL_GetSystemRAM()`. |
+| `DEBUG/STARTUP` | `src/port_debug.h` | Added verbose startup tracing gated by `TD_VERBOSE=1` / `--verbose` / `--debug`, including SDL video/render driver selection and scenario start progress logs. |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).
