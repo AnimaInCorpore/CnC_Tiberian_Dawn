@@ -397,6 +397,8 @@
 | `INTRO.CPP` (`Choose_Side`) | `src/intro_port.cpp` | Replaced the placeholder intro handler with a real side-selection dialog that sets `Whom` and `ScenPlayer` (GDI/Nod). |
 | `DISPLAY.CPP` | `src/display.cpp` | Restored `DisplayClass::Compute_Start_Pos`/`Write_INI` implementations needed by scenario INI workflows. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Declared `Invalidate_Cached_Icons` and implemented it for the SDL icon path. |
+| `MPLAYER.CPP` (`Surrender_Dialog`) | `src/port_runtime.cpp` | Ported the in-game surrender confirmation dialog (OK/Cancel) and removed the unconditional “accept” stub. |
+| `WWALLOC` (`Ram_Free`/`Heap_Size`) | `src/alloc.cpp` | Removed placeholder “infinite RAM” return; allocations are now tracked with a size header and `Ram_Free` reports remaining bytes based on `SDL_GetSystemRAM()`. |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).

@@ -786,8 +786,126 @@ void Shutdown_Network() {
 }
 
 int Surrender_Dialog() {
-  CCDebugString("Surrender requested; defaulting to acceptance.\n");
-  return 1;
+  int factor = (SeenBuff.Get_Width() == 320) ? 1 : 2;
+
+  int d_dialog_w = 170 * factor;
+  int d_dialog_h = 53 * factor;
+  int d_dialog_x = ((320 * factor - d_dialog_w) / 2);
+  int d_dialog_y = ((200 * factor - d_dialog_h) / 2);
+  int d_dialog_cx = d_dialog_x + (d_dialog_w / 2);
+
+  int d_margin = 5 * factor;
+  int d_topmargin = 20 * factor;
+
+  int d_ok_w = 45 * factor;
+  int d_ok_h = 9 * factor;
+  int d_ok_x = d_dialog_cx - d_ok_w - 5 * factor;
+  int d_ok_y = d_dialog_y + d_dialog_h - d_ok_h - d_margin;
+
+  int d_cancel_w = 45 * factor;
+  int d_cancel_h = 9 * factor;
+  int d_cancel_x = d_dialog_cx + 5 * factor;
+  int d_cancel_y = d_dialog_y + d_dialog_h - d_cancel_h - d_margin;
+
+  enum { BUTTON_OK = 100, BUTTON_CANCEL };
+
+  typedef enum {
+    REDRAW_NONE = 0,
+    REDRAW_BUTTONS,
+    REDRAW_BACKGROUND,
+    REDRAW_ALL = REDRAW_BACKGROUND
+  } RedrawType;
+
+  RedrawType display;
+  bool process;
+  KeyNumType input;
+  int retcode;
+
+  ControlClass* commands = nullptr;
+
+  TextButtonClass okbtn(
+      BUTTON_OK,
+      TXT_OK,
+      TPF_CENTER | TPF_6PT_GRAD | TPF_USE_GRAD_PAL | TPF_NOSHADOW,
+      d_ok_x,
+      d_ok_y,
+      d_ok_w,
+      d_ok_h);
+
+  TextButtonClass cancelbtn(
+      BUTTON_CANCEL,
+      TXT_CANCEL,
+      TPF_CENTER | TPF_6PT_GRAD | TPF_USE_GRAD_PAL | TPF_NOSHADOW,
+      d_cancel_x,
+      d_cancel_y,
+      d_cancel_w,
+      d_cancel_h);
+
+  Set_Logic_Page(SeenBuff);
+
+  commands = &okbtn;
+  cancelbtn.Add_Tail(*commands);
+
+  display = REDRAW_ALL;
+  process = true;
+  while (process) {
+    if (AllSurfaces.SurfacesRestored) {
+      AllSurfaces.SurfacesRestored = FALSE;
+      display = REDRAW_ALL;
+    }
+
+    if (Main_Loop()) {
+      retcode = 0;
+      process = false;
+    }
+
+    if (display) {
+      Hide_Mouse();
+      if (display >= REDRAW_BACKGROUND) {
+        Dialog_Box(d_dialog_x, d_dialog_y, d_dialog_w, d_dialog_h);
+        Draw_Caption(TXT_NONE, d_dialog_x, d_dialog_y, d_dialog_w);
+
+        Fancy_Text_Print(Text_String(TXT_SURRENDER),
+                         d_dialog_cx,
+                         d_dialog_y + d_topmargin,
+                         CC_GREEN,
+                         TBLACK,
+                         TPF_CENTER | TPF_6PT_GRAD | TPF_USE_GRAD_PAL |
+                             TPF_NOSHADOW);
+      }
+
+      if (display >= REDRAW_BUTTONS) {
+        commands->Flag_List_To_Redraw();
+      }
+      Show_Mouse();
+      display = REDRAW_NONE;
+    }
+
+    input = commands->Input();
+
+    switch (input) {
+      case (KN_RETURN):
+      case (BUTTON_OK | KN_BUTTON):
+        retcode = 1;
+        process = false;
+        break;
+
+      case (KN_ESC):
+      case (BUTTON_CANCEL | KN_BUTTON):
+        retcode = 0;
+        process = false;
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  HiddenPage.Clear();
+  Map.Flag_To_Redraw(true);
+  Map.Render();
+
+  return retcode;
 }
 
 void Free_Scenario_Descriptions() {}

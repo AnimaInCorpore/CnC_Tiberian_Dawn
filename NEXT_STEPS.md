@@ -14,7 +14,7 @@ Status: Next steps. Scope: make the above definition true before chasing deep pa
 - Add a deterministic data-root selection: accept a `--data-dir` (or env var) so users don’t need the repo-local `CD/...` layout; fail fast with a clear error when required assets are missing (`src/game.cpp`, `src/cdfile.cpp`).
 - Replace the “scenario 1 always” menu path with canonical scenario selection/progression: replicate Win95 `Select_Game()` behavior (new game/campaign progression, bonus/expansion routing, load mission entry point) (`src/port_runtime.cpp`).
 - Tighten SDL main-loop timing so game speed and timers behave consistently: drive `TickCount`/`ProcessTimer`/`FrameTimer` from real elapsed time (and handle pause/focus) instead of relying on a fixed-step `SDL_Delay` approximation (`src/port_runtime.cpp`, `src/wwlib_runtime.cpp`).
-- Replace the “must not be stubbed during play” dialogs: implement surrender/options flows invoked from the in-game UI (current `Surrender_Dialog()` is a hardcoded accept) (`src/port_runtime.cpp`).
+- Replace the “must not be stubbed during play” dialogs: implement remaining options flows invoked from the in-game UI (`src/port_runtime.cpp`).
 
 ## Save/load and profile persistence
 Status: Next steps. Scope: allow a normal play session to be resumed and options to persist.
