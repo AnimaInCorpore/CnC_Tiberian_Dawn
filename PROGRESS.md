@@ -404,6 +404,10 @@
 | `WWALLOC` (`Ram_Free`/`Heap_Size`) | `src/alloc.cpp` | Removed placeholder “infinite RAM” return; allocations are now tracked with a size header and `Ram_Free` reports remaining bytes based on `SDL_GetSystemRAM()`. |
 | `DEBUG/STARTUP` | `src/port_debug.h` | Added verbose startup tracing gated by `TD_VERBOSE=1` / `--verbose` / `--debug`, including SDL video/render driver selection and scenario start progress logs. |
 | `SCENARIO/INI TRACE` | `src/scenario.cpp`, `src/ini.cpp` | Added verbose tracing around `Clear_Scenario()` and `Read_Scenario_Ini()` (file availability/size/read) to pinpoint hangs during scenario load. |
+| `MIXFILE/ASSETS` | `src/mixfile.cpp` | Fixed XCC name-table mapping to use the original on-disk subblock order (sorted CRC table is now kept only for lookups), restoring correct asset retrieval for some CD data sets. |
+| `AUDIO/SDL` | `src/include/legacy/audio.h`, `src/platform_audio_sdl.cpp` | Corrected the legacy `Audio_Init` parameter meaning (bits/stereo/rate/buffer) and allow SDL to negotiate spec changes, fixing “Unsupported number of audio channels” on startup. |
+| `TEXT/FONTS` | `src/text.cpp`, `src/game.cpp` | Stopped treating gradient palette/table resources as glyph fonts (6pt + green12) and adjusted score font selection to use the real glyph font. |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).
+- Implement gradient palette/blend-table support for `TPF_USE_GRAD_PAL` in the SDL text renderer (use `GRAD6FNT.FNT` / `12GRNGRD.FNT` as references) so UI text matches Win95 shading.

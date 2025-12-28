@@ -12,7 +12,7 @@ SDL_AudioSpec g_audio_spec{};
 
 extern "C" void Audio_Mix_Callback(void* userdata, Uint8* stream, int len);
 
-bool Audio_Init(void* /*window_handle*/, int rate, bool sixteen_bit, int num_channels, int audio_buffer_size) {
+bool Audio_Init(void* /*window_handle*/, int bits_per_sample, bool stereo, int sample_rate_hz, int buffer_samples) {
   if (SDL_WasInit(SDL_INIT_AUDIO) == 0) {
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
       std::fprintf(stderr, "SDL_InitSubSystem(SDL_INIT_AUDIO) failed: %s\n", SDL_GetError());
@@ -21,14 +21,17 @@ bool Audio_Init(void* /*window_handle*/, int rate, bool sixteen_bit, int num_cha
   }
 
   SDL_AudioSpec desired{};
-  desired.freq = rate > 0 ? rate : 44100;
-  desired.format = sixteen_bit ? AUDIO_S16SYS : AUDIO_U8;
-  desired.channels = num_channels > 0 ? static_cast<Uint8>(num_channels) : 2;
-  desired.samples = audio_buffer_size > 0 ? static_cast<Uint16>(audio_buffer_size) : 2048;
+  desired.freq = sample_rate_hz > 0 ? sample_rate_hz : 22050;
+  desired.format = (bits_per_sample >= 16) ? AUDIO_S16SYS : AUDIO_U8;
+  desired.channels = stereo ? 2 : 1;
+  desired.samples = buffer_samples > 0 ? static_cast<Uint16>(buffer_samples) : 2048;
   desired.callback = Audio_Mix_Callback;
   desired.userdata = nullptr;
 
-  SDL_AudioDeviceID device = SDL_OpenAudioDevice(nullptr, 0, &desired, &g_audio_spec, 0);
+  SDL_AudioDeviceID device = SDL_OpenAudioDevice(
+      nullptr, 0, &desired, &g_audio_spec,
+      SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_FORMAT_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE |
+          SDL_AUDIO_ALLOW_SAMPLES_CHANGE);
   if (device == 0) {
     std::fprintf(stderr, "SDL_OpenAudioDevice failed: %s\n", SDL_GetError());
     return false;
@@ -52,4 +55,3 @@ void Sound_End() {
 SDL_AudioDeviceID Audio_Get_Device() { return g_audio_device; }
 
 SDL_AudioSpec const* Audio_Get_Spec() { return &g_audio_spec; }
-

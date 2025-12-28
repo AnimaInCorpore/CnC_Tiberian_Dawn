@@ -339,7 +339,8 @@ namespace {
         FontLEDPtr = Load_Font_File("LED.FNT", 11, 10);
         VCRFontPtr = Load_Font_File("VCR.FNT", 16, 16);
         GradFont6Ptr = Load_Font_File("GRAD6FNT.FNT", 11, 10);
-        ScoreFontPtr = Green12GradFontPtr ? Green12GradFontPtr : Load_Font_File("12GRNGRD.FNT", 16, 16);
+        // Score screen uses the large green font; the gradient resources are palette/tables, not glyph data.
+        ScoreFontPtr = Green12FontPtr ? Green12FontPtr : FontPtr;
     }
 
     void Clear_Pages() {
@@ -404,6 +405,7 @@ void Game_Startup(int argc, char* argv[]) {
 		Read_Setup_Options(&cfile);
 
 		CCDebugString("C&C95 - Initialising audio.\n");
+		// Legacy uses 16-bit mono at 22.05 kHz by default.
 		SoundOn = Audio_Init(nullptr, 16, false, 11025 * 2, 0);
 		TD_Debugf("Game_Startup: Audio_Init returned SoundOn=%s", SoundOn ? "true" : "false");
 

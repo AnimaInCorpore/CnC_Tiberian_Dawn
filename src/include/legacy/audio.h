@@ -7,11 +7,13 @@
 #include <SDL.h>
 #endif
 
-bool Audio_Init(void* window_handle, int rate, bool sixteen_bit, int num_channels, int audio_buffer_size);
+// Mirrors the legacy Win95 startup call shape:
+//   Audio_Init(hwnd, 16, false, 11025 * 2, 0);
+// Meaning: bits-per-sample, stereo flag, sample rate in Hz, and buffer size hint.
+bool Audio_Init(void* window_handle, int bits_per_sample, bool stereo, int sample_rate_hz, int buffer_samples);
 void Sound_End();
 
 #if defined(TD_PORT_USE_SDL2)
 SDL_AudioDeviceID Audio_Get_Device();
 SDL_AudioSpec const* Audio_Get_Spec();
 #endif
-

@@ -217,6 +217,17 @@ void MixFileClass::Load_Xcc_Name_Table() {
     return;
   }
 
+  // Read the original subblock order from disk. We sort Buffer for fast CRC lookups, but the optional
+  // XCC name table (when present) lists names in the original on-disk subblock order.
+  std::vector<SubBlock> original_blocks;
+  original_blocks.resize(static_cast<std::size_t>(Count));
+  file.Seek(sizeof(FileHeader), SEEK_SET);
+  const long blocks_read = file.Read(original_blocks.data(), static_cast<long>(original_blocks.size() * sizeof(SubBlock)));
+  if (blocks_read != static_cast<long>(original_blocks.size() * sizeof(SubBlock))) {
+    file.Close();
+    return;
+  }
+
   const long table_bytes =
       static_cast<long>(sizeof(SubBlock)) * Count + static_cast<long>(sizeof(FileHeader));
   for (int i = 0; i < Count; ++i) {
@@ -263,7 +274,7 @@ void MixFileClass::Load_Xcc_Name_Table() {
     if (names.size() == static_cast<std::size_t>(Count)) {
       NameToCrc.clear();
       for (std::size_t idx = 0; idx < names.size(); ++idx) {
-        NameToCrc[Upper_Name(names[idx].c_str())] = Buffer[idx].CRC;
+        NameToCrc[Upper_Name(names[idx].c_str())] = original_blocks[idx].CRC;
       }
       break;
     }

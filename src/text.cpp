@@ -122,13 +122,15 @@ const void* Font_For_Type(TextPrintType type) {
     case TPF_VCR:
       return VCRFontPtr ? VCRFontPtr : FontPtr;
     case TPF_6PT_GRAD:
-      return GradFont6Ptr ? GradFont6Ptr : Font6Ptr;
+      // Gradient rendering uses the normal 6 point font with a separate palette table.
+      return Font6Ptr ? Font6Ptr : FontPtr;
     case TPF_MAP:
       return MapFontPtr ? MapFontPtr : Font6Ptr;
     case TPF_GREEN12:
       return Green12FontPtr ? Green12FontPtr : FontPtr;
     case TPF_GREEN12_GRAD:
-      return Green12GradFontPtr ? Green12GradFontPtr : FontPtr;
+      // "Graduated" green uses the standard 12-point glyphs; gradient handling is palette-driven.
+      return Green12FontPtr ? Green12FontPtr : FontPtr;
     case TPF_LASTPOINT:
     default:
       return FontPtr;
@@ -170,63 +172,53 @@ bool Parse_Font(const void* font_ptr, ParsedFont* out) {
   if (header->length == 0 || header->length > kMaxFontBytes) {
     return false;
   }
-  const std::uint16_t offsets[] = {header->info_offset,   header->offset_offset, header->width_offset,
-                                   header->data_offset,   header->height_offset, header->length};
-  auto monotonic = [](const std::uint16_t* arr, std::size_t n) {
-    for (std::size_t i = 1; i < n; ++i) {
-      if (arr[i] <= arr[i - 1]) return false;
-    }
-    return true;
-  };
-  if (!monotonic(offsets, 5)) {
-    return false;
+  const std::uint16_t length = header->length;
+
+  // Tiberian Dawn ships a few slightly different font layouts; validate the required table offsets
+  // but tolerate missing per-glyph height tables.
+  const std::uint16_t required[] = {header->info_offset, header->offset_offset, header->width_offset, header->data_offset};
+  for (std::uint16_t off : required) {
+    if (off == 0 || off >= length) return false;
   }
-  for (std::size_t i = 0; i < 5; ++i) {
-    if (offsets[i] == 0 || offsets[i] >= kMaxFontBytes) {
-      return false;
-    }
+  if (!(header->info_offset < header->offset_offset && header->offset_offset < header->width_offset &&
+        header->width_offset < header->data_offset)) {
+    return false;
   }
 
   const std::size_t offset_bytes =
       static_cast<std::size_t>(header->width_offset) - static_cast<std::size_t>(header->offset_offset);
-  if (offset_bytes == 0 || (offset_bytes % sizeof(std::uint16_t)) != 0) {
-    return false;
-  }
-  const std::size_t glyph_count = offset_bytes / sizeof(std::uint16_t);
+  if (offset_bytes == 0 || (offset_bytes % sizeof(std::uint16_t)) != 0) return false;
+  const std::size_t offset_count = offset_bytes / sizeof(std::uint16_t);
+
   const std::size_t width_bytes =
       static_cast<std::size_t>(header->data_offset) - static_cast<std::size_t>(header->width_offset);
-  if (width_bytes != glyph_count) {
-    return false;
-  }
-  if (header->height_offset < header->data_offset) {
-    return false;
-  }
-  const std::size_t height_bytes =
-      static_cast<std::size_t>(header->length) - static_cast<std::size_t>(header->height_offset);
-  if (height_bytes / 2 < glyph_count) {
-    return false;
-  }
+  if (width_bytes == 0) return false;
+
+  std::size_t glyph_count = std::min(offset_count, width_bytes);
 
   const unsigned char* info_block = base + header->info_offset;
   const int max_height = info_block[4];
   const int max_width = info_block[5];
-  if (max_height <= 0 || max_height > 64 || max_width <= 0 || max_width > 64) {
-    return false;
+  if (max_height <= 0 || max_height > 64 || max_width <= 0 || max_width > 64) return false;
+
+  const std::uint16_t* offset_block = reinterpret_cast<const std::uint16_t*>(base + header->offset_offset);
+  for (std::size_t i = 0; i < glyph_count; ++i) {
+    if (offset_block[i] >= length) return false;
   }
 
-  const std::uint16_t* offset_block =
-      reinterpret_cast<const std::uint16_t*>(base + header->offset_offset);
-  for (std::size_t i = 0; i < glyph_count; ++i) {
-    if (offset_block[i] >= header->length) {
-      return false;
-    }
+  const unsigned char* heights = nullptr;
+  if (header->height_offset != 0 && header->height_offset > header->data_offset && header->height_offset < length) {
+    const std::size_t height_bytes = static_cast<std::size_t>(length) - static_cast<std::size_t>(header->height_offset);
+    const std::size_t height_glyphs = height_bytes / 2;
+    glyph_count = std::min(glyph_count, height_glyphs);
+    heights = base + header->height_offset;
   }
 
   ParsedFont parsed{};
   parsed.base = base;
   parsed.offsets = offset_block;
   parsed.widths = base + header->width_offset;
-  parsed.heights = base + header->height_offset;
+  parsed.heights = heights;
   parsed.length = header->length;
   parsed.glyph_count = glyph_count;
   parsed.max_height = max_height;
@@ -288,13 +280,21 @@ void Draw_Glyph(char ch, int x, int y, unsigned fore, unsigned back, bool fill_b
   const unsigned idx = static_cast<unsigned char>(ch);
   if (idx >= g_current_font.glyph_count) return;
   const int width = std::max(1, static_cast<int>(g_current_font.widths[idx]));
-  const int top_blank = g_current_font.heights[idx * 2];
-  const int data_height = g_current_font.heights[idx * 2 + 1];
+  const int top_blank = g_current_font.heights ? g_current_font.heights[idx * 2] : 0;
+  int data_height = g_current_font.heights ? g_current_font.heights[idx * 2 + 1] : g_current_font.max_height;
   const int max_height = g_current_font.max_height;
   const std::uint16_t glyph_offset = g_current_font.offsets[idx];
   if (glyph_offset >= g_current_font.length) return;
   const unsigned char* glyph = g_current_font.base + glyph_offset;
   const int bytes_per_row = (width + 1) / 2;
+  if (bytes_per_row <= 0) return;
+  const std::size_t glyph_bytes = static_cast<std::size_t>(bytes_per_row) * static_cast<std::size_t>(std::max(0, data_height));
+  if (static_cast<std::size_t>(glyph_offset) + glyph_bytes > g_current_font.length) {
+    const std::size_t available =
+        g_current_font.length > glyph_offset ? (g_current_font.length - static_cast<std::size_t>(glyph_offset)) : 0;
+    const std::size_t rows = available / static_cast<std::size_t>(bytes_per_row);
+    data_height = static_cast<int>(std::min<std::size_t>(rows, static_cast<std::size_t>(max_height)));
+  }
 
   int dest_y = y;
   if (fill_background && top_blank > 0) {
