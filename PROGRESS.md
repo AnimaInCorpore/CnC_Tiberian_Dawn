@@ -46,9 +46,8 @@
 | `CCDDE.CPP` | `src/ccdde.cpp` | Ported as a portable localhost UDP implementation for launcher/lobby messaging. |
 | `CCFILE.CPP` | `src/ccfile.cpp` | Mix-aware file wrapper now streams embedded MIX entries from disk (no implicit full-MIX caching), matching the legacy “seek into container” behavior and avoiding huge `MOVIES.MIX` allocations. |
 | `CDATA.CPP` | `src/cdata.cpp` | Ported to src/; template type tables restored (needs icon-set map helpers and viewport stamp/scale support). |
-| `CDFILE.CPP` | `src/cdfile.cpp` | CD/file search helper now supports an optional data-root, preserves search order, and restores the original filename before falling back to a direct open. |
-| `CDFILE.H` | `src/include/legacy/cdfile.h` | Added `Set_Data_Root`/`Get_Data_Root` to drive the SDL port’s data-dir selection without depending on a repo-local `CD/...` layout. |
-| `GAME.CPP` | `src/game.cpp` | Mix bootstrap now honors the configured data-root and registers scenario/theater/audio/movie archives (plus scans `SC*.MIX`) so missions can load from stock game installs. |
+| `CDFILE.CPP` | `src/cdfile.cpp` | CD/file search helper now preserves search order, restores the original filename before falling back to a direct open, and uses the repo-local `CD/...` asset mirror. |
+| `GAME.CPP` | `src/game.cpp` | Mix bootstrap registers scenario/theater/audio/movie archives (plus scans `SC*.MIX`) from the repo-local `CD/...` mirrors so missions can load. |
 | `CELL.CPP` | `src/cell.cpp` | Partial port: core helpers implemented (constructor, lookup, redraw). |
 | `COMBAT.CPP` | `src/combat.cpp` | Ported: `Modify_Damage` and `Explosion_Damage` implemented. |
 | `COMBUF.CPP` | `src/combuf.cpp` | Ported core queue operations and timing helpers. |
@@ -60,7 +59,7 @@
 | `CONST.CPP` | `src/const.cpp` | Weapon/warhead tables and coordinate helpers brought over with lowercase includes and portable tables. |
 | `STARTUP.CPP` (bootstrap) | `src/port_runtime.cpp` | Init_Game/Select_Game/Main_Loop now allocate palettes/shape buffers, configure viewports, reset menu state, enable the DDE heartbeat stub, pace the frame loop using the legacy timer defaults, apply the legacy "start new game" scenario defaults when the first menu option is chosen, and make `Call_Back()` service SDL events + focus restore + blit/present for fades and modal UI loops. |
 | `STARTUP.CPP` (bootstrap) | `src/port_runtime.cpp` | Initialized the global fixed heaps (`Units`, `Buildings`, `TeamTypes`, etc.) via `Set_Heap()` in `Init_Game()` so scenario loads can allocate objects (fixes crash in `TeamTypeClass::Init()` during `Clear_Scenario()`). |
-| `STARTUP.CPP` (bootstrap) | `src/port_runtime.cpp` | Added `--data-dir`/`TD_DATA_DIR` support (via `Parse_Command_Line`) and fail-fast asset validation in `Init_Game()` with a clear stderr message when the data dir is missing/invalid. |
+| `STARTUP.CPP` (bootstrap) | `src/port_runtime.cpp` | Added fail-fast asset validation in `Init_Game()` with a clear stderr message when the repo-local `CD/...` asset mirror is missing. |
 | `CONTROL.CPP` | `src/control.cpp` | Control gadgets now propagate peer redraws, return KN_BUTTON IDs when triggered, and keep peers wired via a portable nullptr-safe link. |
 | `COORD.CPP` | `src/coord.cpp` | Modernized coordinate helpers; `Cardinal_To_Fixed` and `Fixed_To_Cardinal` ported from `COORDA.ASM`. |
 | `CREDITS.CPP` | `src/credits.cpp` | Credit counter now ticks toward the player's funds, plays up/down cues, and redraws the tab with resolution scaling. |

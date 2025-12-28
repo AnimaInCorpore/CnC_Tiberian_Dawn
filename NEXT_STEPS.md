@@ -10,8 +10,8 @@ Status: Definition. Scope: the SDL build should let a user boot to the main menu
 
 ## Playable single-player (critical path)
 Status: Next steps. Scope: make the above definition true before chasing deep parity details.
-- Implementation done!: MIX bootstrap registers scenario/theater/audio/movie archives (incl. `SC*.MIX`, `TEMPERAT.MIX`, `SOUNDS.MIX`, `AUD.MIX`, `SCORES.MIX`, `MOVIES.MIX`) using the configured data-root (`src/game.cpp`, `src/load_title.cpp`).
-- Implementation done!: Deterministic data-root selection via `--data-dir`/`TD_DATA_DIR` plus fail-fast startup validation when required assets are missing (`src/port_runtime.cpp`, `src/cdfile.cpp`).
+ - Implementation done!: MIX bootstrap registers scenario/theater/audio/movie archives (incl. `SC*.MIX`, `TEMPERAT.MIX`, `SOUNDS.MIX`, `AUD.MIX`, `SCORES.MIX`, `MOVIES.MIX`) from the repo-local `CD/...` mirrors (`src/game.cpp`, `src/load_title.cpp`).
+- Implementation done!: Fail-fast startup validation when the required repo-local `CD/...` asset mirror is missing (`src/port_runtime.cpp`, `src/cdfile.cpp`).
 - Replace the “scenario 1 always” menu path with canonical scenario selection/progression: replicate Win95 `Select_Game()` behavior (new game/campaign progression, bonus/expansion routing, load mission entry point) (`src/port_runtime.cpp`).
 - Tighten SDL main-loop timing so game speed and timers behave consistently: drive `TickCount`/`ProcessTimer`/`FrameTimer` from real elapsed time (and handle pause/focus) instead of relying on a fixed-step `SDL_Delay` approximation (`src/port_runtime.cpp`, `src/wwlib_runtime.cpp`).
 - Replace the “must not be stubbed during play” dialogs: implement remaining options flows invoked from the in-game UI (`src/port_runtime.cpp`).

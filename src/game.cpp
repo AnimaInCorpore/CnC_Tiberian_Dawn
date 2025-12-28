@@ -49,32 +49,6 @@ void __cdecl Init_MMX(void);
 }
 
 namespace {
-    std::filesystem::path Get_Data_Root() {
-        if (const char* root = CDFileClass::Get_Data_Root()) {
-            std::filesystem::path value(root);
-            if (!value.empty()) return value;
-        }
-        return std::filesystem::path(".");
-    }
-
-    bool CaseInsensitiveEquals(std::string a, std::string b) {
-        if (a.size() != b.size()) return false;
-        std::transform(a.begin(), a.end(), a.begin(),
-                       [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
-        std::transform(b.begin(), b.end(), b.begin(),
-                       [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
-        return a == b;
-    }
-
-    std::filesystem::path Get_Cd_Root() {
-        const auto root = Get_Data_Root();
-        const std::string leaf = root.filename().string();
-        if (CaseInsensitiveEquals(leaf, "CD")) {
-            return root;
-        }
-        return root / "CD";
-    }
-
     std::filesystem::path Resolve_Data_Path(const char* filename) {
         if (!filename) return {};
         std::filesystem::path direct(filename);
@@ -82,18 +56,15 @@ namespace {
             return direct;
         }
         std::vector<std::filesystem::path> roots;
-        const auto root = Get_Data_Root();
-        const auto cd_root = Get_Cd_Root();
-        roots.emplace_back(root);
-        roots.emplace_back(cd_root);
         if (const char* subfolder = CDFileClass::Get_CD_Subfolder()) {
-            roots.emplace_back(cd_root / subfolder);
+            roots.emplace_back(std::filesystem::path("CD") / subfolder);
         }
-        roots.emplace_back(cd_root / "CNC95");
+        roots.emplace_back(std::filesystem::path("CD") / "CNC95");
         static const char* kDiscs[] = {"CD1", "CD2", "CD3"};
         for (auto disc : kDiscs) {
-            roots.emplace_back(cd_root / "TIBERIAN_DAWN" / disc);
+            roots.emplace_back(std::filesystem::path("CD") / "TIBERIAN_DAWN" / disc);
         }
+        roots.emplace_back(std::filesystem::path("CD"));
         for (auto const& root : roots) {
             std::filesystem::path candidate = root / filename;
             if (std::filesystem::exists(candidate)) {
@@ -133,19 +104,16 @@ namespace {
         scanned = true;
 
         const char* cd_subfolder = CDFileClass::Get_CD_Subfolder();
-        const auto root = Get_Data_Root();
-        const auto cd_root = Get_Cd_Root();
-
         std::vector<std::filesystem::path> roots;
-        roots.emplace_back(root);
-        roots.emplace_back(cd_root);
-        roots.emplace_back(cd_root / "CNC95");
+        roots.emplace_back(".");
+        roots.emplace_back(std::filesystem::path("CD") / "CNC95");
+        roots.emplace_back(std::filesystem::path("CD"));
         if (cd_subfolder && *cd_subfolder) {
-            roots.emplace_back(cd_root / cd_subfolder);
+            roots.emplace_back(std::filesystem::path("CD") / cd_subfolder);
         }
         static const char* kTiberianFolders[] = {"CD1", "CD2", "CD3"};
         for (auto folder : kTiberianFolders) {
-            roots.emplace_back(cd_root / "TIBERIAN_DAWN" / folder);
+            roots.emplace_back(std::filesystem::path("CD") / "TIBERIAN_DAWN" / folder);
         }
 
         for (auto const& dir : roots) {
@@ -171,17 +139,16 @@ namespace {
         scanned = true;
 
         const char* cd_subfolder = CDFileClass::Get_CD_Subfolder();
-        const auto root = Get_Data_Root();
-        const auto cd_root = Get_Cd_Root();
         std::vector<std::filesystem::path> roots;
-        roots.emplace_back(root);
-        roots.emplace_back(cd_root / "CNC95");
+        roots.emplace_back(".");
+        roots.emplace_back(std::filesystem::path("CD") / "CNC95");
+        roots.emplace_back(std::filesystem::path("CD"));
         if (cd_subfolder && *cd_subfolder) {
-            roots.emplace_back(cd_root / cd_subfolder);
+            roots.emplace_back(std::filesystem::path("CD") / cd_subfolder);
         }
         static const char* kTiberianFolders[] = {"CD1", "CD2", "CD3"};
         for (auto folder : kTiberianFolders) {
-            roots.emplace_back(cd_root / "TIBERIAN_DAWN" / folder);
+            roots.emplace_back(std::filesystem::path("CD") / "TIBERIAN_DAWN" / folder);
         }
 
         static const char* kAllowedMixes[] = {"GENERAL.MIX", "CONQUER.MIX", "CCLOCAL.MIX",

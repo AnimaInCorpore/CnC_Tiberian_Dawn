@@ -69,12 +69,6 @@ class CDFileClass : public RawFileClass
 		static void Add_Search_Drive(char *path);
 		static void Clear_Search_Drives(void);
 		static void Refresh_Search_Drives(void);
-		/*
-		** Optional data-root for the SDL port. When set, the default search-drive list
-		** is built relative to this directory (e.g. data-root/..., data-root/CD/...).
-		*/
-		static void Set_Data_Root(char const* root);
-		static char const* Get_Data_Root(void);
 		static void Set_CD_Subfolder(char const* subfolder);
 		static char const* Get_CD_Subfolder(void);
 		static void Set_CD_Drive(int drive);
