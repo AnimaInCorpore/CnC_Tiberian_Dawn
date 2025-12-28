@@ -10,6 +10,7 @@
 #include "legacy/intro.h"
 #include "legacy/nullmgr.h"
 #include "legacy/cdfile.h"
+#include "legacy/ccfile.h"
 #include "legacy/windows_compat.h"
 #include "legacy/logic.h"
 #include "legacy/options.h"
@@ -427,6 +428,7 @@ bool Parse_Command_Line(int argc, char** argv) {
   if (!argv) return true;
 
   std::string cd_disc;
+  std::string data_root;
   for (int i = 1; i < argc; ++i) {
     if (!argv[i]) continue;
     std::string arg = argv[i];
@@ -435,6 +437,22 @@ bool Parse_Command_Line(int argc, char** argv) {
     std::string lower = arg;
     std::transform(lower.begin(), lower.end(), lower.begin(),
                    [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+    if (lower == "--data-dir" || lower == "--data-root") {
+      if (i + 1 < argc && argv[i + 1] && argv[i + 1][0] != '\0') {
+        data_root = argv[i + 1];
+        ++i;
+      }
+      continue;
+    }
+    if (lower.rfind("--data-dir=", 0) == 0) {
+      data_root = arg.substr(std::strlen("--data-dir="));
+      continue;
+    }
+    if (lower.rfind("--data-root=", 0) == 0) {
+      data_root = arg.substr(std::strlen("--data-root="));
+      continue;
+    }
 
     if (lower == "-d" || lower == "--debug" || lower == "--verbose" || lower == "-v") {
       Debug_Flag = true;
@@ -451,6 +469,18 @@ bool Parse_Command_Line(int argc, char** argv) {
       cd_disc = "NOD";
       continue;
     }
+  }
+
+  if (data_root.empty()) {
+    if (const char* env = SDL_getenv("TD_DATA_DIR")) {
+      data_root = env;
+    } else if (const char* env2 = SDL_getenv("TD_DATA_ROOT")) {
+      data_root = env2;
+    }
+  }
+  if (!data_root.empty()) {
+    CDFileClass::Set_Data_Root(data_root.c_str());
+    TD_Debugf("Data root set to: %s", data_root.c_str());
   }
 
   if (!cd_disc.empty()) {
@@ -560,10 +590,31 @@ void Game_Startup(void*, int, int, int, bool) {}
 // duplicate definitions here to prevent linker conflicts.
 // -----------------------------------------------------------------------------
 
+namespace {
+bool Required_Data_Available() {
+  const bool has_mix = CCFileClass("GENERAL.MIX").Is_Available() || CCFileClass("CONQUER.MIX").Is_Available();
+  const bool has_ini = CCFileClass("CONQUER.INI").Is_Available();
+  if (has_mix && has_ini) return true;
+
+  std::fprintf(stderr, "Missing required game assets.\n");
+  std::fprintf(stderr, "Provide a data directory via `--data-dir <path>` or set `TD_DATA_DIR`.\n");
+  if (const char* root = CDFileClass::Get_Data_Root()) {
+    std::fprintf(stderr, "Current data root: %s\n", root);
+  } else {
+    std::fprintf(stderr, "Current data root: (unset)\n");
+  }
+  return false;
+}
+}  // namespace
+
 bool Init_Game(int, char**) {
   static bool initialized = false;
   CCDebugString("Init_Game: initializing runtime scaffolding.\n");
   TD_Debugf("Init_Game: begin");
+
+  if (!Required_Data_Available()) {
+    return false;
+  }
 
   ReadyToQuit = false;
   AllDone = 0;

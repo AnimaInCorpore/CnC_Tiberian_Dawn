@@ -49,6 +49,7 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #include "legacy/function.h"
+#include "port_debug.h"
 
 #include "legacy/base.h"
 
@@ -220,6 +221,7 @@ bool Read_Scenario_Ini(char *root, bool fresh)
 	unsigned char val;
 
 	ScenarioInit++;
+	TD_Debugf("Read_Scenario_Ini: enter root=%s fresh=%s", root ? root : "(null)", fresh ? "true" : "false");
 
 	/*
 	**	Fetch working pointer to the INI staging buffer. Make sure that the buffer
@@ -228,10 +230,14 @@ bool Read_Scenario_Ini(char *root, bool fresh)
 	**	parsing.)
 	*/
 	buffer = (char *)_ShapeBuffer;
+	TD_Debugf("Read_Scenario_Ini: _ShapeBuffer=%p _ShapeBufferSize=%ld", static_cast<void*>(_ShapeBuffer), _ShapeBufferSize);
 	memset(buffer, '\0', _ShapeBufferSize);
+	TD_Debugf("Read_Scenario_Ini: staging buffer cleared");
 
 	if (fresh) {
+		TD_Debugf("Read_Scenario_Ini: calling Clear_Scenario()");
 		Clear_Scenario();
+		TD_Debugf("Read_Scenario_Ini: Clear_Scenario complete");
 	}
 
 	/*
@@ -267,17 +273,25 @@ bool Read_Scenario_Ini(char *root, bool fresh)
 		Prog_End();
 		exit(EXIT_FAILURE);
 	}
+	TD_Debugf("Read_Scenario_Ini: Force_CD_Available(%d) OK", RequiredCD);
 
 	/*
 	**	Create scenario filename and read the file.
 	*/
 
 	sprintf(fname,"%s.INI",root);
+	TD_Debugf("Read_Scenario_Ini: scenario ini filename=%s", fname);
 	CCFileClass file(fname);
-	if (!file.Is_Available()) {
+	const bool available = file.Is_Available();
+	TD_Debugf("Read_Scenario_Ini: Is_Available=%s", available ? "true" : "false");
+	if (!available) {
 		return(false);
 	} else {
-		file.Read(buffer, _ShapeBufferSize-1);
+		const int size = file.Size();
+		TD_Debugf("Read_Scenario_Ini: file.Size()=%d", size);
+		TD_Debugf("Read_Scenario_Ini: reading up to %ld bytes...", _ShapeBufferSize - 1);
+		const long read = file.Read(buffer, _ShapeBufferSize-1);
+		TD_Debugf("Read_Scenario_Ini: file.Read returned=%ld", read);
 	}
 
 	/*
@@ -285,12 +299,14 @@ bool Read_Scenario_Ini(char *root, bool fresh)
 	*/
 	ScenarioCRC = 0;
 	len = strlen(buffer);
+	TD_Debugf("Read_Scenario_Ini: ini bytes strlen=%d", len);
 	for (int i = 0; i < len; i++) {
 		val = (unsigned char)buffer[i];
 #ifndef DEMO
 		Add_CRC(&ScenarioCRC, (unsigned long)val);
 #endif
 	}
+	TD_Debugf("Read_Scenario_Ini: ScenarioCRC=0x%lx", static_cast<unsigned long>(ScenarioCRC));
 
 	/*
 	**	Fetch the appropriate movie names from the INI file.

@@ -49,6 +49,32 @@ void __cdecl Init_MMX(void);
 }
 
 namespace {
+    std::filesystem::path Get_Data_Root() {
+        if (const char* root = CDFileClass::Get_Data_Root()) {
+            std::filesystem::path value(root);
+            if (!value.empty()) return value;
+        }
+        return std::filesystem::path(".");
+    }
+
+    bool CaseInsensitiveEquals(std::string a, std::string b) {
+        if (a.size() != b.size()) return false;
+        std::transform(a.begin(), a.end(), a.begin(),
+                       [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+        std::transform(b.begin(), b.end(), b.begin(),
+                       [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+        return a == b;
+    }
+
+    std::filesystem::path Get_Cd_Root() {
+        const auto root = Get_Data_Root();
+        const std::string leaf = root.filename().string();
+        if (CaseInsensitiveEquals(leaf, "CD")) {
+            return root;
+        }
+        return root / "CD";
+    }
+
     std::filesystem::path Resolve_Data_Path(const char* filename) {
         if (!filename) return {};
         std::filesystem::path direct(filename);
@@ -56,13 +82,17 @@ namespace {
             return direct;
         }
         std::vector<std::filesystem::path> roots;
+        const auto root = Get_Data_Root();
+        const auto cd_root = Get_Cd_Root();
+        roots.emplace_back(root);
+        roots.emplace_back(cd_root);
         if (const char* subfolder = CDFileClass::Get_CD_Subfolder()) {
-            roots.emplace_back(std::filesystem::path("CD") / subfolder);
+            roots.emplace_back(cd_root / subfolder);
         }
-        roots.emplace_back(std::filesystem::path("CD") / "CNC95");
+        roots.emplace_back(cd_root / "CNC95");
         static const char* kDiscs[] = {"CD1", "CD2", "CD3"};
         for (auto disc : kDiscs) {
-            roots.emplace_back(std::filesystem::path("CD") / "TIBERIAN_DAWN" / disc);
+            roots.emplace_back(cd_root / "TIBERIAN_DAWN" / disc);
         }
         for (auto const& root : roots) {
             std::filesystem::path candidate = root / filename;
@@ -73,13 +103,62 @@ namespace {
         return {};
     }
 
-    void Register_Mix_If_Present(const char* filename) {
-        auto path = Resolve_Data_Path(filename);
+    void Register_Mix_Path(const std::filesystem::path& path, bool cache) {
         if (path.empty()) return;
-        // Constructing the MixFileClass registers it for later lookups.
+        static std::unordered_set<std::string> registered;
+        const std::string key = path.string();
+        if (!registered.insert(key).second) return;
         auto* mix = new MixFileClass(path.string().c_str());
-        if (mix) {
+        if (mix && cache) {
             mix->Cache();
+        }
+    }
+
+    void Register_Mix_If_Present(const char* filename, bool cache) {
+        const auto path = Resolve_Data_Path(filename);
+        if (path.empty()) return;
+        Register_Mix_Path(path, cache);
+    }
+
+    bool Is_Scenario_Mix_Name(const std::string& upper) {
+        if (upper.size() < 6) return false;
+        if (upper.rfind("SC", 0) != 0) return false;
+        if (upper.find(".MIX") != upper.size() - 4) return false;
+        return true; // allow SC-000.MIX / SCG01EA.MIX variants
+    }
+
+    void Register_Scenario_Mixes_If_Present() {
+        static bool scanned = false;
+        if (scanned) return;
+        scanned = true;
+
+        const char* cd_subfolder = CDFileClass::Get_CD_Subfolder();
+        const auto root = Get_Data_Root();
+        const auto cd_root = Get_Cd_Root();
+
+        std::vector<std::filesystem::path> roots;
+        roots.emplace_back(root);
+        roots.emplace_back(cd_root);
+        roots.emplace_back(cd_root / "CNC95");
+        if (cd_subfolder && *cd_subfolder) {
+            roots.emplace_back(cd_root / cd_subfolder);
+        }
+        static const char* kTiberianFolders[] = {"CD1", "CD2", "CD3"};
+        for (auto folder : kTiberianFolders) {
+            roots.emplace_back(cd_root / "TIBERIAN_DAWN" / folder);
+        }
+
+        for (auto const& dir : roots) {
+            if (!std::filesystem::exists(dir) || !std::filesystem::is_directory(dir)) continue;
+            for (auto const& entry : std::filesystem::directory_iterator(dir)) {
+                if (!entry.is_regular_file()) continue;
+                const auto& path = entry.path();
+                std::string filename = path.filename().string();
+                std::transform(filename.begin(), filename.end(), filename.begin(),
+                               [](unsigned char ch) { return static_cast<char>(std::toupper(ch)); });
+                if (!Is_Scenario_Mix_Name(filename)) continue;
+                Register_Mix_Path(path, false);
+            }
         }
     }
 
@@ -92,15 +171,17 @@ namespace {
         scanned = true;
 
         const char* cd_subfolder = CDFileClass::Get_CD_Subfolder();
+        const auto root = Get_Data_Root();
+        const auto cd_root = Get_Cd_Root();
         std::vector<std::filesystem::path> roots;
-        roots.emplace_back(".");
-        roots.emplace_back(std::filesystem::path("CD") / "CNC95");
+        roots.emplace_back(root);
+        roots.emplace_back(cd_root / "CNC95");
         if (cd_subfolder && *cd_subfolder) {
-            roots.emplace_back(std::filesystem::path("CD") / cd_subfolder);
+            roots.emplace_back(cd_root / cd_subfolder);
         }
         static const char* kTiberianFolders[] = {"CD1", "CD2", "CD3"};
         for (auto folder : kTiberianFolders) {
-            roots.emplace_back(std::filesystem::path("CD") / "TIBERIAN_DAWN" / folder);
+            roots.emplace_back(cd_root / "TIBERIAN_DAWN" / folder);
         }
 
         static const char* kAllowedMixes[] = {"GENERAL.MIX", "CONQUER.MIX", "CCLOCAL.MIX",
@@ -258,14 +339,27 @@ namespace {
 
     void Initialize_Font_Resources() {
         // Ensure the mix archives that contain fonts are registered.
-        Register_Mix_If_Present("GENERAL.MIX");
-        Register_Mix_If_Present("CONQUER.MIX");
-        Register_Mix_If_Present("CCLOCAL.MIX");
-        Register_Mix_If_Present("LOCAL.MIX");
-        Register_Mix_If_Present("UPDATE.MIX");
-        Register_Mix_If_Present("UPDATEC.MIX");
-        Register_Mix_If_Present("UPDATA.MIX");
-        Register_Mix_If_Present("LANGUAGE.MIX");
+        Register_Mix_If_Present("GENERAL.MIX", true);
+        Register_Mix_If_Present("CONQUER.MIX", true);
+        Register_Mix_If_Present("CCLOCAL.MIX", true);
+        Register_Mix_If_Present("LOCAL.MIX", true);
+        Register_Mix_If_Present("UPDATE.MIX", true);
+        Register_Mix_If_Present("UPDATEC.MIX", true);
+        Register_Mix_If_Present("UPDATA.MIX", true);
+        Register_Mix_If_Present("LANGUAGE.MIX", true);
+
+        // Register the other archives needed for scenario loads (do not pre-cache).
+        Register_Mix_If_Present("SCORES.MIX", false);
+        Register_Mix_If_Present("SOUNDS.MIX", false);
+        Register_Mix_If_Present("SPEECH.MIX", false);
+        Register_Mix_If_Present("AUD.MIX", false);
+        Register_Mix_If_Present("MOVIES.MIX", false);
+        Register_Mix_If_Present("TEMPERAT.MIX", false);
+        Register_Mix_If_Present("DESERT.MIX", false);
+        Register_Mix_If_Present("WINTER.MIX", false);
+
+        // Scenario mixes are required for campaign INIs and maps.
+        Register_Scenario_Mixes_If_Present();
 
         Green12FontPtr = Load_Font_File("12GREEN.FNT", 16, 16);
         Green12GradFontPtr = Load_Font_File("12GRNGRD.FNT", 16, 16);

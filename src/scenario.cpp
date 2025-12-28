@@ -179,11 +179,18 @@ bool Start_Scenario(char *root, bool briefing)
 bool Read_Scenario(char *root)
 {
 	CCDebugString ("C&C95 - In Read_Scenario.\n");
+	TD_Debugf("Read_Scenario: enter root=%s", root ? root : "(null)");
+
 	Clear_Scenario();
+	TD_Debugf("Read_Scenario: Clear_Scenario complete");
+
 	ScenarioInit++;
+	TD_Debugf("Read_Scenario: calling Read_Scenario_Ini(fresh=true)...");
 	if (Read_Scenario_Ini(root)) {
+		TD_Debugf("Read_Scenario: Read_Scenario_Ini returned success");
 
 		Fill_In_Data();
+		TD_Debugf("Read_Scenario: Fill_In_Data complete");
 
 
 		/*
@@ -198,6 +205,7 @@ bool Read_Scenario(char *root)
 
 	} else {
 
+		TD_Debugf("Read_Scenario: Read_Scenario_Ini returned failure");
 		Fade_Palette_To(GamePalette, FADE_PALETTE_FAST, Call_Back);
 		Show_Mouse();
 		CCMessageBox().Process(TXT_UNABLE_READ_SCENARIO);
@@ -206,6 +214,7 @@ bool Read_Scenario(char *root)
 	}
 	ScenarioInit--;
 	CCDebugString ("C&C95 - Leaving Read_Scenario.\n");
+	TD_Debugf("Read_Scenario: leaving (success)");
 	return(true);
 }
 
@@ -271,6 +280,7 @@ void Fill_In_Data(void)
  *=============================================================================================*/
 void Clear_Scenario(void)
 {
+	TD_Debugf("Clear_Scenario: begin");
 	EndCountDown = TICKS_PER_SECOND * 30;
 	CrateCount = 0;
 	CrateTimer = 0;
@@ -284,32 +294,55 @@ void Clear_Scenario(void)
 	** own Init, which will Init the entire Map hierarchy.
 	*/
 	Map.Init_Clear();
+	TD_Debugf("Clear_Scenario: Map.Init_Clear done");
 	Score.Init();
+	TD_Debugf("Clear_Scenario: Score.Init done");
 	Logic.Init();
+	TD_Debugf("Clear_Scenario: Logic.Init done");
 
 	HouseClass::Init();
+	TD_Debugf("Clear_Scenario: HouseClass::Init done");
 	ObjectClass::Init();
+	TD_Debugf("Clear_Scenario: ObjectClass::Init done");
 	TeamTypeClass::Init();
+	TD_Debugf("Clear_Scenario: TeamTypeClass::Init done");
 	TeamClass::Init();
+	TD_Debugf("Clear_Scenario: TeamClass::Init done");
 	TriggerClass::Init();
+	TD_Debugf("Clear_Scenario: TriggerClass::Init done");
 	AircraftClass::Init();
+	TD_Debugf("Clear_Scenario: AircraftClass::Init done");
 	AnimClass::Init();
+	TD_Debugf("Clear_Scenario: AnimClass::Init done");
 	BuildingClass::Init();
+	TD_Debugf("Clear_Scenario: BuildingClass::Init done");
 	BulletClass::Init();
+	TD_Debugf("Clear_Scenario: BulletClass::Init done");
 	InfantryClass::Init();
+	TD_Debugf("Clear_Scenario: InfantryClass::Init done");
 	OverlayClass::Init();
+	TD_Debugf("Clear_Scenario: OverlayClass::Init done");
 	SmudgeClass::Init();
+	TD_Debugf("Clear_Scenario: SmudgeClass::Init done");
 	TemplateClass::Init();
+	TD_Debugf("Clear_Scenario: TemplateClass::Init done");
 	TerrainClass::Init();
+	TD_Debugf("Clear_Scenario: TerrainClass::Init done");
 	UnitClass::Init();
+	TD_Debugf("Clear_Scenario: UnitClass::Init done");
 
 	FactoryClass::Init();
+	TD_Debugf("Clear_Scenario: FactoryClass::Init done");
 
 	Base.Init();
+	TD_Debugf("Clear_Scenario: Base.Init done");
 
 	CurrentObject.Clear();
+	TD_Debugf("Clear_Scenario: CurrentObject.Clear done");
 
 	Invalidate_Cached_Icons();
+	TD_Debugf("Clear_Scenario: Invalidate_Cached_Icons done");
+	TD_Debugf("Clear_Scenario: end");
 }
 
 

@@ -44,9 +44,11 @@
 | `BULLET.CPP` | `src/bullet.cpp` | Projectile flight/fuse logic ported; keeps homing/arc/drop behaviors, shadow rendering, and explosion damage paths intact. |
 | `CARGO.CPP` | `src/cargo.cpp` | Cargo hold bookkeeping ported; attach/detach preserve the chained LIFO order, while pointer coding now relies on `src/ioobj.cpp`. |
 | `CCDDE.CPP` | `src/ccdde.cpp` | Ported as a portable localhost UDP implementation for launcher/lobby messaging. |
-| `CCFILE.CPP` | `src/ccfile.cpp` | Mix-aware file wrapper now opens embedded mix entries (cached or on-disk) via the portable RawFile/CDFile layer. |
+| `CCFILE.CPP` | `src/ccfile.cpp` | Mix-aware file wrapper now streams embedded MIX entries from disk (no implicit full-MIX caching), matching the legacy “seek into container” behavior and avoiding huge `MOVIES.MIX` allocations. |
 | `CDATA.CPP` | `src/cdata.cpp` | Ported to src/; template type tables restored (needs icon-set map helpers and viewport stamp/scale support). |
-| `CDFILE.CPP` | `src/cdfile.cpp` | CD/file search helper now walks configured paths before falling back to direct opens. |
+| `CDFILE.CPP` | `src/cdfile.cpp` | CD/file search helper now supports an optional data-root, preserves search order, and restores the original filename before falling back to a direct open. |
+| `CDFILE.H` | `src/include/legacy/cdfile.h` | Added `Set_Data_Root`/`Get_Data_Root` to drive the SDL port’s data-dir selection without depending on a repo-local `CD/...` layout. |
+| `GAME.CPP` | `src/game.cpp` | Mix bootstrap now honors the configured data-root and registers scenario/theater/audio/movie archives (plus scans `SC*.MIX`) so missions can load from stock game installs. |
 | `CELL.CPP` | `src/cell.cpp` | Partial port: core helpers implemented (constructor, lookup, redraw). |
 | `COMBAT.CPP` | `src/combat.cpp` | Ported: `Modify_Damage` and `Explosion_Damage` implemented. |
 | `COMBUF.CPP` | `src/combuf.cpp` | Ported core queue operations and timing helpers. |
@@ -58,6 +60,7 @@
 | `CONST.CPP` | `src/const.cpp` | Weapon/warhead tables and coordinate helpers brought over with lowercase includes and portable tables. |
 | `STARTUP.CPP` (bootstrap) | `src/port_runtime.cpp` | Init_Game/Select_Game/Main_Loop now allocate palettes/shape buffers, configure viewports, reset menu state, enable the DDE heartbeat stub, pace the frame loop using the legacy timer defaults, apply the legacy "start new game" scenario defaults when the first menu option is chosen, and make `Call_Back()` service SDL events + focus restore + blit/present for fades and modal UI loops. |
 | `STARTUP.CPP` (bootstrap) | `src/port_runtime.cpp` | Initialized the global fixed heaps (`Units`, `Buildings`, `TeamTypes`, etc.) via `Set_Heap()` in `Init_Game()` so scenario loads can allocate objects (fixes crash in `TeamTypeClass::Init()` during `Clear_Scenario()`). |
+| `STARTUP.CPP` (bootstrap) | `src/port_runtime.cpp` | Added `--data-dir`/`TD_DATA_DIR` support (via `Parse_Command_Line`) and fail-fast asset validation in `Init_Game()` with a clear stderr message when the data dir is missing/invalid. |
 | `CONTROL.CPP` | `src/control.cpp` | Control gadgets now propagate peer redraws, return KN_BUTTON IDs when triggered, and keep peers wired via a portable nullptr-safe link. |
 | `COORD.CPP` | `src/coord.cpp` | Modernized coordinate helpers; `Cardinal_To_Fixed` and `Fixed_To_Cardinal` ported from `COORDA.ASM`. |
 | `CREDITS.CPP` | `src/credits.cpp` | Credit counter now ticks toward the player's funds, plays up/down cues, and redraws the tab with resolution scaling. |
@@ -400,6 +403,7 @@
 | `MPLAYER.CPP` (`Surrender_Dialog`) | `src/port_runtime.cpp` | Ported the in-game surrender confirmation dialog (OK/Cancel) and removed the unconditional “accept” stub. |
 | `WWALLOC` (`Ram_Free`/`Heap_Size`) | `src/alloc.cpp` | Removed placeholder “infinite RAM” return; allocations are now tracked with a size header and `Ram_Free` reports remaining bytes based on `SDL_GetSystemRAM()`. |
 | `DEBUG/STARTUP` | `src/port_debug.h` | Added verbose startup tracing gated by `TD_VERBOSE=1` / `--verbose` / `--debug`, including SDL video/render driver selection and scenario start progress logs. |
+| `SCENARIO/INI TRACE` | `src/scenario.cpp`, `src/ini.cpp` | Added verbose tracing around `Clear_Scenario()` and `Read_Scenario_Ini()` (file availability/size/read) to pinpoint hangs during scenario load. |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).

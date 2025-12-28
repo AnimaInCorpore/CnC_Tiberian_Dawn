@@ -17,11 +17,10 @@ int CCFileClass::Is_Open() const {
 }
 
 int CCFileClass::Is_Available(int forced) {
-  void* ptr = nullptr;
   MixFileClass* mix = nullptr;
   long offset = 0;
   long size = 0;
-  if (MixFileClass::Offset(File_Name(), &ptr, &mix, &offset, &size)) {
+  if (MixFileClass::Offset(File_Name(), nullptr, &mix, &offset, &size)) {
     return 1;
   }
   return CDFileClass::Is_Available(forced);
@@ -32,27 +31,24 @@ int CCFileClass::Open(int rights) {
     return CDFileClass::Open(rights);
   }
 
-  void* ptr = nullptr;
   MixFileClass* mix = nullptr;
   long offset = 0;
   long size = 0;
 
-  if (MixFileClass::Offset(File_Name(), &ptr, &mix, &offset, &size) && mix) {
-    FromDisk = (ptr == nullptr);
-    Pointer = ptr;
+  if (MixFileClass::Offset(File_Name(), nullptr, &mix, &offset, &size) && mix) {
+    FromDisk = true;
+    Pointer = nullptr;
     Start = offset;
     Length = size;
     Position = 0;
 
-    if (FromDisk) {
-      // Open the parent mixfile and seek to the embedded offset.
-      CDFileClass::Set_Name(mix->Filename);
-      if (!CDFileClass::Open(READ)) {
-        Pointer = nullptr;
-        return 0;
-      }
-      CDFileClass::Seek(Start, SEEK_SET);
+    // Open the parent mixfile and seek to the embedded offset.
+    CDFileClass::Set_Name(mix->Filename);
+    if (!CDFileClass::Open(READ)) {
+      Pointer = nullptr;
+      return 0;
     }
+    CDFileClass::Seek(Start, SEEK_SET);
     return 1;
   }
 

@@ -474,15 +474,30 @@ std::vector<std::string> Discover_Mix_Files(const char* cd_subfolder) {
 	}
 	scanned = true;
 
+	auto data_root = []() {
+		if (const char* root = CDFileClass::Get_Data_Root()) {
+			std::filesystem::path value(root);
+			if (!value.empty()) return value;
+		}
+		return std::filesystem::path(".");
+	}();
+	auto cd_root = [&]() {
+		const std::string leaf = data_root.filename().string();
+		std::string upper = leaf;
+		std::transform(upper.begin(), upper.end(), upper.begin(),
+		               [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+		return upper == "CD" ? data_root : (data_root / "CD");
+	}();
+
 	std::vector<std::filesystem::path> roots;
-	roots.emplace_back(".");
-	roots.emplace_back(std::filesystem::path("CD") / "CNC95");
+	roots.emplace_back(data_root);
+	roots.emplace_back(cd_root / "CNC95");
 	if (cd_subfolder && *cd_subfolder) {
-		roots.emplace_back(std::filesystem::path("CD") / cd_subfolder);
+		roots.emplace_back(cd_root / cd_subfolder);
 	}
 	static const char* kTiberianFolders[] = {"CD1", "CD2", "CD3"};
 	for (auto folder : kTiberianFolders) {
-		roots.emplace_back(std::filesystem::path("CD") / "TIBERIAN_DAWN" / folder);
+		roots.emplace_back(cd_root / "TIBERIAN_DAWN" / folder);
 	}
 
 	static const char* kAllowedMixes[] = {"GENERAL.MIX", "CONQUER.MIX", "CCLOCAL.MIX", "LOCAL.MIX",
@@ -535,63 +550,74 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 	static std::vector<std::unique_ptr<MixFileClass>> registered;
 	static std::vector<std::string> registered_paths;
 	if (!mixes_registered) {
-		auto register_mix = [cd_subfolder](const char* filename) {
+		const auto data_root = []() {
+			if (const char* root = CDFileClass::Get_Data_Root()) {
+				std::filesystem::path value(root);
+				if (!value.empty()) return value;
+			}
+			return std::filesystem::path(".");
+		}();
+		const auto cd_root = [&]() {
+			const std::string leaf = data_root.filename().string();
+			std::string upper = leaf;
+			std::transform(upper.begin(), upper.end(), upper.begin(),
+			               [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+			return upper == "CD" ? data_root : (data_root / "CD");
+		}();
+
+		auto register_mix = [&](const char* filename) {
 			if (!filename) return;
-			std::vector<std::string> paths;
-			auto add_path = [&](const std::string& path) {
+			std::vector<std::filesystem::path> candidates;
+			auto add_candidate = [&](const std::filesystem::path& path) {
 				if (path.empty()) return;
-				if (std::find(paths.begin(), paths.end(), path) != paths.end()) return;
-				paths.emplace_back(path);
-			};
-
-			auto add_path_with_parent = [&](const std::string& path) {
-				add_path(path);
-				add_path(std::string("../") + path);
-			};
-
-			auto add_variants = [&](const std::string& base) {
-				add_path_with_parent(base);
-				std::string upper = base;
-				std::transform(upper.begin(), upper.end(), upper.begin(),
-				               [](unsigned char ch) { return static_cast<char>(std::toupper(ch)); });
-				add_path_with_parent(upper);
-			};
-
-			auto add_tiberian_paths = [&](const std::string& base) {
-				static const char* kDiscs[] = {"CD1", "CD2", "CD3"};
-				for (auto disc : kDiscs) {
-					add_variants(std::string("CD/TIBERIAN_DAWN/") + disc + "/" + base);
+				candidates.push_back(path);
+				if (path.is_relative()) {
+					candidates.push_back(std::filesystem::path("..") / path);
 				}
 			};
 
-			add_variants(filename);
-			if (cd_subfolder && *cd_subfolder) {
-				add_variants(std::string("CD/") + cd_subfolder + "/" + filename);
-			}
-			add_variants(std::string("CD/CNC95/") + filename);
-			add_variants(std::string("CD/") + filename);
-			add_variants(std::string("CD/GDI/") + filename);
-			add_variants(std::string("CD/NOD/") + filename);
-			add_tiberian_paths(filename);
+			auto add_with_case_variants = [&](const std::filesystem::path& base) {
+				add_candidate(base);
+				std::string upper = base.filename().string();
+				std::transform(upper.begin(), upper.end(), upper.begin(),
+				               [](unsigned char ch) { return static_cast<char>(std::toupper(ch)); });
+				if (upper != base.filename().string()) {
+					add_candidate(base.parent_path() / upper);
+				}
+			};
 
-			for (auto const& path : paths) {
-				std::ifstream test(path, std::ios::binary);
-				if (test) {
-					bool already_registered = std::any_of(
-					    registered.begin(), registered.end(),
-					    [&](auto const& mix) { return strcasecmp(mix->Filename, path.c_str()) == 0; });
-					bool path_known = std::any_of(
-					    registered_paths.begin(), registered_paths.end(),
-					    [&](auto const& p) { return strcasecmp(p.c_str(), path.c_str()) == 0; });
-					if (!already_registered) {
-						registered.emplace_back(std::make_unique<MixFileClass>(path.c_str()));
-						CCDebugString("Load_Title_Screen: registered mix ");
-						CCDebugString(path.c_str());
-						CCDebugString("\n");
-					}
-					if (!path_known) {
-						registered_paths.push_back(path);
-					}
+			add_with_case_variants(data_root / filename);
+			add_with_case_variants(cd_root / filename);
+			add_with_case_variants(cd_root / "CNC95" / filename);
+			add_with_case_variants(cd_root / "GDI" / filename);
+			add_with_case_variants(cd_root / "NOD" / filename);
+			if (cd_subfolder && *cd_subfolder) {
+				add_with_case_variants(cd_root / cd_subfolder / filename);
+			}
+			static const char* kDiscs[] = {"CD1", "CD2", "CD3"};
+			for (auto disc : kDiscs) {
+				add_with_case_variants(cd_root / "TIBERIAN_DAWN" / disc / filename);
+			}
+
+			for (auto const& path : candidates) {
+				const std::string path_str = path.string();
+				std::ifstream test(path_str, std::ios::binary);
+				if (!test) continue;
+
+				bool already_registered = std::any_of(
+				    registered.begin(), registered.end(),
+				    [&](auto const& mix) { return strcasecmp(mix->Filename, path_str.c_str()) == 0; });
+				bool path_known = std::any_of(
+				    registered_paths.begin(), registered_paths.end(),
+				    [&](auto const& p) { return strcasecmp(p.c_str(), path_str.c_str()) == 0; });
+				if (!already_registered) {
+					registered.emplace_back(std::make_unique<MixFileClass>(path_str.c_str()));
+					CCDebugString("Load_Title_Screen: registered mix ");
+					CCDebugString(path_str.c_str());
+					CCDebugString("\n");
+				}
+				if (!path_known) {
+					registered_paths.push_back(path_str);
 				}
 			}
 		};
