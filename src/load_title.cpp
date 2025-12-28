@@ -135,34 +135,69 @@ bool Decode_Pcx_Or_Cps(const std::vector<unsigned char>& data, DecodedPcx& outpu
 	return Decode_Cps(data, output);
 }
 
-void Apply_Title_Palette(const unsigned char* source, unsigned char* dest) {
-	if (!source) return;
+	void Apply_Title_Palette(const unsigned char* source, unsigned char* dest) {
+		if (!source) return;
 
-	// Ensure GamePalette exists and reflect the title's full palette there.
-	if (!GamePalette) {
-		GamePalette = new unsigned char[kPaletteSize];
-		std::fill_n(GamePalette, kPaletteSize, 0);
+		auto seed_ui_palette = [](unsigned char* palette) {
+			if (!palette) return;
+			// Standard VGA/EGA 16-color palette in 6-bit (0..63) channels.
+			// The UI/font code assumes indices 0..15 remain stable across screen palettes.
+			static constexpr unsigned char kEga16[16][3] = {
+			    {0, 0, 0},      // 0 black
+			    {0, 0, 42},     // 1 blue
+			    {0, 42, 0},     // 2 green
+			    {0, 42, 42},    // 3 cyan
+			    {42, 0, 0},     // 4 red
+			    {42, 0, 42},    // 5 magenta
+			    {42, 21, 0},    // 6 brown
+			    {42, 42, 42},   // 7 light grey
+			    {21, 21, 21},   // 8 dark grey
+			    {21, 21, 63},   // 9 light blue
+			    {21, 63, 21},   // 10 light green
+			    {21, 63, 63},   // 11 light cyan
+			    {63, 21, 21},   // 12 light red
+			    {63, 21, 63},   // 13 light magenta
+			    {63, 63, 21},   // 14 yellow
+			    {63, 63, 63},   // 15 white
+			};
+
+			for (int i = 0; i < 16; ++i) {
+				palette[i * 3 + 0] = kEga16[i][0];
+				palette[i * 3 + 1] = kEga16[i][1];
+				palette[i * 3 + 2] = kEga16[i][2];
+			}
+		};
+
+		// Ensure GamePalette exists and reflect the title's full palette there.
+		if (!GamePalette) {
+			GamePalette = new unsigned char[kPaletteSize];
+			std::fill_n(GamePalette, kPaletteSize, 0);
 	}
 	std::memcpy(GamePalette, source, kPaletteSize);
 
 	// Apply to the active palette or dest, but preserve the first 16 entries
 	// which the UI/font code relies upon.
-	unsigned char* target = dest ? dest : Palette;
-	if (!target) {
-		// If there is no active palette, allocate and initialize from GamePalette.
-		target = new unsigned char[kPaletteSize];
-		std::memcpy(target, GamePalette, kPaletteSize);
-		if (!dest) {
-			Palette = target;
+		unsigned char* target = dest ? dest : Palette;
+		if (!target) {
+			// If there is no active palette, allocate and initialize from GamePalette.
+			target = new unsigned char[kPaletteSize];
+			std::memcpy(target, GamePalette, kPaletteSize);
+			seed_ui_palette(target);
+			if (!dest) {
+				Palette = target;
+			}
+			return;
 		}
-		return;
-	}
 
-	// Preserve indices 0..15 (first 16 palette entries); copy indices 16..255.
-	const int start_index = 16;
-	const int start_byte = start_index * 3;
-	std::memcpy(target + start_byte, source + start_byte, kPaletteSize - start_byte);
-}
+		// Ensure the reserved UI colors (0..15) are seeded even if `Palette` was
+		// allocated but never initialized before the title screen loads.
+		seed_ui_palette(target);
+
+		// Preserve indices 0..15 (first 16 palette entries); copy indices 16..255.
+		const int start_index = 16;
+		const int start_byte = start_index * 3;
+		std::memcpy(target + start_byte, source + start_byte, kPaletteSize - start_byte);
+	}
 
 
 void Present_Title(GraphicViewPortClass* view) {

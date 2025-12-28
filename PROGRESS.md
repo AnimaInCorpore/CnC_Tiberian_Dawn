@@ -409,6 +409,7 @@
 | `TEXT/FONTS` | `src/text.cpp`, `src/game.cpp` | Stopped treating gradient palette/table resources as glyph fonts (6pt + green12) and adjusted score font selection to use the real glyph font. |
 | `TEXT/RENDER` | `src/text.cpp` | Fixed glyph blitting to render palette index 0 (black) instead of treating it as transparent, and accepted fonts that omit the per-glyph height table. |
 | `VIDEO/BLIT` | `src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`, `src/gscreen.cpp` | Restored Win95 viewport-to-viewport blit semantics (`source.Blit(dest, ...)` like `HidPage.Blit(SeenBuff)`), ensuring the title/menu pages actually present in the SDL build. |
+| `PALETTE/UI` | `src/load_title.cpp` | Seeded palette indices 0..15 with the stable VGA/EGA UI colors before applying the title screen palette, fixing black dialogs and invisible menu text when `Palette` was allocated but uninitialized. |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).

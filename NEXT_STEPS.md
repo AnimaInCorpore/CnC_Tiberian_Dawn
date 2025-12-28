@@ -47,6 +47,7 @@ Status: Next steps. Scope: eliminate “it runs but isn’t canonical” behavio
 Status: Next steps. Scope: keep the port regressions visible and the docs accurate.
 - Add focused smoke tests/harnesses for: MIX registration order, scenario load, palette fades, and basic input (a 60-second “run a mission loop” headless mode would be ideal).
 - Add a quick visual regression check for text rendering (shadow/background fill and palette index 0 behavior) (`src/text.cpp`).
+- Add a quick visual regression check for title/menu palette handling (indices 0..15 stay as UI colors; title palette applies to 16..255) (`src/load_title.cpp`).
 - When debugging startup hangs, run with `--verbose` (or `TD_VERBOSE=1`) and capture stderr; the port now logs SDL video/render driver selection plus menu/scenario startup milestones.
 - If it hangs at `C&C95 - In Read_Scenario.`, the verbose trace now prints progress through `Clear_Scenario()` and `Read_Scenario_Ini()` (including scenario INI filename + `CCFileClass` availability/size/read).
 - Keep `PROGRESS.md` and this file in sync (remove stale “stubbed” notes once the corresponding module is fully ported).
