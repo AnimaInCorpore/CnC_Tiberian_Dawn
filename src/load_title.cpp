@@ -475,16 +475,16 @@ std::vector<std::string> Discover_Mix_Files(const char* cd_subfolder) {
 	scanned = true;
 
 	std::vector<std::filesystem::path> roots;
-	roots.emplace_back(".");
-	roots.emplace_back(std::filesystem::path("CD") / "CNC95");
-	roots.emplace_back(std::filesystem::path("CD"));
-	if (cd_subfolder && *cd_subfolder) {
-		roots.emplace_back(std::filesystem::path("CD") / cd_subfolder);
-	}
-	static const char* kTiberianFolders[] = {"CD1", "CD2", "CD3"};
+	static const char* kTiberianFolders[] = {"CD2", "CD1", "CD3"};
 	for (auto folder : kTiberianFolders) {
 		roots.emplace_back(std::filesystem::path("CD") / "TIBERIAN_DAWN" / folder);
 	}
+	if (cd_subfolder && *cd_subfolder) {
+		roots.emplace_back(std::filesystem::path("CD") / cd_subfolder);
+	}
+	roots.emplace_back(std::filesystem::path("CD") / "CNC95");
+	roots.emplace_back(std::filesystem::path("CD"));
+	roots.emplace_back(".");
 
 	static const char* kAllowedMixes[] = {"GENERAL.MIX", "CONQUER.MIX", "CCLOCAL.MIX", "LOCAL.MIX",
 	                                      "UPDATE.MIX",  "UPDATEC.MIX", "UPDATA.MIX",  "LANGUAGE.MIX"};
@@ -565,7 +565,7 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 			if (cd_subfolder && *cd_subfolder) {
 				add_with_case_variants(std::filesystem::path("CD") / cd_subfolder / filename);
 			}
-			static const char* kDiscs[] = {"CD1", "CD2", "CD3"};
+			static const char* kDiscs[] = {"CD2", "CD1", "CD3"};
 			for (auto disc : kDiscs) {
 				add_with_case_variants(std::filesystem::path("CD") / "TIBERIAN_DAWN" / disc / filename);
 			}

@@ -44,6 +44,33 @@ std::string Normalize_Cd_Subfolder(const char* subfolder) {
   return {};
 }
 
+void Ensure_Default_Search_Drives() {
+  if (g_search_head) return;
+
+  auto add_drive = [&](const char* path) {
+    if (!path || !*path) return;
+    CDFileClass::Add_Search_Drive(const_cast<char*>(path));
+  };
+
+  // Prefer explicit subfolder selection, then fall back to all known CD mirrors.
+  if (!g_cd_subfolder.empty()) {
+    const std::string primary = Join_Path("CD", g_cd_subfolder.c_str());
+    CDFileClass::Add_Search_Drive(const_cast<char*>(primary.c_str()));
+  }
+
+  // Always include the Tiberian Dawn unpacked discs first so fonts/MIXes are found.
+  // Prefer CD2 (often contains the most complete GENERAL.MIX), then fall back.
+  add_drive("CD/TIBERIAN_DAWN/CD2");
+  add_drive("CD/TIBERIAN_DAWN/CD1");
+  add_drive("CD/TIBERIAN_DAWN/CD3");
+
+  // Legacy mirrors.
+  add_drive("CD/GDI");
+  add_drive("CD/NOD");
+  add_drive("CD/CNC95");
+  add_drive("CD");
+}
+
 }  // namespace
 
 CDFileClass::SearchDriveType* CDFileClass::First = nullptr;
@@ -84,34 +111,12 @@ int CDFileClass::Open(int rights) {
 
   const std::string original_name = File_Name() ? File_Name() : "";
 
-  if (!g_search_head && RawPath[0] == '\0') {
-    auto add_drive = [&](const char* path) {
-      if (!path || !*path) return;
-      Add_Search_Drive(const_cast<char*>(path));
-    };
-
-    // Prefer explicit subfolder selection, then fall back to all known CD mirrors.
-    if (!g_cd_subfolder.empty()) {
-      const std::string primary = Join_Path("CD", g_cd_subfolder.c_str());
-      Add_Search_Drive(const_cast<char*>(primary.c_str()));
-    }
-
-    // Always include the Tiberian Dawn unpacked discs first so fonts/MIXes are found.
-    add_drive("CD/TIBERIAN_DAWN/CD1");
-    add_drive("CD/TIBERIAN_DAWN/CD2");
-    add_drive("CD/TIBERIAN_DAWN/CD3");
-
-    // Legacy mirrors.
-    add_drive("CD/GDI");
-    add_drive("CD/NOD");
-    add_drive("CD/CNC95");
-    add_drive("CD");
-  }
+  Ensure_Default_Search_Drives();
 
   if (!IsDisabled && First) {
     SearchDriveNode* node = g_search_head;
     while (node) {
-      const std::string candidate = Join_Path(node->path, File_Name());
+      const std::string candidate = Join_Path(node->path, original_name.c_str());
       RawFileClass::Set_Name(candidate.c_str());
       if (RawFileClass::Open(rights)) {
         return 1;
@@ -124,6 +129,31 @@ int CDFileClass::Open(int rights) {
     RawFileClass::Set_Name(original_name.c_str());
   }
   return RawFileClass::Open(rights);
+}
+
+int CDFileClass::Is_Available(int forced) {
+  const std::string original_name = File_Name() ? File_Name() : "";
+  Ensure_Default_Search_Drives();
+
+  if (!IsDisabled && First) {
+    SearchDriveNode* node = g_search_head;
+    while (node) {
+      const std::string candidate = Join_Path(node->path, original_name.c_str());
+      RawFileClass::Set_Name(candidate.c_str());
+      if (RawFileClass::Is_Available(forced)) {
+        if (!original_name.empty()) {
+          RawFileClass::Set_Name(original_name.c_str());
+        }
+        return 1;
+      }
+      node = node->next;
+    }
+  }
+
+  if (!original_name.empty()) {
+    RawFileClass::Set_Name(original_name.c_str());
+  }
+  return RawFileClass::Is_Available(forced);
 }
 
 int CDFileClass::Set_Search_Drives(char* pathlist) {

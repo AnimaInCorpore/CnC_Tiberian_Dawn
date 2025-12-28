@@ -59,6 +59,7 @@ class CDFileClass : public RawFileClass
 		virtual ~CDFileClass(void) {};
 
 		virtual char const * Set_Name(char const *filename);
+		virtual int Is_Available(int forced=false);
 		virtual int Open(char const *filename, int rights=READ);
 		virtual int Open(int rights=READ);
 

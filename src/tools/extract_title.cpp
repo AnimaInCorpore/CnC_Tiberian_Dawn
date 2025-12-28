@@ -12,8 +12,8 @@ int main() {
         add(std::string(filename));
         add(std::string("CD/") + filename);
         add(std::string("CD/CNC95/") + filename);
-        add(std::string("CD/TIBERIAN_DAWN/CD1/") + filename);
         add(std::string("CD/TIBERIAN_DAWN/CD2/") + filename);
+        add(std::string("CD/TIBERIAN_DAWN/CD1/") + filename);
         add(std::string("CD/TIBERIAN_DAWN/CD3/") + filename);
         for (auto const& p : paths) {
             std::ifstream f(p, std::ios::binary);
