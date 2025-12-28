@@ -21,6 +21,7 @@ Status: Next steps. Scope: allow a normal play session to be resumed and options
 - Implement the load-game UI and wiring: `LoadOptionsClass::Process()`/list population is currently a skeleton and “Load mission” is not wired (`src/loaddlg.cpp`, `src/port_runtime.cpp`).
 - Port the corresponding save-game dialog and ensure save slots + descriptions match Win95 (no new dependencies; pick a platform-appropriate writable directory and document it).
 - Ensure `OptionsClass::Save_Settings()` writes to the same profile/config that startup reads (Win95 semantics, cross-platform paths) (`src/options.cpp`, `src/game.cpp`).
+- Replace the minimal `CONQUER.INI` auto-generation with a real SETUP/config flow (INI parsing + persistence) while keeping the repo-local `CD/...` mirror working (`src/port_setup.cpp`, `src/options.cpp`).
 
 ## Audio and movie parity (needed for “feels like C&C”)
 Status: Next steps. Scope: audio + movies are required for a “real game” experience even if not strictly required to click units.

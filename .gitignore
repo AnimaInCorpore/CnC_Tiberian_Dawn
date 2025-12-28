@@ -6,3 +6,6 @@ external/
 # Debug title dumps
 title_dump.*
 title_blob_*.bin
+
+# Runtime-generated config
+CONQUER.INI

@@ -12,6 +12,7 @@
 #include "legacy/ccfile.h"
 #include "legacy/defines.h"
 #include "port_debug.h"
+#include "port_setup.h"
 
 #include <array>
 #include <cctype>
@@ -367,6 +368,10 @@ void Game_Startup(int argc, char* argv[]) {
 		return;
 	}
 	TD_Debugf("Game_Startup: Parse_Command_Line complete (Debug_Flag=%s)", Debug_Flag ? "true" : "false");
+
+	if (!Ensure_Default_Conquer_Ini()) {
+		std::fprintf(stderr, "Warning: failed to create default CONQUER.INI; startup may be incomplete.\n");
+	}
 
 	RawFileClass cfile("CONQUER.INI");
 

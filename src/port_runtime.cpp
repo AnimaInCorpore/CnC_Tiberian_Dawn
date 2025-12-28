@@ -20,6 +20,7 @@
 #include "platform_input.h"
 #include "runtime_sdl.h"
 #include "port_debug.h"
+#include "port_setup.h"
 
 #include <algorithm>
 #include <cmath>
@@ -564,7 +565,11 @@ void Game_Startup(void*, int, int, int, bool) {}
 namespace {
 bool Required_Data_Available() {
   const bool has_mix = CCFileClass("GENERAL.MIX").Is_Available() || CCFileClass("CONQUER.MIX").Is_Available();
-  const bool has_ini = RawFileClass("CONQUER.INI").Is_Available();
+  bool has_ini = RawFileClass("CONQUER.INI").Is_Available();
+  if (!has_ini) {
+    Ensure_Default_Conquer_Ini();
+    has_ini = RawFileClass("CONQUER.INI").Is_Available();
+  }
   if (has_mix && has_ini) return true;
 
   std::fprintf(stderr, "Missing required game assets.\n");
