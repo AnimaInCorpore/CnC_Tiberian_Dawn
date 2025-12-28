@@ -407,6 +407,8 @@
 | `MIXFILE/ASSETS` | `src/mixfile.cpp` | Fixed XCC name-table mapping to use the original on-disk subblock order (sorted CRC table is now kept only for lookups), restoring correct asset retrieval for some CD data sets. |
 | `AUDIO/SDL` | `src/include/legacy/audio.h`, `src/platform_audio_sdl.cpp` | Corrected the legacy `Audio_Init` parameter meaning (bits/stereo/rate/buffer) and allow SDL to negotiate spec changes, fixing “Unsupported number of audio channels” on startup. |
 | `TEXT/FONTS` | `src/text.cpp`, `src/game.cpp` | Stopped treating gradient palette/table resources as glyph fonts (6pt + green12) and adjusted score font selection to use the real glyph font. |
+| `TEXT/RENDER` | `src/text.cpp` | Fixed glyph blitting to render palette index 0 (black) instead of treating it as transparent, and accepted fonts that omit the per-glyph height table. |
+| `VIDEO/BLIT` | `src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`, `src/gscreen.cpp` | Restored Win95 viewport-to-viewport blit semantics (`source.Blit(dest, ...)` like `HidPage.Blit(SeenBuff)`), ensuring the title/menu pages actually present in the SDL build. |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).

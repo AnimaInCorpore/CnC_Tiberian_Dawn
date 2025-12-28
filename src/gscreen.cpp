@@ -114,7 +114,7 @@ void GScreenClass::Blit_Display(void) {
 		WWMouse->Draw_Mouse(view);
 	}
 
-	SeenBuff.Blit(*view);
+	view->Blit(SeenBuff);
 
 	if (WWMouse) {
 		WWMouse->Erase_Mouse(view, false);

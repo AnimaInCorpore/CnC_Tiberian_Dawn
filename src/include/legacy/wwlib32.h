@@ -141,7 +141,7 @@ using ShapeFlags_Type = std::uint32_t;
 // implementation uses a light-weight software surface so UI gadgets can start
 // rendering again while the final renderer is still in flight.
 class GraphicViewPortClass {
- public:
+public:
   GraphicViewPortClass();
   GraphicViewPortClass(GraphicBufferClass* buffer, int x, int y, int width, int height);
   GraphicViewPortClass(GraphicViewPortClass&&) noexcept;
@@ -178,11 +178,15 @@ class GraphicViewPortClass {
   const void* Get_Offset() const;
   GraphicBufferClass* Get_Graphic_Buffer() const;
   bool Get_IsDirectDraw() const;
+  // Destination blits (buffer -> viewport).
   void Blit(const GraphicBufferClass& src, int src_x, int src_y, int dst_x, int dst_y, int width, int height);
   void Blit(const GraphicBufferClass& src);
-  void Blit(const GraphicViewPortClass& src, int src_x, int src_y, int dst_x, int dst_y, int width, int height);
-  void Blit(const GraphicViewPortClass& src, int dst_x, int dst_y);
-  void Blit(const GraphicViewPortClass& src);
+
+  // Source blits (viewport -> viewport). The original code consistently calls
+  // `source.Blit(dest, ...)` (e.g. `HidPage.Blit(SeenBuff)` to present).
+  void Blit(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width, int height) const;
+  void Blit(GraphicViewPortClass& dest, int dst_x, int dst_y) const;
+  void Blit(GraphicViewPortClass& dest) const;
 
  private:
   struct Impl;

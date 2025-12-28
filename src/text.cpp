@@ -225,7 +225,9 @@ bool Parse_Font(const void* font_ptr, ParsedFont* out) {
   parsed.max_width = max_width;
 
   *out = parsed;
-  return parsed.offsets && parsed.widths && parsed.heights && parsed.base;
+  // Some shipped fonts omit the per-glyph height table; treat that as valid and
+  // fall back to `max_height` for all glyphs.
+  return parsed.offsets && parsed.widths && parsed.base;
 }
 
 void Select_Font(TextPrintType flag) {
@@ -312,12 +314,7 @@ void Draw_Glyph(char ch, int x, int y, unsigned fore, unsigned back, bool fill_b
       const unsigned char nibble = (col & 1) ? (byte >> 4) & 0x0F : byte & 0x0F;
       const int color = translate(nibble);
       if (color >= 0) {
-        // Skip zero to preserve transparency when the caller requested no background fill.
-        if (color != 0) {
-          page->Put_Pixel(x + col, dest_y + top_blank + row, color);
-        }
-      } else if (fill_background) {
-        page->Put_Pixel(x + col, dest_y + top_blank + row, static_cast<int>(back));
+        page->Put_Pixel(x + col, dest_y + top_blank + row, color);
       }
     }
   }

@@ -12,6 +12,7 @@ Status: Definition. Scope: the SDL build should let a user boot to the main menu
 Status: Next steps. Scope: make the above definition true before chasing deep parity details.
  - Implementation done!: MIX bootstrap registers scenario/theater/audio/movie archives (incl. `SC*.MIX`, `TEMPERAT.MIX`, `SOUNDS.MIX`, `AUD.MIX`, `SCORES.MIX`, `MOVIES.MIX`) from the repo-local `CD/...` mirrors (`src/game.cpp`, `src/load_title.cpp`).
 - Implementation done!: Fail-fast startup validation when the required repo-local `CD/...` asset mirror is missing (`src/port_runtime.cpp`, `src/cdfile.cpp`).
+- Verify all remaining UI screens use canonical `source.Blit(dest)` ordering (avoid accidental `dest.Blit(source)` inversions) as modules are ported (`src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`).
 - Replace the “scenario 1 always” menu path with canonical scenario selection/progression: replicate Win95 `Select_Game()` behavior (new game/campaign progression, bonus/expansion routing, load mission entry point) (`src/port_runtime.cpp`).
 - Tighten SDL main-loop timing so game speed and timers behave consistently: drive `TickCount`/`ProcessTimer`/`FrameTimer` from real elapsed time (and handle pause/focus) instead of relying on a fixed-step `SDL_Delay` approximation (`src/port_runtime.cpp`, `src/wwlib_runtime.cpp`).
 - Replace the “must not be stubbed during play” dialogs: implement remaining options flows invoked from the in-game UI (`src/port_runtime.cpp`).
@@ -45,6 +46,7 @@ Status: Next steps. Scope: eliminate “it runs but isn’t canonical” behavio
 ## Testing and parity verification
 Status: Next steps. Scope: keep the port regressions visible and the docs accurate.
 - Add focused smoke tests/harnesses for: MIX registration order, scenario load, palette fades, and basic input (a 60-second “run a mission loop” headless mode would be ideal).
+- Add a quick visual regression check for text rendering (shadow/background fill and palette index 0 behavior) (`src/text.cpp`).
 - When debugging startup hangs, run with `--verbose` (or `TD_VERBOSE=1`) and capture stderr; the port now logs SDL video/render driver selection plus menu/scenario startup milestones.
 - If it hangs at `C&C95 - In Read_Scenario.`, the verbose trace now prints progress through `Clear_Scenario()` and `Read_Scenario_Ini()` (including scenario INI filename + `CCFileClass` availability/size/read).
 - Keep `PROGRESS.md` and this file in sync (remove stale “stubbed” notes once the corresponding module is fully ported).

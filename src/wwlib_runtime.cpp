@@ -562,52 +562,39 @@ void GraphicViewPortClass::Blit(const GraphicBufferClass& src) {
   Blit(src, 0, 0, impl_->x, impl_->y, src.Get_Width(), src.Get_Height());
 }
 
-void GraphicViewPortClass::Blit(const GraphicViewPortClass& src, int src_x, int src_y, int dst_x, int dst_y,
-                                int width, int height) {
-  const GraphicViewPortClass* source_view = &src;
-  GraphicViewPortClass* dest_view = this;
-
-  if (this == &HidPage && &src == &SeenBuff) {
-    source_view = this;
-    dest_view = const_cast<GraphicViewPortClass*>(&src);
-    src_x = source_view->Get_XPos();
-    src_y = source_view->Get_YPos();
-    dst_x = dest_view->Get_XPos();
-    dst_y = dest_view->Get_YPos();
-    width = source_view->Get_Width();
-    height = source_view->Get_Height();
-  }
-
-  const auto* src_buffer = source_view->Get_Graphic_Buffer()
-                               ? source_view->Get_Graphic_Buffer()->Get_Buffer()
-                               : nullptr;
-  auto* dest_buffer = dest_view->impl_->buffer ? dest_view->impl_->buffer->Get_Buffer() : nullptr;
+void GraphicViewPortClass::Blit(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width,
+                                int height) const {
+  const auto* src_storage = impl_->buffer;
+  auto* dest_storage = dest.impl_->buffer;
+  if (!src_storage || !dest_storage) return;
+  const auto* src_buffer = src_storage->Get_Buffer();
+  auto* dest_buffer = dest_storage->Get_Buffer();
   if (!src_buffer || !dest_buffer) return;
-  GraphicBufferClass* src_storage = source_view->Get_Graphic_Buffer();
+
   for (int y = 0; y < height; ++y) {
-    const int source_y = src_y + y - source_view->Get_YPos();
-    const int dest_y = dst_y + y - dest_view->impl_->y;
-    if (source_y < 0 || dest_y < 0 || source_y >= src_storage->Get_Height() || dest_y >= dest_view->impl_->height) continue;
+    const int source_y = src_y + y - impl_->y;
+    const int dest_y = dst_y + y - dest.impl_->y;
+    if (source_y < 0 || dest_y < 0 || source_y >= src_storage->Get_Height() || dest_y >= dest.impl_->height) continue;
     for (int x = 0; x < width; ++x) {
-      const int source_x = src_x + x - source_view->Get_XPos();
-      const int dest_x = dst_x + x - dest_view->impl_->x;
-      if (source_x < 0 || dest_x < 0 || source_x >= src_storage->Get_Width() || dest_x >= dest_view->impl_->width) continue;
-      dest_buffer[dest_y * dest_view->impl_->buffer->Get_Width() + dest_x] =
+      const int source_x = src_x + x - impl_->x;
+      const int dest_x = dst_x + x - dest.impl_->x;
+      if (source_x < 0 || dest_x < 0 || source_x >= src_storage->Get_Width() || dest_x >= dest.impl_->width) continue;
+      dest_buffer[dest_y * dest_storage->Get_Width() + dest_x] =
           src_buffer[source_y * src_storage->Get_Width() + source_x];
     }
   }
 
-  if (dest_view == &SeenBuff) {
-    Present_View(*dest_view);
+  if (&dest == &SeenBuff) {
+    Present_View(dest);
   }
 }
 
-void GraphicViewPortClass::Blit(const GraphicViewPortClass& src, int dst_x, int dst_y) {
-  Blit(src, src.Get_XPos(), src.Get_YPos(), dst_x, dst_y, src.Get_Width(), src.Get_Height());
+void GraphicViewPortClass::Blit(GraphicViewPortClass& dest, int dst_x, int dst_y) const {
+  Blit(dest, impl_->x, impl_->y, dst_x, dst_y, impl_->width, impl_->height);
 }
 
-void GraphicViewPortClass::Blit(const GraphicViewPortClass& src) {
-  Blit(src, src.Get_XPos(), src.Get_YPos(), src.Get_XPos(), src.Get_YPos(), src.Get_Width(), src.Get_Height());
+void GraphicViewPortClass::Blit(GraphicViewPortClass& dest) const {
+  Blit(dest, impl_->x, impl_->y, dest.impl_->x, dest.impl_->y, impl_->width, impl_->height);
 }
 
 void GraphicViewPortClass::Scale(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width,
