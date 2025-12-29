@@ -57,7 +57,7 @@
 | `CONQUER.CPP` | `src/maingame.cpp` | Main_Game loop ported from the legacy file; retains SDL_QUIT push on exit while routing through the original select/loop/dialog flow, with explicit SpecialDialog cases covered. |
 | `CONQUER.CPP` (source helpers) | `src/source_helpers.cpp` | `Source_From_Name`/`Name_From_Source` now follow the legacy lookup table instead of the placeholder mapping. |
 | `CONST.CPP` | `src/const.cpp` | Weapon/warhead tables and coordinate helpers brought over with lowercase includes and portable tables. |
-| `STARTUP.CPP` (bootstrap) | `src/port_runtime.cpp` | Init_Game/Select_Game/Main_Loop now allocate palettes/shape buffers, configure viewports, reset menu state, enable the DDE heartbeat stub, pace the frame loop using the legacy timer defaults, apply the legacy "start new game" scenario defaults when the first menu option is chosen, and make `Call_Back()` service SDL events + focus restore + blit/present for fades and modal UI loops. |
+| `STARTUP.CPP` (bootstrap) | `src/port_runtime.cpp` | Init_Game/Select_Game/Main_Loop now allocate palettes/shape buffers, configure viewports, reset menu state, enable the DDE heartbeat stub, pace the frame loop using the legacy timer defaults, route main-menu choices through the canonical start/expansion/bonus flows, and make `Call_Back()` service SDL events + focus restore + blit/present for fades and modal UI loops. |
 | `STARTUP.CPP` (bootstrap) | `src/port_runtime.cpp` | Initialized the global fixed heaps (`Units`, `Buildings`, `TeamTypes`, etc.) via `Set_Heap()` in `Init_Game()` so scenario loads can allocate objects (fixes crash in `TeamTypeClass::Init()` during `Clear_Scenario()`). |
 | `STARTUP.CPP` (bootstrap) | `src/port_runtime.cpp` | Added fail-fast asset validation in `Init_Game()` with a clear stderr message when the repo-local `CD/...` asset mirror is missing. |
 | `SETUP.CPP` (CONQUER.INI) | `src/port_setup.cpp` | SDL bootstrap now auto-creates a minimal `CONQUER.INI` in the working directory when missing so the port can start from a repo-local `CD/...` mirror without running the legacy Win95 `SETUP.EXE`. |
@@ -76,7 +76,7 @@
 | `DRIVE.CPP` | `src/drive.cpp` | Ported to src/ with full legacy movement logic restored; Map shim call sites use the port’s compatibility layer. |
 | `ENDING.CPP` | `src/ending.cpp` | Ported: GDI/NOD ending sequences, movie playback and selection UI. |
 | `EVENT.CPP` | `src/event.cpp` | Ported event constructors and execution logic, including mission assignments, production, timing updates, and special handling. |
-| `EXPAND.CPP` | `src/expand.cpp` | Expansion detection now mirrors the original `EXPAND.DAT` probe so NEWMENU layouts gate off the real data file. |
+| `EXPAND.CPP` | `src/expand.cpp` | Ported `Expansion_Present`, `Expansion_Dialog`, and `Bonus_Dialog` so NEWMENU can list and launch expansion (20–59) and bonus (60–62) missions using the same listbox UI and INI `Basic/Name` lookup as Win95. |
 | `FACING.CPP` | `src/facing.cpp` | Ported to src/ with legacy facing rotation and adjustment logic preserved. |
 | `FLASHER.CPP` | `src/flasher.cpp` | Ported to src/; flash countdown toggles the blush flag and exposes mono debug output. |
 | `FACTORY.CPP` | `src/factory.cpp` | Ported to src/, switched to legacy include path, and replaced NULL with nullptr. |

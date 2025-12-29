@@ -13,7 +13,7 @@ Status: Next steps. Scope: make the above definition true before chasing deep pa
  - Implementation done!: MIX bootstrap registers scenario/theater/audio/movie archives (incl. `SC*.MIX`, `TEMPERAT.MIX`, `SOUNDS.MIX`, `AUD.MIX`, `SCORES.MIX`, `MOVIES.MIX`) from the repo-local `CD/...` mirrors (`src/game.cpp`, `src/load_title.cpp`).
 - Implementation done!: Fail-fast startup validation when the required repo-local `CD/...` asset mirror is missing (`src/port_runtime.cpp`, `src/cdfile.cpp`).
 - Verify all remaining UI screens use canonical `source.Blit(dest)` ordering (avoid accidental `dest.Blit(source)` inversions) as modules are ported (`src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`).
-- Replace the “scenario 1 always” menu path with canonical scenario selection/progression: replicate Win95 `Select_Game()` behavior (new game/campaign progression, bonus/expansion routing, load mission entry point) (`src/port_runtime.cpp`).
+- Replicate the remaining Win95 `Select_Game()` behavior: new game/campaign progression and a real load-mission entry point (bonus/expansion routing is now implemented) (`src/port_runtime.cpp`, `src/loaddlg.cpp`).
 - Implementation done!: Tightened SDL main-loop timing so game speed and timers behave consistently: `Options.GameSpeed` again controls the frame cadence (not milliseconds), and `TimerClass::Time()` returns Win95-style 60Hz ticks; focus loss pauses simulation updates (`src/port_runtime.cpp`, `src/wwlib_runtime.cpp`, `src/include/legacy/wwlib32.h`).
 - Replace the “must not be stubbed during play” dialogs: implement remaining options flows invoked from the in-game UI (`src/port_runtime.cpp`).
 

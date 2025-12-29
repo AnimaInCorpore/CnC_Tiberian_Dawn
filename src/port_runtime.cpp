@@ -14,6 +14,7 @@
 #include "legacy/windows_compat.h"
 #include "legacy/logic.h"
 #include "legacy/options.h"
+#include "legacy/loaddlg.h"
 #include "legacy/wwlib32.h"
 #include "legacy/jshell.h"
 #include "legacy/msglist.h"
@@ -633,6 +634,8 @@ bool Select_Game(bool fade) {
   Configure_Game_Viewports();
   Reset_Game_State_For_Menu();
 
+  bool gameloaded = false;
+
   GameToPlay = GAME_NORMAL;
   PlaybackGame = 0;
   RecordGame = 0;
@@ -655,21 +658,40 @@ bool Select_Game(bool fade) {
   const bool wants_scenario = (selection == 0 || selection == 1 || selection == 2 || selection == 4);
   switch (selection) {
     case 0:  // New missions (expansion)
-      Configure_New_Game_From_Menu();
-      GameToPlay = GAME_NORMAL;
+      CarryOverMoney = 0;
+      if (Expansion_Dialog()) {
+        Theme.Fade_Out();
+        GameToPlay = GAME_NORMAL;
+      } else {
+        return Select_Game(false);
+      }
       break;
     case 1:  // Start new game
+      CarryOverMoney = 0;
+      Theme.Fade_Out();
       Configure_New_Game_From_Menu();
       GameToPlay = GAME_NORMAL;
       break;
     case 2:  // Bonus missions
-      GameToPlay = GAME_NORMAL;
+      CarryOverMoney = 0;
+      if (Bonus_Dialog()) {
+        Theme.Fade_Out();
+        GameToPlay = GAME_NORMAL;
+      } else {
+        return Select_Game(false);
+      }
       break;
     case 3:  // Internet
       GameToPlay = GAME_INTERNET;
       break;
-    case 4:  // Load mission (not wired yet)
-      GameToPlay = GAME_NORMAL;
+    case 4:  // Load mission
+      if (LoadOptionsClass(LoadOptionsClass::LOAD).Process()) {
+        Theme.Queue_Song(THEME_AOI);
+        GameToPlay = GAME_NORMAL;
+        gameloaded = true;
+      } else {
+        return Select_Game(false);
+      }
       break;
     case 5:  // Multiplayer
       GameToPlay = GAME_IPX;
@@ -685,17 +707,15 @@ bool Select_Game(bool fade) {
       return false;
   }
 
-  if (wants_scenario && !Debug_Map) {
-    if (selection == 4) {
-      CCDebugString("Load mission is not wired yet.\n");
-      return Select_Game(false);
-    }
+  if (wants_scenario && !Debug_Map && !gameloaded) {
 
     Set_Scenario_Name(ScenarioName, Scenario, ScenPlayer, ScenDir);
     TD_Debugf("Select_Game: scenario root computed: %s", ScenarioName);
 
     Hide_Mouse();
-    Fade_Palette_To(BlackPalette, FADE_PALETTE_MEDIUM, Call_Back);
+    if (selection != 1) {
+      Fade_Palette_To(BlackPalette, FADE_PALETTE_MEDIUM, Call_Back);
+    }
     HiddenPage.Clear();
     VisiblePage.Clear();
     Show_Mouse();
