@@ -151,7 +151,7 @@
 | `OVERLAY.CPP` | `src/overlay.cpp` | Ported to src/; overlay object logic restored and map-shim access updated for stubbed cells. |
 | `PACKET.CPP` | | To be ported. |
 | `POWER.CPP` | `src/power.cpp` | Power bar UI ported; shapes are loaded via the modern MIX helpers and redraw logic mirrors the original radar/sidebar flow. |
-| `PROFILE.CPP` | | To be ported. |
+| `PROFILE.CPP` | `src/profile.cpp` | Ported Win95 INI/profile helpers (`WWGet/WritePrivateProfile*`, hex/int/string parsing, section/entry deletion) and removed the stub implementations from `src/port_runtime.cpp`. |
 | `QUEUE.CPP` | `src/queue.cpp` | Ported to src/ with mission queue helper logic and pointer coding helpers. |
 | `RADAR.CPP` | | To be ported. |
 | `RAWFILE.CPP` | `src/rawfile.cpp` | RawFileClass rebuilt atop POSIX read/write/seek with simple error handling. |

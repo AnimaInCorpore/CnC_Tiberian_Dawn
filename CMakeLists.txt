@@ -174,6 +174,7 @@ set(TD_SOURCES
   src/keyframe_info.cpp
   src/platform_input.cpp
   src/power.cpp
+  src/profile.cpp
   src/radar.cpp
   src/radio.cpp
   src/rand.cpp

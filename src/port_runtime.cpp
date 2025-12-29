@@ -487,28 +487,6 @@ void Reset_Theater_Shapes() {}
 
 int Version_Number() { return 1; }
 
-int WWGetPrivateProfileInt(char const*, char const*, int def, char*) {
-  return def;
-}
-
-bool WWWritePrivateProfileInt(char const* /*section*/, char const* /*entry*/, int value, char* /*profile*/) {
-  // Minimal behavior: writing succeeds when value is valid.
-  return value >= 0;
-}
-
-char* WWGetPrivateProfileString(char const*, char const*, char const* def,
-                              char* dst, int dstlen, char*) {
-  if (!dst || dstlen <= 0) return nullptr;
-  std::strncpy(dst, def ? def : "", dstlen);
-  dst[dstlen - 1] = '\0';
-  return dst;
-}
-
-bool WWWritePrivateProfileString(char const*, char const*, char const* value,
-                                char*) {
-  return value ? true : false;
-}
-
 TheaterType Theater_From_Name(char const* name) {
   if (!name) return THEATER_NONE;
   for (int index = 0; index < THEATER_COUNT; ++index) {
@@ -519,12 +497,6 @@ TheaterType Theater_From_Name(char const* name) {
   return THEATER_NONE;
 }
 
-bool Read_Private_Config_Struct(char*, NewConfigType* config) {
-  if (config) {
-    std::memset(config, 0, sizeof(*config));
-  }
-  return true;
-}
 
 void Check_Use_Compressed_Shapes() {}
 
