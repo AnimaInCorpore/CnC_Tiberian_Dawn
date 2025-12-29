@@ -63,24 +63,41 @@ int CCFileClass::Open(int rights) {
 long CCFileClass::Read(void* buffer, long size) {
   if (!buffer || size <= 0) return 0;
 
+  const bool was_open = Is_Open() != 0;
+  if (!was_open) {
+    if (!Open(READ)) {
+      return 0;
+    }
+  }
+
   if (Pointer) {
     const long clamped = std::min(size, Length - Position);
-    if (clamped <= 0) return 0;
+    if (clamped <= 0) {
+      if (!was_open) Close();
+      return 0;
+    }
     std::memcpy(buffer, static_cast<unsigned char*>(Pointer) + Position, static_cast<size_t>(clamped));
     Position += clamped;
+    if (!was_open) Close();
     return clamped;
   }
 
   if (FromDisk) {
     const long clamped = std::min(size, Length - Position);
-    if (clamped <= 0) return 0;
+    if (clamped <= 0) {
+      if (!was_open) Close();
+      return 0;
+    }
     CDFileClass::Seek(Start + Position, SEEK_SET);
     const long read = CDFileClass::Read(buffer, clamped);
     Position += read;
+    if (!was_open) Close();
     return read;
   }
 
-  return CDFileClass::Read(buffer, size);
+  const long read = CDFileClass::Read(buffer, size);
+  if (!was_open) Close();
+  return read;
 }
 
 long CCFileClass::Seek(long pos, int dir) {
