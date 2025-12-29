@@ -138,46 +138,26 @@ bool Decode_Pcx_Or_Cps(const std::vector<unsigned char>& data, DecodedPcx& outpu
 	void Apply_Title_Palette(const unsigned char* source, unsigned char* dest) {
 		if (!source) return;
 
-		// Ensure GamePalette exists and reflect the title's full palette there.
+		// Win95 reads the full 256-color palette from the PCX/CPS and uses it as-is
+		// for the title/menu screens (no reserved-index preservation).
 		if (!GamePalette) {
 			GamePalette = new unsigned char[kPaletteSize];
 			std::fill_n(GamePalette, kPaletteSize, 0);
 		}
 		std::memcpy(GamePalette, source, kPaletteSize);
+		if (OriginalPalette) {
+			std::memcpy(OriginalPalette, source, kPaletteSize);
+		}
 
-		// Apply to the active palette or dest, but preserve the first 16 entries
-		// which the UI/font code relies upon.
 		unsigned char* target = dest ? dest : Palette;
 		if (!target) {
-			// If there is no active palette, allocate and initialize from GamePalette.
 			target = new unsigned char[kPaletteSize];
-			std::memcpy(target, GamePalette, kPaletteSize);
 			if (!dest) {
 				Palette = target;
 			}
-			return;
 		}
-
-		// Preserve indices 0..15 (first 16 palette entries); copy indices 16..255.
-		const int start_index = 16;
-		const int start_byte = start_index * 3;
-		std::memcpy(target + start_byte, source + start_byte, kPaletteSize - start_byte);
-
-		// Restore UI-reserved indices from the canonical base palette (when available).
-		// The title art palette is still applied to the rest of the indices so the
-		// background image stays correct.
-		const unsigned char* base = OriginalPalette ? OriginalPalette : nullptr;
-		if (base) {
-			// Indices 0..15 are used by legacy UI/text code.
-			std::memcpy(target + 0, base + 0, 16 * 3);
-			std::memcpy(GamePalette + 0, base + 0, 16 * 3);
-
-			// Preserve the hard-coded C&C green UI range used by dialog boxes.
-			// (See `CCPaletteType` in `defines.h`.)
-			constexpr int kGreenStart = 140;
-			constexpr int kGreenCount = (167 - 140) + 1;
-			std::memcpy(target + kGreenStart * 3, base + kGreenStart * 3, kGreenCount * 3);
-			std::memcpy(GamePalette + kGreenStart * 3, base + kGreenStart * 3, kGreenCount * 3);
+		if (target) {
+			std::memcpy(target, source, kPaletteSize);
 		}
 	}
 

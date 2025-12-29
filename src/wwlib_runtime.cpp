@@ -835,27 +835,24 @@ void Set_Mouse_Cursor(int hotx, int hoty, void const* shape) {
 }
 
 void Set_Font_Palette_Range(void const* palette, int first, int count) {
-  if (!palette || count <= 0) return;
-  if (!GamePalette && !Palette) return;
-  if (!GamePalette) {
-    GamePalette = new unsigned char[256 * 3];
-    std::fill_n(GamePalette, 256 * 3, 0);
-  }
-  if (!Palette) {
-    Palette = new unsigned char[256 * 3];
-    std::fill_n(Palette, 256 * 3, 0);
-  }
-  const auto* source = static_cast<const unsigned char*>(palette);
-  const int start = std::clamp(first, 0, 255);
-  const int clamped_count = std::max(0, std::min(count, 256 - start));
-  const int byte_offset = start * 3;
-  const int byte_count = clamped_count * 3;
+  // Legacy `Set_Font_Palette[_Range]` updates the ColorXlat translation table
+  // (not the VGA palette). The macro in COMPAT.H calls this with (0, 15) to
+  // update all 16 font indices.
+  if (!palette) return;
 
-  if (GamePalette) {
-    std::memcpy(GamePalette + byte_offset, source + byte_offset, byte_count);
-  }
-  if (Palette) {
-    std::memcpy(Palette + byte_offset, source + byte_offset, byte_count);
+  auto* xlat = const_cast<unsigned char*>(
+      static_cast<const unsigned char*>(Get_Font_Palette_Ptr()));
+  if (!xlat) return;
+
+  const auto* source = static_cast<const unsigned char*>(palette);
+  const int start = std::clamp(first, 0, 15);
+  const int end = std::clamp(count, start, 15);
+
+  for (int idx = start; idx <= end; ++idx) {
+    xlat[idx] = source[idx];
+    // Mirror into the high-nibble indices (0x10, 0x20, ...) used by the ASM
+    // text renderer's xlat lookup path.
+    xlat[idx << 4] = source[idx];
   }
 }
 

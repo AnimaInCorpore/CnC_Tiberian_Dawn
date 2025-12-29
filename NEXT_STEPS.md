@@ -30,7 +30,7 @@ Status: Next steps. Scope: audio + movies are required for a “real game” exp
 - Implement the missing sound/visual options dialog backends (currently no-ops) so UI controls affect runtime state (`src/soundvisu_helpers.cpp`).
 - Add VQA audio playback + subtitle/EVA timing (current `Play_Movie()` decodes video + palette only) and verify skip rules/centering/cropping against Win95 (`src/movie.cpp`, `src/vqa_decoder.cpp`).
 - Match Win95 gradient UI text: implement `TPF_USE_GRAD_PAL` shading using the shipped gradient resources (`GRAD6FNT.FNT` palette + `12GRNGRD.FNT` blend table) in the SDL text renderer (`src/text.cpp`).
-- Verify the canonical base palette source for UI-reserved indices during the title/menu (currently seeded from `TEMPERAT.PAL`) against Win95 (`src/port_runtime.cpp`, `src/load_title.cpp`).
+- Verify `Set_Font_Palette`/ColorXlat behavior (including `TBLACK` transparency and the base color indices) matches Win95 across title/menu and in-game palettes (`src/include/legacy/compat.h`, `src/wwlib_runtime.cpp`, `src/text.cpp`).
 
 ## Multiplayer and networking
 Status: Next steps. Scope: restore Win95 multiplayer flows once single-player is playable.
@@ -48,7 +48,7 @@ Status: Next steps. Scope: eliminate “it runs but isn’t canonical” behavio
 Status: Next steps. Scope: keep the port regressions visible and the docs accurate.
 - Add focused smoke tests/harnesses for: MIX registration order, scenario load, palette fades, and basic input (a 60-second “run a mission loop” headless mode would be ideal).
 - Add a quick visual regression check for text rendering (shadow/background fill and palette index 0 behavior) (`src/text.cpp`).
-- Add a quick visual regression check for title/menu palette handling (indices 0..15 stay as UI colors; title palette applies to 16..255) (`src/load_title.cpp`).
+- Add a quick visual regression check for title/menu palette correctness (title art + green dialog texture colors, and ensure `Set_Font_Palette` does not mutate the screen palette) (`src/load_title.cpp`, `src/wwlib_runtime.cpp`).
 - When debugging startup hangs, run with `--verbose` (or `TD_VERBOSE=1`) and capture stderr; the port now logs SDL video/render driver selection plus menu/scenario startup milestones.
 - If it hangs at `C&C95 - In Read_Scenario.`, the verbose trace now prints progress through `Clear_Scenario()` and `Read_Scenario_Ini()` (including scenario INI filename + `CCFileClass` availability/size/read).
 - Keep `PROGRESS.md` and this file in sync (remove stale “stubbed” notes once the corresponding module is fully ported).

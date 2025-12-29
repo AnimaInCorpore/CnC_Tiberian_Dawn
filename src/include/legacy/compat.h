@@ -34,33 +34,38 @@ class BufferClass;
 using KeyNumType = int;
 using KeyASCIIType = int;
 
-// Simplified EGA palette constants used throughout the legacy UI code.
-constexpr unsigned BLACK = 0;
-constexpr unsigned BLUE = 1;
-constexpr unsigned GREEN = 2;
-constexpr unsigned CYAN = 3;
-constexpr unsigned RED = 4;
-constexpr unsigned MAGENTA = 5;
-constexpr unsigned BROWN = 6;
-constexpr unsigned LTGREY = 7;
-constexpr unsigned DKGREY = 8;
-constexpr unsigned GREY = LTGREY;
-constexpr unsigned LTBLUE = 9;
-constexpr unsigned LTGREEN = 10;
-constexpr unsigned LTCYAN = 11;
-constexpr unsigned LTRED = 12;
-constexpr unsigned LTMAGENTA = 13;
-constexpr unsigned YELLOW = 14;
-constexpr unsigned PINK = LTMAGENTA;
+// Base palette indices used throughout the legacy UI code.
+//
+// Tiberian Dawn reserves palette index 0 for "transparent" when rendering text
+// and shapes. The shipped palettes include a second black entry so UI code can
+// still draw opaque black while keeping index 0 reserved.
+constexpr unsigned TBLACK = 0;
+
+constexpr unsigned MAGENTA = 1;
+constexpr unsigned CYAN = 2;
+constexpr unsigned GREEN = 3;
+constexpr unsigned LTGREEN = 4;
+constexpr unsigned YELLOW = 5;
+constexpr unsigned LTRED = 6;
+constexpr unsigned BROWN = 7;
+constexpr unsigned RED = 8;
+constexpr unsigned LTCYAN = 9;
+constexpr unsigned LTBLUE = 10;
+constexpr unsigned BLUE = 11;
+constexpr unsigned BLACK = 12;
+constexpr unsigned DKGREY = 13;
+constexpr unsigned LTGREY = 14;
 constexpr unsigned WHITE = 15;
-constexpr unsigned PURPLE = LTMAGENTA;
+
+constexpr unsigned GREY = LTGREY;
+constexpr unsigned PINK = MAGENTA;
+constexpr unsigned PURPLE = MAGENTA;
 constexpr unsigned GRAY = GREY;
 constexpr unsigned DKGRAY = DKGREY;
 constexpr unsigned LTGRAY = LTGREY;
 constexpr unsigned DKGREEN = GREEN;
 constexpr unsigned DKBLUE = BLUE;
 
-constexpr unsigned TBLACK = BLACK;
 constexpr unsigned TBLUE = BLUE;
 constexpr unsigned TGREEN = GREEN;
 constexpr unsigned TCYAN = CYAN;
@@ -73,7 +78,7 @@ constexpr unsigned TLTBLUE = LTBLUE;
 constexpr unsigned TLTGREEN = LTGREEN;
 constexpr unsigned TLTCYAN = LTCYAN;
 constexpr unsigned TLTRED = LTRED;
-constexpr unsigned TLTMAGENTA = LTMAGENTA;
+constexpr unsigned TLTMAGENTA = MAGENTA;
 constexpr unsigned TYELLOW = YELLOW;
 constexpr unsigned TWHITE = WHITE;
 

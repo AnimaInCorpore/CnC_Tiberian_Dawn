@@ -267,16 +267,23 @@ void Draw_Glyph(char ch, int x, int y, unsigned fore, unsigned back, bool fill_b
   GraphicViewPortClass* page = Target_Page();
   if (!page || !g_current_font_valid) return;
 
+  auto* xlat = const_cast<unsigned char*>(
+      static_cast<const unsigned char*>(Get_Font_Palette_Ptr()));
+  if (xlat) {
+    // Mirror the TXTPRNT.ASM setup: nibble 0 = background, nibble 1 = foreground.
+    xlat[0] = static_cast<unsigned char>(back & 0xFF);
+    xlat[1] = static_cast<unsigned char>(fore & 0xFF);
+    xlat[16] = static_cast<unsigned char>(fore & 0xFF);
+  }
+
   const auto translate = [&](unsigned char nibble) -> int {
-    // Match the legacy ColorXlat table: 0 = background (or transparent), 1 = foreground,
-    // everything else uses the nibble directly so gradient palettes stay intact.
-    if (nibble == 0) {
-      return fill_background ? static_cast<int>(back) : -1;
+    if (!xlat) {
+      // Fallback: preserve the basic background/foreground rules.
+      if (nibble == 0) return fill_background ? static_cast<int>(back) : 0;
+      if (nibble == 1) return static_cast<int>(fore);
+      return static_cast<int>(nibble);
     }
-    if (nibble == 1) {
-      return static_cast<int>(fore);
-    }
-    return static_cast<int>(nibble);
+    return static_cast<int>(xlat[nibble]);
   };
 
   const unsigned idx = static_cast<unsigned char>(ch);
@@ -313,7 +320,7 @@ void Draw_Glyph(char ch, int x, int y, unsigned fore, unsigned back, bool fill_b
       const unsigned char byte = row_ptr[col / 2];
       const unsigned char nibble = (col & 1) ? (byte >> 4) & 0x0F : byte & 0x0F;
       const int color = translate(nibble);
-      if (color >= 0) {
+      if (color != 0) {
         page->Put_Pixel(x + col, dest_y + top_blank + row, color);
       }
     }

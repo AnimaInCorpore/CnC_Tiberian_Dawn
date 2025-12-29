@@ -306,6 +306,9 @@ int Get_Mouse_X();
 int Get_Mouse_Y();
 void Update_Mouse_Position(int x, int y);
 
+// Returns a pointer to the 256-byte ColorXlat table used by the legacy text renderer.
+extern "C" void const* Get_Font_Palette_Ptr(void);
+
 void Set_Font_Palette_Range(void const* palette, int first, int count);
 
 void const* Set_Current_Font(void const* font);
