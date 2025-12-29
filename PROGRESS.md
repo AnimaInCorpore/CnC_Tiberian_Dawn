@@ -410,6 +410,7 @@
 | `VIDEO/BLIT` | `src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`, `src/gscreen.cpp` | Restored Win95 viewport-to-viewport blit semantics (`source.Blit(dest, ...)` like `HidPage.Blit(SeenBuff)`), ensuring the title/menu pages actually present in the SDL build. |
 | `PALETTE/TEXT` | `src/load_title.cpp`, `src/include/legacy/compat.h`, `src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`, `src/text.cpp` | Matched Win95 title/menu palette behavior (apply full PCX palette), corrected base UI color indices (`TBLACK` vs `BLACK`, `GREEN`, etc), and implemented the legacy ColorXlat-driven `Set_Font_Palette` text color path. |
 | `CCFILE.CPP` | `src/ccfile.cpp` | Restored write passthrough to `CDFileClass::Write()` so save/profile writes work when not reading from MIX archives. |
+| `TIMING` | `src/port_runtime.cpp`, `src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp` | Restored canonical time units: `Options.GameSpeed` controls frame cadence again and `TimerClass` reports 60Hz ticks (Win95 semantics); focus loss pauses simulation updates in the SDL main loop. |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).

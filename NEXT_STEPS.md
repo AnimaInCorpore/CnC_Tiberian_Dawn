@@ -14,7 +14,7 @@ Status: Next steps. Scope: make the above definition true before chasing deep pa
 - Implementation done!: Fail-fast startup validation when the required repo-local `CD/...` asset mirror is missing (`src/port_runtime.cpp`, `src/cdfile.cpp`).
 - Verify all remaining UI screens use canonical `source.Blit(dest)` ordering (avoid accidental `dest.Blit(source)` inversions) as modules are ported (`src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`).
 - Replace the “scenario 1 always” menu path with canonical scenario selection/progression: replicate Win95 `Select_Game()` behavior (new game/campaign progression, bonus/expansion routing, load mission entry point) (`src/port_runtime.cpp`).
-- Tighten SDL main-loop timing so game speed and timers behave consistently: drive `TickCount`/`ProcessTimer`/`FrameTimer` from real elapsed time (and handle pause/focus) instead of relying on a fixed-step `SDL_Delay` approximation (`src/port_runtime.cpp`, `src/wwlib_runtime.cpp`).
+- Implementation done!: Tightened SDL main-loop timing so game speed and timers behave consistently: `Options.GameSpeed` again controls the frame cadence (not milliseconds), and `TimerClass::Time()` returns Win95-style 60Hz ticks; focus loss pauses simulation updates (`src/port_runtime.cpp`, `src/wwlib_runtime.cpp`, `src/include/legacy/wwlib32.h`).
 - Replace the “must not be stubbed during play” dialogs: implement remaining options flows invoked from the in-game UI (`src/port_runtime.cpp`).
 
 ## Save/load and profile persistence

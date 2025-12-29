@@ -206,7 +206,7 @@ class TimerClass {
 
  private:
   std::chrono::steady_clock::time_point start_time_;
-  long duration_ms_ = 0;
+  long duration_ticks_ = 0;
   bool active_ = false;
 };
 

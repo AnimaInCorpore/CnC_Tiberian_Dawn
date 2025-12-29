@@ -11,6 +11,7 @@
 #include <chrono>
 #include <deque>
 #include <cstring>
+#include <limits>
 #include <utility>
 #include <vector>
 
@@ -170,13 +171,13 @@ TimerClass::TimerClass(long ticks) { Reset(ticks); }
 
 void TimerClass::Reset(long ticks) {
   start_time_ = std::chrono::steady_clock::now();
-  duration_ms_ = ticks;
+  duration_ticks_ = ticks;
   active_ = true;
 }
 
 void TimerClass::Clear() {
   active_ = false;
-  duration_ms_ = 0;
+  duration_ticks_ = 0;
 }
 
 long TimerClass::Time() const {
@@ -184,13 +185,17 @@ long TimerClass::Time() const {
     return 0;
   }
   const auto now = std::chrono::steady_clock::now();
-  const auto elapsed =
+  const auto elapsed_ms =
       std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time_).count();
-  return static_cast<long>(elapsed);
+  const auto ticks = (static_cast<long long>(elapsed_ms) * TIMER_SECOND) / 1000;
+  if (ticks > std::numeric_limits<long>::max()) {
+    return std::numeric_limits<long>::max();
+  }
+  return static_cast<long>(ticks);
 }
 
 bool TimerClass::Expired() const {
-  return active_ && duration_ms_ > 0 && Time() >= duration_ms_;
+  return active_ && duration_ticks_ > 0 && Time() >= duration_ticks_;
 }
 
 // --- GraphicBufferClass -----------------------------------------------------

@@ -17,6 +17,7 @@
 #include "legacy/wwlib32.h"
 #include "legacy/jshell.h"
 #include "legacy/msglist.h"
+#include "legacy/defines.h"
 #include "platform_input.h"
 #include "runtime_sdl.h"
 #include "port_debug.h"
@@ -53,7 +54,6 @@ namespace {
 
 constexpr int kPaletteSize = 256 * 3;
 constexpr unsigned long kMenuTimeoutMs = 60 * 1000;
-constexpr int kDefaultFrameMs = 66;
 
 void Ensure_Object_Heaps() {
   static bool initialized = false;
@@ -195,10 +195,12 @@ unsigned char Apply_Translucent_Table(unsigned char src_color, unsigned char dst
 }
 
 int Target_Frame_Milliseconds() {
-  if (Options.GameSpeed > 0 && Options.GameSpeed < 500) {
-    return static_cast<int>(Options.GameSpeed);
-  }
-  return kDefaultFrameMs;
+  const unsigned int speed = Options.GameSpeed;
+  const unsigned int ticks_per_frame = (speed == 0u) ? 1u : speed;
+  const unsigned int clamped =
+      std::clamp(ticks_per_frame, 1u, static_cast<unsigned int>(TIMER_SECOND));
+  const unsigned int ms = (clamped * 1000u + (TIMER_SECOND / 2u)) / static_cast<unsigned int>(TIMER_SECOND);
+  return static_cast<int>(std::max(1u, ms));
 }
 
 void Pump_Sdl_Events() {
@@ -418,7 +420,8 @@ int Distance_Coord(COORDINATE coord1, COORDINATE coord2) {
 
 void Delay(int ticks) {
   if (ticks <= 0) return;
-  std::this_thread::sleep_for(std::chrono::milliseconds(ticks));
+  const long long ms = (static_cast<long long>(ticks) * 1000 + (TIMER_SECOND / 2)) / TIMER_SECOND;
+  std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
 // Dialog_Box is implemented in src/dialog.cpp
@@ -596,7 +599,6 @@ bool Init_Game(int, char**) {
   }
   Configure_Game_Viewports();
   Reset_Game_State_For_Menu();
-  Options.GameSpeed = Target_Frame_Milliseconds();
   TickCount.Reset(0);
   ProcessTimer.Reset(0);
   FrameTimer.Clear();
@@ -630,7 +632,6 @@ bool Select_Game(bool fade) {
   GameToPlay = GAME_NORMAL;
   PlaybackGame = 0;
   RecordGame = 0;
-  Options.GameSpeed = Target_Frame_Milliseconds();
 
   if (fade && GamePalette) {
     Fade_Palette_To(GamePalette, FADE_PALETTE_MEDIUM, nullptr);
@@ -719,7 +720,8 @@ bool Select_Game(bool fade) {
 #include "legacy/map.h"
 
 bool Main_Loop() {
-  static auto last_frame = std::chrono::steady_clock::now();
+  static auto next_frame = std::chrono::steady_clock::now();
+  static int last_frame_ms = 0;
 
   Configure_Game_Viewports();
   Pump_Sdl_Events();
@@ -728,6 +730,17 @@ bool Main_Loop() {
   }
 
   const int frame_ms = Target_Frame_Milliseconds();
+  if (frame_ms != last_frame_ms) {
+    next_frame = std::chrono::steady_clock::now();
+    last_frame_ms = frame_ms;
+  }
+
+  if (!PlaybackGame && !GameInFocus) {
+    Call_Back();
+    SDL_Delay(50);
+    next_frame = std::chrono::steady_clock::now();
+    return !GameActive;
+  }
 
   if (!PlaybackGame) {
     if (SpecialDialog == SDLG_NONE && GameInFocus) {
@@ -796,13 +809,22 @@ bool Main_Loop() {
 
   ++Frame;
 
+  next_frame += std::chrono::milliseconds(frame_ms);
   const auto now = std::chrono::steady_clock::now();
-  const auto elapsed_ms =
-      std::chrono::duration_cast<std::chrono::milliseconds>(now - last_frame).count();
-  if (elapsed_ms < frame_ms) {
-    SDL_Delay(static_cast<Uint32>(frame_ms - elapsed_ms));
+  if (now < next_frame) {
+    const auto sleep_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(next_frame - now).count();
+    if (sleep_ms > 0) {
+      SDL_Delay(static_cast<Uint32>(sleep_ms));
+    }
+  } else {
+    // Avoid runaway catch-up after long stalls (debug breaks, minimize, etc).
+    const auto behind_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(now - next_frame).count();
+    if (behind_ms > 250) {
+      next_frame = now;
+    }
   }
-  last_frame = std::chrono::steady_clock::now();
 
   return !GameActive;
 }
