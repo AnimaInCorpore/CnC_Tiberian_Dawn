@@ -347,7 +347,11 @@ int Extract_Shape_Count(void const* shape) {
   return static_cast<int>(Get_Build_Frame_Count(Get_Shape_Header_Data(const_cast<void*>(shape))));
 }
 
-void Wait_Blit(void) {}
+void Wait_Blit(void) {
+  Pump_Sdl_Events();
+  AllSurfaces.Set_Surface_Focus(GameInFocus);
+  SDL_Delay(0);
+}
 
 void CC_Draw_Shape(void const* shapefile, int shapenum, int x, int y, WindowNumberType window,
                    unsigned int flags, void const* fadingdata, void const* ghostdata) {

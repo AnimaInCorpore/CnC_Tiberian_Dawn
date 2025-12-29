@@ -48,6 +48,7 @@ Status: Next steps. Scope: eliminate “it runs but isn’t canonical” behavio
 ## Testing and parity verification
 Status: Next steps. Scope: keep the port regressions visible and the docs accurate.
 - Add focused smoke tests/harnesses for: MIX registration order, scenario load, palette fades, and basic input (a 60-second “run a mission loop” headless mode would be ideal).
+- When verifying palette fades, include `Fade_Palette_To(..., ..., NULL)` call sites (Win95 still shows the fade via hardware palette updates) and compare the fade duration against Win95.
 - Add a quick visual regression check for text rendering (shadow/background fill and palette index 0 behavior) (`src/text.cpp`).
 - Add a quick visual regression check for title/menu palette correctness (title art + green dialog texture colors, and ensure `Set_Font_Palette` does not mutate the screen palette) (`src/load_title.cpp`, `src/wwlib_runtime.cpp`).
 - When debugging startup hangs, run with `--verbose` (or `TD_VERBOSE=1`) and capture stderr; the port now logs SDL video/render driver selection plus menu/scenario startup milestones.

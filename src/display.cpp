@@ -25,11 +25,13 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
 #include <limits>
 #include <cmath>
+#include <thread>
 
 namespace {
 
@@ -442,9 +444,15 @@ void Fade_Palette_To(unsigned char* target_palette, int speed, void (*callback)(
 
 	Prepare_Global_Palettes();
 
-	const int steps = std::clamp(SlowPalette ? std::max(1, speed / std::max(1, TIMER_SECOND / 32)) : 1, 1, 64);
+	const int steps =
+	    std::clamp(SlowPalette ? std::max(1, speed / std::max(1, TIMER_SECOND / 32)) : 1, 1, 64);
 	std::array<unsigned char, kPaletteSize> start{};
 	Copy_Palette(Palette, start.data());
+
+	using clock = std::chrono::steady_clock;
+	const auto tick = std::chrono::duration_cast<clock::duration>(
+	    std::chrono::duration<double>(1.0 / static_cast<double>(TIMER_SECOND)));
+	auto next_tick = clock::now();
 
 	for (int step = 1; step <= steps; ++step) {
 		for (int index = 0; index < kPaletteSize; ++index) {
@@ -452,8 +460,24 @@ void Fade_Palette_To(unsigned char* target_palette, int speed, void (*callback)(
 			Palette[index] =
 			    static_cast<unsigned char>(start[index] + (delta * step) / steps);
 		}
+		Copy_Palette(Palette, GamePalette);
+
 		if (callback) {
 			callback();
+		} else {
+			// Original C&C updated the hardware palette even when no callback was
+			// supplied; keep the window responsive and the fade visible.
+			Call_Back();
+		}
+
+		if (step < steps) {
+			next_tick += tick;
+			const auto now = clock::now();
+			if (next_tick > now) {
+				std::this_thread::sleep_for(next_tick - now);
+			} else {
+				next_tick = now;
+			}
 		}
 	}
 

@@ -7,6 +7,7 @@
 #include "runtime_sdl.h"
 
 #include <SDL.h>
+#include <array>
 #include <algorithm>
 #include <chrono>
 #include <deque>
@@ -49,6 +50,10 @@ Fonts g_fonts{};
 SDL_Texture* g_present_texture = nullptr;
 int g_present_width = 0;
 int g_present_height = 0;
+std::array<unsigned char, 256 * 3> g_present_palette_snapshot{};
+std::array<Uint32, 256> g_present_palette_lut{};
+bool g_present_palette_valid = false;
+std::vector<Uint32> g_present_argb{};
 
 struct CursorState {
   const unsigned char* shape = nullptr;  // Expected to be width*height bytes of palette indices (0 treated as transparent).
@@ -63,6 +68,14 @@ struct CursorState {
 
 CursorState g_cursor{};
 
+Uint8 Palette_Channel_To_Byte(int value) {
+  // Palettes in C&C are stored as VGA 6-bit values (0..63). Windows 95 builds
+  // expand these to 8-bit by shifting left two bits (0..252).
+  const int clamped = std::clamp(value, 0, 255);
+  const int scaled = std::clamp(clamped * 4, 0, 255);
+  return static_cast<Uint8>(scaled);
+}
+
 Uint32 Palette_Index_To_ARGB(const unsigned char* palette, int index) {
   index = std::clamp(index, 0, 255);
   const int offset = index * 3;
@@ -70,16 +83,36 @@ Uint32 Palette_Index_To_ARGB(const unsigned char* palette, int index) {
     if (!palette) {
       return static_cast<Uint8>(index);
     }
-    const int value = static_cast<int>(palette[offset + channel]);
-    // Palette entries are stored as VGA 6-bit values; stretch to 8-bit by
-    // duplicating high bits so full-intensity white reaches 255 instead of 252.
-    const int expanded = (value << 2) | (value >> 4);
-    return static_cast<Uint8>(std::clamp(expanded, 0, 255));
+    return Palette_Channel_To_Byte(static_cast<int>(palette[offset + channel]));
   };
   const Uint8 r = fetch(0);
   const Uint8 g = fetch(1);
   const Uint8 b = fetch(2);
   return (0xFFu << 24) | (static_cast<Uint32>(r) << 16) | (static_cast<Uint32>(g) << 8) | b;
+}
+
+void Ensure_Palette_Lut(const unsigned char* palette) {
+  if (!palette) {
+    if (!g_present_palette_valid) {
+      for (int i = 0; i < 256; ++i) {
+        g_present_palette_lut[static_cast<std::size_t>(i)] = Palette_Index_To_ARGB(nullptr, i);
+      }
+      g_present_palette_snapshot.fill(0);
+      g_present_palette_valid = true;
+    }
+    return;
+  }
+
+  if (g_present_palette_valid &&
+      std::memcmp(g_present_palette_snapshot.data(), palette, g_present_palette_snapshot.size()) == 0) {
+    return;
+  }
+
+  std::memcpy(g_present_palette_snapshot.data(), palette, g_present_palette_snapshot.size());
+  for (int i = 0; i < 256; ++i) {
+    g_present_palette_lut[static_cast<std::size_t>(i)] = Palette_Index_To_ARGB(palette, i);
+  }
+  g_present_palette_valid = true;
 }
 
 void Destroy_Present_Texture() {
@@ -89,6 +122,7 @@ void Destroy_Present_Texture() {
   }
   g_present_width = 0;
   g_present_height = 0;
+  g_present_argb.clear();
 }
 
 void Ensure_Present_Texture(SDL_Renderer* renderer, int width, int height) {
@@ -103,6 +137,7 @@ void Ensure_Present_Texture(SDL_Renderer* renderer, int width, int height) {
   g_present_height = height;
   if (g_present_texture) {
     SDL_SetTextureScaleMode(g_present_texture, SDL_ScaleModeNearest);
+    SDL_SetTextureBlendMode(g_present_texture, SDL_BLENDMODE_NONE);
   }
 }
 
@@ -122,19 +157,25 @@ void Present_View(const GraphicViewPortClass& view) {
   if (!g_present_texture) return;
 
   const unsigned char* palette = Palette ? Palette : GamePalette;
-  std::vector<Uint32> argb(static_cast<std::size_t>(width) * height, 0);
+  Ensure_Palette_Lut(palette);
+  const std::size_t pixel_count = static_cast<std::size_t>(width) * static_cast<std::size_t>(height);
+  if (g_present_argb.size() != pixel_count) {
+    g_present_argb.assign(pixel_count, 0);
+  }
 
   const int pitch = buffer->Get_Width();
   const int origin_x = view.Get_XPos();
   const int origin_y = view.Get_YPos();
   for (int y = 0; y < height; ++y) {
+    const unsigned char* src_row = src + (origin_y + y) * pitch + origin_x;
+    Uint32* dst_row = g_present_argb.data() + static_cast<std::size_t>(y) * width;
     for (int x = 0; x < width; ++x) {
-      const int src_index = (origin_y + y) * pitch + (origin_x + x);
-      argb[static_cast<std::size_t>(y) * width + x] = Palette_Index_To_ARGB(palette, src[src_index]);
+      dst_row[x] = g_present_palette_lut[src_row[x]];
     }
   }
 
-  SDL_UpdateTexture(g_present_texture, nullptr, argb.data(), width * sizeof(Uint32));
+  SDL_UpdateTexture(g_present_texture, nullptr, g_present_argb.data(), width * sizeof(Uint32));
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
   SDL_RenderCopy(renderer, g_present_texture, nullptr, nullptr);
   SDL_RenderPresent(renderer);

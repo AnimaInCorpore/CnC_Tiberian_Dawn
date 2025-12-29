@@ -362,7 +362,9 @@
 | `WWLIB32.H` | `src/include/legacy/wwlib32.h` | Added lock/offset and pitch helpers needed by palette interpolation. |
 | `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | Implemented buffer/view offsets plus lock helpers for interpolation paths. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Added Wait_Blit declaration for interpolation flow. |
-| `PORT_STUBS.CPP` | `src/port_runtime.cpp` | Kept `Wait_Blit` as a no-op (SDL path does not require explicit blitter waits). |
+| `PORT_STUBS.CPP` | `src/port_runtime.cpp` | Implemented `Wait_Blit` to pump SDL events and yield (keeps palette interpolation flows responsive and closer to the Win95 “wait for blitter/vblank” intent). |
+| `DISPLAY.CPP` | `src/display.cpp` | Updated `Fade_Palette_To` so fades are visible even when callers pass `NULL` and paced in Win95-style 60Hz ticks. |
+| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | Adjusted palette expansion to Win95-style 6-bit→8-bit (`<<2`) and added a palette LUT to keep SDL presentation behavior deterministic and fast. |
 | `SMUDGE.H` | `src/include/legacy/smudge.h` | Included `wwfile.h` so FileClass I/O methods resolve. |
 | `SDATA.CPP` | `src/sdata.cpp` | Added missing legacy includes for theater/mix/map helpers used by smudge setup. |
 | `HELP.CPP` | `src/help.cpp` | Added HelpClass destructor definition to satisfy vtable linkage. |
