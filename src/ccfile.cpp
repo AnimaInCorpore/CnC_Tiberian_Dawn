@@ -113,7 +113,15 @@ long CCFileClass::Size(void) {
   return CDFileClass::Size();
 }
 
-long CCFileClass::Write(void const* /*buffer*/, long /*size*/) { return 0; }
+long CCFileClass::Write(void const* buffer, long size) {
+  if (!buffer || size <= 0) return 0;
+
+  if (Pointer || FromDisk) {
+    return 0;
+  }
+
+  return CDFileClass::Write(buffer, size);
+}
 
 void CCFileClass::Close(void) {
   Pointer = nullptr;

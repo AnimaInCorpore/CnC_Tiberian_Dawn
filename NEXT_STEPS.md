@@ -21,6 +21,7 @@ Status: Next steps. Scope: make the above definition true before chasing deep pa
 Status: Next steps. Scope: allow a normal play session to be resumed and options to persist.
 - Implement the load-game UI and wiring: `LoadOptionsClass::Process()`/list population is currently a skeleton and “Load mission” is not wired (`src/loaddlg.cpp`, `src/port_runtime.cpp`).
 - Port the corresponding save-game dialog and ensure save slots + descriptions match Win95 (no new dependencies; pick a platform-appropriate writable directory and document it).
+- Verify save/profile writes hit disk correctly now that `CCFileClass::Write()` forwards to `CDFileClass::Write()` for non-MIX files (`src/ccfile.cpp`, `src/options.cpp`, `src/game.cpp`).
 - Ensure `OptionsClass::Save_Settings()` writes to the same profile/config that startup reads (Win95 semantics, cross-platform paths) (`src/options.cpp`, `src/game.cpp`).
 - Replace the minimal `CONQUER.INI` auto-generation with a real SETUP/config flow (INI parsing + persistence) while keeping the repo-local `CD/...` mirror working (`src/port_setup.cpp`, `src/options.cpp`).
 
