@@ -90,9 +90,9 @@ void Ensure_Shape_Buffer() {
 void Ensure_Palette_Buffer(unsigned char*& palette, unsigned char fill) {
   if (!palette) {
     palette = new (std::nothrow) unsigned char[kPaletteSize];
-  }
-  if (palette) {
-    std::fill(palette, palette + kPaletteSize, fill);
+    if (palette) {
+      std::fill(palette, palette + kPaletteSize, fill);
+    }
   }
 }
 
@@ -101,6 +101,23 @@ void Ensure_Palettes() {
   Ensure_Palette_Buffer(GamePalette, 0);
   Ensure_Palette_Buffer(OriginalPalette, 0);
   Ensure_Palette_Buffer(WhitePalette, 63);
+
+  static bool seeded = false;
+  if (seeded) return;
+  seeded = true;
+
+  // Seed a canonical base palette early so UI color indices (including the
+  // hard-coded CC_GREEN_* range) have meaningful RGB values before the title
+  // screen applies its palette.
+  unsigned char pal[kPaletteSize]{};
+  CCFileClass file("TEMPERAT.PAL");
+  if (file.Is_Available() && file.Read(pal, kPaletteSize) == kPaletteSize) {
+    std::memcpy(GamePalette, pal, kPaletteSize);
+    std::memcpy(OriginalPalette, pal, kPaletteSize);
+    if (Palette) {
+      std::memcpy(Palette, pal, kPaletteSize);
+    }
+  }
 }
 
 void Configure_Game_Viewports() {

@@ -30,6 +30,7 @@ Status: Next steps. Scope: audio + movies are required for a “real game” exp
 - Implement the missing sound/visual options dialog backends (currently no-ops) so UI controls affect runtime state (`src/soundvisu_helpers.cpp`).
 - Add VQA audio playback + subtitle/EVA timing (current `Play_Movie()` decodes video + palette only) and verify skip rules/centering/cropping against Win95 (`src/movie.cpp`, `src/vqa_decoder.cpp`).
 - Match Win95 gradient UI text: implement `TPF_USE_GRAD_PAL` shading using the shipped gradient resources (`GRAD6FNT.FNT` palette + `12GRNGRD.FNT` blend table) in the SDL text renderer (`src/text.cpp`).
+- Verify the canonical base palette source for UI-reserved indices during the title/menu (currently seeded from `TEMPERAT.PAL`) against Win95 (`src/port_runtime.cpp`, `src/load_title.cpp`).
 
 ## Multiplayer and networking
 Status: Next steps. Scope: restore Win95 multiplayer flows once single-player is playable.
