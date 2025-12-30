@@ -86,40 +86,39 @@
 | `FACTORY.CPP` | `src/factory.cpp` | Ported to src/, switched to legacy include path, and replaced NULL with nullptr. |
 | `FIELD.CPP` | `src/field.cpp` | Ported to src/; moved to portable headers and retained original net byte-order conversions. |
 | `FINDPATH.CPP` | `src/findpath.cpp` | Ported to src/ with pathfinding and FootClass path helpers restored. |
-| `FLASHER.CPP` | | To be ported. |
 | `FLY.CPP` | `src/fly.cpp` | Ported FlyClass movement/physics and speed throttle logic; removed `src/fly_stub.cpp`. |
 | `FOOT.CPP` | `src/foot.cpp` | Ported to src/ with legacy movement/mission logic intact and includes updated for the SDL build. |
-| `FUSE.CPP` | | To be ported. |
-| `GADGET.CPP` | | To be ported. |
-| `GAMEDLG.CPP` | | To be ported. |
+| `FUSE.CPP` | `src/fuse.cpp` | Ported to src/; fuse countdown and explosion trigger logic preserved. |
+| `GADGET.CPP` | `src/gadget_control.cpp` | Ported base GadgetClass chain/input logic into a modernized translation unit (same API, SDL-friendly internals). |
+| `GAMEDLG.CPP` | `src/gamedlg.cpp` | Ported to src/; game-dialog helpers now compile and run under SDL. |
 | `GOPTIONS.CPP` | `src/goptions.cpp` | Ported to src/; options dialog flow restored (needs SDL UI verification). |
 | `GSCREEN.CPP` | `src/gscreen.cpp` | Shadow-page setup and render/IO stubs recreated around modern buffers; pointer coding now handled in `src/iomap.cpp`. |
 | `HDATA.CPP` | `src/hdata.cpp` | House type table migrated; colors/remap tables kept intact and Jurassic palette tweak guarded behind the Special/AreThingiesEnabled flags. |
-| `HEAP.CPP` | | To be ported. |
-| `HELP.CPP` | | To be ported. |
-| `HOUSE.CPP` | | To be ported. |
+| `HEAP.CPP` | `src/heap.cpp` | Ported to src/; heap bookkeeping is now portable. |
+| `HELP.CPP` | `src/help.cpp` | Ported to src/; help/system UI entry points compile under SDL. |
+| `HOUSE.CPP` | `src/house.cpp` | Ported to src/; house logic restored. |
 | `IDATA.CPP` | `src/idata.cpp` | Ported to src/; infantry type tables/constructors restored (depends on icon-set map helpers). |
-| `INFANTRY.CPP` | | To be ported. |
-| `INI.CPP` | | To be ported. |
-| `INIT.CPP` | | To be ported. |
+| `INFANTRY.CPP` | `src/infantry.cpp` | Ported to src/; infantry behavior restored. |
+| `INI.CPP` | `src/ini.cpp` | Ported to src/; INI parsing/writing now uses portable file helpers. |
+| `INIT.CPP` | `src/port_runtime.cpp`, `src/init_helpers.cpp` | Ported via the SDL startup path: `Parse_Command_Line`, `Init_Game`, and `Select_Game` now live in the runtime/initialization helpers. |
 | `INTERNET.CPP` | | To be ported. |
 | `INTERPAL.CPP` | `src/interpal.cpp` | Ported to src/; interpolation palette helpers restored. |
 | `INTRO.CPP` | `src/intro_port.cpp` | Minimal port; `Choose_Side()` now triggers the intro movie (VQA playback) and the full interactive flow is pending. |
 | `CONQUER.CPP` (VQA playback path) | `src/movie.cpp`, `src/vqa_decoder.cpp`, `src/vqa_decoder.h` | Replaced the simulated/timing-only movie stub with a real classic (8-bit) Westwood VQA decoder (LCW/Format80) and wired `Play_Movie()` to decode frames, apply per-frame palettes, and blit into the SDL software pages. |
 | `IOMAP.CPP` | `src/iomap.cpp` | Ported to src/ with pointer coding helpers for map/UI classes restored. |
 | `IOOBJ.CPP` | `src/ioobj.cpp` | Ported to src/ with object save/load pointer coding and smudge/overlay helpers restored. |
-| `IPX.CPP` | | To be ported. |
+| `IPX.CPP` | `src/ipx.cpp` | Ported to src/; IPX manager/connection glue now builds in the SDL target. |
 | `IPX95.CPP` | `src/ipx95.cpp` | Implemented the Win95 IPX95 entry points (`IPX_Send_Packet95`/`IPX_Broadcast_Packet95`/`IPX_Get_Outstanding_Buffer95`) on top of the UDP-backed `IPXConnClass`, restoring packet send/receive behavior instead of returning stub values. |
-| `IPXADDR.CPP` | | To be ported. |
-| `IPXCONN.CPP` | | To be ported. |
-| `IPXGCONN.CPP` | | To be ported. |
+| `IPXADDR.CPP` | `src/ipxaddr.cpp` | Ported to src/; IPX address helpers preserved. |
+| `IPXCONN.CPP` | `src/ipxconn.cpp` | Ported to src/; UDP-backed IPXConnClass implementation. |
+| `IPXGCONN.CPP` | `src/ipxgconn.cpp` | Ported to src/; connection manager glue preserved. |
 | `IPXMGR.CPP` | `src/ipxmgr.cpp` | IPX manager now tracks send/receive counters and computes basic response-time stats from observed traffic, replacing placeholder return values while keeping the UDP transport layer. |
-| `JSHELL.CPP` | | To be ported. |
+| `JSHELL.CPP` | `src/jshell.cpp` | Ported to src/; JShell UI helpers and icon sampling logic restored. |
 | `KEYFRAME.CPP` | `src/keyframe_info.cpp` | Frame metadata/palette accessors ported; `Build_Frame`/LCW decode still pending. |
 | `LOADDLG.CPP` | `src/loaddlg.cpp` | Ported load/save/delete dialog backend, replacing the placeholder `LoadOptionsClass` implementation and wiring it to the real save/load entry points. |
 | `LOAD_TITLE.CPP` | `src/load_title.cpp` | Title screen loader now resolves art through the CCFile/Mix stack, decodes PCX or CPS deterministically, patches UI palette colors, and scales to the active viewport. Fixed PCX RLE decoding so runs that cross scanline boundaries are handled correctly (prevents main menu background corruption). |
 | `LOAD_TITLE.CPP` | `src/load_title.cpp` | Title palette normalization now mirrors the legacy PCX loader and no longer overwrites the first 16 palette entries, matching Win95 background colors. |
-| `LOGIC.CPP` | | To be ported. |
+| `LOGIC.CPP` | `src/logic.cpp` | Ported to src/; game logic loop and orchestration now builds under SDL. |
 | `MAIN.CPP` | `src/main.cpp` | SDL bootstrap now requests a high-DPI window and nearest-neighbor scaling so UI/text pixels stay crisp. |
 | `WWLIB_RUNTIME.CPP` (present blit) | `src/wwlib_runtime.cpp` | Present texture now pins SDL texture scale mode to `nearest` to avoid blurry text when SDL scales the 8-bit buffer, and ModeX_Blit forwards legacy menu blits to the SDL presenter. |
 | `WWLIB_RUNTIME.CPP` (`WWMouseClass`) | `src/wwlib_runtime.cpp` | Implemented software cursor draw/erase (save-under + restore) and wired `Set_Mouse_Cursor` so legacy Hide/Show/Conditional mouse logic works. |
@@ -140,7 +139,7 @@
 | `MONOC.CPP` | `src/monoc.cpp` | Ported monochrome debug buffer to a heap-backed screen page and removed DOS/segment calls while keeping the original text/box routines. |
 | `MONOC.H` | `src/include/legacy/monoc.h` | Box character table now uses 8-bit storage to preserve IBM line-draw values without C++ narrowing errors. |
 | `MISSION.CPP` | `src/mission.cpp` | Ported to src/ with legacy mission state machine logic intact and includes updated for the SDL build; pointer coding now handled in `src/ioobj.cpp`. |
-| `MOUSE.CPP` | | To be ported. |
+| `MOUSE.CPP` | `src/mouse.cpp` | Ported MouseClass cursor controller (loads `MOUSE.SHP`, supports small variants, and animates cursor frames via the legacy countdown timer). |
 | `MPLAYER.CPP` | | To be ported. |
 | `MSGBOX.CPP` | `src/msgbox.cpp` | Ported to src/; CCMessageBox UI logic restored. |
 | `MSGLIST.CPP` | `src/msglist.cpp` | Ported to src/; MessageListClass restored. |
@@ -149,7 +148,7 @@
 | `NULLCONN.CPP` | `src/nullconn.cpp` | Ported NULL modem connection framing/CRC with UDP-backed send path. |
 | `NULLDLG.CPP` | | To be ported. |
 | `NULLMGR.CPP` | `src/nullmgr.cpp` | Ported NULL modem manager with UDP-based transport, queue/timing, and buffer parsing. |
-| `OBJECT.CPP` | | To be ported. |
+| `OBJECT.CPP` | `src/object.cpp` | Ported to src/; core object hierarchy logic restored. |
 | `ODATA.CPP` | `src/odata.cpp` | Ported to src/; overlay type tables/graphics restored. |
 | `OPTIONS.CPP` | `src/options.cpp` | Ported to src/; options settings and palette hooks restored, and the score-volume setter no longer recurses into itself. |
 | `OVERLAY.CPP` | `src/overlay.cpp` | Ported to src/; overlay object logic restored and map-shim access updated for stubbed cells. |
@@ -157,40 +156,40 @@
 | `POWER.CPP` | `src/power.cpp` | Power bar UI ported; shapes are loaded via the modern MIX helpers and redraw logic mirrors the original radar/sidebar flow. |
 | `PROFILE.CPP` | `src/profile.cpp` | Ported Win95 INI/profile helpers (`WWGet/WritePrivateProfile*`, hex/int/string parsing, section/entry deletion) and removed the stub implementations from `src/port_runtime.cpp`. |
 | `QUEUE.CPP` | `src/queue.cpp` | Ported to src/ with mission queue helper logic and pointer coding helpers. |
-| `RADAR.CPP` | | To be ported. |
+| `RADAR.CPP` | `src/radar.cpp` | Ported to src/; radar UI helpers now build under SDL. |
 | `RAWFILE.CPP` | `src/rawfile.cpp` | RawFileClass rebuilt atop POSIX read/write/seek with simple error handling. |
 | `BUFFER_TO_PAGE` (legacy blit) | `src/buffer_to_page.cpp` | Raw 8-bit buffer copy now performs bounds-aware page blits instead of the stub. |
 | `REINF.CPP` | `src/reinf.cpp` | Ported to src/ with reinforcement creation logic wired for triggers. |
 | `SAVELOAD.CPP` | `src/saveload.cpp` | Ported save/load and misc-value serialization routines (plus pointer coding) so savegame operations have a real implementation again. |
-| `SCENARIO.CPP` | | To be ported. |
+| `SCENARIO.CPP` | `src/scenario.cpp` | Ported to src/; scenario INI loading and theater setup preserved. |
 | `SCORE.CPP` | `src/score.cpp` | Ported to src/; score/ending UI helpers and globals restored. |
 | `SDATA.CPP` | `src/sdata.cpp` | Ported to src/; smudge type tables/graphics restored. |
-| `SEQCONN.CPP` | | To be ported. |
+| `SEQCONN.CPP` | `src/seqconn.cpp` | Ported to src/; sequenced packet connection class preserved for future networking parity work. |
 | `SIDEBAR.CPP` | `src/sidebar.cpp` | Ported to src/; sidebar UI logic restored. |
 | `SMUDGE.CPP` | `src/smudge.cpp` | Ported to src/; smudge object logic restored and map-shim access updated for stubbed cells. |
-| `SOUNDDLG.CPP` | | To be ported. |
+| `SOUNDDLG.CPP` | `src/sounddlg.cpp` | Ported to src/; sound controls dialog backend implemented. |
 | `SPECIAL.CPP` | `src/special.cpp` | Special options dialog wired with original checkbox logic and OK/Cancel flow. |
-| `STARTUP.CPP` | | To be ported. |
-| `STATS.CPP` | | To be ported. |
-| `SUPER.CPP` | | To be ported. |
+| `STARTUP.CPP` | `src/main.cpp`, `src/game.cpp`, `src/port_runtime.cpp` | Ported via the SDL entry point; WinMain-only startup scaffolding is intentionally not compiled into the SDL target. |
+| `STATS.CPP` | `src/stats.cpp` | Ported to src/; statistics screens now build. |
+| `SUPER.CPP` | `src/super.cpp` | Ported to src/; superweapon logic restored. |
 | `TARCOM.CPP` | `src/tarcom.cpp` | Ported to src/; targeting/command logic restored. |
 | `TARGET.CPP` | `src/target.cpp` | Ported to src/ with target decoding helpers for units/buildings/cells. |
 | `TCPIP.CPP` | `src/tcpip.cpp` | Portable UDP-backed implementation for session messaging (PlanetWestwood globals + basic send/receive path). |
-| `TDATA.CPP` | | To be ported. |
+| `TDATA.CPP` | `src/tdata.cpp` | Ported to src/; terrain template/type tables restored. |
 | `TEAM.CPP` | `src/team.cpp` | Ported to src/ with legacy team coordination logic and mission routing. |
 | `TEAMTYPE.CPP` | `src/teamtype.cpp` | Ported to src/ with team type tables, INI parsing, and mission name helpers intact. |
-| `TECHNO.CPP` | | To be ported. |
-| `TEMP.CPP` | | To be ported. |
+| `TECHNO.CPP` | `src/techno.cpp` | Ported to src/; shared TechnoClass logic restored. |
+| `TEMP.CPP` | `src/temp.cpp` | Ported to src/; temporary data helpers preserved. |
 | `TEMPLATE.CPP` | `src/template.cpp` | Ported to src/; template object logic restored (depends on icon-set map helpers) and map-shim access updated. |
 | `TERRAIN.CPP` | `src/terrain.cpp` | Ported to src/; terrain object logic restored. |
 | `THEME.CPP` | `src/theme.cpp` | Ported to src/ with theme queueing and music selection logic preserved. |
 | `TRIGGER.CPP` | `src/trigger.cpp` | Ported to src/ with trigger parsing and execution logic preserved. |
 | `TURRET.CPP` | `src/turret.cpp` | Ported to src/; turret control logic restored. |
 | `UDATA.CPP` | `src/udata.cpp` | Ported to src/; unit type tables/constructors restored. |
-| `UNIT.CPP` | | To be ported. |
+| `UNIT.CPP` | `src/unit.cpp` | Ported to src/; unit behavior restored. |
 | `UTRACKER.CPP` | `src/utracker.cpp` | Unit tracker ported with network/PC byte-order conversion helpers. |
-| `VISUDLG.CPP` | | To be ported. |
-| `WINSTUB.CPP` | | To be ported. |
+| `VISUDLG.CPP` | `src/visudlg.cpp` | Ported to src/; visual controls dialog backend implemented. |
+| `WINSTUB.CPP` | `src/port_runtime.cpp` | No longer needed in the SDL target; the globals (`ReadyToQuit`, etc) are defined in the runtime implementation. |
 | `ABSTRACT.H` | `src/include/legacy/abstract.h` | Lowercase mirror retained so `#include "abstract.h"` works on case-sensitive hosts. |
 | `COMPAT.H` | `src/include/legacy/compat.h` | Palette/buffer macros and legacy globals wrapped in portable defaults. |
 | `DEFINES.H` | `src/include/legacy/defines.h` | Lowercase mirror preserving gameplay feature toggles until modernization. |

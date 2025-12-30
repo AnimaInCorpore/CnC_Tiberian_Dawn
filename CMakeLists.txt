@@ -189,6 +189,7 @@ set(TD_SOURCES
   src/runtime_sdl.cpp
   src/scroll.cpp
   src/source_helpers.cpp
+  src/seqconn.cpp
   src/shapebtn.cpp
   src/slider.cpp
   src/special.cpp
