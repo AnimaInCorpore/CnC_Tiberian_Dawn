@@ -28,16 +28,6 @@
 #include "legacy/wwlib32.h"
 
 namespace {
-
-int Open_Flags(int rights) {
-  const bool can_read = (rights & READ) != 0;
-  const bool can_write = (rights & WRITE) != 0;
-
-  if (can_read && can_write) return O_RDWR;
-  if (can_write) return O_WRONLY;
-  return O_RDONLY;
-}
-
 }  // namespace
 
 RawFileClass::RawFileClass(char const* filename)
@@ -96,8 +86,21 @@ int RawFileClass::Delete() {
   return (::unlink(Filename) == 0) ? 1 : 0;
 }
 
-int RawFileClass::Is_Available(int /*forced*/) {
+int RawFileClass::Is_Available(int forced) {
   if (!Filename) return 0;
+
+  if (Is_Open()) {
+    return 1;
+  }
+
+  if (forced) {
+    if (!Open(READ)) {
+      return 0;
+    }
+    Close();
+    return 1;
+  }
+
   struct stat info {};
   return (::stat(Filename, &info) == 0) ? 1 : 0;
 }
@@ -110,10 +113,45 @@ int RawFileClass::Open(char const* filename, int rights) {
 }
 
 int RawFileClass::Open(int rights) {
-  if (!Filename) return 0;
+  Close();
+
+  if (!Filename) {
+    Error(ENOENT, false, nullptr);
+    return 0;
+  }
+
   Rights = rights;
-  Handle = ::open(Filename, Open_Flags(rights));
-  return (Handle >= 0) ? 1 : 0;
+
+  for (;;) {
+    errno = 0;
+
+    switch (rights) {
+      case READ:
+        Handle = ::open(Filename, O_RDONLY);
+        break;
+      case WRITE:
+        Handle = ::open(Filename, O_CREAT | O_TRUNC | O_WRONLY, 0666);
+        break;
+      case READ | WRITE:
+        Handle = ::open(Filename, O_CREAT | O_RDWR, 0666);
+        break;
+      default:
+        errno = EINVAL;
+        Handle = -1;
+        break;
+    }
+
+    if (Handle >= 0) {
+      return 1;
+    }
+
+    const int open_errno = errno ? errno : EIO;
+    const bool allow_retry = (rights == READ) && (open_errno == ENOENT);
+    Error(open_errno, allow_retry ? 1 : 0, Filename);
+    if (!allow_retry) {
+      return 0;
+    }
+  }
 }
 
 long RawFileClass::Read(void* buffer, long size) {
