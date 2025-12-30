@@ -6,6 +6,9 @@
 #include "legacy/function.h"
 #include "legacy/comqueue.h"
 
+#include <cstdio>
+#include <cstring>
+
 CommQueueClass::CommQueueClass(int numsend, int numreceive, int maxlen)
 {
     int i;
@@ -222,9 +225,9 @@ void CommQueueClass::Mono_Debug_Print2(int refresh) {
       hdr = reinterpret_cast<CommHdr*>(SendQueue[i].Buffer);
       hdr->MagicNumber = hdr->MagicNumber;
       hdr->Code = hdr->Code;
-      std::sprintf(txt, "%4d %2d %-5s  ", static_cast<int>(hdr->PacketID),
-                   SendQueue[i].SendCount,
-                   ConnectionClass::Command_Name(hdr->Code));
+      std::snprintf(txt, sizeof(txt), "%4d %2d %-5s  ", static_cast<int>(hdr->PacketID),
+                    SendQueue[i].SendCount,
+                    ConnectionClass::Command_Name(hdr->Code));
 
       if (DebugSize && (DebugOffset + DebugSize) <= SendQueue[i].BufLen) {
         if (DebugSize == 1) {
@@ -234,14 +237,22 @@ void CommQueueClass::Mono_Debug_Print2(int refresh) {
         } else if (DebugSize == 4) {
           val = *((int*)(SendQueue[i].Buffer + DebugOffset));
         }
-        std::sprintf(txt + std::strlen(txt), "%4d  ", val);
+        size_t len = std::strlen(txt);
+        if (len < sizeof(txt)) {
+          std::snprintf(txt + len, sizeof(txt) - len, "%4d  ", val);
+        }
 
         if (DebugMaxNames && val > 0 && val < DebugMaxNames) {
-          std::sprintf(txt + std::strlen(txt), "%-12s  %x", DebugNames[val],
-                       SendQueue[i].IsACK);
+          len = std::strlen(txt);
+          if (len < sizeof(txt)) {
+            std::snprintf(txt + len, sizeof(txt) - len, "%-12s  %x", DebugNames[val],
+                          SendQueue[i].IsACK);
+          }
         } else {
-          std::sprintf(txt + std::strlen(txt), "              %x",
-                       SendQueue[i].IsACK);
+          len = std::strlen(txt);
+          if (len < sizeof(txt)) {
+            std::snprintf(txt + len, sizeof(txt) - len, "              %x", SendQueue[i].IsACK);
+          }
         }
       }
       Mono_Printf(txt);
@@ -256,9 +267,9 @@ void CommQueueClass::Mono_Debug_Print2(int refresh) {
       hdr = reinterpret_cast<CommHdr*>(ReceiveQueue[i].Buffer);
       hdr->MagicNumber = hdr->MagicNumber;
       hdr->Code = hdr->Code;
-      std::sprintf(txt, "%4d %2d %-5s  ", static_cast<int>(hdr->PacketID),
-                   ReceiveQueue[i].IsRead,
-                   ConnectionClass::Command_Name(hdr->Code));
+      std::snprintf(txt, sizeof(txt), "%4d %2d %-5s  ", static_cast<int>(hdr->PacketID),
+                    ReceiveQueue[i].IsRead,
+                    ConnectionClass::Command_Name(hdr->Code));
 
       if (DebugSize && (DebugOffset + DebugSize) <= SendQueue[i].BufLen) {
         if (DebugSize == 1) {
@@ -268,14 +279,22 @@ void CommQueueClass::Mono_Debug_Print2(int refresh) {
         } else if (DebugSize == 4) {
           val = *((int*)(ReceiveQueue[i].Buffer + DebugOffset));
         }
-        std::sprintf(txt + std::strlen(txt), "%4d  ", val);
+        size_t len = std::strlen(txt);
+        if (len < sizeof(txt)) {
+          std::snprintf(txt + len, sizeof(txt) - len, "%4d  ", val);
+        }
 
         if (DebugMaxNames && val > 0 && val < DebugMaxNames) {
-          std::sprintf(txt + std::strlen(txt), "%-12s  %x", DebugNames[val],
-                       ReceiveQueue[i].IsACK);
+          len = std::strlen(txt);
+          if (len < sizeof(txt)) {
+            std::snprintf(txt + len, sizeof(txt) - len, "%-12s  %x", DebugNames[val],
+                          ReceiveQueue[i].IsACK);
+          }
         } else {
-          std::sprintf(txt + std::strlen(txt), "              %x",
-                       ReceiveQueue[i].IsACK);
+          len = std::strlen(txt);
+          if (len < sizeof(txt)) {
+            std::snprintf(txt + len, sizeof(txt) - len, "              %x", ReceiveQueue[i].IsACK);
+          }
         }
       }
       Mono_Printf(txt);

@@ -83,6 +83,8 @@
 #include "legacy/msglist.h"
 #include "tcpip.h"
 
+#include <cstdio>
+
 /********************************** Defines *********************************/
 #define SHOW_MONO	1
 
@@ -1117,9 +1119,9 @@ static void Generate_Timing_Event(ConnManClass *net, int my_sent)
 				ev.Data.FrameInfo.Delay = MAX( ((((resp_time / 8) +
 					(FrameSendRate - 1)) / FrameSendRate) *
 					FrameSendRate), (FrameSendRate * 2) );
-char flip[128];
-sprintf (flip, "C&C95 - Generating timing packet - MaxAhead = %d frames\n", ev.Data.FrameInfo.Delay);
-CCDebugString (flip);
+	char flip[128];
+	std::snprintf(flip, sizeof(flip), "C&C95 - Generating timing packet - MaxAhead = %d frames\n", ev.Data.FrameInfo.Delay);
+	CCDebugString (flip);
 
 			}
 			//..................................................................
@@ -1304,9 +1306,9 @@ static void Generate_Process_Time_Event(ConnManClass *net)
 
 	ev.Type = EventClass::PROCESS_TIME;
 	ev.Data.ProcessTime.AverageTicks = avgticks;
-char flip[128];
-sprintf (flip, "C&C95 - Sending PROCESS_TIME packet of %04x ticks\n", ev.Data.ProcessTime.AverageTicks);
-CCDebugString (flip);
+	char flip[128];
+	std::snprintf(flip, sizeof(flip), "C&C95 - Sending PROCESS_TIME packet of %04x ticks\n", ev.Data.ProcessTime.AverageTicks);
+	CCDebugString (flip);
 
 	OutList.Add(ev);
 
@@ -1737,8 +1739,7 @@ static RetcodeType Process_Serial_Packet(char *multi_packet_buf,
 	// Process an incoming message
 	//------------------------------------------------------------------------
 	if (serial_packet->Command == SERIAL_MESSAGE) {
-		sprintf(txt, Text_String(TXT_FROM), serial_packet->Name,
-			serial_packet->Message);
+		std::snprintf(txt, sizeof(txt), Text_String(TXT_FROM), serial_packet->Name, serial_packet->Message);
 
 		magic_number = *((unsigned short*)(serial_packet->Message + COMPAT_MESSAGE_LENGTH-4));
 		crc = *((unsigned short*)(serial_packet->Message + COMPAT_MESSAGE_LENGTH-2));
@@ -2751,9 +2752,9 @@ int Extract_Compressed_Events(void *buf, int bufsize)
 					break;
 			}
 
-char flip[128];
-sprintf (flip, "C&C95 - Adding event type %d to queue\n", eventdata.Type);
-CCDebugString (flip);
+	char flip[128];
+	std::snprintf(flip, sizeof(flip), "C&C95 - Adding event type %d to queue\n", eventdata.Type);
+	CCDebugString (flip);
 
 //if (lasteventtype == 11){
 //	break;
@@ -3448,7 +3449,7 @@ void Print_CRCs(EventClass *ev)
 	Mono_Set_Cursor (0,0);
 
 	char filename[80];
-	sprintf (filename, "CRC%02d.TXT", Frame & 0x1f);
+	std::snprintf(filename, sizeof(filename), "CRC%02d.TXT", static_cast<int>(Frame & 0x1f));
 
 	fp = fopen(filename, "wt");	//"OUT.TXT","wt");
 	if (fp==NULL) {
@@ -3456,7 +3457,7 @@ void Print_CRCs(EventClass *ev)
 	}
 
 	for (i = 0; i < 32; i++) {
-		fprintf(fp,"CRC[%d]=%x\n",i,CRC[i]);
+		fprintf(fp,"CRC[%d]=%lx\n",i, static_cast<unsigned long>(CRC[i]));
 	}
 
 
@@ -3513,9 +3514,9 @@ void Print_CRCs(EventClass *ev)
 			infp = (InfantryClass *)Infantry.Active_Ptr(i);
 			if (infp->Owner()==HOUSE_MULTI1) {
 				Add_CRC (&GameCRC, (int)infp->Coord + (int)infp->PrimaryFacing);
-				fprintf(fp,"COORD:%x   Facing:%d   Mission:%d   Type:%d\n",
-					infp->Coord,(int)infp->PrimaryFacing,infp->Get_Mission(),
-					infp->Class->Type);
+					fprintf(fp,"COORD:%lx   Facing:%d   Mission:%d   Type:%d\n",
+						(unsigned long)infp->Coord,(int)infp->PrimaryFacing,infp->Get_Mission(),
+						infp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi1 Infantry:%d\n",GameCRC);
@@ -3531,9 +3532,9 @@ void Print_CRCs(EventClass *ev)
 			infp = (InfantryClass *)Infantry.Active_Ptr(i);
 			if (infp->Owner()==HOUSE_MULTI2) {
 				Add_CRC (&GameCRC, (int)infp->Coord + (int)infp->PrimaryFacing);
-				fprintf(fp,"COORD:%x   Facing:%d   Mission:%d   Type:%d\n",
-					infp->Coord,(int)infp->PrimaryFacing,infp->Get_Mission(),
-					infp->Class->Type);
+					fprintf(fp,"COORD:%lx   Facing:%d   Mission:%d   Type:%d\n",
+						(unsigned long)infp->Coord,(int)infp->PrimaryFacing,infp->Get_Mission(),
+						infp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi2 Infantry:%d\n",GameCRC);
@@ -3549,9 +3550,9 @@ void Print_CRCs(EventClass *ev)
 			infp = (InfantryClass *)Infantry.Active_Ptr(i);
 			if (infp->Owner()==HOUSE_MULTI3) {
 				Add_CRC (&GameCRC, (int)infp->Coord + (int)infp->PrimaryFacing);
-				fprintf(fp,"COORD:%x   Facing:%d   Mission:%d   Type:%d\n",
-					infp->Coord,(int)infp->PrimaryFacing,infp->Get_Mission(),
-					infp->Class->Type);
+					fprintf(fp,"COORD:%lx   Facing:%d   Mission:%d   Type:%d\n",
+						(unsigned long)infp->Coord,(int)infp->PrimaryFacing,infp->Get_Mission(),
+						infp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi3 Infantry:%d\n",GameCRC);
@@ -3567,9 +3568,9 @@ void Print_CRCs(EventClass *ev)
 			infp = (InfantryClass *)Infantry.Active_Ptr(i);
 			if (infp->Owner()==HOUSE_MULTI4) {
 				Add_CRC (&GameCRC, (int)infp->Coord + (int)infp->PrimaryFacing);
-				fprintf(fp,"COORD:%x   Facing:%d   Mission:%d   Type:%d\n",
-					infp->Coord,(int)infp->PrimaryFacing,infp->Get_Mission(),
-					infp->Class->Type);
+					fprintf(fp,"COORD:%lx   Facing:%d   Mission:%d   Type:%d\n",
+						(unsigned long)infp->Coord,(int)infp->PrimaryFacing,infp->Get_Mission(),
+						infp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi4 Infantry:%d\n",GameCRC);
@@ -3585,9 +3586,9 @@ void Print_CRCs(EventClass *ev)
 			infp = (InfantryClass *)Infantry.Active_Ptr(i);
 			if (infp->Owner()==HOUSE_MULTI5) {
 				Add_CRC (&GameCRC, (int)infp->Coord + (int)infp->PrimaryFacing);
-				fprintf(fp,"COORD:%x   Facing:%d   Mission:%d   Type:%d\n",
-					infp->Coord,(int)infp->PrimaryFacing,infp->Get_Mission(),
-					infp->Class->Type);
+					fprintf(fp,"COORD:%lx   Facing:%d   Mission:%d   Type:%d\n",
+						(unsigned long)infp->Coord,(int)infp->PrimaryFacing,infp->Get_Mission(),
+						infp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi5 Infantry:%d\n",GameCRC);
@@ -3603,9 +3604,9 @@ void Print_CRCs(EventClass *ev)
 			infp = (InfantryClass *)Infantry.Active_Ptr(i);
 			if (infp->Owner()==HOUSE_MULTI6) {
 				Add_CRC (&GameCRC, (int)infp->Coord + (int)infp->PrimaryFacing);
-				fprintf(fp,"COORD:%x   Facing:%d   Mission:%d   Type:%d\n",
-					infp->Coord,(int)infp->PrimaryFacing,infp->Get_Mission(),
-					infp->Class->Type);
+					fprintf(fp,"COORD:%lx   Facing:%d   Mission:%d   Type:%d\n",
+						(unsigned long)infp->Coord,(int)infp->PrimaryFacing,infp->Get_Mission(),
+						infp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi6 Infantry:%d\n",GameCRC);
@@ -3621,11 +3622,11 @@ void Print_CRCs(EventClass *ev)
 			unitp = (UnitClass *)Units.Active_Ptr(i);
 			if (unitp->Owner()==HOUSE_MULTI1) {
 				Add_CRC (&GameCRC, (int)unitp->Coord + (int)unitp->PrimaryFacing);
-				fprintf(fp,
-					"COORD:%x   Facing:%d   Facing2:%d   Mission:%d   Type:%d\n",
-					unitp->Coord,(int)unitp->PrimaryFacing,
-					(int)unitp->SecondaryFacing,unitp->Get_Mission(),
-					unitp->Class->Type);
+					fprintf(fp,
+						"COORD:%lx   Facing:%d   Facing2:%d   Mission:%d   Type:%d\n",
+						(unsigned long)unitp->Coord,(int)unitp->PrimaryFacing,
+						(int)unitp->SecondaryFacing,unitp->Get_Mission(),
+						unitp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi1 Units:%d\n",GameCRC);
@@ -3641,11 +3642,11 @@ void Print_CRCs(EventClass *ev)
 			unitp = (UnitClass *)Units.Active_Ptr(i);
 			if (unitp->Owner()==HOUSE_MULTI2) {
 				Add_CRC (&GameCRC, (int)unitp->Coord + (int)unitp->PrimaryFacing);
-				fprintf(fp,
-					"COORD:%x   Facing:%d   Facing2:%d   Mission:%d   Type:%d\n",
-					unitp->Coord,(int)unitp->PrimaryFacing,
-					(int)unitp->SecondaryFacing,unitp->Get_Mission(),
-					unitp->Class->Type);
+					fprintf(fp,
+						"COORD:%lx   Facing:%d   Facing2:%d   Mission:%d   Type:%d\n",
+						(unsigned long)unitp->Coord,(int)unitp->PrimaryFacing,
+						(int)unitp->SecondaryFacing,unitp->Get_Mission(),
+						unitp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi2 Units:%d\n",GameCRC);
@@ -3661,11 +3662,11 @@ void Print_CRCs(EventClass *ev)
 			unitp = (UnitClass *)Units.Active_Ptr(i);
 			if (unitp->Owner()==HOUSE_MULTI3) {
 				Add_CRC (&GameCRC, (int)unitp->Coord + (int)unitp->PrimaryFacing);
-				fprintf(fp,
-					"COORD:%x   Facing:%d   Facing2:%d   Mission:%d   Type:%d\n",
-					unitp->Coord,(int)unitp->PrimaryFacing,
-					(int)unitp->SecondaryFacing,unitp->Get_Mission(),
-					unitp->Class->Type);
+					fprintf(fp,
+						"COORD:%lx   Facing:%d   Facing2:%d   Mission:%d   Type:%d\n",
+						(unsigned long)unitp->Coord,(int)unitp->PrimaryFacing,
+						(int)unitp->SecondaryFacing,unitp->Get_Mission(),
+						unitp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi3 Units:%d\n",GameCRC);
@@ -3681,11 +3682,11 @@ void Print_CRCs(EventClass *ev)
 			unitp = (UnitClass *)Units.Active_Ptr(i);
 			if (unitp->Owner()==HOUSE_MULTI4) {
 				Add_CRC (&GameCRC, (int)unitp->Coord + (int)unitp->PrimaryFacing);
-				fprintf(fp,
-					"COORD:%x   Facing:%d   Facing2:%d   Mission:%d   Type:%d\n",
-					unitp->Coord,(int)unitp->PrimaryFacing,
-					(int)unitp->SecondaryFacing,unitp->Get_Mission(),
-					unitp->Class->Type);
+					fprintf(fp,
+						"COORD:%lx   Facing:%d   Facing2:%d   Mission:%d   Type:%d\n",
+						(unsigned long)unitp->Coord,(int)unitp->PrimaryFacing,
+						(int)unitp->SecondaryFacing,unitp->Get_Mission(),
+						unitp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi4 Units:%d\n",GameCRC);
@@ -3701,11 +3702,11 @@ void Print_CRCs(EventClass *ev)
 			unitp = (UnitClass *)Units.Active_Ptr(i);
 			if (unitp->Owner()==HOUSE_MULTI5) {
 				Add_CRC (&GameCRC, (int)unitp->Coord + (int)unitp->PrimaryFacing);
-				fprintf(fp,
-					"COORD:%x   Facing:%d   Facing2:%d   Mission:%d   Type:%d\n",
-					unitp->Coord,(int)unitp->PrimaryFacing,
-					(int)unitp->SecondaryFacing,unitp->Get_Mission(),
-					unitp->Class->Type);
+					fprintf(fp,
+						"COORD:%lx   Facing:%d   Facing2:%d   Mission:%d   Type:%d\n",
+						(unsigned long)unitp->Coord,(int)unitp->PrimaryFacing,
+						(int)unitp->SecondaryFacing,unitp->Get_Mission(),
+						unitp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi5 Units:%d\n",GameCRC);
@@ -3721,11 +3722,11 @@ void Print_CRCs(EventClass *ev)
 			unitp = (UnitClass *)Units.Active_Ptr(i);
 			if (unitp->Owner()==HOUSE_MULTI6) {
 				Add_CRC (&GameCRC, (int)unitp->Coord + (int)unitp->PrimaryFacing);
-				fprintf(fp,
-					"COORD:%x   Facing:%d   Facing2:%d   Mission:%d   Type:%d\n",
-					unitp->Coord,(int)unitp->PrimaryFacing,
-					(int)unitp->SecondaryFacing,unitp->Get_Mission(),
-					unitp->Class->Type);
+					fprintf(fp,
+						"COORD:%lx   Facing:%d   Facing2:%d   Mission:%d   Type:%d\n",
+						(unsigned long)unitp->Coord,(int)unitp->PrimaryFacing,
+						(int)unitp->SecondaryFacing,unitp->Get_Mission(),
+						unitp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi6 Units:%d\n",GameCRC);
@@ -3741,9 +3742,9 @@ void Print_CRCs(EventClass *ev)
 			bldgp = (BuildingClass *)Buildings.Active_Ptr(i);
 			if (bldgp->Owner()==HOUSE_MULTI1) {
 				Add_CRC (&GameCRC, (int)bldgp->Coord + (int)bldgp->PrimaryFacing);
-				fprintf(fp,"COORD:%x   Facing:%d   Mission:%d   Type:%d\n",
-					bldgp->Coord,(int)bldgp->PrimaryFacing,bldgp->Get_Mission(),
-					bldgp->Class->Type);
+					fprintf(fp,"COORD:%lx   Facing:%d   Mission:%d   Type:%d\n",
+						(unsigned long)bldgp->Coord,(int)bldgp->PrimaryFacing,bldgp->Get_Mission(),
+						bldgp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi1 Buildings:%d\n",GameCRC);
@@ -3759,9 +3760,9 @@ void Print_CRCs(EventClass *ev)
 			bldgp = (BuildingClass *)Buildings.Active_Ptr(i);
 			if (bldgp->Owner()==HOUSE_MULTI2) {
 				Add_CRC (&GameCRC, (int)bldgp->Coord + (int)bldgp->PrimaryFacing);
-				fprintf(fp,"COORD:%x   Facing:%d   Mission:%d   Type:%d\n",
-					bldgp->Coord,(int)bldgp->PrimaryFacing,bldgp->Get_Mission(),
-					bldgp->Class->Type);
+					fprintf(fp,"COORD:%lx   Facing:%d   Mission:%d   Type:%d\n",
+						(unsigned long)bldgp->Coord,(int)bldgp->PrimaryFacing,bldgp->Get_Mission(),
+						bldgp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi2 Buildings:%d\n",GameCRC);
@@ -3777,9 +3778,9 @@ void Print_CRCs(EventClass *ev)
 			bldgp = (BuildingClass *)Buildings.Active_Ptr(i);
 			if (bldgp->Owner()==HOUSE_MULTI3) {
 				Add_CRC (&GameCRC, (int)bldgp->Coord + (int)bldgp->PrimaryFacing);
-				fprintf(fp,"COORD:%x   Facing:%d   Mission:%d   Type:%d\n",
-					bldgp->Coord,(int)bldgp->PrimaryFacing,bldgp->Get_Mission(),
-					bldgp->Class->Type);
+					fprintf(fp,"COORD:%lx   Facing:%d   Mission:%d   Type:%d\n",
+						(unsigned long)bldgp->Coord,(int)bldgp->PrimaryFacing,bldgp->Get_Mission(),
+						bldgp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi3 Buildings:%d\n",GameCRC);
@@ -3795,9 +3796,9 @@ void Print_CRCs(EventClass *ev)
 			bldgp = (BuildingClass *)Buildings.Active_Ptr(i);
 			if (bldgp->Owner()==HOUSE_MULTI4) {
 				Add_CRC (&GameCRC, (int)bldgp->Coord + (int)bldgp->PrimaryFacing);
-				fprintf(fp,"COORD:%x   Facing:%d   Mission:%d   Type:%d\n",
-					bldgp->Coord,(int)bldgp->PrimaryFacing,bldgp->Get_Mission(),
-					bldgp->Class->Type);
+					fprintf(fp,"COORD:%lx   Facing:%d   Mission:%d   Type:%d\n",
+						(unsigned long)bldgp->Coord,(int)bldgp->PrimaryFacing,bldgp->Get_Mission(),
+						bldgp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi4 Buildings:%d\n",GameCRC);
@@ -3813,9 +3814,9 @@ void Print_CRCs(EventClass *ev)
 			bldgp = (BuildingClass *)Buildings.Active_Ptr(i);
 			if (bldgp->Owner()==HOUSE_MULTI5) {
 				Add_CRC (&GameCRC, (int)bldgp->Coord + (int)bldgp->PrimaryFacing);
-				fprintf(fp,"COORD:%x   Facing:%d   Mission:%d   Type:%d\n",
-					bldgp->Coord,(int)bldgp->PrimaryFacing,bldgp->Get_Mission(),
-					bldgp->Class->Type);
+					fprintf(fp,"COORD:%lx   Facing:%d   Mission:%d   Type:%d\n",
+						(unsigned long)bldgp->Coord,(int)bldgp->PrimaryFacing,bldgp->Get_Mission(),
+						bldgp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi5 Buildings:%d\n",GameCRC);
@@ -3831,9 +3832,9 @@ void Print_CRCs(EventClass *ev)
 			bldgp = (BuildingClass *)Buildings.Active_Ptr(i);
 			if (bldgp->Owner()==HOUSE_MULTI6) {
 				Add_CRC (&GameCRC, (int)bldgp->Coord + (int)bldgp->PrimaryFacing);
-				fprintf(fp,"COORD:%x   Facing:%d   Mission:%d   Type:%d\n",
-					bldgp->Coord,(int)bldgp->PrimaryFacing,bldgp->Get_Mission(),
-					bldgp->Class->Type);
+					fprintf(fp,"COORD:%lx   Facing:%d   Mission:%d   Type:%d\n",
+						(unsigned long)bldgp->Coord,(int)bldgp->PrimaryFacing,bldgp->Get_Mission(),
+						bldgp->Class->Type);
 			}
 		}
 		Mono_Printf("Multi6 Buildings:%d\n",GameCRC);
@@ -3954,8 +3955,8 @@ void Print_CRCs(EventClass *ev)
 	Mono_Printf("Random Number:%d\n",rnd);
 	fprintf(fp,"\nRandom Number:%d\n",rnd);
 
-	Mono_Printf("My Frame:%d\n",Frame);
-	fprintf(fp,"My Frame:%d\n",Frame);
+		Mono_Printf("My Frame:%ld\n",(long)Frame);
+		fprintf(fp,"My Frame:%ld\n",(long)Frame);
 #if (0)
 	fprintf(fp,"-------------- Offending event: ----------------\n");
 	fprintf(fp,"Type:         %d\n",ev->Type);
@@ -4201,8 +4202,8 @@ void Dump_Packet_Too_Late_Stuff(EventClass *event)
 	}
 
 	fprintf(fp,"----------- My data: ------------------\n");
-	fprintf(fp,"Frame:%d\n",Frame);
-	fprintf(fp,"MaxAhead:%d\n",MPlayerMaxAhead);
+		fprintf(fp,"Frame:%ld\n",(long)Frame);
+		fprintf(fp,"MaxAhead:%lu\n",(unsigned long)MPlayerMaxAhead);
 
 	fclose(fp);
 }

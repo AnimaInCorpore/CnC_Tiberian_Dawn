@@ -114,7 +114,7 @@
 | `IPXGCONN.CPP` | `src/ipxgconn.cpp` | Ported to src/; connection manager glue preserved. |
 | `IPXMGR.CPP` | `src/ipxmgr.cpp` | IPX manager now tracks send/receive counters and computes basic response-time stats from observed traffic, replacing placeholder return values while keeping the UDP transport layer. |
 | `JSHELL.CPP` | `src/jshell.cpp` | Ported to src/; JShell UI helpers and icon sampling logic restored. |
-| `KEYFRAME.CPP` | `src/keyframe_info.cpp` | Frame metadata/palette accessors ported; `Build_Frame`/LCW decode still pending. |
+| `KEYFRAME.CPP` | `src/keyframe_info.cpp`, `src/keyframe_helpers.cpp` | Frame metadata/palette accessors plus `Build_Frame` decode are ported (Format80/Format40); verify remaining edge cases against Win95 assets. |
 | `LOADDLG.CPP` | `src/loaddlg.cpp` | Ported load/save/delete dialog backend, replacing the placeholder `LoadOptionsClass` implementation and wiring it to the real save/load entry points. |
 | `LOAD_TITLE.CPP` | `src/load_title.cpp` | Title screen loader now resolves art through the CCFile/Mix stack, decodes PCX or CPS deterministically, patches UI palette colors, and scales to the active viewport. Fixed PCX RLE decoding so runs that cross scanline boundaries are handled correctly (prevents main menu background corruption). |
 | `LOAD_TITLE.CPP` | `src/load_title.cpp` | Title palette normalization now mirrors the legacy PCX loader and no longer overwrites the first 16 palette entries, matching Win95 background colors. |
@@ -125,15 +125,14 @@
 | `MOUSE.CPP` | `src/mouse.cpp` | Ported MouseClass cursor controller (loads `MOUSE.SHP`, supports small variants, and animates cursor frames via the legacy countdown timer). |
 | `GSCREEN.CPP` | `src/gscreen.cpp` | Title screen blit texture also forces `nearest` scale mode to keep fonts/pixels sharp. |
 | `GSCREEN.CPP` | `src/gscreen.cpp` | Blit_Display now routes through SeenBuff blits with mouse draw/erase hooks so SDL presentation matches the legacy flow and palette conversion stays consistent. |
-| `MAP.CPP` | `src/gameplay_core_stub.cpp` | MapClass remains stubbed for now; removed duplicate Code/Decode pointer hooks in favor of `src/iomap.cpp`. |
+| `MAP.CPP` | `src/map.cpp` | Ported to src/; MapClass core and binary read/write helpers now build under SDL (parity work still pending). |
 | `MAPEDDLG.CPP` | | To be ported. |
-| `MAPEDIT.CPP` | | To be ported. |
+| `MAPEDIT.CPP` | `src/mapedit.cpp` | Legacy map editor module is present in src/ but remains gated behind `SCENARIO_EDITOR` and is not integrated into the SDL target flow yet. |
 | `MAPEDPLC.CPP` | | To be ported. |
-| `MAPEDSEL.CPP` | | To be ported. |
+| `MAPEDSEL.CPP` | `src/mapedsel.cpp` | Legacy map editor selection/manipulation module is present in src/ but remains gated behind `SCENARIO_EDITOR` and is not integrated into the SDL target flow yet. |
 | `MAPEDTM.CPP` | | To be ported. |
-| `MAPSEL.CPP` | | To be ported. |
+| `MAPSEL.CPP` | `src/mapsel.cpp` | Ported to src/; map selection screen logic preserved (integration/parity verification pending). |
 | `MENUS.CPP` | `src/menus.cpp` | Restored the original main menu: renders the title/dialog chrome, builds the legacy button list (including expansions/bonus), pumps SDL events into the keyboard queue, honors timeouts, and returns the canonical selection indices. |
-| `MISSION.CPP` | | To be ported. |
 | `MIXFILE.CPP` | `src/mixfile.cpp` | Mix archive reader parses headers, caches payloads, and resolves entries by CRC for asset lookup. |
 | `MIXFILE.CPP` | `src/mixfile.cpp` | Added XCC name-table support so mixed archives (e.g., CD1/CCLOCAL.MIX) with embedded filenames resolve fonts correctly. |
 | `MONOC.CPP` | `src/monoc.cpp` | Ported monochrome debug buffer to a heap-backed screen page and removed DOS/segment calls while keeping the original text/box routines. |

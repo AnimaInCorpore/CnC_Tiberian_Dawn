@@ -51,6 +51,9 @@
 
 #include "legacy/function.h"
 
+#include <cstdio>
+#include <cstring>
+
 
 /*
 ********************************** Globals **********************************
@@ -475,47 +478,60 @@ void TeamTypeClass::Write_INI(char *buffer, bool refresh)
 		/*
 		......................... Generate INI entry ..........................
 		*/
-		sprintf(buf,"%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
-			hname,
-			team->IsRoundAbout,
-			team->IsLearning,
-			team->IsSuicide,
-			team->IsAutocreate,
-			team->IsMercenary,
-			team->RecruitPriority,
-			team->MaxAllowed,
-			team->InitNum,
-			team->Fear,
-			team->ClassCount);
+		std::snprintf(buf, sizeof(buf), "%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
+		              hname,
+		              team->IsRoundAbout,
+		              team->IsLearning,
+		              team->IsSuicide,
+		              team->IsAutocreate,
+		              team->IsMercenary,
+		              team->RecruitPriority,
+		              team->MaxAllowed,
+		              team->InitNum,
+		              team->Fear,
+		              team->ClassCount);
 
 		/*.....................................................................
 		For every class in the team, record the class's name & desired count
 		.....................................................................*/
 		for (i = 0; i < team->ClassCount; i++) {
-			sprintf (buf + strlen(buf), ",%s:%d",
-				team->Class[i]->IniName,
-				team->DesiredNum[i]);
+			const size_t len = std::strlen(buf);
+			if (len < sizeof(buf)) {
+				std::snprintf(buf + len, sizeof(buf) - len, ",%s:%d",
+				              team->Class[i]->IniName,
+				              team->DesiredNum[i]);
+			}
 		}
 
 		/*.....................................................................
 		Record the # of missions, and each mission name & argument value.
 		.....................................................................*/
-		sprintf(buf + strlen(buf),",%d",team->MissionCount);
+		{
+			const size_t len = std::strlen(buf);
+			if (len < sizeof(buf)) {
+				std::snprintf(buf + len, sizeof(buf) - len, ",%d", team->MissionCount);
+			}
+		}
 		for (i = 0; i < team->MissionCount; i++) {
-			sprintf (buf + strlen(buf), ",%s:%d",
-				Name_From_Mission(team->MissionList[i].Mission),
-				team->MissionList[i].Argument);
+			const size_t len = std::strlen(buf);
+			if (len < sizeof(buf)) {
+				std::snprintf(buf + len, sizeof(buf) - len, ",%s:%d",
+				              Name_From_Mission(team->MissionList[i].Mission),
+				              team->MissionList[i].Argument);
+			}
 		}
 
-		if (team->IsReinforcable) {
-			strcat(buf, ",1");
-		} else {
-			strcat(buf, ",0");
+		{
+			const size_t len = std::strlen(buf);
+			if (len < sizeof(buf)) {
+				std::snprintf(buf + len, sizeof(buf) - len, ",%d", team->IsReinforcable ? 1 : 0);
+			}
 		}
-		if (team->IsPrebuilt) {
-			strcat(buf, ",1");
-		} else {
-			strcat(buf, ",0");
+		{
+			const size_t len = std::strlen(buf);
+			if (len < sizeof(buf)) {
+				std::snprintf(buf + len, sizeof(buf) - len, ",%d", team->IsPrebuilt ? 1 : 0);
+			}
 		}
 
 		WWWritePrivateProfileString(INI_Name(), team->IniName, buf, buffer);
@@ -944,17 +960,19 @@ TeamTypeClass const * TeamTypeClass::Suggested_New_Team(HouseClass * house, long
 			*/
 			long uneeded = 0;
 			long ineeded = 0;
-			for (int ctype = 0; ctype < ttype->ClassCount; ctype++) {
-				switch (ttype->Class[ctype]->What_Am_I()) {
-					case RTTI_INFANTRYTYPE:
-						ineeded |= (1 << ((InfantryTypeClass *)ttype->Class[ctype])->Type);
-						break;
+				for (int ctype = 0; ctype < ttype->ClassCount; ctype++) {
+					switch (ttype->Class[ctype]->What_Am_I()) {
+						case RTTI_INFANTRYTYPE:
+							ineeded |= (1 << ((InfantryTypeClass *)ttype->Class[ctype])->Type);
+							break;
 
-					case RTTI_UNITTYPE:
-						uneeded |= (1 << ((UnitTypeClass *)ttype->Class[ctype])->Type);
-						break;
+						case RTTI_UNITTYPE:
+							uneeded |= (1 << ((UnitTypeClass *)ttype->Class[ctype])->Type);
+							break;
+						default:
+							break;
+					}
 				}
-			}
 
 			/*
 			**	If this team can use the types required, then consider it a possible

@@ -34,6 +34,8 @@ TechnoTypeClass const* Target_To_TechnoType(TARGET target) {
       return &AircraftTypeClass::As_Reference(static_cast<AircraftType>(Target_Value(target)));
     case KIND_BUILDING:
       return &BuildingTypeClass::As_Reference(static_cast<StructType>(Target_Value(target)));
+    default:
+      break;
   }
   return nullptr;
 }

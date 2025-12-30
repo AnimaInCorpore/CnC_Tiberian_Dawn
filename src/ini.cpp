@@ -53,6 +53,8 @@
 
 #include "legacy/base.h"
 
+#include <cstdio>
+
 /************************************* Prototypes *********************************************/
 static void Assign_Houses(void);
 static void Remove_AI_Players(void);
@@ -141,18 +143,18 @@ void Set_Scenario_Name(char *buf, int scenario, ScenarioPlayerType player, Scena
 
 	/*
 	** Set the variation value.
-	*/
-	if (var == SCEN_VAR_NONE) {
+		*/
+		if (var == SCEN_VAR_NONE) {
 
 		/*
 		** Find which variations are available for this scenario
-		*/
-		for (i = SCEN_VAR_FIRST; i < SCEN_VAR_COUNT; i++) {
-			sprintf(fname, "SC%c%02d%c%c.INI", c_player, scenario, c_dir, 'A' + i);
-			if (!CCFileClass(fname).Is_Available()) {
-				break;
+			*/
+			for (i = SCEN_VAR_FIRST; i < SCEN_VAR_COUNT; i++) {
+				std::snprintf(fname, sizeof(fname), "SC%c%02d%c%c.INI", c_player, scenario, c_dir, 'A' + i);
+				if (!CCFileClass(fname).Is_Available()) {
+					break;
+				}
 			}
-		}
 
 		if (i==SCEN_VAR_FIRST) {
 			c_var = 'X';						// indicates an error
@@ -184,11 +186,11 @@ void Set_Scenario_Name(char *buf, int scenario, ScenarioPlayerType player, Scena
 		}
 	}
 
-	/*
-	** generate the filename
-	*/
-	sprintf(buf, "SC%c%02d%c%c", c_player, scenario, c_dir, c_var);
-}
+		/*
+		** generate the filename
+		*/
+		std::snprintf(buf, _MAX_FNAME + _MAX_EXT, "SC%c%02d%c%c", c_player, scenario, c_dir, c_var);
+	}
 
 
 /***********************************************************************************************
@@ -279,7 +281,7 @@ bool Read_Scenario_Ini(char *root, bool fresh)
 	**	Create scenario filename and read the file.
 	*/
 
-	sprintf(fname,"%s.INI",root);
+	std::snprintf(fname, sizeof(fname), "%s.INI",root);
 	TD_Debugf("Read_Scenario_Ini: scenario ini filename=%s", fname);
 	CCFileClass file(fname);
 	const bool available = file.Is_Available();
@@ -490,7 +492,7 @@ bool Read_Scenario_Ini(char *root, bool fresh)
 	for (;;) {
 		char buff[16];
 
-		sprintf(buff, "%d", index++);
+		std::snprintf(buff, sizeof(buff), "%d", index++);
 		*stage = '\0';
 		WWGetPrivateProfileString("Briefing", buff, "", stage, (sizeof(BriefingText)-strlen(BriefingText))-1, buffer);
 		if (strlen(stage) == 0) break;
@@ -513,16 +515,16 @@ bool Read_Scenario_Ini(char *root, bool fresh)
 		/*
 		**	Build the full text of the mission objective.
 		*/
-		for (;;) {
-			char buff[16];
+			for (;;) {
+				char buff[16];
 
-			sprintf(buff, "%d", index++);
-			*work = '\0';
-			WWGetPrivateProfileString(root, buff, "", work, (sizeof(BriefingText)-strlen(BriefingText))-1, _ShapeBuffer);
-			if (strlen(work) == 0) break;
-			strcat(work, " ");
-			work += strlen(work);
-		}
+				std::snprintf(buff, sizeof(buff), "%d", index++);
+				*work = '\0';
+				WWGetPrivateProfileString(root, buff, "", work, (sizeof(BriefingText)-strlen(BriefingText))-1, _ShapeBuffer);
+				if (strlen(work) == 0) break;
+				strcat(work, " ");
+				work += strlen(work);
+			}
 	}
 
 	/*
@@ -665,15 +667,15 @@ void Write_Scenario_Ini(char *root)
 	/*
 	**	Create scenario filename and clear the buffer to empty.
 	*/
-	sprintf(fname,"%s.INI",root);
-	file.Set_Name(fname);
+		std::snprintf(fname, sizeof(fname), "%s.INI",root);
+		file.Set_Name(fname);
 	if (file.Is_Available()) {
 //		file.Open(READ);
 		file.Read(buffer, _ShapeBufferSize-1);
 //		file.Close();
 	} else {
-		sprintf(buffer, "; Scenario %d control for house %s.\r\n", Scenario, HouseTypeClass::As_Reference(house).IniName);
-	}
+		std::snprintf(buffer, _ShapeBufferSize, "; Scenario %d control for house %s.\r\n", Scenario, HouseTypeClass::As_Reference(house).IniName);
+		}
 
 	WWWritePrivateProfileString("Basic", "Intro", IntroMovie, buffer);
 	WWWritePrivateProfileString("Basic", "Brief", BriefMovie, buffer);
@@ -718,8 +720,8 @@ void Write_Scenario_Ini(char *root)
 		file.Read(buffer, _ShapeBufferSize-1);
 //		file.Close();
 	} else {
-		sprintf(buffer, "; Master Trigger & Team List.\r\n");
-	}
+		std::snprintf(buffer, _ShapeBufferSize, "; Master Trigger & Team List.\r\n");
+		}
 
 	TeamTypeClass::Write_INI(buffer, false);
 	TriggerClass::Write_INI(buffer, false);
@@ -760,8 +762,8 @@ static void Assign_Houses(void)
 	HouseClass *housep2;
 
 char wibble [256];
-sprintf (wibble, "C&C95 - In 'Assign_Houses'. Number of players:%d\n",MPlayerCount);
-CCDebugString (wibble);
+	std::snprintf(wibble, sizeof(wibble), "C&C95 - In 'Assign_Houses'. Number of players:%d\n",MPlayerCount);
+	CCDebugString (wibble);
 
 	/*
 	**	Init the 'used' flag for all houses & colors to 0
@@ -1665,11 +1667,13 @@ static CELL Clip_Move(CELL cell, FacingType facing, int dist)
 			x -= dist;
 			break;
 
-		case FACING_NW:
-			x -= dist;
-			y -= dist;
-			break;
-	}
+			case FACING_NW:
+				x -= dist;
+				y -= dist;
+				break;
+			default:
+				break;
+		}
 
 	/*------------------------------------------------------------------------
 	Clip to the map

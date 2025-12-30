@@ -88,7 +88,7 @@ int CCMessageBox::Process(const char *msg, const char *b1txt, const char *b2txt,
 	bool pressed;
 	int curbutton;
 	TextButtonClass *buttons[3];
-	void *back;
+	unsigned char *back = nullptr;
 	BOOL display;									// display level
 	int  realval[5];
 
@@ -213,7 +213,7 @@ int CCMessageBox::Process(const char *msg, const char *b1txt, const char *b2txt,
 	*/
 	Hide_Mouse();
 	if (preserve) {
-		back = new char[width * height];
+		back = new unsigned char[width * height];
 		SeenBuff.To_Buffer(x, y, width, height, back, width * height);
 	}
 	//display = TRUE;
@@ -424,7 +424,7 @@ int CCMessageBox::Process(const char *msg, const char *b1txt, const char *b2txt,
 		}
 		SeenBuff.Unlock();
 		delete[] back;
-		back = NULL;
+		back = nullptr;
 		Show_Mouse();
 	}
 	return(retval);

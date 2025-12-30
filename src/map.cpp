@@ -56,6 +56,7 @@
 
 #include "legacy/function.h"
 
+#include <cstdio>
 #include <cstddef>
 #include <cstdint>
 
@@ -643,7 +644,7 @@ bool MapClass::Read_Binary(char const * root, unsigned long *crc)
 	/*
 	**	Filename = INI name with BIN extension.
 	*/
-	sprintf(fname,"%s.BIN",root);
+	std::snprintf(fname, sizeof(fname), "%s.BIN",root);
 
 	/*
 	**	Create object & open file.
@@ -764,7 +765,7 @@ bool MapClass::Write_Binary(char const * root)
 	/*
 	**	Filename = INI name with BIN extension.
 	*/
-	sprintf(fname,"%s.BIN",root);
+	std::snprintf(fname, sizeof(fname), "%s.BIN",root);
 
 	/*
 	**	Create object & open file.

@@ -49,6 +49,9 @@
 
 #include	"function.h"
 #include  "textblit.h"
+
+#include <cstdio>
+#include <cstring>
 #define SCORETEXT_X		184
 #define SCORETEXT_Y		8
 #define CASUALTY_Y		88
@@ -193,7 +196,7 @@ unsigned char const ScoreRemapFBall[256]={
 TextBlitClass BlitList;
 
 
-char *ScreenNames[2]={"S-GDIIN2.WSA","SCRSCN1.WSA"};
+char const* ScreenNames[2] = {"S-GDIIN2.WSA", "SCRSCN1.WSA"};
 
 //extern short StreamLowImpact;
 
@@ -603,9 +606,9 @@ static unsigned char const _yellowpal[]={0x0,0x0,0xEC,0x0,0xEB,0x0,0xEA,0x0,0xE9
 	** Choose an appropriate palette file for the interpolation
 	*/
 	if (house == HOUSE_GOOD){
-		sprintf(inter_pal,"SCORPAL1.PAL");
+		std::strcpy(inter_pal, "SCORPAL1.PAL");
 	}else{
-		sprintf(inter_pal,"SNODPAL1.PAL");
+		std::strcpy(inter_pal, "SNODPAL1.PAL");
 	}
 
 
@@ -915,18 +918,18 @@ static unsigned char const _yellowpal[]={0x0,0x0,0xEC,0x0,0xEB,0x0,0xEA,0x0,0xE9
 	Set_Logic_Page(*PseudoSeenBuff);
 	for (i = 0; i < NUMFAMENAMES; i++) {
 		Alloc_Object(new ScorePrintClass(hallfame[i].name, HALLFAME_X, HALLFAME_Y + (i*8), _bluepal));
-		if (hallfame[i].score) {
-			char *str = (char *)(SysMemPage.Get_Buffer()) + i*32;
-			sprintf(str,"%d", hallfame[i].score);
-			Alloc_Object(new ScorePrintClass(str, HALLFAME_X+(6*15), HALLFAME_Y + (i*8), _bluepal, BLACK));
-			if (hallfame[i].level < 20) {
-				sprintf(str+16,"%d", hallfame[i].level);
-			} else {
-				strcpy(str+16, "**");
+			if (hallfame[i].score) {
+				char* str = (char *)(SysMemPage.Get_Buffer()) + i*32;
+				std::snprintf(str, 16, "%d", hallfame[i].score);
+				Alloc_Object(new ScorePrintClass(str, HALLFAME_X+(6*15), HALLFAME_Y + (i*8), _bluepal, BLACK));
+				if (hallfame[i].level < 20) {
+					std::snprintf(str+16, 16, "%d", hallfame[i].level);
+				} else {
+					strcpy(str+16, "**");
+				}
+				Alloc_Object(new ScorePrintClass(str+16, HALLFAME_X+(6*12), HALLFAME_Y + (i*8), _bluepal, BLACK));
+				Call_Back_Delay(13);
 			}
-			Alloc_Object(new ScorePrintClass(str+16, HALLFAME_X+(6*12), HALLFAME_Y + (i*8), _bluepal, BLACK));
-			Call_Back_Delay(13);
-		}
 	}
 
 	// Wait for text printing to complete
@@ -1448,9 +1451,9 @@ void ScoreClass::Print_Minutes(int minutes)
 	char str[20];
 	if (minutes >= 60) {
 		if ((minutes/60) > 9) minutes = (9*60 + 59);
-		sprintf(str,Text_String(TXT_SCORE_TIMEFORMAT1), (minutes / 60),(minutes % 60));
+		std::snprintf(str, sizeof(str), Text_String(TXT_SCORE_TIMEFORMAT1), (minutes / 60),(minutes % 60));
 	} else {
-		sprintf(str,Text_String(TXT_SCORE_TIMEFORMAT2), minutes);
+		std::snprintf(str, sizeof(str), Text_String(TXT_SCORE_TIMEFORMAT2), minutes);
 	}
 	TextPrintBuffer->Print(str, 275*2, 9*2, TBLACK, TBLACK);
 }
@@ -1476,12 +1479,12 @@ void ScoreClass::Print_Minutes(int minutes)
  * HISTORY:                                                                                    *
  *   04/07/1995 BWG : Created.                                                                 *
  *=============================================================================================*/
-void ScoreClass::Count_Up_Print(char *str, int percent, int max, int xpos, int ypos)
+void ScoreClass::Count_Up_Print(char const* str, int percent, int max, int xpos, int ypos)
 {
 	char destbuf[64];
 	int width;
 
-	sprintf(destbuf, str, percent <= max ? percent : max);
+	std::snprintf(destbuf, sizeof(destbuf), str, percent <= max ? percent : max);
 	width = strlen(destbuf) * 7;
 
 
@@ -1870,7 +1873,7 @@ char *Int_Print(int a)
 {
 	static char str[10];
 
-	sprintf(str,"%d",a);
+	std::snprintf(str, sizeof(str), "%d",a);
 	return str;
 }
 

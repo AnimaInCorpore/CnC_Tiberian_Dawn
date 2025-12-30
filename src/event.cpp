@@ -286,14 +286,16 @@ void EventClass::Execute(void)
                     techno->Transmit_Message(RADIO_OVER_OUT);
                 }
 
-                switch (techno->What_Am_I()) {
-                    case RTTI_INFANTRY:
-                    case RTTI_UNIT:
-                        if (static_cast<FootClass *>(techno)->Team) {
-                            static_cast<FootClass *>(techno)->Team->Remove(static_cast<FootClass *>(techno));
-                        }
-                        break;
-                }
+	                switch (techno->What_Am_I()) {
+	                    case RTTI_INFANTRY:
+	                    case RTTI_UNIT:
+	                        if (static_cast<FootClass *>(techno)->Team) {
+	                            static_cast<FootClass *>(techno)->Team->Remove(static_cast<FootClass *>(techno));
+	                        }
+	                        break;
+	                    default:
+	                        break;
+	                }
 
                 if (object) {
                     if (PlayerPtr->Is_Ally(techno) || Special.IsVisibleTarget) {

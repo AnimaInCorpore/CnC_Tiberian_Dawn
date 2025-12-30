@@ -118,8 +118,8 @@ void TarComClass::AI(void)
 			}
 		}
 
-		switch (ok) {
-			case FIRE_OK:
+			switch (ok) {
+				case FIRE_OK:
 				if (What_Am_I() != RTTI_UNIT) {
 					IsFiring = false;
 				} else {
@@ -131,9 +131,9 @@ void TarComClass::AI(void)
 				if (TurretClass::Fire_At(TarCom, primary)) {
 					Sound_Effect(weapon->Sound, Coord);
 				}
-				break;
+					break;
 
-			case FIRE_FACING:
+				case FIRE_FACING:
 				if (Class->IsLockTurret) {
 					if (!Target_Legal(NavCom) && !IsDriving) {
 						PrimaryFacing.Set_Desired(Direction(TarCom));
@@ -147,14 +147,16 @@ void TarComClass::AI(void)
 					}
 //					SecondaryFacing.Set_Desired(Direction256(Center_Coord(), As_Coord(TarCom)));
 				}
-				break;
+					break;
 
-			case FIRE_CLOAKED:
-				IsFiring = false;
-				Do_Uncloak();
-				break;
+				case FIRE_CLOAKED:
+					IsFiring = false;
+					Do_Uncloak();
+					break;
+				default:
+					break;
+			}
 		}
-	}
 
 	if (Target_Legal(TarCom) && !IsRotating) {
 		DirType dir = Direction(TarCom);
@@ -179,5 +181,4 @@ void TarComClass::AI(void)
 		}
 	}
 }
-
 

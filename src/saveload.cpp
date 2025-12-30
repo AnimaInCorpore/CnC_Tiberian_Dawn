@@ -68,6 +68,7 @@
 #include "legacy/terrain.h"
 #include "legacy/unit.h"
 
+#include <cstdio>
 #include <cstdint>
 
 /*
@@ -162,7 +163,7 @@ bool Save_Game(int id,char *descr)
 	/*
 	**	Generate the filename to save
 	*/
-	sprintf(name, "SAVEGAME.%03d", id);
+	std::snprintf(name, sizeof(name), "SAVEGAME.%03d", id);
 
 	/*
 	**	Code everybody's pointers
@@ -186,7 +187,7 @@ bool Save_Game(int id,char *descr)
 	**	which may or may not be a HousesType number; so, saving 'house'
 	**	here ensures we can always pull out the house for this file.)
 	*/
-	sprintf(descr_buf, "%s\r\n",descr);			// put CR-LF after text
+	std::snprintf(descr_buf, sizeof(descr_buf), "%s\r\n", descr);			// put CR-LF after text
 	descr_buf[strlen(descr_buf) + 1] = 26;		// put CTRL-Z after NULL
 
 	if (file.Write(descr_buf, DESCRIP_MAX) != DESCRIP_MAX) {
@@ -355,7 +356,7 @@ bool Load_Game(int id)
 	/*
 	**	Generate the filename to load
 	*/
-	sprintf(name, "SAVEGAME.%03d", id);
+	std::snprintf(name, sizeof(name), "SAVEGAME.%03d", id);
 
 	/*
 	**	Open the file
@@ -778,13 +779,13 @@ void Code_All_Pointers(void)
 	/*
 	**	PlayerPtr.
 	*/
-	PlayerPtr = (HouseClass *)(PlayerPtr->Class->House);
+	PlayerPtr = reinterpret_cast<HouseClass*>(static_cast<std::uintptr_t>(PlayerPtr->Class->House));
 
 	/*
 	**	Currently-selected objects.
 	*/
 	for (i = 0; i < CurrentObject.Count(); i++) {
-		CurrentObject[i] = (ObjectClass *)CurrentObject[i]->As_Target();
+		CurrentObject[i] = reinterpret_cast<ObjectClass*>(static_cast<std::uintptr_t>(CurrentObject[i]->As_Target()));
 	}
 
 	/*
@@ -875,6 +876,8 @@ void Decode_All_Pointers(void)
 
 		case HOUSE_JP:
 			ScenPlayer = SCEN_PLAYER_JP;
+			break;
+		default:
 			break;
 	}
 	Check_Ptr(PlayerPtr,__FILE__,__LINE__);
@@ -991,7 +994,7 @@ bool Get_Savefile_Info(int id, char *buf, unsigned *scenp, HousesType *housep)
 	/*
 	**	Generate the filename to load
 	*/
-	sprintf(name, "SAVEGAME.%03d", id);
+	std::snprintf(name, sizeof(name), "SAVEGAME.%03d", id);
 
 	/*
 	**	If the file opens OK, read the file

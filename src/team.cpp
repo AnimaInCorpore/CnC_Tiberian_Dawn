@@ -528,8 +528,8 @@ void TeamClass::AI(void)
 		**	this case. If it has timed out then advance to the next
 		**	mission in the list or disband the team.
 		*/
-		TeamMissionStruct const * mission = &Class->MissionList[CurrentMission];
-		switch (mission->Mission) {
+			TeamMissionStruct const * mission = &Class->MissionList[CurrentMission];
+			switch (mission->Mission) {
 			case TMISSION_ATTACKBASE:
 				if (!Target_Legal(MissionTarget)) {
 					Assign_Mission_Target(Member->Greatest_Threat(THREAT_BUILDINGS));
@@ -587,30 +587,34 @@ void TeamClass::AI(void)
 				Coordinate_Regroup();
 				break;
 
-			case TMISSION_LOOP:
-				CurrentMission = mission->Argument-1;
-				IsNextMission = true;
-				break;
-		}
+				case TMISSION_LOOP:
+					CurrentMission = mission->Argument-1;
+					IsNextMission = true;
+					break;
+				default:
+					break;
+			}
 
 		/*
 		**	Check for mission time out condition. If the mission does in fact time out, then
 		**	flag it so that the team mission list will advance.
 		*/
-		switch (mission->Mission) {
-			case TMISSION_ATTACKBASE:
-			case TMISSION_ATTACKUNITS:
-			case TMISSION_ATTACKCIVILIANS:
-			case TMISSION_RAMPAGE:
-			case TMISSION_DEFENDBASE:
-			case TMISSION_UNLOAD:
-			case TMISSION_RETREAT:
-			case TMISSION_GUARD:
-				if (TimeOut.Expired()) {
-					IsNextMission = true;
-				}
-				break;
-		}
+			switch (mission->Mission) {
+				case TMISSION_ATTACKBASE:
+				case TMISSION_ATTACKUNITS:
+				case TMISSION_ATTACKCIVILIANS:
+				case TMISSION_RAMPAGE:
+				case TMISSION_DEFENDBASE:
+				case TMISSION_UNLOAD:
+				case TMISSION_RETREAT:
+				case TMISSION_GUARD:
+					if (TimeOut.Expired()) {
+						IsNextMission = true;
+					}
+					break;
+				default:
+					break;
+			}
 
 	} else {
 		if (IsMoving) {

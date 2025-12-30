@@ -575,7 +575,7 @@ void DisplayClass::Write_INI(char* buffer) {
 	WWWritePrivateProfileInt("MAP", "Height", MapCellHeight, buffer);
 
 	for (int i = 0; i < WAYPT_COUNT; i++) {
-		std::sprintf(entry, "%d", i);
+		std::snprintf(entry, sizeof(entry), "%d", i);
 		WWWritePrivateProfileInt("Waypoints", entry, Waypoint[i], buffer);
 	}
 
@@ -584,10 +584,10 @@ void DisplayClass::Write_INI(char* buffer) {
 	for (CELL cell = 0; cell < MAP_CELL_TOTAL; cell++) {
 		if ((*this)[cell].IsTrigger) {
 			TriggerClass const* trig = CellTriggers[cell];
-			std::sprintf(entry, "%d", cell);
-						if (trig) {
-							WWWritePrivateProfileString("CellTriggers", entry, trig->Get_Name(), buffer);
-						}
+			std::snprintf(entry, sizeof(entry), "%d", cell);
+			if (trig) {
+				WWWritePrivateProfileString("CellTriggers", entry, trig->Get_Name(), buffer);
+			}
 		}
 	}
 }

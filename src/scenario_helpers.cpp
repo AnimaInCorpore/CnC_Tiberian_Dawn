@@ -19,8 +19,8 @@ bool Restate_Mission(char const* name, int button1, int button2) {
 #ifdef NEWMENU
     char buffer[25];
     char buffer1[25];
-    std::sprintf(buffer, "%s.VQA", BriefMovie);
-    std::sprintf(buffer1, "%s.VQA", ActionMovie);
+    std::snprintf(buffer, sizeof(buffer), "%s.VQA", BriefMovie);
+    std::snprintf(buffer1, sizeof(buffer1), "%s.VQA", ActionMovie);
     CCFileClass file1(buffer);
     CCFileClass file2(buffer1);
     if (!file1.Is_Available() && !file2.Is_Available()) {

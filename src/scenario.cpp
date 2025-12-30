@@ -50,6 +50,8 @@
 #include "port_debug.h"
 
 #include "legacy/base.h"
+
+#include <cstdio>
 extern int PreserveVQAScreen;
 
 
@@ -118,11 +120,11 @@ bool Start_Scenario(char *root, bool briefing)
 		Play_Movie(BriefMovie);
 		Play_Movie(ActionMovie, TransitTheme);
 
-#ifdef NEWMENU
+	#ifdef NEWMENU
 
-		char buffer[25];
-		sprintf(buffer, "%s.VQA", BriefMovie);
-		CCFileClass file(buffer);
+			char buffer[25];
+			std::snprintf(buffer, sizeof(buffer), "%s.VQA", BriefMovie);
+			CCFileClass file(buffer);
 
 		if (GameToPlay == GAME_NORMAL && !file.Is_Available()) {
 			VisiblePage.Clear();
@@ -729,13 +731,13 @@ bool Restate_Mission(char const * name, int button1, int button2)
 		**	the only option available.
 		*/
 		bool brief = true;
-#ifdef NEWMENU
-		char buffer[25];
-		char buffer1[25];
-		sprintf(buffer, "%s.VQA", BriefMovie);
-		sprintf(buffer1, "%s.VQA", ActionMovie);
-		CCFileClass file1(buffer);
-		CCFileClass file2(buffer1);
+	#ifdef NEWMENU
+			char buffer[25];
+			char buffer1[25];
+			std::snprintf(buffer, sizeof(buffer), "%s.VQA", BriefMovie);
+			std::snprintf(buffer1, sizeof(buffer1), "%s.VQA", ActionMovie);
+			CCFileClass file1(buffer);
+			CCFileClass file2(buffer1);
 		if (!file1.Is_Available() && !file2.Is_Available()) {
 			button1 = TXT_OK;
 			button2 = TXT_NONE;
