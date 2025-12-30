@@ -1,6 +1,7 @@
 | Legacy file | Modern path | Notes |
 | --- | --- | --- |
 | `CCFILE.CPP` | `src/ccfile.cpp` | CCFileClass now matches Win95 MIX semantics: prefer loose/on-disk overrides when present, otherwise open embedded MIX members from cached RAM images or by seeking within the on-disk parent MIX while keeping the embedded filename bound to the object. |
+| `SOUNDDLG.H` / `VISUDLG.H` | `src/soundvisu_helpers.cpp` | Implemented the Sound/Visual Controls dialogs (track list + play/stop, shuffle/repeat, music/SFX sliders; brightness/color/contrast/tint sliders with reset) so the in-game options path no longer calls no-op handlers. |
 | `RAWFILE.CPP` | `src/rawfile.cpp` | Implemented the canonical `RawFileClass::Error()` flow (message + key wait, ESC-to-exit, fatal vs retry) instead of a no-op, restoring Win95-style file error handling. |
 | `GLOBALS.CPP` | `src/globals.cpp` | Ported to src/, replaced NULL with nullptr, and disabled legacy networking code. |
 | `FTIMER.H` | `src/include/ftimer.h` | Countdown timer helper rewritten with `#pragma once` and the global `Frame` counter. |
