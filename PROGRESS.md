@@ -1,6 +1,7 @@
 | Legacy file | Modern path | Notes |
 | --- | --- | --- |
-| `CCFILE.CPP` | `src/ccfile.cpp` | CCFileClass now opens embedded MIX members from either the cached in-RAM mix data or by seeking within the on-disk parent MIX, matching the Win95 behavior. |
+| `CCFILE.CPP` | `src/ccfile.cpp` | CCFileClass now matches Win95 MIX semantics: prefer loose/on-disk overrides when present, otherwise open embedded MIX members from cached RAM images or by seeking within the on-disk parent MIX while keeping the embedded filename bound to the object. |
+| `RAWFILE.CPP` | `src/rawfile.cpp` | Implemented the canonical `RawFileClass::Error()` flow (message + key wait, ESC-to-exit, fatal vs retry) instead of a no-op, restoring Win95-style file error handling. |
 | `GLOBALS.CPP` | `src/globals.cpp` | Ported to src/, replaced NULL with nullptr, and disabled legacy networking code. |
 | `FTIMER.H` | `src/include/ftimer.h` | Countdown timer helper rewritten with `#pragma once` and the global `Frame` counter. |
 | `RAND.H` | `src/rand.h` | Random helper declarations cleaned up to use `<cstdint>` types. |
@@ -412,7 +413,7 @@
 | `TEXT/FONTS` | `src/text.cpp`, `src/game.cpp` | Stopped treating gradient palette/table resources as glyph fonts (6pt + green12) and adjusted score font selection to use the real glyph font. |
 | `VIDEO/BLIT` | `src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`, `src/gscreen.cpp` | Restored Win95 viewport-to-viewport blit semantics (`source.Blit(dest, ...)` like `HidPage.Blit(SeenBuff)`), ensuring the title/menu pages actually present in the SDL build. |
 | `PALETTE/TEXT` | `src/load_title.cpp`, `src/include/legacy/compat.h`, `src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`, `src/text.cpp` | Matched Win95 title/menu palette behavior (apply full PCX palette), corrected base UI color indices (`TBLACK` vs `BLACK`, `GREEN`, etc), and implemented the legacy ColorXlat-driven `Set_Font_Palette` text color path. |
-| `CCFILE.CPP` | `src/ccfile.cpp` | Restored write passthrough to `CDFileClass::Write()` so save/profile writes work when not reading from MIX archives. |
+| `CCFILE.CPP` | `src/ccfile.cpp` | Restored Win95 behaviors: loose-file overrides take precedence over MIX, writing to MIX members triggers a fatal access error, and on-disk MIX reads keep the embedded filename associated with the object while the handle points at the parent archive. |
 | `TIMING` | `src/port_runtime.cpp`, `src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp` | Restored canonical time units: `Options.GameSpeed` controls frame cadence again and `TimerClass` reports 60Hz ticks (Win95 semantics); focus loss pauses simulation updates in the SDL main loop. |
 | `STARTUP/CONFIG` | `src/game.cpp`, `src/keyframe_helpers.cpp`, `src/port_runtime.cpp`, `src/globals.cpp` | Ported early `CONQUER.INI` setup parsing (`Read_Setup_Options`), restored compressed-shape decision (`Check_Use_Compressed_Shapes`), implemented real disk/RAM probes + memory-error dialog path, and wired multiplayer scenario description cleanup to the real global vectors (no more missing-symbol placeholders). |
 

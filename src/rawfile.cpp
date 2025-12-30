@@ -2,6 +2,7 @@
 
 #include <cerrno>
 #include <cstring>
+#include <cstdio>
 #include <fcntl.h>
 #include <string>
 #include <sys/stat.h>
@@ -22,6 +23,8 @@
 #define close _close
 #endif
 
+#include "legacy/error.h"
+#include "legacy/function.h"
 #include "legacy/wwlib32.h"
 
 namespace {
@@ -146,4 +149,27 @@ void RawFileClass::Close() {
   }
 }
 
-void RawFileClass::Error(int /*error*/, int /*canretry*/, char const* /*filename*/) {}
+void RawFileClass::Error(int error, int canretry, char const* filename) {
+  std::string message = "FILE ERROR";
+  if (filename && *filename) {
+    message.push_back('(');
+    message.append(filename);
+    message.push_back(')');
+  }
+  message.append(": ");
+  message.append(std::strerror(error));
+  message.append(". ");
+
+  if (canretry) {
+    message.append("Press any key to retry. Press <ESC> to exit program.");
+    std::printf("%s\n", message.c_str());
+    const int key = Get_Key();
+    if (key == KN_ESC) {
+      Print_Error_End_Exit(const_cast<char*>(message.c_str()));
+    }
+    return;
+  }
+
+  message.append("Press any key to exit program.");
+  Print_Error_End_Exit(const_cast<char*>(message.c_str()));
+}

@@ -1,7 +1,9 @@
 #include "legacy/ccfile.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <cstring>
+#include <string>
 
 #include "legacy/mixfile.h"
 
@@ -27,13 +29,13 @@ int CCFileClass::Is_Available(int forced) {
 }
 
 int CCFileClass::Open(int rights) {
-  FromDisk = false;
-  Pointer = nullptr;
-  Start = 0;
-  Position = 0;
-  Length = 0;
+  Close();
 
-  if ((rights & WRITE) != 0) {
+  /*
+  ** If the file exists on disk, always open it directly (upgrade/override path),
+  ** even if it is also present in a mixfile.
+  */
+  if ((rights & WRITE) != 0 || CDFileClass::Is_Available()) {
     return CDFileClass::Open(rights);
   }
 
@@ -45,21 +47,32 @@ int CCFileClass::Open(int rights) {
   if (MixFileClass::Offset(File_Name(), &realptr, &mix, &offset, &size) && mix) {
     Length = size;
     Position = 0;
+    Start = offset;
 
     if (realptr) {
       Pointer = realptr;
       return 1;
     }
 
-    FromDisk = true;
-    Start = offset;
+    const long start = Start;
+    const long length = Length;
+    const std::string embedded_name = File_Name() ? File_Name() : "";
 
-    // Open the parent mixfile and seek to the embedded offset.
-    CDFileClass::Set_Name(mix->Filename);
-    if (!CDFileClass::Open(READ)) {
+    /*
+    ** Open the parent mixfile, but restore the embedded filename as the name
+    ** associated with this file object (the on-disk handle still points at the
+    ** mixfile).
+    */
+    if (!CDFileClass::Open(mix->Filename, READ)) {
       return 0;
     }
-    CDFileClass::Seek(Start, SEEK_SET);
+    Searching(false);
+    CDFileClass::Set_Name(embedded_name.c_str());
+    Searching(true);
+
+    Start = start;
+    Length = length;
+    FromDisk = true;
     return 1;
   }
 
@@ -140,6 +153,7 @@ long CCFileClass::Write(void const* buffer, long size) {
   if (!buffer || size <= 0) return 0;
 
   if (Pointer || FromDisk) {
+    Error(EACCES, false, File_Name());
     return 0;
   }
 
