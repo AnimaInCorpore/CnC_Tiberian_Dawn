@@ -24,7 +24,9 @@ void Print_Error_End_Exit(char* string) {
   if (string && *string) {
     std::printf("%s\n", string);
   }
-  Get_Key();
+  if (std::getenv("TD_PAUSE_ON_FATAL") != nullptr) {
+    Get_Key();
+  }
   Prog_End();
   if (string && *string) {
     std::printf("%s\n", string);
@@ -38,4 +40,3 @@ void Print_Error_Exit(char* string) {
   }
   std::exit(1);
 }
-

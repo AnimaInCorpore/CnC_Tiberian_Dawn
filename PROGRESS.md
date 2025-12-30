@@ -420,6 +420,8 @@
 | `GOPTIONS.CPP` | `src/goptions.cpp` | Restored Win95 options-dialog persistence by saving settings (`Options.Save_Settings()`) when resuming from the in-game options overlay. |
 | `PROFILE PATHS` | `src/port_paths.cpp`, `src/options.cpp`, `src/game.cpp`, `src/port_runtime.cpp`, `src/port_setup.cpp` | Added SDL pref-path backed config resolution so `CONQUER.INI` reads prefer the working directory but fall back to a per-user location; writes go to the same resolved path. |
 | `CDFILE/CCFILE` | `src/cdfile.cpp`, `src/ccfile.cpp` | Fixed search-drive path duplication and ensured drive probing doesn’t get stuck in the interactive retry loop; MIX member lookups now ignore directory prefixes so assets resolve regardless of expanded `CD/...` filenames. |
+| `MOVIE/VQA` | `src/movie.cpp` | Treat scenario/movie name `x`/`X` as the canonical “no movie” sentinel (Win95 INIs default to `x`), preventing erroneous attempts to open `x.VQA`. |
+| `FILE ERROR` | `src/rawfile.cpp`, `src/error.cpp` | File-open failures now fail fast (no retry prompt); fatal-exit no longer pauses for key input unless `TD_PAUSE_ON_FATAL=1` is set. |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).

@@ -13,11 +13,33 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cctype>
 #include <cstdint>
 #include <cstring>
 #include <string>
 
 namespace {
+
+std::string Trim_Whitespace(char const* text) {
+  if (!text) return {};
+  while (*text && std::isspace(static_cast<unsigned char>(*text))) {
+    ++text;
+  }
+  std::string value(text);
+  while (!value.empty() && std::isspace(static_cast<unsigned char>(value.back()))) {
+    value.pop_back();
+  }
+  return value;
+}
+
+bool Is_No_Movie_Sentinel(std::string const& name) {
+  if (name.empty()) return true;
+  if (name.size() == 1 && (name[0] == 'x' || name[0] == 'X')) return true;
+  std::string upper = name;
+  std::transform(upper.begin(), upper.end(), upper.begin(),
+                 [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+  return upper == "X" || upper == "X.VQA";
+}
 
 bool Movie_Should_Skip() {
   SDL_Event e;
@@ -29,8 +51,10 @@ bool Movie_Should_Skip() {
 }
 
 std::string Normalize_Vqa_Name(char const* name) {
-  if (!name) return {};
-  std::string result(name);
+  const std::string trimmed = Trim_Whitespace(name);
+  if (Is_No_Movie_Sentinel(trimmed)) return {};
+
+  std::string result(trimmed);
   if (result.empty()) return result;
   const auto dot = result.find_last_of('.');
   if (dot == std::string::npos) {
