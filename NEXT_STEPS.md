@@ -28,7 +28,7 @@ Status: Next steps. Scope: allow a normal play session to be resumed and options
 ## Audio and movie parity (needed for “feels like C&C”)
 Status: Next steps. Scope: audio + movies are required for a “real game” experience even if not strictly required to click units.
 - Finish SDL audio parity: mixer behavior (priority/channel reservation, pan law, fades/stops) and music/theme streaming should match Win95 and obey menu sliders (`src/audio_play.cpp`, `src/theme.cpp`, `src/options.cpp`).
-- Implementation done!: Implemented the Sound/Visual Controls dialog backends so the in-game UI controls now affect runtime state (`src/soundvisu_helpers.cpp`).
+- Implementation done!: Implemented the Sound/Visual Controls dialog backends so the in-game UI controls now affect runtime state (`src/sounddlg.cpp`, `src/visudlg.cpp`).
 - Add VQA audio playback + subtitle/EVA timing (current `Play_Movie()` decodes video + palette only) and verify skip rules/centering/cropping against Win95 (`src/movie.cpp`, `src/vqa_decoder.cpp`).
 - Match Win95 gradient UI text: implement `TPF_USE_GRAD_PAL` shading using the shipped gradient resources (`GRAD6FNT.FNT` palette + `12GRNGRD.FNT` blend table) in the SDL text renderer (`src/text.cpp`).
 - Verify `Set_Font_Palette`/ColorXlat behavior (including `TBLACK` transparency and the base color indices) matches Win95 across title/menu and in-game palettes (`src/include/legacy/compat.h`, `src/wwlib_runtime.cpp`, `src/text.cpp`).
@@ -45,7 +45,7 @@ Status: Next steps. Scope: eliminate “it runs but isn’t canonical” behavio
 - Replace the dummy CD probe in `src/include/legacy/getcd.h` with a real implementation (or remove the Win95-only code paths entirely if the SDL/data-dir path is canonical).
 - Port the map editor entry points (`Map_Edit_Loop`, map selection flows) so `GameToPlay == GAME_MAP_EDIT` matches Win95 behavior instead of relying on the current minimal loop (`src/maingame.cpp`, `src/port_runtime.cpp`).
 - Ensure radar mini-icon generation uses the canonical `Small_Icon()` sampling behavior wherever iconsets are used for mini-map display (`src/jshell.cpp`, `src/wwlib_runtime.cpp`).
-- Audit remaining “skeleton” translation units (e.g. `src/loaddlg.cpp`, `src/soundvisu_helpers.cpp`) and retire them only after behavior-complete ports exist.
+- Audit remaining “skeleton” translation units (e.g. `src/loaddlg.cpp`) and retire them only after behavior-complete ports exist.
 
 ## Testing and parity verification
 Status: Next steps. Scope: keep the port regressions visible and the docs accurate.

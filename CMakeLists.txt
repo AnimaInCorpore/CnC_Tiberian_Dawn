@@ -118,7 +118,8 @@ set(TD_SOURCES
   src/pcx_write.cpp
   src/crc_helpers.cpp
   src/bitblt_helpers.cpp
-  src/soundvisu_helpers.cpp
+  src/sounddlg.cpp
+  src/visudlg.cpp
   src/mouse_vtable.cpp
   src/gamedlg.cpp
   src/loaddlg.cpp

@@ -2,7 +2,7 @@
 | --- | --- | --- |
 | `JSHELL.CPP` | `src/jshell.cpp` | Ported `Small_Icon()` by parsing the existing iconset buffer layout (same offsets already used by `GraphicViewPortClass::Draw_Stamp`) so radar mini-icon generation matches the Win95 sampling pattern. |
 | `CCFILE.CPP` | `src/ccfile.cpp` | CCFileClass now matches Win95 MIX semantics: prefer loose/on-disk overrides when present, otherwise open embedded MIX members from cached RAM images or by seeking within the on-disk parent MIX while keeping the embedded filename bound to the object. |
-| `SOUNDDLG.H` / `VISUDLG.H` | `src/soundvisu_helpers.cpp` | Implemented the Sound/Visual Controls dialogs (track list + play/stop, shuffle/repeat, music/SFX sliders; brightness/color/contrast/tint sliders with reset) so the in-game options path no longer calls no-op handlers. |
+| `SOUNDDLG.CPP` / `VISUDLG.CPP` | `src/sounddlg.cpp`, `src/visudlg.cpp` | Implemented the Sound/Visual Controls dialogs (track list + play/stop, shuffle/repeat, music/SFX sliders; brightness/color/contrast/tint sliders with reset) so the in-game options path no longer calls no-op handlers. |
 | `RAWFILE.CPP` | `src/rawfile.cpp` | Restored Win95 file semantics: `RawFileClass::Open()` now closes previous handles, creates/truncates on `WRITE`, creates on `READ|WRITE`, and uses the canonical `Error()` retry/exit flow; `Is_Available(forced)` again honors the forced-open behavior. |
 | `GLOBALS.CPP` | `src/globals.cpp` | Ported to src/, replaced NULL with nullptr, and disabled legacy networking code. |
 | `FTIMER.H` | `src/include/ftimer.h` | Countdown timer helper rewritten with `#pragma once` and the global `Frame` counter. |
@@ -392,7 +392,7 @@
 | `FUNCTION.H` | `src/include/legacy/function.h` | Declared Calculate_CRC helper for obfuscation and network CRC usage. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Declared Get_Shape_Header_Data helper for radar icon extraction. |
 | `BITBLT` | `src/bitblt_helpers.cpp` | Added Bit_It_In_Scale fallback for score blits. |
-| `SOUND/VIDEO DLG` | `src/soundvisu_helpers.cpp` | Added no-op sound/visual controls handlers to satisfy options flow. |
+| `SOUNDDLG.CPP` / `VISUDLG.CPP` | `src/sounddlg.cpp`, `src/visudlg.cpp` | Ported the sound/visual controls dialogs so the options flow uses real handlers (no placeholder behavior). |
 | `MOUSE.H` | `src/mouse_vtable.cpp` | Defined MouseClass VTable storage to satisfy serialization references. |
 | `LOADDLG.H` | `src/include/legacy/loaddlg.h` | Added missing includes for vector/list/defines types. |
 | `HEAP.CPP` / `COMBUF.CPP` | `src/heap.cpp`, `src/combuf.cpp` | Restored original heap Save/Load pointer coding flow and ported `CommBufferClass::Mono_Debug_Print2` so networking debug output matches the Win95 mono view again. |
