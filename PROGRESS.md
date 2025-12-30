@@ -112,7 +112,7 @@
 | `IPXMGR.CPP` | `src/ipxmgr.cpp` | IPX manager now tracks send/receive counters and computes basic response-time stats from observed traffic, replacing placeholder return values while keeping the UDP transport layer. |
 | `JSHELL.CPP` | | To be ported. |
 | `KEYFRAME.CPP` | `src/keyframe_info.cpp` | Frame metadata/palette accessors ported; `Build_Frame`/LCW decode still pending. |
-| `LOADDLG.CPP` | | To be ported. |
+| `LOADDLG.CPP` | `src/loaddlg.cpp` | Ported load/save/delete dialog backend, replacing the placeholder `LoadOptionsClass` implementation and wiring it to the real save/load entry points. |
 | `LOAD_TITLE.CPP` | `src/load_title.cpp` | Title screen loader now resolves art through the CCFile/Mix stack, decodes PCX or CPS deterministically, patches UI palette colors, and scales to the active viewport. Fixed PCX RLE decoding so runs that cross scanline boundaries are handled correctly (prevents main menu background corruption). |
 | `LOAD_TITLE.CPP` | `src/load_title.cpp` | Title palette normalization now mirrors the legacy PCX loader and no longer overwrites the first 16 palette entries, matching Win95 background colors. |
 | `LOGIC.CPP` | | To be ported. |
@@ -157,7 +157,7 @@
 | `RAWFILE.CPP` | `src/rawfile.cpp` | RawFileClass rebuilt atop POSIX read/write/seek with simple error handling. |
 | `BUFFER_TO_PAGE` (legacy blit) | `src/buffer_to_page.cpp` | Raw 8-bit buffer copy now performs bounds-aware page blits instead of the stub. |
 | `REINF.CPP` | `src/reinf.cpp` | Ported to src/ with reinforcement creation logic wired for triggers. |
-| `SAVELOAD.CPP` | | To be ported (needed for TechnoType target helpers). |
+| `SAVELOAD.CPP` | `src/saveload.cpp` | Ported save/load and misc-value serialization routines (plus pointer coding) so savegame operations have a real implementation again. |
 | `SCENARIO.CPP` | | To be ported. |
 | `SCORE.CPP` | `src/score.cpp` | Ported to src/; score/ending UI helpers and globals restored. |
 | `SDATA.CPP` | `src/sdata.cpp` | Ported to src/; smudge type tables/graphics restored. |
@@ -381,7 +381,7 @@
 | `NETDLG/NULLDLG` | `src/network_helpers.cpp` | Added network disconnect/reconnect dialog helpers for queue handling. |
 | `WINSTUB` | `src/pcx_write.cpp` | Implemented PCX writer for screenshot/debug output. |
 | `GAMEDLG.CPP` | `src/gamedlg.cpp` | Ported game controls dialog processing. |
-| `LOADDLG.CPP` | `src/loaddlg.cpp` | Added load dialog class skeleton to satisfy build. |
+| `LOADDLG.CPP` | `src/loaddlg.cpp` | Replaced the earlier skeleton with the full Win95-style load/save/delete dialog logic (file scan, sort, list UI, and command flow). |
 | `MAP.CPP` / `LOGIC.CPP` | `src/map.cpp` / `src/logic.cpp` | Restored the original map/logic runtime and removed the linked gameplay/map stub units; the global `Map` is now a real `DisplayClass` instance again. |
 | `PORT_STUBS.CPP` | `src/port_runtime.cpp` | Added global animation helper definitions for link parity. |
 | `CRC` | `src/crc_helpers.cpp` | Added Calculate_CRC helper used by obfuscation and legacy CRC checks. |
