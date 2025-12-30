@@ -457,12 +457,12 @@ void GameOptionsClass::Process(void)
 					GameControlsClass().Process();
 					break;
 
-				case (BUTTON_RESUME):
-					//Save_Settings();
-					process = false;
-					display = true;
-					break;
-			}
+					case (BUTTON_RESUME):
+						Options.Save_Settings();
+						process = false;
+						display = true;
+						break;
+				}
 
 			pressed = false;
 			buttonsel[curbutton-1]->IsPressed = false;

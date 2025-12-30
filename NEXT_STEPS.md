@@ -15,7 +15,7 @@ Status: Next steps. Scope: make the above definition true before chasing deep pa
 - Verify all remaining UI screens use canonical `source.Blit(dest)` ordering (avoid accidental `dest.Blit(source)` inversions) as modules are ported (`src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`).
 - Replicate the remaining Win95 `Select_Game()` behavior: new game/campaign progression and a real load-mission entry point (bonus/expansion routing is now implemented) (`src/port_runtime.cpp`, `src/loaddlg.cpp`).
 - Implementation done!: Tightened SDL main-loop timing so game speed and timers behave consistently: `Options.GameSpeed` again controls the frame cadence (not milliseconds), and `TimerClass::Time()` returns Win95-style 60Hz ticks; focus loss pauses simulation updates (`src/port_runtime.cpp`, `src/wwlib_runtime.cpp`, `src/include/legacy/wwlib32.h`).
-- Replace the “must not be stubbed during play” dialogs: implement remaining options flows invoked from the in-game UI (`src/port_runtime.cpp`).
+- Implementation done!: In-game options overlay now persists settings (restored `Options.Save_Settings()` on resume) so sliders/toggles survive returning to gameplay (`src/goptions.cpp`).
 
 ## Save/load and profile persistence
 Status: Next steps. Scope: allow a normal play session to be resumed and options to persist.
