@@ -152,7 +152,7 @@
 | `ODATA.CPP` | `src/odata.cpp` | Ported to src/; overlay type tables/graphics restored. |
 | `OPTIONS.CPP` | `src/options.cpp` | Ported to src/; options settings and palette hooks restored, and the score-volume setter no longer recurses into itself. |
 | `OVERLAY.CPP` | `src/overlay.cpp` | Ported to src/; overlay object logic restored and map-shim access updated for stubbed cells. |
-| `PACKET.CPP` | | To be ported. |
+| `PACKET.CPP` | `src/packet.cpp` | Ported to src/; packet/field linked-list serialization now builds on `FieldClass` with correct host/network byte swapping and dword padding. |
 | `POWER.CPP` | `src/power.cpp` | Power bar UI ported; shapes are loaded via the modern MIX helpers and redraw logic mirrors the original radar/sidebar flow. |
 | `PROFILE.CPP` | `src/profile.cpp` | Ported Win95 INI/profile helpers (`WWGet/WritePrivateProfile*`, hex/int/string parsing, section/entry deletion) and removed the stub implementations from `src/port_runtime.cpp`. |
 | `QUEUE.CPP` | `src/queue.cpp` | Ported to src/ with mission queue helper logic and pointer coding helpers. |

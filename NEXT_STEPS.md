@@ -35,7 +35,7 @@ Status: Next steps. Scope: audio + movies are required for a “real game” exp
 
 ## Multiplayer and networking
 Status: Next steps. Scope: restore Win95 multiplayer flows once single-player is playable.
-- Port packet serialization and endianness helpers for the multiplayer event stream (`PACKET.CPP` → `src/packet.cpp` using `src/field.cpp`).
+- Implementation done!: Ported packet serialization and endianness helpers for the multiplayer event stream (`src/packet.cpp`, `src/field.cpp`).
 - Complete the remaining TCP/IP + session behavior (timeouts, lobby dialogs, determinism checks) while keeping the UDP-backed IPX95 path (`src/tcpip.cpp`, `src/connect.cpp`).
 - Keep the portable CCDDE replacement aligned with Win95 WChat expectations and document the integration knobs (`src/ccdde.cpp`, `src/dde.cpp`).
 

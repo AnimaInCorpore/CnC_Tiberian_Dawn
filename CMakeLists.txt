@@ -169,6 +169,7 @@ set(TD_SOURCES
   src/noseqcon.cpp
   src/nullconn.cpp
   src/nullmgr.cpp
+  src/packet.cpp
   src/object.cpp
   src/crew.cpp
   src/buffer_to_page.cpp
