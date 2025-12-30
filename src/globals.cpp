@@ -43,6 +43,8 @@
 #include <cstddef>
 #include "legacy/getcd.h"
 
+class PhoneEntryClass;
+
 #ifdef JAPANESE
 bool ForceEnglish = false;
 #endif
@@ -463,6 +465,9 @@ int SuperRecord = 0;			// 1 = reopen record file with every write
 int PlaybackGame= 0;			// 1 = play back a game
 int AllowAttract = 0;		// 1 = allow attract mode
 
+DynamicVectorClass<PhoneEntryClass*> PhoneBook;
+int CurPhoneIdx = 0;
+DynamicVectorClass<char*> InitStrings;
 
 #if 0
 /***************************************************************************

@@ -8,6 +8,7 @@
 #include "legacy/wwalloc.h"
 #include "legacy/error.h"
 #include "legacy/externs.h"
+#include "legacy/ipxmgr.h"
 #include "legacy/mixfile.h"
 #include "legacy/ccfile.h"
 #include "legacy/defines.h"
@@ -351,6 +352,65 @@ namespace {
             HidPage.Fill_Rect(0, 0, HidPage.Get_Width() - 1, HidPage.Get_Height() - 1, 0);
         }
     }
+}
+
+void Read_Setup_Options(RawFileClass* config_file) {
+  if (!config_file || !config_file->Is_Available()) {
+    return;
+  }
+
+  const long file_size = config_file->Size();
+  if (file_size <= 0) {
+    return;
+  }
+
+  std::vector<char> buffer(static_cast<std::size_t>(file_size) + 1u);
+  const long read = config_file->Read(buffer.data(), file_size);
+  if (read != file_size) {
+    return;
+  }
+  buffer[static_cast<std::size_t>(file_size)] = '\0';
+
+  VideoBackBufferAllowed =
+      WWGetPrivateProfileInt("Options", "VideoBackBuffer", 1, buffer.data()) != 0;
+  ScreenHeight =
+      WWGetPrivateProfileInt("Options", "Resolution", 0, buffer.data()) ? 480 : 400;
+  IsV107 = WWGetPrivateProfileInt("Options", "Compatibility", 0, buffer.data()) != 0;
+
+  const int socket = WWGetPrivateProfileInt("Options", "Socket", 0, buffer.data());
+  if (socket > 0) {
+    const int real_socket = socket + 0x4000;
+    if (real_socket >= 0x4000 && real_socket < 0x8000) {
+      Ipx.Set_Socket(real_socket);
+    }
+  }
+
+  char netbuf[512] = {};
+  char* netptr = WWGetPrivateProfileString("Options", "DestNet", nullptr, netbuf,
+                                          static_cast<int>(sizeof(netbuf)), buffer.data());
+  if (netptr && std::strlen(netbuf) != 0) {
+    NetNumType net = {};
+    NetNodeType node = {};
+
+    int index = 0;
+    for (char* token = std::strtok(netbuf, "."); token; token = std::strtok(nullptr, ".")) {
+      int value = 0;
+      if (std::sscanf(token, "%x", &value) != 1) break;
+
+      if (index < 4) {
+        net[index] = static_cast<char>(value);
+      } else if (index < 10) {
+        node[index - 4] = static_cast<char>(value);
+      }
+      ++index;
+    }
+
+    if (index >= 4) {
+      IsBridge = 1;
+      std::memset(node, 0xff, sizeof(node));
+      BridgeNet = IPXAddressClass(net, node);
+    }
+  }
 }
 
 void Game_Startup(int argc, char* argv[]) {

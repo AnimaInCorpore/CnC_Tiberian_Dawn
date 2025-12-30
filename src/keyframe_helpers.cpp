@@ -1,5 +1,7 @@
 #include "legacy/function.h"
 
+#include <SDL.h>
+
 namespace {
 
 static bool UseBigShapeBuffer = false;
@@ -149,6 +151,16 @@ static void Apply_XOR_Delta(void* dest, const void* delta) {
 }
 
 }  // namespace
+
+void Check_Use_Compressed_Shapes(void) {
+  const int system_mb = SDL_GetSystemRAM();
+  const bool allow_uncompressed = (system_mb > 16);
+  UseBigShapeBuffer = allow_uncompressed;
+  OriginalUseBigShapeBuffer = UseBigShapeBuffer;
+}
+
+void Reset_Theater_Shapes(void) {
+}
 
 void Disable_Uncompressed_Shapes(void) {
   UseBigShapeBuffer = false;

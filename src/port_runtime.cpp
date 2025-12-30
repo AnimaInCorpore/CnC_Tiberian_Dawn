@@ -19,6 +19,7 @@
 #include "legacy/jshell.h"
 #include "legacy/msglist.h"
 #include "legacy/defines.h"
+#include "legacy/wwalloc.h"
 #include "platform_input.h"
 #include "runtime_sdl.h"
 #include "port_debug.h"
@@ -31,6 +32,8 @@
 #include <cctype>
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
+#include <limits>
 #include <new>
 #include <string>
 #include <thread>
@@ -448,7 +451,15 @@ void Shake_Screen(int) {}
 
 void const* Hires_Retrieve(char const* name) { return MixFileClass::Retrieve(name); }
 
-void Validate_Error(char const*) {}
+void Validate_Error(char const* name) {
+#ifdef CHEAT_KEYS
+  Prog_End();
+  std::printf("%s object error!\n", name ? name : "(null)");
+  std::exit(0);
+#else
+  (void)name;
+#endif
+}
 
 bool Parse_Command_Line(int argc, char** argv) {
   if (!argv) return true;
@@ -489,9 +500,9 @@ bool Parse_Command_Line(int argc, char** argv) {
   return true;
 }
 
-void Read_Setup_Options(RawFileClass*) {}
+void Read_Setup_Options(RawFileClass*);
 
-void Reset_Theater_Shapes() {}
+void Reset_Theater_Shapes(void);
 
 int Version_Number() { return 1; }
 
@@ -506,13 +517,37 @@ TheaterType Theater_From_Name(char const* name) {
 }
 
 
-void Check_Use_Compressed_Shapes() {}
+void Check_Use_Compressed_Shapes(void);
 
-unsigned long Disk_Space_Available() { return 1024 * 1024 * 1024; }
+unsigned long Disk_Space_Available() {
+  try {
+    const auto space = std::filesystem::space(std::filesystem::current_path());
+    return static_cast<unsigned long>(std::min<std::uintmax_t>(
+        space.available, static_cast<std::uintmax_t>(std::numeric_limits<unsigned long>::max())));
+  } catch (...) {
+    return 0;
+  }
+}
 
-int Ram_Free() { return 16 * 1024 * 1024; }
+int Ram_Free() {
+  const long bytes = ::Ram_Free(MEM_NORMAL);
+  if (bytes <= 0) return 0;
+  return static_cast<int>(std::min<long>(bytes, std::numeric_limits<int>::max()));
+}
 
-void Memory_Error_Handler(void) {}
+void Memory_Error_Handler(void) {
+  VisiblePage.Clear();
+  Set_Palette(GamePalette);
+
+  while (Get_Mouse_State()) {
+    Show_Mouse();
+  }
+
+  CCMessageBox().Process("Error - out of memory.", "Abort", nullptr, nullptr, false);
+  Prog_End();
+  ReadyToQuit = true;
+  std::exit(0);
+}
 
 bool Force_CD_Available(int cd) {
   // The SDL port typically runs with all assets available locally (either from MIX
@@ -550,8 +585,6 @@ bool Confine_Rect(int* x, int* y, int width, int height, int max_width, int max_
   }
   return adjusted;
 }
-
-void Game_Startup(void*, int, int, int, bool) {}
 
 // -----------------------------------------------------------------------------
 // Missing gameplay/loop hooks
@@ -991,4 +1024,17 @@ int Surrender_Dialog() {
   return retcode;
 }
 
-void Free_Scenario_Descriptions() {}
+void Free_Scenario_Descriptions() {
+  MPlayerScenarios.Clear();
+  MPlayerFilenum.Clear();
+
+  for (int i = 0; i < InitStrings.Count(); ++i) {
+    delete InitStrings[i];
+  }
+  InitStrings.Clear();
+
+  for (int i = 0; i < PhoneBook.Count(); ++i) {
+    ::operator delete(static_cast<void*>(PhoneBook[i]));
+  }
+  PhoneBook.Clear();
+}

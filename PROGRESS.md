@@ -414,6 +414,7 @@
 | `PALETTE/TEXT` | `src/load_title.cpp`, `src/include/legacy/compat.h`, `src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`, `src/text.cpp` | Matched Win95 title/menu palette behavior (apply full PCX palette), corrected base UI color indices (`TBLACK` vs `BLACK`, `GREEN`, etc), and implemented the legacy ColorXlat-driven `Set_Font_Palette` text color path. |
 | `CCFILE.CPP` | `src/ccfile.cpp` | Restored write passthrough to `CDFileClass::Write()` so save/profile writes work when not reading from MIX archives. |
 | `TIMING` | `src/port_runtime.cpp`, `src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp` | Restored canonical time units: `Options.GameSpeed` controls frame cadence again and `TimerClass` reports 60Hz ticks (Win95 semantics); focus loss pauses simulation updates in the SDL main loop. |
+| `STARTUP/CONFIG` | `src/game.cpp`, `src/keyframe_helpers.cpp`, `src/port_runtime.cpp`, `src/globals.cpp` | Ported early `CONQUER.INI` setup parsing (`Read_Setup_Options`), restored compressed-shape decision (`Check_Use_Compressed_Shapes`), implemented real disk/RAM probes + memory-error dialog path, and wired multiplayer scenario description cleanup to the real global vectors (no more missing-symbol placeholders). |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).

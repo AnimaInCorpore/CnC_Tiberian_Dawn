@@ -18,7 +18,7 @@
 #include <vector>
 
 // Forward declarations
-void Game_Startup(HINSTANCE instance, int command_show, int screen_width, int screen_height, bool windowed);
+void Game_Startup(int argc, char* argv[]);
 void Game_Shutdown();
 void Main_Game(int argc, char* argv[]);
 
@@ -89,7 +89,8 @@ int PASCAL WinMain(HINSTANCE instance, HINSTANCE, char* command_line, int comman
     std::vector<char*> argv = Materialize_Argv(arg_storage);
     const int argc = static_cast<int>(argv.size());
 
-    Game_Startup(instance, command_show, 640, 480, true);
+    (void)command_show;
+    Game_Startup(argc, argv.data());
     Main_Game(argc, argv.data());
     Game_Shutdown();
 
