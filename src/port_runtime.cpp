@@ -551,11 +551,94 @@ void Memory_Error_Handler(void) {
 }
 
 bool Force_CD_Available(int cd) {
-  // The SDL port typically runs with all assets available locally (either from MIX
-  // archives on disk or via configured CD subfolders). Treat "-2" as "no CD needed"
-  // (matches the legacy convention) and accept other values for now.
+  // "-2" means "no disc needed" (installed/local data available).
   if (cd == -2) return true;
-  return true;
+
+  static const char* kVolId[] = {"GDI", "NOD", "COVERT"};
+
+  auto disc_root_available = [](const std::filesystem::path& root) -> bool {
+    try {
+      if (!std::filesystem::exists(root) || !std::filesystem::is_directory(root)) return false;
+      if (std::filesystem::exists(root / "GENERAL.MIX")) return true;
+      if (std::filesystem::exists(root / "CONQUER.MIX")) return true;
+      if (std::filesystem::exists(root / "MOVIES.MIX")) return true;
+      if (std::filesystem::exists(root / "SCORES.MIX")) return true;
+    } catch (...) {
+    }
+    return false;
+  };
+
+  auto disc_is_available = [&](int disc) -> bool {
+    if (disc < 0) return false;
+    // Prefer canonical repo-local mirrors first.
+    if (disc == 0 && disc_root_available(std::filesystem::path("CD") / "TIBERIAN_DAWN" / "CD1")) return true;
+    if (disc == 1 && disc_root_available(std::filesystem::path("CD") / "TIBERIAN_DAWN" / "CD2")) return true;
+    if (disc == 2 && disc_root_available(std::filesystem::path("CD") / "TIBERIAN_DAWN" / "CD3")) return true;
+
+    // Legacy mirrors used by some installs.
+    if (disc == 0 && disc_root_available(std::filesystem::path("CD") / "GDI")) return true;
+    if (disc == 1 && disc_root_available(std::filesystem::path("CD") / "NOD")) return true;
+    if (disc == 2 && disc_root_available(std::filesystem::path("CD") / "COVERT")) return true;
+
+    return false;
+  };
+
+  auto any_disc_available = [&]() -> bool {
+    if (disc_root_available(std::filesystem::path("CD") / "TIBERIAN_DAWN" / "CD1")) return true;
+    if (disc_root_available(std::filesystem::path("CD") / "TIBERIAN_DAWN" / "CD2")) return true;
+    if (disc_root_available(std::filesystem::path("CD") / "TIBERIAN_DAWN" / "CD3")) return true;
+    if (disc_root_available(std::filesystem::path("CD") / "GDI")) return true;
+    if (disc_root_available(std::filesystem::path("CD") / "NOD")) return true;
+    if (disc_root_available(std::filesystem::path("CD") / "COVERT")) return true;
+    if (disc_root_available(std::filesystem::path("CD") / "CNC95")) return true;
+    if (disc_root_available(std::filesystem::path("CD"))) return true;
+    return false;
+  };
+
+  const ThemeType theme_playing = Theme.What_Is_Playing();
+  Theme.Stop();
+
+  for (;;) {
+    bool ok = false;
+    if (cd == -1) {
+      ok = any_disc_available();
+    } else if (cd >= 0 && cd <= 2) {
+      ok = disc_is_available(cd);
+    } else {
+      ok = true;
+    }
+
+    if (ok) {
+      if (cd >= 0 && cd <= 2) {
+        // Preserve the legacy "disc number" feel: 1=CD1(GDI), 2=CD2(NOD), 3=CD3(COVERT).
+        CDFileClass::Set_CD_Drive(cd + 1);
+        CDFileClass::Refresh_Search_Drives();
+      }
+      if (theme_playing != THEME_NONE) {
+        Theme.Queue_Song(theme_playing);
+      }
+      return true;
+    }
+
+    char buffer[256] = {};
+    if (cd == -1) {
+      std::snprintf(buffer, sizeof(buffer), "%s", Text_String(TXT_CD_DIALOG_1));
+    } else if (cd == 2) {
+      std::snprintf(buffer, sizeof(buffer), "%s", Text_String(TXT_CD_DIALOG_3));
+    } else if (cd >= 0 && cd <= 2) {
+      std::snprintf(buffer, sizeof(buffer), Text_String(TXT_CD_DIALOG_2), cd + 1, kVolId[cd]);
+    } else {
+      std::snprintf(buffer, sizeof(buffer), "%s", Text_String(TXT_CD_DIALOG_1));
+    }
+
+    const int reply = CCMessageBox().Process(buffer, TXT_OK, TXT_CANCEL, TXT_NONE, true);
+    if (reply == 1) {
+      return false;
+    }
+
+    // Allow the user to add/mount assets and retry.
+    CDFileClass::Refresh_Search_Drives();
+  }
 }
 
 void Map_Selection(void) {

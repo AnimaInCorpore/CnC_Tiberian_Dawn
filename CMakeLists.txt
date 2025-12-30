@@ -68,6 +68,7 @@ set(TD_SOURCES
   src/icon_set.cpp
   src/comqueue.cpp
   src/cdfile.cpp
+  src/getcd.cpp
   src/checkbox.cpp
   src/dial8.cpp
   src/cheklist.cpp

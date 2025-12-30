@@ -52,46 +52,70 @@ void __cdecl Init_MMX(void);
 }
 
 namespace {
-    std::filesystem::path Resolve_Data_Path(const char* filename) {
-        if (!filename) return {};
-        std::filesystem::path direct(filename);
-        if (std::filesystem::exists(direct)) {
-            return direct;
-        }
+    std::vector<std::filesystem::path> Data_Roots() {
         std::vector<std::filesystem::path> roots;
+        if (const char* subfolder = CDFileClass::Get_CD_Subfolder()) {
+            roots.emplace_back(std::filesystem::path("CD") / subfolder);
+        }
         static const char* kDiscs[] = {"CD2", "CD1", "CD3"};
         for (auto disc : kDiscs) {
             roots.emplace_back(std::filesystem::path("CD") / "TIBERIAN_DAWN" / disc);
         }
-        if (const char* subfolder = CDFileClass::Get_CD_Subfolder()) {
-            roots.emplace_back(std::filesystem::path("CD") / subfolder);
-        }
         roots.emplace_back(std::filesystem::path("CD") / "CNC95");
         roots.emplace_back(std::filesystem::path("CD"));
-        for (auto const& root : roots) {
-            std::filesystem::path candidate = root / filename;
-            if (std::filesystem::exists(candidate)) {
-                return candidate;
-            }
-        }
-        return {};
+        roots.emplace_back(".");
+        return roots;
     }
 
-    void Register_Mix_Path(const std::filesystem::path& path, bool cache) {
-        if (path.empty()) return;
+    std::vector<std::filesystem::path> Resolve_All_Data_Paths(const char* filename) {
+        if (!filename || !*filename) return {};
+
+        std::vector<std::filesystem::path> results;
+        std::unordered_set<std::string> seen;
+
+        auto add = [&](const std::filesystem::path& path) {
+            if (path.empty()) return;
+            const std::string key = path.string();
+            if (!seen.insert(key).second) return;
+            results.push_back(path);
+        };
+
+        std::filesystem::path direct(filename);
+        if (std::filesystem::exists(direct)) {
+            add(direct);
+        }
+
+        for (auto const& root : Data_Roots()) {
+            std::filesystem::path candidate = root / filename;
+            if (std::filesystem::exists(candidate)) {
+                add(candidate);
+            }
+        }
+
+        return results;
+    }
+
+    bool Register_Mix_Path(const std::filesystem::path& path, bool cache) {
+        if (path.empty()) return false;
         static std::unordered_set<std::string> registered;
         const std::string key = path.string();
-        if (!registered.insert(key).second) return;
+        if (!registered.insert(key).second) return false;
         auto* mix = new MixFileClass(path.string().c_str());
         if (mix && cache) {
             mix->Cache();
         }
+        return true;
     }
 
     void Register_Mix_If_Present(const char* filename, bool cache) {
-        const auto path = Resolve_Data_Path(filename);
-        if (path.empty()) return;
-        Register_Mix_Path(path, cache);
+        bool cached_one = false;
+        for (auto const& path : Resolve_All_Data_Paths(filename)) {
+            const bool do_cache = cache && !cached_one;
+            const bool added = Register_Mix_Path(path, do_cache);
+            if (added && do_cache) {
+                cached_one = true;
+            }
+        }
     }
 
     bool Is_Scenario_Mix_Name(const std::string& upper) {
@@ -106,18 +130,7 @@ namespace {
         if (scanned) return;
         scanned = true;
 
-        const char* cd_subfolder = CDFileClass::Get_CD_Subfolder();
-        std::vector<std::filesystem::path> roots;
-        static const char* kTiberianFolders[] = {"CD2", "CD1", "CD3"};
-        for (auto folder : kTiberianFolders) {
-            roots.emplace_back(std::filesystem::path("CD") / "TIBERIAN_DAWN" / folder);
-        }
-        if (cd_subfolder && *cd_subfolder) {
-            roots.emplace_back(std::filesystem::path("CD") / cd_subfolder);
-        }
-        roots.emplace_back(std::filesystem::path("CD") / "CNC95");
-        roots.emplace_back(std::filesystem::path("CD"));
-        roots.emplace_back(".");
+        std::vector<std::filesystem::path> roots = Data_Roots();
 
         for (auto const& dir : roots) {
             if (!std::filesystem::exists(dir) || !std::filesystem::is_directory(dir)) continue;
@@ -141,18 +154,7 @@ namespace {
         }
         scanned = true;
 
-        const char* cd_subfolder = CDFileClass::Get_CD_Subfolder();
-        std::vector<std::filesystem::path> roots;
-        static const char* kTiberianFolders[] = {"CD2", "CD1", "CD3"};
-        for (auto folder : kTiberianFolders) {
-            roots.emplace_back(std::filesystem::path("CD") / "TIBERIAN_DAWN" / folder);
-        }
-        if (cd_subfolder && *cd_subfolder) {
-            roots.emplace_back(std::filesystem::path("CD") / cd_subfolder);
-        }
-        roots.emplace_back(std::filesystem::path("CD") / "CNC95");
-        roots.emplace_back(std::filesystem::path("CD"));
-        roots.emplace_back(".");
+        std::vector<std::filesystem::path> roots = Data_Roots();
 
         static const char* kAllowedMixes[] = {"GENERAL.MIX", "CONQUER.MIX", "CCLOCAL.MIX",
                                               "LOCAL.MIX",   "UPDATE.MIX",  "UPDATEC.MIX",
@@ -164,7 +166,7 @@ namespace {
             return false;
         };
 
-        std::unordered_set<std::string> seen;
+        std::unordered_set<std::string> seen_paths;
         auto add_if_mix = [&](const std::filesystem::path& path) {
             if (!std::filesystem::is_regular_file(path)) return;
             const std::string ext = path.extension().string();
@@ -172,7 +174,9 @@ namespace {
                 std::string filename = path.filename().string();
                 std::transform(filename.begin(), filename.end(), filename.begin(),
                                [](unsigned char ch) { return static_cast<char>(std::toupper(ch)); });
-                if (is_allowed(filename) && seen.insert(filename).second) {
+                if (!is_allowed(filename)) return;
+                const std::string key = path.string();
+                if (seen_paths.insert(key).second) {
                     cached.push_back(path);
                 }
             }
