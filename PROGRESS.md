@@ -419,6 +419,7 @@
 | `STARTUP/CONFIG` | `src/game.cpp`, `src/keyframe_helpers.cpp`, `src/port_runtime.cpp`, `src/globals.cpp` | Ported early `CONQUER.INI` setup parsing (`Read_Setup_Options`), restored compressed-shape decision (`Check_Use_Compressed_Shapes`), implemented real disk/RAM probes + memory-error dialog path, and wired multiplayer scenario description cleanup to the real global vectors (no more missing-symbol placeholders). |
 | `GOPTIONS.CPP` | `src/goptions.cpp` | Restored Win95 options-dialog persistence by saving settings (`Options.Save_Settings()`) when resuming from the in-game options overlay. |
 | `PROFILE PATHS` | `src/port_paths.cpp`, `src/options.cpp`, `src/game.cpp`, `src/port_runtime.cpp`, `src/port_setup.cpp` | Added SDL pref-path backed config resolution so `CONQUER.INI` reads prefer the working directory but fall back to a per-user location; writes go to the same resolved path. |
+| `CDFILE/CCFILE` | `src/cdfile.cpp`, `src/ccfile.cpp` | Fixed search-drive path duplication and ensured drive probing doesn’t get stuck in the interactive retry loop; MIX member lookups now ignore directory prefixes so assets resolve regardless of expanded `CD/...` filenames. |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).

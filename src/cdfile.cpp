@@ -44,6 +44,26 @@ std::string Normalize_Cd_Subfolder(const char* subfolder) {
   return {};
 }
 
+bool Is_Absolute_Path(std::string const& path) {
+  if (path.empty()) return false;
+  if (path[0] == '/' || path[0] == '\\') return true;
+  if (path.size() >= 2 && std::isalpha(static_cast<unsigned char>(path[0])) && path[1] == ':') return true;
+  return false;
+}
+
+bool Has_Path_Separator(std::string const& path) {
+  return path.find('/') != std::string::npos || path.find('\\') != std::string::npos;
+}
+
+bool Starts_With_Path_Prefix(std::string const& path, std::string const& prefix) {
+  if (prefix.empty()) return false;
+  if (path.size() < prefix.size()) return false;
+  if (path.compare(0, prefix.size(), prefix) != 0) return false;
+  if (path.size() == prefix.size()) return true;
+  const char next = path[prefix.size()];
+  return next == '/' || next == '\\';
+}
+
 void Ensure_Default_Search_Drives() {
   if (g_search_head) return;
 
@@ -113,12 +133,31 @@ int CDFileClass::Open(int rights) {
 
   Ensure_Default_Search_Drives();
 
+  /*
+  ** If the caller already provided a rooted or subdirectory path, try it
+  ** directly first. This avoids accidentally prefixing an already-expanded
+  ** search-drive path (which can lead to duplicated segments).
+  **
+  ** Important: probe for existence first so missing candidates don't trigger
+  ** RawFileClass's interactive retry loop before we've tried other drives.
+  */
+  if (!original_name.empty() && (Is_Absolute_Path(original_name) || Has_Path_Separator(original_name))) {
+    RawFileClass::Set_Name(original_name.c_str());
+    if (RawFileClass::Is_Available(false) && RawFileClass::Open(rights)) {
+      return 1;
+    }
+  }
+
   if (!IsDisabled && First) {
     SearchDriveNode* node = g_search_head;
     while (node) {
+      if (!original_name.empty() && Starts_With_Path_Prefix(original_name, node->path)) {
+        node = node->next;
+        continue;
+      }
       const std::string candidate = Join_Path(node->path, original_name.c_str());
       RawFileClass::Set_Name(candidate.c_str());
-      if (RawFileClass::Open(rights)) {
+      if (RawFileClass::Is_Available(false) && RawFileClass::Open(rights)) {
         return 1;
       }
       node = node->next;
@@ -135,9 +174,20 @@ int CDFileClass::Is_Available(int forced) {
   const std::string original_name = File_Name() ? File_Name() : "";
   Ensure_Default_Search_Drives();
 
+  if (!original_name.empty() && (Is_Absolute_Path(original_name) || Has_Path_Separator(original_name))) {
+    RawFileClass::Set_Name(original_name.c_str());
+    if (RawFileClass::Is_Available(forced)) {
+      return 1;
+    }
+  }
+
   if (!IsDisabled && First) {
     SearchDriveNode* node = g_search_head;
     while (node) {
+      if (!original_name.empty() && Starts_With_Path_Prefix(original_name, node->path)) {
+        node = node->next;
+        continue;
+      }
       const std::string candidate = Join_Path(node->path, original_name.c_str());
       RawFileClass::Set_Name(candidate.c_str());
       if (RawFileClass::Is_Available(forced)) {

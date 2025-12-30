@@ -7,6 +7,21 @@
 
 #include "legacy/mixfile.h"
 
+namespace {
+
+char const* Basename(char const* path) {
+  if (!path) return nullptr;
+  char const* last = path;
+  for (char const* cursor = path; *cursor; ++cursor) {
+    if (*cursor == '/' || *cursor == '\\') {
+      last = cursor + 1;
+    }
+  }
+  return last;
+}
+
+}  // namespace
+
 CCFileClass::CCFileClass(char const* filename)
     : CDFileClass(filename), FromDisk(false), Pointer(nullptr), Start(0), Position(0), Length(0) {}
 
@@ -22,7 +37,7 @@ int CCFileClass::Is_Available(int forced) {
   MixFileClass* mix = nullptr;
   long offset = 0;
   long size = 0;
-  if (MixFileClass::Offset(File_Name(), nullptr, &mix, &offset, &size)) {
+  if (MixFileClass::Offset(Basename(File_Name()), nullptr, &mix, &offset, &size)) {
     return 1;
   }
   return CDFileClass::Is_Available(forced);
@@ -44,7 +59,7 @@ int CCFileClass::Open(int rights) {
   long offset = 0;
   long size = 0;
 
-  if (MixFileClass::Offset(File_Name(), &realptr, &mix, &offset, &size) && mix) {
+  if (MixFileClass::Offset(Basename(File_Name()), &realptr, &mix, &offset, &size) && mix) {
     Length = size;
     Position = 0;
     Start = offset;
