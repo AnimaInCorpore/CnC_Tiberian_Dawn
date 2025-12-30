@@ -419,6 +419,7 @@
 | `TIMING` | `src/port_runtime.cpp`, `src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp` | Restored canonical time units: `Options.GameSpeed` controls frame cadence again and `TimerClass` reports 60Hz ticks (Win95 semantics); focus loss pauses simulation updates in the SDL main loop. |
 | `STARTUP/CONFIG` | `src/game.cpp`, `src/keyframe_helpers.cpp`, `src/port_runtime.cpp`, `src/globals.cpp` | Ported early `CONQUER.INI` setup parsing (`Read_Setup_Options`), restored compressed-shape decision (`Check_Use_Compressed_Shapes`), implemented real disk/RAM probes + memory-error dialog path, and wired multiplayer scenario description cleanup to the real global vectors (no more missing-symbol placeholders). |
 | `GOPTIONS.CPP` | `src/goptions.cpp` | Restored Win95 options-dialog persistence by saving settings (`Options.Save_Settings()`) when resuming from the in-game options overlay. |
+| `PROFILE PATHS` | `src/port_paths.cpp`, `src/options.cpp`, `src/game.cpp`, `src/port_runtime.cpp`, `src/port_setup.cpp` | Added SDL pref-path backed config resolution so `CONQUER.INI` reads prefer the working directory but fall back to a per-user location; writes go to the same resolved path. |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).

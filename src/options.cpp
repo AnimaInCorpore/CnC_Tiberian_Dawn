@@ -62,6 +62,10 @@
 #include	"function.h"
 #include	"options.h"
 
+#include <string>
+
+#include "port_paths.h"
+
 
 /***********************************************************************************************
  * OptionsClass::OptionsClass -- The default constructor for the options class.                *
@@ -522,7 +526,8 @@ void OptionsClass::Load_Settings (void)
 	/*
 	**	Create filename and read the file.
 	*/
-	CCFileClass file ("CONQUER.INI");
+	const std::string conquer_ini_path = TD_Resolve_Profile_Read("CONQUER.INI");
+	CCFileClass file(conquer_ini_path.c_str());
 	if (!file.Is_Available()) {
 		return;
 	} else {
@@ -678,6 +683,7 @@ void OptionsClass::Save_Settings (void)
 {
 	char * buffer;			// INI staging buffer pointer.
 	CCFileClass file;
+	const std::string conquer_ini_path = TD_Resolve_Profile_Write("CONQUER.INI");
 
 	/*
 	**	Get a working pointer to the INI staging buffer. Make sure that the buffer
@@ -686,7 +692,7 @@ void OptionsClass::Save_Settings (void)
 	buffer = (char *)_ShapeBuffer;
 	memset(buffer, '\0', _ShapeBufferSize);
 
-	file.Set_Name("CONQUER.INI");
+	file.Set_Name(conquer_ini_path.c_str());
 	if (file.Is_Available()) {
 		file.Read(buffer, _ShapeBufferSize-1);
 	}

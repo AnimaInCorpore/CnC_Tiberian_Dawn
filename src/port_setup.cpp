@@ -1,8 +1,10 @@
 #include "port_setup.h"
 
 #include <cstring>
+#include <string>
 
 #include "legacy/rawfile.h"
+#include "port_paths.h"
 
 namespace {
 constexpr char kConquerIniName[] = "CONQUER.INI";
@@ -32,7 +34,12 @@ constexpr char kDefaultConquerIni[] =
 }  // namespace
 
 bool Ensure_Default_Conquer_Ini() {
-  RawFileClass ini(kConquerIniName);
+  if (RawFileClass(kConquerIniName).Is_Available()) {
+    return true;
+  }
+
+  const std::string path = TD_Resolve_Profile_Write(kConquerIniName);
+  RawFileClass ini(path.c_str());
   if (ini.Is_Available()) {
     return true;
   }
@@ -46,4 +53,3 @@ bool Ensure_Default_Conquer_Ini() {
   ini.Close();
   return written > 0;
 }
-

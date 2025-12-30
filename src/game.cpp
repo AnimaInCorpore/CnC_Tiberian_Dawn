@@ -13,6 +13,7 @@
 #include "legacy/ccfile.h"
 #include "legacy/defines.h"
 #include "port_debug.h"
+#include "port_paths.h"
 #include "port_setup.h"
 
 #include <array>
@@ -434,7 +435,8 @@ void Game_Startup(int argc, char* argv[]) {
 		std::fprintf(stderr, "Warning: failed to create default CONQUER.INI; startup may be incomplete.\n");
 	}
 
-	RawFileClass cfile("CONQUER.INI");
+	const std::string conquer_ini_path = TD_Resolve_Profile_Write("CONQUER.INI");
+	RawFileClass cfile(conquer_ini_path.c_str());
 
 	if (Detect_MMX_Availability()) {
 		MMXAvailable = true;

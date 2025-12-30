@@ -148,6 +148,7 @@ set(TD_SOURCES
   src/map.cpp
   src/jshell.cpp
   src/port_setup.cpp
+  src/port_paths.cpp
   src/port_runtime.cpp
   src/link.cpp
   src/list.cpp
