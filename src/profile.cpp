@@ -170,18 +170,24 @@ char* WWGetPrivateProfileString(char const* section,
             workptr += entrylen;
             workptr = std::strchr(workptr, '=');
 
-            if (workptr) {
-              altworkptr = std::strchr(workptr, '\r');
-            }
-
-            if (workptr == nullptr || altworkptr < workptr) {
+            if (workptr == nullptr) {
               return retval;
             }
 
             workptr++;
-            while (std::isspace(static_cast<unsigned char>(*workptr))) {
-              if (workptr >= altworkptr) return retval;
+            while (workptr < next && std::isspace(static_cast<unsigned char>(*workptr))) {
               workptr++;
+            }
+
+            // Windows INI parsing treats either CRLF or LF as end-of-line. The legacy port
+            // used '\r' only; be tolerant so scenario INIs with LF-only line endings parse
+            // correctly and without UB pointer comparisons.
+            altworkptr = std::strpbrk(workptr, "\r\n");
+            if (!altworkptr || altworkptr > next) {
+              altworkptr = next;
+            }
+            if (workptr >= altworkptr) {
+              return retval;
             }
 
             len = static_cast<int>(altworkptr - workptr);
@@ -293,4 +299,3 @@ bool WWWritePrivateProfileString(char const* section, char const* entry, char co
 
   return true;
 }
-

@@ -374,7 +374,13 @@ bool Read_Scenario_Ini(char *root, bool fresh)
 		CarryOverPercent = Cardinal_To_Fixed(100, CarryOverPercent);
 		CarryOverCap = WWGetPrivateProfileInt("Basic", "CarryOverCap", -1, buffer);
 
-		PlayerPtr = HouseClass::As_Pointer(HouseTypeClass::From_Name(buf));
+		const HousesType player_house = HouseTypeClass::From_Name(buf);
+		PlayerPtr = HouseClass::As_Pointer(player_house);
+		if (!PlayerPtr) {
+			TD_Debugf("Read_Scenario_Ini: failed to resolve player house '%s' (id=%d)", buf, static_cast<int>(player_house));
+			ScenarioInit--;
+			return false;
+		}
 		PlayerPtr->IsHuman = true;
 		int carryover;
 		if (CarryOverCap != -1) {

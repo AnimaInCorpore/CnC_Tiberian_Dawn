@@ -1,4 +1,7 @@
 #include <SDL.h>
+#include <cctype>
+#include <cstdio>
+#include <cstring>
 
 #include "legacy/ccdde.h"
 #include "legacy/defines.h"
@@ -47,6 +50,43 @@ void Main_Game(int argc, char* argv[]) {
     }
 
     CCDebugString("C&C95 - Game initialisation complete.\n");
+
+    if (const char* scenario_root = SDL_getenv("TD_AUTOSTART_SCENARIO"); scenario_root && *scenario_root) {
+        std::strncpy(ScenarioName, scenario_root, sizeof(ScenarioName) - 1);
+        ScenarioName[sizeof(ScenarioName) - 1] = '\0';
+
+        // Best-effort parse of "SC?##??" so Read_Scenario_Ini uses plausible globals.
+        Scenario = 1;
+        if (std::strlen(ScenarioName) >= 5 && std::isdigit(static_cast<unsigned char>(ScenarioName[3])) &&
+            std::isdigit(static_cast<unsigned char>(ScenarioName[4]))) {
+            Scenario = (ScenarioName[3] - '0') * 10 + (ScenarioName[4] - '0');
+        }
+
+        const char prefix = static_cast<char>(std::toupper(static_cast<unsigned char>(ScenarioName[2])));
+        if (prefix == 'G') {
+            Whom = HOUSE_GOOD;
+            ScenPlayer = SCEN_PLAYER_GDI;
+        } else if (prefix == 'B') {
+            Whom = HOUSE_BAD;
+            ScenPlayer = SCEN_PLAYER_NOD;
+        } else if (prefix == 'J') {
+            Whom = HOUSE_JP;
+            ScenPlayer = SCEN_PLAYER_JP;
+        }
+
+        ScenDir = SCEN_DIR_EAST;
+        GameToPlay = GAME_NORMAL;
+        Debug_Map = false;
+
+        CCDebugString("TD_AUTOSTART_SCENARIO active; loading scenario.\n");
+        const bool load_only = (SDL_getenv("TD_AUTOSTART_LOAD_ONLY") != nullptr);
+        const bool ok = load_only ? Read_Scenario(ScenarioName) : Start_Scenario(ScenarioName);
+        std::fprintf(stderr, "TD_AUTOSTART_SCENARIO=%s result=%s\n", ScenarioName, ok ? "OK" : "FAIL");
+
+        ReadyToQuit = true;
+        Push_Quit_Event();
+        return;
+    }
 
     /*
     **	Game processing loop:

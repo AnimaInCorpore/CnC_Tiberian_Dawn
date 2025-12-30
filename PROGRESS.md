@@ -154,7 +154,7 @@
 | `OVERLAY.CPP` | `src/overlay.cpp` | Ported to src/; overlay object logic restored and map-shim access updated for stubbed cells. |
 | `PACKET.CPP` | `src/packet.cpp` | Ported to src/; packet/field linked-list serialization now builds on `FieldClass` with correct host/network byte swapping and dword padding. |
 | `POWER.CPP` | `src/power.cpp` | Power bar UI ported; shapes are loaded via the modern MIX helpers and redraw logic mirrors the original radar/sidebar flow. |
-| `PROFILE.CPP` | `src/profile.cpp` | Ported Win95 INI/profile helpers (`WWGet/WritePrivateProfile*`, hex/int/string parsing, section/entry deletion) and removed the stub implementations from `src/port_runtime.cpp`. |
+| `PROFILE.CPP` | `src/profile.cpp` | Ported Win95 INI/profile helpers (`WWGet/WritePrivateProfile*`, hex/int/string parsing, section/entry deletion) and removed the stub implementations from `src/port_runtime.cpp`; hardened `WWGetPrivateProfileString` to accept LF-only line endings safely (avoids UB pointer comparisons). |
 | `QUEUE.CPP` | `src/queue.cpp` | Ported to src/ with mission queue helper logic and pointer coding helpers. |
 | `RADAR.CPP` | `src/radar.cpp` | Ported to src/; radar UI helpers now build under SDL. |
 | `RAWFILE.CPP` | `src/rawfile.cpp` | RawFileClass rebuilt atop POSIX read/write/seek with simple error handling. |
@@ -385,7 +385,7 @@
 | `WINSTUB` | `src/pcx_write.cpp` | Implemented PCX writer for screenshot/debug output. |
 | `GAMEDLG.CPP` | `src/gamedlg.cpp` | Ported game controls dialog processing. |
 | `LOADDLG.CPP` | `src/loaddlg.cpp` | Replaced the earlier skeleton with the full Win95-style load/save/delete dialog logic (file scan, sort, list UI, and command flow). |
-| `MAP.CPP` / `LOGIC.CPP` | `src/map.cpp` / `src/logic.cpp` | Restored the original map/logic runtime and removed the linked gameplay/map stub units; the global `Map` is now a real `DisplayClass` instance again. |
+| `MAP.CPP` / `LOGIC.CPP` | `src/map.cpp` / `src/logic.cpp` | Restored the original map/logic runtime and removed the linked gameplay/map stub units; fixed `MapClass::Read_Binary` to read packed `.BIN` map cell streams (no struct padding), eliminating the scenario-load crash when starting new campaigns. |
 | `PORT_STUBS.CPP` | `src/port_runtime.cpp` | Added global animation helper definitions for link parity. |
 | `CRC` | `src/crc_helpers.cpp` | Added Calculate_CRC helper used by obfuscation and legacy CRC checks. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Declared Calculate_CRC helper for obfuscation and network CRC usage. |
@@ -407,7 +407,7 @@
 | `FUNCTION.H` | `src/include/legacy/function.h` | Declared `Invalidate_Cached_Icons` and implemented it for the SDL icon path. |
 | `MPLAYER.CPP` (`Surrender_Dialog`) | `src/port_runtime.cpp` | Ported the in-game surrender confirmation dialog (OK/Cancel) and removed the unconditional “accept” stub. |
 | `WWALLOC` (`Ram_Free`/`Heap_Size`) | `src/alloc.cpp` | Removed placeholder “infinite RAM” return; allocations are now tracked with a size header and `Ram_Free` reports remaining bytes based on `SDL_GetSystemRAM()`. |
-| `DEBUG/STARTUP` | `src/port_debug.h` | Added verbose startup tracing gated by `TD_VERBOSE=1` / `--verbose` / `--debug`, including SDL video/render driver selection and scenario start progress logs. |
+| `DEBUG/STARTUP` | `src/port_debug.h`, `src/maingame.cpp` | Added verbose startup tracing gated by `TD_VERBOSE=1` / `--verbose` / `--debug`, plus an opt-in `TD_AUTOSTART_SCENARIO=SCG01EA` debug hook (with `TD_AUTOSTART_LOAD_ONLY=1`) to reproduce scenario loads without driving the main menu. |
 | `SCENARIO/INI TRACE` | `src/scenario.cpp`, `src/ini.cpp` | Added verbose tracing around `Clear_Scenario()` and `Read_Scenario_Ini()` (file availability/size/read) to pinpoint hangs during scenario load. |
 | `MIXFILE/ASSETS` | `src/mixfile.cpp` | Fixed XCC name-table mapping to use the original on-disk subblock order (sorted CRC table is now kept only for lookups), restoring correct asset retrieval for some CD data sets. |
 | `AUDIO/SDL` | `src/include/legacy/audio.h`, `src/platform_audio_sdl.cpp` | Corrected the legacy `Audio_Init` parameter meaning (bits/stereo/rate/buffer) and allow SDL to negotiate spec changes, fixing “Unsupported number of audio channels” on startup. |
