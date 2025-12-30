@@ -82,7 +82,9 @@
 **	Define "_RETRIEVE" if the palette morphing tables are part of the loaded data. If this
 **	is undefined, then the files will be created.
 */
-#define	_RETRIEVE
+// Note: The original code optionally loaded prebuilt morphing tables from disk.
+// For the portable build we generate them on demand (and still write them out)
+// because the cached `.MRF` files are not guaranteed to ship with extracted CD data.
 
 
 /***************************************************************************
