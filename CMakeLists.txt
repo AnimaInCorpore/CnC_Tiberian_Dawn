@@ -146,6 +146,7 @@ set(TD_SOURCES
   src/layer.cpp
   src/legacy_vtables.cpp
   src/map.cpp
+  src/jshell.cpp
   src/port_setup.cpp
   src/port_runtime.cpp
   src/link.cpp

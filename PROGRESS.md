@@ -1,5 +1,6 @@
 | Legacy file | Modern path | Notes |
 | --- | --- | --- |
+| `JSHELL.CPP` | `src/jshell.cpp` | Ported `Small_Icon()` by parsing the existing iconset buffer layout (same offsets already used by `GraphicViewPortClass::Draw_Stamp`) so radar mini-icon generation matches the Win95 sampling pattern. |
 | `CCFILE.CPP` | `src/ccfile.cpp` | CCFileClass now matches Win95 MIX semantics: prefer loose/on-disk overrides when present, otherwise open embedded MIX members from cached RAM images or by seeking within the on-disk parent MIX while keeping the embedded filename bound to the object. |
 | `SOUNDDLG.H` / `VISUDLG.H` | `src/soundvisu_helpers.cpp` | Implemented the Sound/Visual Controls dialogs (track list + play/stop, shuffle/repeat, music/SFX sliders; brightness/color/contrast/tint sliders with reset) so the in-game options path no longer calls no-op handlers. |
 | `RAWFILE.CPP` | `src/rawfile.cpp` | Restored Win95 file semantics: `RawFileClass::Open()` now closes previous handles, creates/truncates on `WRITE`, creates on `READ|WRITE`, and uses the canonical `Error()` retry/exit flow; `Is_Available(forced)` again honors the forced-open behavior. |
