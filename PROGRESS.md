@@ -1,5 +1,6 @@
 | Legacy file | Modern path | Notes |
 | --- | --- | --- |
+| `CCFILE.CPP` | `src/ccfile.cpp` | CCFileClass now opens embedded MIX members from either the cached in-RAM mix data or by seeking within the on-disk parent MIX, matching the Win95 behavior. |
 | `GLOBALS.CPP` | `src/globals.cpp` | Ported to src/, replaced NULL with nullptr, and disabled legacy networking code. |
 | `FTIMER.H` | `src/include/ftimer.h` | Countdown timer helper rewritten with `#pragma once` and the global `Frame` counter. |
 | `RAND.H` | `src/rand.h` | Random helper declarations cleaned up to use `<cstdint>` types. |
