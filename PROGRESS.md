@@ -52,7 +52,7 @@
 | `CCDDE.CPP` | `src/ccdde.cpp` | Ported as a portable localhost UDP implementation for launcher/lobby messaging. |
 | `CCFILE.CPP` | `src/ccfile.cpp` | Mix-aware file wrapper now streams embedded MIX entries from disk (no implicit full-MIX caching), matching the legacy “seek into container” behavior and avoiding huge `MOVIES.MIX` allocations. |
 | `CDATA.CPP` | `src/cdata.cpp` | Ported to src/; template type tables restored (needs icon-set map helpers and viewport stamp/scale support). |
-| `CDFILE.CPP` | `src/cdfile.cpp` | CD/file search helper now preserves search order, restores the original filename before falling back to a direct open, and uses the repo-local `CD/...` asset mirror. |
+| `CDFILE.CPP` | `src/cdfile.cpp` | CD/file search helper now preserves search order, restores the original filename before falling back to a direct open, prioritizes the selected mirror drive, and uses the repo-local `CD/...` asset mirror. |
 | `GAME.CPP` | `src/game.cpp` | Mix bootstrap registers scenario/theater/audio/movie archives (plus scans `SC*.MIX`) from the repo-local `CD/...` mirrors so missions can load. |
 | `CELL.CPP` | `src/cell.cpp` | Partial port: core helpers implemented (constructor, lookup, redraw). |
 | `COMBAT.CPP` | `src/combat.cpp` | Ported: `Modify_Damage` and `Explosion_Damage` implemented. |
@@ -421,7 +421,7 @@
 | `STARTUP/CONFIG` | `src/game.cpp`, `src/keyframe_helpers.cpp`, `src/port_runtime.cpp`, `src/globals.cpp` | Ported early `CONQUER.INI` setup parsing (`Read_Setup_Options`), restored compressed-shape decision (`Check_Use_Compressed_Shapes`), implemented real disk/RAM probes + memory-error dialog path, and wired multiplayer scenario description cleanup to the real global vectors (no more missing-symbol placeholders). |
 | `GOPTIONS.CPP` | `src/goptions.cpp` | Restored Win95 options-dialog persistence by saving settings (`Options.Save_Settings()`) when resuming from the in-game options overlay. |
 | `PROFILE PATHS` | `src/port_paths.cpp`, `src/options.cpp`, `src/game.cpp`, `src/port_runtime.cpp`, `src/port_setup.cpp` | Added SDL pref-path backed config resolution so `CONQUER.INI` reads prefer the working directory but fall back to a per-user location; writes go to the same resolved path. |
-| `CDFILE/CCFILE` | `src/cdfile.cpp`, `src/ccfile.cpp` | Fixed search-drive path duplication and ensured drive probing doesn’t get stuck in the interactive retry loop; MIX member lookups now ignore directory prefixes so assets resolve regardless of expanded `CD/...` filenames. |
+| `CDFILE/CCFILE` | `src/cdfile.cpp`, `src/ccfile.cpp` | Fixed search-drive path duplication and ensured mirror probing tries all candidates before the fallback open can trigger fatal errors/retry prompts; drive selection now rebuilds the search list so the chosen mirror is preferred, and MIX member lookups ignore directory prefixes so assets resolve regardless of expanded `CD/...` filenames. |
 | `MOVIE/VQA` | `src/movie.cpp` | Treat scenario/movie name `x`/`X` as the canonical “no movie” sentinel (Win95 INIs default to `x`), preventing erroneous attempts to open `x.VQA`. |
 | `FILE ERROR` | `src/rawfile.cpp`, `src/error.cpp` | File-open failures now fail fast (no retry prompt); fatal-exit no longer pauses for key input unless `TD_PAUSE_ON_FATAL=1` is set. |
 | `FINDPATH.CPP` | `src/findpath.cpp` | Fixed edge-follow detour setup (copy direction + command/overlap buffer seeding) to prevent negative `Mem_Copy` sizes and startup crashes in `FootClass::Find_Path()`. |

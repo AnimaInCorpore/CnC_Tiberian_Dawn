@@ -16,7 +16,7 @@ Status: Next steps. Scope: make the above definition true before chasing deep pa
 - Replicate the remaining Win95 `Select_Game()` behavior: new game/campaign progression and a real load-mission entry point (bonus/expansion routing is now implemented) (`src/port_runtime.cpp`, `src/loaddlg.cpp`).
 - Implementation done!: Tightened SDL main-loop timing so game speed and timers behave consistently: `Options.GameSpeed` again controls the frame cadence (not milliseconds), and `TimerClass::Time()` returns Win95-style 60Hz ticks; focus loss pauses simulation updates (`src/port_runtime.cpp`, `src/wwlib_runtime.cpp`, `src/include/legacy/wwlib32.h`).
 - Implementation done!: In-game options overlay now persists settings (restored `Options.Save_Settings()` on resume) so sliders/toggles survive returning to gameplay (`src/goptions.cpp`).
-- Verify `CDFileClass` search-drive probing tries all candidate mirrors before prompting to retry (avoid getting stuck retrying a missing `CD2/...` path when the asset lives on `CD1/...`) (`src/cdfile.cpp`).
+- Implementation done!: `CDFileClass` now probes all candidate mirrors without triggering the interactive retry loop, and prioritizes the currently selected mirror drive before falling back (prevents getting stuck retrying a missing `CD2/...` when the asset lives on `CD1/...`) (`src/cdfile.cpp`).
 - Verify sidebar palette-morph tables are generated/cached correctly on first use (no missing `*CLOCK.MRF` errors; table contents match Win95 behavior) (`src/sidebar.cpp`, `src/conquer_helpers.cpp`).
 
 ## Save/load and profile persistence

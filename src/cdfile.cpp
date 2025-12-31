@@ -72,6 +72,36 @@ void Ensure_Default_Search_Drives() {
     CDFileClass::Add_Search_Drive(const_cast<char*>(path));
   };
 
+  // If the caller selected a specific CD mirror, try that first.
+  switch (CDFileClass::Get_CD_Drive()) {
+    case 1:
+      add_drive("CD/TIBERIAN_DAWN/CD1");
+      break;
+    case 2:
+      add_drive("CD/TIBERIAN_DAWN/CD2");
+      break;
+    case 3:
+      add_drive("CD/TIBERIAN_DAWN/CD3");
+      break;
+    case 10:
+      add_drive("CD/GDI");
+      break;
+    case 11:
+      add_drive("CD/NOD");
+      break;
+    case 12:
+      add_drive("CD/COVERT");
+      break;
+    case 13:
+      add_drive("CD/CNC95");
+      break;
+    case 14:
+      add_drive("CD");
+      break;
+    default:
+      break;
+  }
+
   // Prefer explicit subfolder selection, then fall back to all known CD mirrors.
   if (!g_cd_subfolder.empty()) {
     const std::string primary = Join_Path("CD", g_cd_subfolder.c_str());
@@ -254,6 +284,7 @@ void CDFileClass::Clear_Search_Drives(void) {
 void CDFileClass::Refresh_Search_Drives(void) { Clear_Search_Drives(); }
 
 void CDFileClass::Set_CD_Drive(int drive) {
+  LastCDDrive = CurrentCDDrive;
   CurrentCDDrive = drive;
-  LastCDDrive = drive;
+  Clear_Search_Drives();
 }
