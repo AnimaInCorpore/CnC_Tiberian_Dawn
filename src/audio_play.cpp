@@ -4,6 +4,8 @@
 
 #include "function.h"
 #include "legacy/audio.h"
+#include "legacy/defines.h"
+#include "legacy/externs.h"
 #include "legacy/mixfile.h"
 
 #include <algorithm>
@@ -167,9 +169,10 @@ static std::int16_t Decode_Ima_Sample(std::uint8_t code, int& index, int& curren
   return static_cast<std::int16_t>(current);
 }
 
-static bool Decode_Aud_To_Device_Pcm(const void* key, DecodedAudio& decoded) {
+static bool Decode_Aud_To_Device_Pcm(const void* key, std::size_t key_size, DecodedAudio& decoded) {
   const auto* src = static_cast<const std::uint8_t*>(key);
   if (!src) return false;
+  if (key_size < 12) return false;
 
   SDL_AudioSpec const* spec = Audio_Get_Spec();
   if (!spec || spec->freq <= 0) return false;
@@ -181,6 +184,14 @@ static bool Decode_Aud_To_Device_Pcm(const void* key, DecodedAudio& decoded) {
   AudFormat format = AudFormat::WestwoodCompressed;
   std::size_t offset = 0;
   if (!Read_Aud_Header(src, sample_rate, data_size, output_size, flags, format, offset)) return false;
+  if (offset > key_size) return false;
+
+  static constexpr std::uint32_t kMaxAudData = 32u * 1024u * 1024u;
+  static constexpr std::uint32_t kMaxAudOutput = 64u * 1024u * 1024u;
+  if (sample_rate < 1000 || sample_rate > 96000) return false;
+  if (data_size == 0 || output_size == 0) return false;
+  if (data_size > kMaxAudData || output_size > kMaxAudOutput) return false;
+  if (static_cast<std::size_t>(data_size) > key_size - offset) return false;
 
   const bool want_s16 = (spec->format == AUDIO_S16SYS);
   const bool want_u8 = (spec->format == AUDIO_U8);
@@ -196,15 +207,13 @@ static bool Decode_Aud_To_Device_Pcm(const void* key, DecodedAudio& decoded) {
 
   std::size_t cursor = offset;
   std::uint32_t remaining = data_size;
-  // We don't have a reliable source buffer size (game passes raw pointers), so we gate only on remaining bytes.
   while (remaining >= 8) {
     AudChunkHeader chunk{};
     std::size_t chunk_data = 0;
-    // Use a conservative upper bound for size checks.
-    const std::size_t conservative_size = cursor + 8u + static_cast<std::size_t>(remaining);
-    if (!Read_Chunk_Header(src, conservative_size, cursor, chunk, chunk_data)) break;
+    if (!Read_Chunk_Header(src, key_size, cursor, chunk, chunk_data)) break;
     cursor = chunk_data;
     if (chunk.compressed_size > remaining) break;
+    if (cursor + chunk.compressed_size > key_size) break;
 
     const std::uint8_t* chunk_input = src + cursor;
     cursor += chunk.compressed_size;
@@ -339,8 +348,13 @@ static int Play_Aud_Ptr(const void* ptr, int volume, int priority, signed short 
   std::lock_guard<std::mutex> lock(g_cache_mutex);
   auto it = g_cache.find(ptr);
   if (it == g_cache.end()) {
+    std::size_t size = MixFileClass::Size_For_Pointer(ptr);
+    if (size == 0 && ptr == SpeechBuffer) {
+      size = static_cast<std::size_t>(SPEECH_BUFFER_SIZE);
+    }
+    if (size == 0) return 0;
     DecodedAudio decoded{};
-    if (!Decode_Aud_To_Device_Pcm(ptr, decoded)) return 0;
+    if (!Decode_Aud_To_Device_Pcm(ptr, size, decoded)) return 0;
     it = g_cache.emplace(ptr, std::move(decoded)).first;
   }
 

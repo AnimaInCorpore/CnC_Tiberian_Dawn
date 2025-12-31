@@ -731,14 +731,15 @@ top_of_list:
 				*/
 				int follow_len = maxlen + (maxlen >> 1);
 
-				Debug_Draw_Map("Follow left edge", startcell,next,true);
-				Mem_Copy(&path, &pleft, sizeof(PathType));
-				pleft.Command 	= &moves_left[0];
-				pleft.Overlap 	= LeftOverlap;
-				Mem_Copy(path.Command, pleft.Command, path.Length);
-				Mem_Copy(path.Overlap, pleft.Overlap, sizeof(LeftOverlap));
-				left = Follow_Edge(startcell, next, &pleft, COUNTERCLOCK, direction, threat, threat_stage, sizeof(moves_left), threshhold);
-//				left = Follow_Edge(startcell, next, &pleft, COUNTERCLOCK, direction, threat, threat_stage, follow_len, threshhold);
+					Debug_Draw_Map("Follow left edge", startcell,next,true);
+					Mem_Copy(&pleft, &path, sizeof(PathType));
+					pleft.Command 	= &moves_left[0];
+					pleft.Overlap 	= LeftOverlap;
+					const std::size_t left_len = (path.Length > 0) ? static_cast<std::size_t>(path.Length) : 0u;
+					Mem_Copy(pleft.Command, path.Command, left_len);
+					Mem_Copy(pleft.Overlap, path.Overlap, sizeof(LeftOverlap));
+					left = Follow_Edge(startcell, next, &pleft, COUNTERCLOCK, direction, threat, threat_stage, sizeof(moves_left), threshhold);
+	//				left = Follow_Edge(startcell, next, &pleft, COUNTERCLOCK, direction, threat, threat_stage, follow_len, threshhold);
 
 				if (left) {
 					follow_len = MIN(maxlen, pleft.Length + (pleft.Length >> 1));
@@ -758,14 +759,15 @@ top_of_list:
 					}
 				}
 
-				Debug_Draw_Map("Follow right edge", startcell, next, true);
-				Mem_Copy(&path, &pright, sizeof(PathType));
-				pright.Command = &moves_right[0];
-				pright.Overlap = RightOverlap;
-				Mem_Copy(path.Command, pright.Command, path.Length);
-				Mem_Copy(path.Overlap, pright.Overlap, sizeof(RightOverlap));
-				right = Follow_Edge(startcell, next, &pright, CLOCK, direction, threat, threat_stage, sizeof(moves_right), threshhold);
-//				right = Follow_Edge(startcell, next, &pright, CLOCK, direction, threat, threat_stage, follow_len, threshhold);
+					Debug_Draw_Map("Follow right edge", startcell, next, true);
+					Mem_Copy(&pright, &path, sizeof(PathType));
+					pright.Command = &moves_right[0];
+					pright.Overlap = RightOverlap;
+					const std::size_t right_len = (path.Length > 0) ? static_cast<std::size_t>(path.Length) : 0u;
+					Mem_Copy(pright.Command, path.Command, right_len);
+					Mem_Copy(pright.Overlap, path.Overlap, sizeof(RightOverlap));
+					right = Follow_Edge(startcell, next, &pright, CLOCK, direction, threat, threat_stage, sizeof(moves_right), threshhold);
+	//				right = Follow_Edge(startcell, next, &pright, CLOCK, direction, threat, threat_stage, follow_len, threshhold);
 
 				/*
 				** If we are in debug mode then let us know how well our right path

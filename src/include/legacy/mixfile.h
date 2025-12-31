@@ -41,6 +41,7 @@
 #include <cstdint>
 #include <unordered_map>
 #include <string>
+#include <cstddef>
 
 #include	<wwlib32.h>
 #include	"link.h"
@@ -60,6 +61,7 @@ class MixFileClass : public LinkClass
 		static bool Cache(char const *filename);
 		static bool Offset(char const *filename, void ** realptr = 0, MixFileClass ** mixfile = 0, long * offset = 0, long * size = 0);
 		static void const * Retrieve(char const *filename);
+		static std::size_t Size_For_Pointer(void const* ptr);
 		std::uint32_t Resolve_Crc_For_Name(char const* filename) const;
 
 #pragma pack(push, 1)

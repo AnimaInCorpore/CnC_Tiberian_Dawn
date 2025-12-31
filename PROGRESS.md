@@ -424,6 +424,10 @@
 | `CDFILE/CCFILE` | `src/cdfile.cpp`, `src/ccfile.cpp` | Fixed search-drive path duplication and ensured drive probing doesn’t get stuck in the interactive retry loop; MIX member lookups now ignore directory prefixes so assets resolve regardless of expanded `CD/...` filenames. |
 | `MOVIE/VQA` | `src/movie.cpp` | Treat scenario/movie name `x`/`X` as the canonical “no movie” sentinel (Win95 INIs default to `x`), preventing erroneous attempts to open `x.VQA`. |
 | `FILE ERROR` | `src/rawfile.cpp`, `src/error.cpp` | File-open failures now fail fast (no retry prompt); fatal-exit no longer pauses for key input unless `TD_PAUSE_ON_FATAL=1` is set. |
+| `FINDPATH.CPP` | `src/findpath.cpp` | Fixed edge-follow detour setup (copy direction + command/overlap buffer seeding) to prevent negative `Mem_Copy` sizes and startup crashes in `FootClass::Find_Path()`. |
+| `MIXFILE.H` / `MIXFILE.CPP` | `src/include/legacy/mixfile.h`, `src/mixfile.cpp` | Added `MixFileClass::Size_For_Pointer()` to recover a safe byte span for data pointers returned by `Retrieve()` (used to bound decoders). |
+| `AUDIO` (AUD decode/mixer) | `src/audio_play.cpp` | Bounded AUD decoding to the containing MIX subfile (or speech buffer) so corrupted/partial inputs can’t walk off-buffer during decode/mix. |
+| `MAINGAME.CPP` | `src/maingame.cpp` | Extended the `TD_AUTOSTART_SCENARIO` debug hook with `TD_AUTOSTART_LOAD_TITLE`, `TD_AUTOSTART_DRAW_ONCE`, and `TD_AUTOSTART_FRAMES=N` to reproduce scenario-start issues without driving the main menu. |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).

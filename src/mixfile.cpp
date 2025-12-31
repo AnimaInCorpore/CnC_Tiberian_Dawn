@@ -189,6 +189,33 @@ void const* MixFileClass::Retrieve(char const* filename) {
   return ptr;
 }
 
+std::size_t MixFileClass::Size_For_Pointer(void const* ptr) {
+  if (!ptr) return 0;
+  const auto* needle = static_cast<const unsigned char*>(ptr);
+
+  MixFileClass* mix = First;
+  while (mix) {
+    if (mix->Data && mix->DataSize > 0 && mix->Buffer && mix->Count > 0) {
+      const auto* base = static_cast<const unsigned char*>(mix->Data);
+      const auto* end = base + static_cast<std::size_t>(mix->DataSize);
+      if (needle >= base && needle < end) {
+        const std::size_t rel = static_cast<std::size_t>(needle - base);
+        for (int i = 0; i < mix->Count; ++i) {
+          const SubBlock& block = mix->Buffer[i];
+          const std::size_t off = static_cast<std::size_t>(block.Offset);
+          const std::size_t size = static_cast<std::size_t>(block.Size);
+          if (rel >= off && rel < off + size) {
+            return size - (rel - off);
+          }
+        }
+        return static_cast<std::size_t>(end - needle);
+      }
+    }
+    mix = static_cast<MixFileClass*>(mix->Get_Next());
+  }
+  return 0;
+}
+
 std::string MixFileClass::Upper_Name(const char* name) {
   if (!name) return {};
   std::string upper = name;

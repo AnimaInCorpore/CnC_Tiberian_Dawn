@@ -1,5 +1,7 @@
 #include <SDL.h>
+#include <algorithm>
 #include <cctype>
+#include <cstdlib>
 #include <cstdio>
 #include <cstring>
 
@@ -10,7 +12,9 @@
 #include "legacy/function.h"
 #include "legacy/goptions.h"
 #include "legacy/jshell.h"
+#include "legacy/msglist.h"
 #include "legacy/display.h"
+#include "legacy/map.h"
 #include "legacy/wwlib32.h"
 
 // Legacy functions declared here in the original file.
@@ -55,6 +59,11 @@ void Main_Game(int argc, char* argv[]) {
         std::strncpy(ScenarioName, scenario_root, sizeof(ScenarioName) - 1);
         ScenarioName[sizeof(ScenarioName) - 1] = '\0';
 
+        if (SDL_getenv("TD_AUTOSTART_LOAD_TITLE") != nullptr) {
+            Load_Title_Screen(const_cast<char*>("HTITLE.PCX"), &HidPage, Palette);
+            HidPage.Blit(SeenBuff);
+        }
+
         // Best-effort parse of "SC?##??" so Read_Scenario_Ini uses plausible globals.
         Scenario = 1;
         if (std::strlen(ScenarioName) >= 5 && std::isdigit(static_cast<unsigned char>(ScenarioName[3])) &&
@@ -82,6 +91,30 @@ void Main_Game(int argc, char* argv[]) {
         const bool load_only = (SDL_getenv("TD_AUTOSTART_LOAD_ONLY") != nullptr);
         const bool ok = load_only ? Read_Scenario(ScenarioName) : Start_Scenario(ScenarioName);
         std::fprintf(stderr, "TD_AUTOSTART_SCENARIO=%s result=%s\n", ScenarioName, ok ? "OK" : "FAIL");
+
+        if (ok && !load_only && SDL_getenv("TD_AUTOSTART_DRAW_ONCE") != nullptr) {
+            // Mirror the post-Start_Scenario setup done by Select_Game() so we can
+            // reproduce startup issues without interacting with the main menu.
+            const int factor = (SeenBuff.Get_Width() == 320) ? 1 : 2;
+            Messages.Init(Map.TacPixelX, Map.TacPixelY, 6, MAX_MESSAGE_LENGTH, 6 * factor + 1);
+
+            Set_Logic_Page(SeenBuff);
+            Map.Flag_To_Redraw(true);
+            Call_Back();
+            Map.Render();
+        }
+
+        if (ok && !load_only) {
+            if (const char* frames_text = SDL_getenv("TD_AUTOSTART_FRAMES"); frames_text && *frames_text) {
+                const int frames = std::max(0, std::atoi(frames_text));
+                const bool old_in_main = InMainLoop;
+                InMainLoop = true;
+                for (int i = 0; i < frames && !ReadyToQuit; ++i) {
+                    if (Main_Loop()) break;
+                }
+                InMainLoop = old_in_main;
+            }
+        }
 
         ReadyToQuit = true;
         Push_Quit_Event();

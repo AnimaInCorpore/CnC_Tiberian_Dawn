@@ -54,7 +54,7 @@ Status: Next steps. Scope: eliminate “it runs but isn’t canonical” behavio
 Status: Next steps. Scope: keep the port regressions visible and the docs accurate.
 - Add focused smoke tests/harnesses for: MIX registration order, scenario load, palette fades, and basic input (a 60-second “run a mission loop” headless mode would be ideal).
 - If you need the legacy “pause on fatal error” behavior (useful when launching outside a terminal), run with `TD_PAUSE_ON_FATAL=1`.
-- For scenario-load debugging without UI driving, run with `TD_AUTOSTART_SCENARIO=SCG01EA TD_AUTOSTART_LOAD_ONLY=1` (optionally add `--verbose`) to exercise `Read_Scenario_Ini()` directly.
+- For scenario-start debugging without UI driving, run with `TD_AUTOSTART_SCENARIO=SCG01EA` plus optional `TD_AUTOSTART_LOAD_ONLY=1`, `TD_AUTOSTART_LOAD_TITLE=1`, `TD_AUTOSTART_DRAW_ONCE=1`, and `TD_AUTOSTART_FRAMES=30` (optionally add `--verbose`).
 - When verifying palette fades, include `Fade_Palette_To(..., ..., NULL)` call sites (Win95 still shows the fade via hardware palette updates) and compare the fade duration against Win95.
 - Add a quick visual regression check for text rendering (shadow/background fill and palette index 0 behavior) (`src/text.cpp`).
 - Add a quick visual regression check for title/menu palette correctness (title art + green dialog texture colors, and ensure `Set_Font_Palette` does not mutate the screen palette) (`src/load_title.cpp`, `src/wwlib_runtime.cpp`).
