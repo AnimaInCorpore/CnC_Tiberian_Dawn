@@ -21,12 +21,14 @@
 #include "legacy/function.h"
 #include "legacy/loaddlg.h"
 
-#include <algorithm>
 #include <cctype>
+#include <chrono>
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
 #include <filesystem>
+#include <limits>
+#include <system_error>
 
 LoadOptionsClass::LoadOptionsClass(LoadStyleType style) {
 	Style = style;
@@ -89,7 +91,7 @@ int LoadOptionsClass::Process(void) {
 		REDRAW_ALL = REDRAW_BACKGROUND
 	} RedrawType;
 
-	bool cancel = false;
+	bool cancel = false; // true = user cancels
 	int list_ht = d_list_h;
 	int btn_txt;
 	int btn_id;
@@ -97,7 +99,7 @@ int LoadOptionsClass::Process(void) {
 	int game_idx = 0;
 	int game_num = 0;
 	char game_descr[40] = {0};
-	char fname[32];
+	char fname[13];
 
 	void const* up_button;
 	void const* down_button;
@@ -126,124 +128,193 @@ int LoadOptionsClass::Process(void) {
 		caption = TXT_DELETE_MISSION;
 	}
 
-	GadgetClass* buttons = nullptr;
-	TextButtonClass okbtn(btn_id, btn_txt, TPF_6PT_GRAD | TPF_NOSHADOW, d_button_x, d_button_y, d_button_w,
-	                      d_button_h);
-	TextButtonClass cancelbtn(BUTTON_CANCEL, TXT_CANCEL, TPF_6PT_GRAD | TPF_NOSHADOW, d_cancel_x, d_cancel_y,
-	                          d_cancel_w, d_cancel_h);
+	TextButtonClass okbtn(btn_id, btn_txt, TPF_6PT_GRAD | TPF_CENTER | TPF_NOSHADOW, d_button_x, d_button_y,
+	                      d_button_w, d_button_h);
+	TextButtonClass cancelbtn(BUTTON_CANCEL, TXT_CANCEL, TPF_6PT_GRAD | TPF_CENTER | TPF_NOSHADOW, d_cancel_x,
+	                          d_cancel_y, d_cancel_w, d_cancel_h);
 
-	ListClass list(BUTTON_LIST, d_list_x, d_list_y, d_list_w, list_ht, TPF_6PT_GRAD, up_button, down_button);
-	EditClass edit(BUTTON_EDIT, game_descr, sizeof(game_descr), TPF_6PT_GRAD, d_edit_x, d_edit_y, d_edit_w,
-	               d_edit_h);
+	ListClass list(BUTTON_LIST, d_list_x, d_list_y, d_list_w, list_ht, TPF_6PT_GRAD | TPF_NOSHADOW, up_button,
+	               down_button);
+	EditClass edit(BUTTON_EDIT, game_descr, sizeof(game_descr), TPF_6PT_GRAD | TPF_USE_GRAD_PAL | TPF_NOSHADOW,
+	               d_edit_x, d_edit_y, d_edit_w, d_edit_h, EditClass::ALPHANUMERIC);
+
+	Set_Logic_Page(SeenBuff);
+
+	Fill_List(&list);
+
+	if ((Style == LOAD || Style == WWDELETE) && list.Count() == 0) {
+		Clear_List(&list);
+		CCMessageBox().Process(TXT_NO_SAVES);
+		return false;
+	}
 
 	commands = &okbtn;
 	okbtn.Add_Tail(cancelbtn);
 	cancelbtn.Add_Tail(list);
-	list.Add_Tail(edit);
-	buttons = commands;
+	if (Style == SAVE) {
+		list.Add_Tail(edit);
+		edit.Set_Focus();
+	}
 
-	if (Style != SAVE) {
-		edit.Flag_To_Redraw();
-		edit.Disable();
+	bool firsttime = true;
+	bool display = true;
+	bool process = true;
+
+	while (process) {
+		if (GameToPlay == GAME_NORMAL) {
+			Call_Back();
+		} else {
+			if (Main_Loop()) {
+				process = false;
+				cancel = true;
+			}
+		}
+
+		if (AllSurfaces.SurfacesRestored) {
+			AllSurfaces.SurfacesRestored = false;
+			display = true;
+		}
+
+		if (display) {
+			Hide_Mouse();
+
+			if (InMainLoop) {
+				HiddenPage.Clear();
+				Map.Flag_To_Redraw(true);
+				Map.Render();
+			} else {
+				HiddenPage.Clear();
+				char title_pcx[] = "HTITLE.PCX";
+				Load_Title_Screen(title_pcx, &HidPage, Palette);
+				HidPage.Blit(SeenBuff);
+			}
+
+			Dialog_Box(d_dialog_x, d_dialog_y, d_dialog_w, d_dialog_h);
+			Draw_Caption(caption, d_dialog_x, d_dialog_y, d_dialog_w);
+
+			if (Style == SAVE) {
+				Fancy_Text_Print(TXT_MISSION_DESCRIPTION, d_dialog_cx, d_edit_y - d_txt8_h, CC_GREEN, TBLACK,
+				                 TPF_6PT_GRAD | TPF_USE_GRAD_PAL | TPF_CENTER | TPF_NOSHADOW);
+			}
+
+			commands->Flag_List_To_Redraw();
+			Show_Mouse();
+			display = false;
+		}
+
+		KeyNumType input = commands->Input();
+
+		if (firsttime && Style == SAVE) {
+			firsttime = false;
+			edit.Set_Focus();
+			edit.Flag_To_Redraw();
+		}
+
+		if (input == KN_RETURN) {
+			switch (Style) {
+				case SAVE:
+					input = static_cast<KeyNumType>(BUTTON_SAVE | KN_BUTTON);
+					break;
+				case LOAD:
+					input = static_cast<KeyNumType>(BUTTON_LOAD | KN_BUTTON);
+					break;
+				case WWDELETE:
+					input = static_cast<KeyNumType>(BUTTON_DELETE | KN_BUTTON);
+					break;
+				default:
+					break;
+			}
+		}
+
+		switch (input) {
+			case (BUTTON_LOAD | KN_BUTTON):
+				game_idx = list.Current_Index();
+				game_num = Files[game_idx]->Num;
+				if (Files[game_idx]->Valid) {
+					CCMessageBox().Process(TXT_LOADING, TXT_NONE);
+					if (!Load_Game(game_num)) {
+						CCMessageBox().Process(TXT_ERROR_LOADING_GAME);
+					} else {
+						Hide_Mouse();
+						VisiblePage.Clear();
+						Set_Palette(GamePalette);
+						Show_Mouse();
+						process = false;
+					}
+				} else {
+					CCMessageBox().Process(TXT_OBSOLETE_SAVEGAME);
+				}
+				break;
+
+			case (BUTTON_SAVE | KN_BUTTON):
+				if (!std::strlen(game_descr)) {
+					CCMessageBox().Process(TXT_MUSTENTER_DESCRIPTION);
+					firsttime = true;
+					display = true;
+					break;
+				}
+				game_idx = list.Current_Index();
+				if (Disk_Space_Available() < SAVE_GAME_DISK_SPACE && game_idx == 0) {
+					CCMessageBox().Process(TXT_SPACE_CANT_SAVE);
+					firsttime = true;
+					display = true;
+					break;
+				}
+				game_num = Files[game_idx]->Num;
+				if (!Save_Game(game_num, game_descr)) {
+					CCMessageBox().Process(TXT_ERROR_SAVING_GAME);
+				} else {
+					CCMessageBox().Process(TXT_GAME_WAS_SAVED, TXT_NONE, TXT_NONE);
+				}
+				process = false;
+				break;
+
+			case (BUTTON_DELETE | KN_BUTTON):
+				game_idx = list.Current_Index();
+				game_num = Files[game_idx]->Num;
+				if (CCMessageBox().Process(TXT_DELETE_FILE_QUERY, TXT_YES, TXT_NO) == 0) {
+					std::snprintf(fname, sizeof(fname), "SAVEGAME.%03d", game_num);
+					std::remove(fname);
+					Clear_List(&list);
+					Fill_List(&list);
+					if (list.Count() == 0) {
+						process = false;
+					}
+				}
+				display = true;
+				break;
+
+			case (BUTTON_LIST | KN_BUTTON):
+				if (Style != SAVE) {
+					break;
+				}
+				if (list.Count() && list.Current_Index() != game_idx) {
+					game_idx = list.Current_Index();
+					if (game_idx != 0) {
+						std::strncpy(game_descr, list.Get_Item(game_idx), sizeof(game_descr) - 1);
+						game_descr[sizeof(game_descr) - 1] = '\0';
+					} else {
+						game_descr[0] = '\0';
+					}
+					edit.Set_Text(game_descr, sizeof(game_descr));
+				}
+				break;
+
+			case (KN_ESC):
+			case (BUTTON_CANCEL | KN_BUTTON):
+				cancel = true;
+				process = false;
+				break;
+
+			default:
+				break;
+		}
 	}
 
 	Clear_List(&list);
-	Fill_List(&list);
-	list.Set_Selected_Index(game_idx);
-	okbtn.Disable();
-	okbtn.Flag_To_Redraw();
 
-	HiddenPage.Clear();
-	commands->Flag_To_Redraw();
-
-	RedrawType redraw = REDRAW_ALL;
-	while (!cancel) {
-		if (redraw) {
-			if (redraw >= REDRAW_BACKGROUND) {
-				HiddenPage.Clear();
-				Draw_Box(d_dialog_x, d_dialog_y, d_dialog_w, d_dialog_h, BOXSTYLE_GREEN_BORDER, true);
-				Draw_Caption(caption, d_dialog_x, d_dialog_y, d_dialog_w);
-				HidPage.Blit(SeenBuff);
-			}
-			if (redraw >= REDRAW_BUTTONS) {
-				buttons->Draw_All(true);
-			}
-			redraw = REDRAW_NONE;
-		}
-
-		Call_Back();
-		KeyNumType gadget_input = buttons->Input();
-
-		KeyNumType input = KN_NONE;
-		if (Keyboard::Check()) {
-			input = Keyboard::Get();
-		}
-
-		if ((gadget_input & KN_BUTTON) && (gadget_input & ~KN_BUTTON) == BUTTON_CANCEL) {
-			cancel = true;
-			break;
-		}
-		if (input == KN_ESC) {
-			cancel = true;
-			break;
-		}
-
-		if ((gadget_input & KN_BUTTON) && (gadget_input & ~KN_BUTTON) == BUTTON_LIST) {
-			game_idx = list.Current_Index();
-			if (game_idx >= 0 && game_idx < Files.Count() && Files[game_idx]->Valid) {
-				std::strncpy(game_descr, Files[game_idx]->Descr, sizeof(game_descr) - 1);
-				game_descr[sizeof(game_descr) - 1] = '\0';
-				if (Style == SAVE) {
-					edit.Enable();
-					edit.Flag_To_Redraw();
-				}
-				okbtn.Enable();
-			} else {
-				okbtn.Disable();
-			}
-			okbtn.Flag_To_Redraw();
-			continue;
-		}
-
-		if ((gadget_input & KN_BUTTON) && (gadget_input & ~KN_BUTTON) == BUTTON_EDIT) {
-			okbtn.Enable();
-			okbtn.Flag_To_Redraw();
-			continue;
-		}
-
-		if ((gadget_input & KN_BUTTON) && (gadget_input & ~KN_BUTTON) == btn_id) {
-			game_idx = list.Current_Index();
-			if (game_idx < 0 || game_idx >= Files.Count()) {
-				continue;
-			}
-			game_num = Files[game_idx]->Num;
-			if (Style == LOAD) {
-				if (Load_Game(game_num)) {
-					return true;
-				}
-				redraw = REDRAW_ALL;
-				continue;
-			}
-			if (Style == SAVE) {
-				if (Save_Game(game_num, game_descr)) {
-					Clear_List(&list);
-					Fill_List(&list);
-				}
-				redraw = REDRAW_ALL;
-				continue;
-			}
-
-			std::snprintf(fname, sizeof(fname), "SAVEGAME.%03d", game_num);
-			std::remove(fname);
-			Clear_List(&list);
-			Fill_List(&list);
-			okbtn.Disable();
-			okbtn.Flag_To_Redraw();
-			redraw = REDRAW_ALL;
-		}
-	}
-
-	return false;
+	if (cancel) return false;
+	return true;
 }
 
 void LoadOptionsClass::Clear_List(ListClass* list) {
@@ -271,52 +342,98 @@ static bool Starts_With_Case_Insensitive(std::string const& value, std::string c
 	return true;
 }
 
+static unsigned long File_Time_Seconds(std::filesystem::file_time_type ft) {
+	using namespace std::chrono;
+	const auto sctp = time_point_cast<system_clock::duration>(ft - std::filesystem::file_time_type::clock::now()
+	                                                        + system_clock::now());
+	const auto seconds = duration_cast<std::chrono::seconds>(sctp.time_since_epoch()).count();
+	if (seconds <= 0) return 0;
+	if (seconds > static_cast<long long>(std::numeric_limits<unsigned long>::max())) {
+		return std::numeric_limits<unsigned long>::max() - 1;
+	}
+	return static_cast<unsigned long>(seconds);
+}
+
 void LoadOptionsClass::Fill_List(ListClass* list) {
 	if (!list) return;
 
 	namespace fs = std::filesystem;
-
 	constexpr char kPrefix[] = "SAVEGAME.";
-	for (const auto& entry : fs::directory_iterator(fs::current_path())) {
+
+	Clear_List(list);
+
+	if (Style == SAVE) {
+		FileEntryClass* fdata = new FileEntryClass;
+		std::memset(fdata, 0, sizeof(*fdata));
+		std::strncpy(fdata->Descr, Text_String(TXT_EMPTY_SLOT), sizeof(fdata->Descr) - 1);
+		fdata->Descr[sizeof(fdata->Descr) - 1] = '\0';
+		fdata->DateTime = std::numeric_limits<unsigned long>::max();
+		fdata->Valid = true;
+		fdata->Num = 0;
+		Files.Add(fdata);
+	}
+
+	std::error_code iter_ec;
+	fs::directory_iterator it(fs::current_path(), iter_ec);
+	if (iter_ec) {
+		list->Flag_To_Redraw();
+		return;
+	}
+
+	for (const auto& entry : it) {
 		if (!entry.is_regular_file()) continue;
 		const std::string name = entry.path().filename().string();
 		if (!Starts_With_Case_Insensitive(name, kPrefix)) continue;
 
-		FileEntryClass* file = new FileEntryClass();
-		std::memset(file, 0, sizeof(*file));
+		const int id = Num_From_Ext(const_cast<char*>(name.c_str()));
+		if (id < 0) continue;
 
-		file->Num = Num_From_Ext(const_cast<char*>(name.c_str()));
-		if (file->Num < 0) {
-			delete file;
-			continue;
-		}
-
-		unsigned scen = 0;
+		char descr[DESCRIP_MAX] = {0};
+		unsigned scenario = 0;
 		HousesType house = HOUSE_NONE;
-		file->Valid = Get_Savefile_Info(file->Num, file->Descr, &scen, &house);
-		file->Scenario = scen;
-		file->House = house;
+		const bool ok = Get_Savefile_Info(id, descr, &scenario, &house);
 
-		std::error_code ec;
-		const auto ts = entry.last_write_time(ec);
-		if (!ec) {
-			file->DateTime = static_cast<unsigned long>(ts.time_since_epoch().count());
-		} else {
-			file->DateTime = 0;
+		FileEntryClass* fdata = new FileEntryClass;
+		std::memset(fdata, 0, sizeof(*fdata));
+		fdata->Descr[0] = '\0';
+		if (!ok) {
+			std::strncpy(fdata->Descr, Text_String(TXT_OLD_GAME), sizeof(fdata->Descr) - 1);
+			fdata->Descr[sizeof(fdata->Descr) - 1] = '\0';
 		}
 
-		Files.Add(file);
+		std::strncat(fdata->Descr, descr, (sizeof(fdata->Descr) - std::strlen(fdata->Descr)) - 1);
+		fdata->Valid = ok;
+		fdata->Scenario = scenario;
+		fdata->House = house;
+		fdata->Num = id;
+
+		std::error_code ts_ec;
+		const auto ts = entry.last_write_time(ts_ec);
+		fdata->DateTime = ts_ec ? 0 : File_Time_Seconds(ts);
+
+		Files.Add(fdata);
 	}
 
-	if (Files.Count() > 1) {
-		std::qsort(&Files[0], Files.Count(), sizeof(FileEntryClass*), Compare);
+	if (Style == SAVE) {
+		int id = -1;
+		int i;
+		for (i = 0; i < Files.Count(); i++) {
+			id = -1;
+			for (int j = 0; j < Files.Count(); j++) {
+				if (Files[j]->Num == i) {
+					id = j;
+					break;
+				}
+			}
+			if (id == -1) break;
+		}
+		Files[0]->Num = i;
 	}
 
-	for (int i = 0; i < Files.Count(); ++i) {
-		char buffer[96];
-		if (!Files[i]->Valid) continue;
-		std::snprintf(buffer, sizeof(buffer), "%s", Files[i]->Descr);
-		list->Add_Item(buffer);
+	std::qsort(&Files[0], Files.Count(), sizeof(FileEntryClass*), Compare);
+
+	for (int i = 0; i < Files.Count(); i++) {
+		list->Add_Item(Files[i]->Descr);
 	}
 
 	list->Flag_To_Redraw();
@@ -340,8 +457,7 @@ int LoadOptionsClass::Compare(const void* p1, const void* p2) {
 	if (!a && !b) return 0;
 	if (!a) return 1;
 	if (!b) return -1;
-
-	if (a->DateTime < b->DateTime) return 1;
 	if (a->DateTime > b->DateTime) return -1;
-	return a->Num - b->Num;
+	if (a->DateTime < b->DateTime) return 1;
+	return 0;
 }

@@ -385,7 +385,7 @@
 | `NETDLG/NULLDLG` | `src/network_helpers.cpp` | Added network disconnect/reconnect dialog helpers for queue handling. |
 | `WINSTUB` | `src/pcx_write.cpp` | Implemented PCX writer for screenshot/debug output. |
 | `GAMEDLG.CPP` | `src/gamedlg.cpp` | Ported game controls dialog processing. |
-| `LOADDLG.CPP` | `src/loaddlg.cpp` | Replaced the earlier skeleton with the full Win95-style load/save/delete dialog logic (file scan, sort, list UI, and command flow). |
+| `LOADDLG.CPP` | `src/loaddlg.cpp` | Re-synced the Win95 load/save/delete dialog: adds the SAVE “Empty Slot” entry, preserves “(old)” save markers, sorts newest-first, enforces description + disk-space rules, prompts on delete, and matches the original exit/refresh flow. |
 | `MAP.CPP` / `LOGIC.CPP` | `src/map.cpp` / `src/logic.cpp` | Restored the original map/logic runtime and removed the linked gameplay/map stub units; fixed `MapClass::Read_Binary` to read packed `.BIN` map cell streams (no struct padding), eliminating the scenario-load crash when starting new campaigns. |
 | `PORT_STUBS.CPP` | `src/port_runtime.cpp` | Added global animation helper definitions for link parity. |
 | `CRC` | `src/crc_helpers.cpp` | Added Calculate_CRC helper used by obfuscation and legacy CRC checks. |

@@ -21,7 +21,7 @@ Status: Next steps. Scope: make the above definition true before chasing deep pa
 
 ## Save/load and profile persistence
 Status: Next steps. Scope: allow a normal play session to be resumed and options to persist.
-- Verify load/save/delete mission flows against Win95: list ordering, description editing rules, and error handling (`src/loaddlg.cpp`, `src/saveload.cpp`, `src/port_runtime.cpp`).
+- Verify load/save/delete mission flows against Win95: empty-slot behavior, list ordering, description editing rules, and error handling (`src/loaddlg.cpp`, `src/saveload.cpp`, `src/port_runtime.cpp`).
 - Port the corresponding save-game dialog and ensure save slots + descriptions match Win95 (no new dependencies; pick a platform-appropriate writable directory and document it).
 - Verify save/profile writes hit disk correctly now that `RawFileClass::Open()` again creates/truncates files on `WRITE`, and that file errors surface via `RawFileClass::Error()` instead of silently failing (`src/rawfile.cpp`, `src/ccfile.cpp`, `src/options.cpp`, `src/game.cpp`).
 - Implementation done!: `CONQUER.INI` reads/writes now resolve to the same path (prefer working directory, else SDL per-user pref path) so `OptionsClass::Save_Settings()` persists to the config location that startup uses (`src/port_paths.cpp`, `src/options.cpp`, `src/game.cpp`, `src/port_runtime.cpp`, `src/port_setup.cpp`).
@@ -48,7 +48,7 @@ Status: Next steps. Scope: eliminate “it runs but isn’t canonical” behavio
 - Implementation done!: Replaced the dummy CD probe in `src/include/legacy/getcd.h` with a real mirror-backed enumerator (`src/include/legacy/getcd.h`, `src/getcd.cpp`).
 - Port the map editor entry points (`Map_Edit_Loop`, map selection flows) so `GameToPlay == GAME_MAP_EDIT` matches Win95 behavior instead of relying on the current minimal loop (`src/maingame.cpp`, `src/port_runtime.cpp`).
 - Ensure radar mini-icon generation uses the canonical `Small_Icon()` sampling behavior wherever iconsets are used for mini-map display (`src/jshell.cpp`, `src/wwlib_runtime.cpp`).
-- Audit remaining “skeleton” translation units (e.g. `src/loaddlg.cpp`) and retire them only after behavior-complete ports exist.
+- Audit remaining “skeleton” translation units and retire them only after behavior-complete ports exist.
 
 ## Testing and parity verification
 Status: Next steps. Scope: keep the port regressions visible and the docs accurate.
