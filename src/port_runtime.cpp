@@ -257,12 +257,17 @@ void* Load_Alloc_Data(FileClass& file) {
     return nullptr;
   }
 
-  char* buffer = new char[size + 1];
+  char* buffer = static_cast<char*>(Alloc(static_cast<unsigned long>(size) + 1, MEM_NORMAL));
+  if (!buffer) {
+    if (!was_open) file.Close();
+    return nullptr;
+  }
+
   const long read = file.Read(buffer, size);
   if (!was_open) file.Close();
 
   if (read != size) {
-    delete[] buffer;
+    Free(buffer);
     return nullptr;
   }
 
@@ -353,6 +358,12 @@ int Extract_Shape_Count(void const* shape) {
 }
 
 void Wait_Blit(void) {
+  Pump_Sdl_Events();
+  AllSurfaces.Set_Surface_Focus(GameInFocus);
+  SDL_Delay(0);
+}
+
+void Wait_Vert_Blank(void) {
   Pump_Sdl_Events();
   AllSurfaces.Set_Surface_Focus(GameInFocus);
   SDL_Delay(0);

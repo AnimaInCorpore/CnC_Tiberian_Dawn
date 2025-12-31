@@ -105,7 +105,7 @@
 | `INIT.CPP` | `src/port_runtime.cpp`, `src/init_helpers.cpp` | Ported via the SDL startup path: `Parse_Command_Line`, `Init_Game`, and `Select_Game` now live in the runtime/initialization helpers. |
 | `INTERNET.CPP` | | To be ported. |
 | `INTERPAL.CPP` | `src/interpal.cpp` | Ported to src/; interpolation palette helpers restored. |
-| `INTRO.CPP` | `src/intro_port.cpp` | Minimal port; `Choose_Side()` now triggers the intro movie (VQA playback) and the full interactive flow is pending. |
+| `INTRO.CPP` | `src/intro.cpp` | Ported `Choose_Side()` to the SDL build: restored the CHOOSE.WSA side-pick animation flow and briefing movie playback (`GDI1`/`NOD1PRE`); VQA audio/subtitle parity is still pending. |
 | `CONQUER.CPP` (VQA playback path) | `src/movie.cpp`, `src/vqa_decoder.cpp`, `src/vqa_decoder.h` | Replaced the simulated/timing-only movie stub with a real classic (8-bit) Westwood VQA decoder (LCW/Format80) and wired `Play_Movie()` to decode frames, apply per-frame palettes, and blit into the SDL software pages. |
 | `IOMAP.CPP` | `src/iomap.cpp` | Ported to src/ with pointer coding helpers for map/UI classes restored. |
 | `IOOBJ.CPP` | `src/ioobj.cpp` | Ported to src/ with object save/load pointer coding and smudge/overlay helpers restored. |
@@ -403,7 +403,7 @@
 | `DDE.CPP` | `src/dde.cpp` | Implemented a cross-platform DDE replacement using loopback UDP sockets (client poke + optional server bind) to preserve the legacy API surface. |
 | `PORT_STUBS.CPP` | `src/port_runtime.cpp` | Removed the duplicate `Send_Data_To_DDE_Server` stub so the CCDDE implementation is authoritative. |
 | Tracking | `PROGRESS.md`, `NEXT_STEPS.md`, `README.md` | Removed stale “stubbed” wording where implementations are now present (DDE/CCDDE/TCPIP/Map shim notes) and kept follow-ups scoped to incomplete subsystems. |
-| `INTRO.CPP` (`Choose_Side`) | `src/intro_port.cpp` | Replaced the placeholder intro handler with a real side-selection dialog that sets `Whom` and `ScenPlayer` (GDI/Nod). |
+| `INTRO.CPP` (`Choose_Side`) | `src/intro.cpp`, `src/port_runtime.cpp`, `src/include/legacy/function.h` | Replaced the temporary message-box stub with the legacy choose-side animation flow and briefing playback, fixed `Load_Alloc_Data(FileClass&)` to allocate via `Alloc()` so `Free()` is safe, and added a portable `Wait_Vert_Blank()` hook used by legacy UI code. |
 | `DISPLAY.CPP` | `src/display.cpp` | Restored `DisplayClass::Compute_Start_Pos`/`Write_INI` implementations needed by scenario INI workflows. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Declared `Invalidate_Cached_Icons` and implemented it for the SDL icon path. |
 | `MPLAYER.CPP` (`Surrender_Dialog`) | `src/port_runtime.cpp` | Ported the in-game surrender confirmation dialog (OK/Cancel) and removed the unconditional “accept” stub. |

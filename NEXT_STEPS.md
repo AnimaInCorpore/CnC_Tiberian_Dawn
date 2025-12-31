@@ -65,6 +65,6 @@ Status: Next steps. Scope: keep the port regressions visible and the docs accura
 ## Recently completed (for context)
 Status: Reference. Scope: do not add new work here; keep short.
 Implementation done!: Restored textured UI box rendering (`Draw_Box`/`CC_Texture_Fill`) so menus/dialogs use `BTEXTURE.SHP` (`src/dialog.cpp`).
-Implementation done!: Replaced the placeholder intro handler with a working GDI/Nod side selection (`src/intro_port.cpp`).
+Implementation done!: Restored the legacy choose-side animation flow and briefing playback (`src/intro.cpp`).
 Implementation done!: Replaced the timing-only movie stub with a real classic 8-bit VQA decoder and frame blitter (`src/movie.cpp`, `src/vqa_decoder.cpp`).
 Implementation done!: Implemented the `WWMouseClass` draw/erase overlay so the SDL path shows the legacy cursor (`src/wwlib_runtime.cpp`).

@@ -161,7 +161,7 @@ set(TD_SOURCES
   src/maingame.cpp
   src/menus.cpp
   src/mission.cpp
-  src/intro_port.cpp
+  src/intro.cpp
   src/movie.cpp
   src/vqa_decoder.cpp
   src/mixfile.cpp
