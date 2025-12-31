@@ -37,7 +37,7 @@ void const* Get_Radar_Icon(void const* shapefile, int shapenum, int frames, int 
   const int val = 24 / zoomfactor;
 
   for (int framelp = 0; framelp < frames; framelp++) {
-    void* ptr = reinterpret_cast<void*>(Build_Frame(shapefile, shapenum + framelp, SysMemPage.Get_Buffer()));
+    void* ptr = Build_Frame(shapefile, shapenum + framelp, SysMemPage.Get_Buffer());
     if (ptr) {
       ptr = Get_Shape_Header_Data(ptr);
       for (int icony = 0; icony < icon_height; icony++) {

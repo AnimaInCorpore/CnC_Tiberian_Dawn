@@ -116,7 +116,7 @@
 | `IPXGCONN.CPP` | `src/ipxgconn.cpp` | Ported to src/; connection manager glue preserved. |
 | `IPXMGR.CPP` | `src/ipxmgr.cpp` | IPX manager now tracks send/receive counters and computes basic response-time stats from observed traffic, replacing placeholder return values while keeping the UDP transport layer. |
 | `JSHELL.CPP` | `src/jshell.cpp` | Ported to src/; JShell UI helpers and icon sampling logic restored. |
-| `KEYFRAME.CPP` | `src/keyframe_info.cpp`, `src/keyframe_helpers.cpp` | Frame metadata/palette accessors plus `Build_Frame` decode are ported (Format80/Format40); verify remaining edge cases against Win95 assets. |
+| `KEYFRAME.CPP` | `src/keyframe_info.cpp`, `src/keyframe_helpers.cpp` | Frame metadata/palette accessors plus `Build_Frame` decode are ported (Format80/Format40); implemented Win95-style uncompressed frame caching (big/theater buffers + `Reset_Theater_Shapes`) and made `Build_Frame` return a real pointer (`void*`) for 64-bit safety. |
 | `LOADDLG.CPP` | `src/loaddlg.cpp` | Ported load/save/delete dialog backend, replacing the placeholder `LoadOptionsClass` implementation and wiring it to the real save/load entry points. |
 | `LOAD_TITLE.CPP` | `src/load_title.cpp` | Title screen loader now resolves art through the CCFile/Mix stack, decodes PCX or CPS deterministically, patches UI palette colors, and scales to the active viewport. Fixed PCX RLE decoding so runs that cross scanline boundaries are handled correctly (prevents main menu background corruption). |
 | `LOAD_TITLE.CPP` | `src/load_title.cpp` | Title palette normalization now mirrors the legacy PCX loader and no longer overwrites the first 16 palette entries, matching Win95 background colors. |
@@ -375,7 +375,7 @@
 | `CELL.CPP` | `src/cell.cpp` | Ported Spot_Index/Clear_Icon helpers used by infantry and radar plots. |
 | `GLOBALS.CPP` | `src/globals.cpp` | Restored ModemGameToPlay global so network flows link. |
 | `INTERPAL` | `src/interpal_fallback.cpp` | Added C++ palette interpolation and 2x scale fallbacks for non-ASM builds. |
-| `KEYFRAME.CPP` | `src/keyframe_helpers.cpp` | Added uncompressed shape toggles and ported `Build_Frame` by implementing Westwood `Format80` (LCW) + `Format40` (XOR delta) decode for SHP/WSA frames. |
+| `KEYFRAME.CPP` | `src/keyframe_helpers.cpp` | Replaced the remaining uncompressed-shape “stub” behavior by caching decoded frames into Win95-style big/theater shape buffers and wiring `Reset_Theater_Shapes`; cache hits copy pixels into the caller buffer to preserve existing SDL draw paths. |
 | `TEXT.CPP` | `src/text.cpp` | Added Simple_Text_Print wrapper for legacy text calls. |
 | `INIT.CPP` | `src/init_helpers.cpp` | Ported Obfuscate helper for hidden option parsing. |
 | `SCENARIO.CPP` | `src/scenario.cpp` | Ported scenario load/start + win/lose/restart flow so the menu can launch missions. |

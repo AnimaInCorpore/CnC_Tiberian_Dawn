@@ -21,14 +21,14 @@ void Dialog_Box(int x, int y, int w, int h) {
 static void CC_Texture_Fill(void const* shapefile, int shapenum, int xpos, int ypos, int width, int height) {
   if (!shapefile || shapenum == -1) return;
 
-  unsigned long shape_size = Build_Frame(shapefile, static_cast<unsigned short>(shapenum), ShapeBuffer);
-  if (!shape_size) return;
+  void* built = Build_Frame(shapefile, static_cast<unsigned short>(shapenum), ShapeBuffer);
+  if (!built) return;
 
   if (Get_Last_Frame_Length() > _ShapeBufferSize) {
     return;
   }
 
-  auto* shape_pointer = static_cast<unsigned char*>(Get_Shape_Header_Data(reinterpret_cast<void*>(shape_size)));
+  auto* shape_pointer = static_cast<unsigned char*>(Get_Shape_Header_Data(built));
   const int source_width = Get_Build_Frame_Width(shapefile);
   const int source_height = Get_Build_Frame_Height(shapefile);
   if (!shape_pointer || source_width <= 0 || source_height <= 0) return;

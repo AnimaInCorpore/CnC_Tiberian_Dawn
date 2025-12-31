@@ -471,16 +471,16 @@ void Fade_Palette_To(unsigned char *palette, int speed, void (*callback)(void));
 */
 extern "C" long __cdecl Buffer_Frame_To_Page(int x, int y, int w, int h, void *Buffer, GraphicViewPortClass &view, int flags, ...);
 
-/*
-**	KEYFRAME.CPP
-*/
-int Get_Last_Frame_Length(void);
-unsigned long Build_Frame(void const *dataptr, unsigned short framenumber, void *buffptr);
-unsigned short Get_Build_Frame_Count(void const *dataptr);
-unsigned short Get_Build_Frame_X(void const *dataptr);
-unsigned short Get_Build_Frame_Y(void const *dataptr);
-unsigned short Get_Build_Frame_Width(void const *dataptr);
-unsigned short Get_Build_Frame_Height(void const *dataptr);
+	/*
+	**	KEYFRAME.CPP
+	*/
+	int Get_Last_Frame_Length(void);
+	void* Build_Frame(void const *dataptr, unsigned short framenumber, void *buffptr);
+	unsigned short Get_Build_Frame_Count(void const *dataptr);
+	unsigned short Get_Build_Frame_X(void const *dataptr);
+	unsigned short Get_Build_Frame_Y(void const *dataptr);
+	unsigned short Get_Build_Frame_Width(void const *dataptr);
+	unsigned short Get_Build_Frame_Height(void const *dataptr);
 bool Get_Build_Frame_Palette(void const *dataptr, void *palette);
 
 /*

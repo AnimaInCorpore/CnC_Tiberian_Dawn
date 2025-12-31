@@ -2,11 +2,50 @@
 
 #include <SDL.h>
 
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
+#include <memory>
+#include <new>
+#include <vector>
+
+extern "C" bool IsTheaterShape;
+
 namespace {
 
 static bool UseBigShapeBuffer = false;
 static bool OriginalUseBigShapeBuffer = false;
 static int LastFrameLength = 0;
+
+constexpr unsigned short kUncompressMagicNumber = 56789;
+constexpr std::size_t kInitialBigShapeBufferSize = 12000u * 1024u;
+constexpr std::size_t kInitialTheaterShapeBufferSize = 1000u * 1024u;
+constexpr std::size_t kBigShapeBufferGrowSize = 200u * 1024u;
+constexpr std::size_t kMinFreeSpaceBeforeGrow = 128u * 1024u;
+
+constexpr int kMaxSlots = 1500;
+constexpr int kTheaterSlotStart = 1000;
+
+struct CachedShapeHeader {
+  std::uint32_t tag;
+  std::int32_t draw_flags;  // kept for parity with the original layout (-1 => headers pending)
+  std::uint32_t buffer_kind;  // 0 = big, 1 = theater
+  std::uint32_t data_offset;  // relative to the chosen buffer start
+  std::uint32_t data_length;
+};
+
+constexpr std::uint32_t kCachedShapeTag = 0x54444353u;  // 'SCDT' (arbitrary, internal-only)
+
+static std::unique_ptr<unsigned char[]> BigShapeBuffer;
+static std::unique_ptr<unsigned char[]> TheaterShapeBuffer;
+static std::size_t BigShapeBufferLength = 0;
+static std::size_t TheaterShapeBufferLength = 0;
+static std::size_t BigShapeBufferUsed = 0;
+static std::size_t TheaterShapeBufferUsed = 0;
+
+static std::vector<std::vector<std::uint32_t>> KeyFrameSlots(kMaxSlots);
+static int TotalSlotsUsed = 0;
+static int TheaterSlotsUsed = kTheaterSlotStart;
 
 struct KeyFrameHeaderType {
   unsigned short frames;
@@ -17,6 +56,10 @@ struct KeyFrameHeaderType {
   unsigned short largest_frame_size;
   short flags;
 };
+
+inline std::size_t Align4(std::size_t value) {
+  return (value + 3u) & ~std::size_t{3u};
+}
 
 inline const unsigned char* BytePtr(const void* p) {
   return static_cast<const unsigned char*>(p);
@@ -160,6 +203,11 @@ void Check_Use_Compressed_Shapes(void) {
 }
 
 void Reset_Theater_Shapes(void) {
+  for (int i = kTheaterSlotStart; i < TheaterSlotsUsed && i < static_cast<int>(KeyFrameSlots.size()); ++i) {
+    KeyFrameSlots[static_cast<std::size_t>(i)].clear();
+  }
+  TheaterShapeBufferUsed = 0;
+  TheaterSlotsUsed = kTheaterSlotStart;
 }
 
 void Disable_Uncompressed_Shapes(void) {
@@ -171,23 +219,125 @@ void Enable_Uncompressed_Shapes(void) {
 }
 
 void* Get_Shape_Header_Data(void* ptr) {
-  return ptr;
+  if (!ptr) return nullptr;
+  const auto* header = static_cast<const CachedShapeHeader*>(ptr);
+  if (header->tag != kCachedShapeTag) return ptr;
+
+  const unsigned char* base = nullptr;
+  if (header->buffer_kind == 1u) {
+    base = TheaterShapeBuffer.get();
+  } else {
+    base = BigShapeBuffer.get();
+  }
+  if (!base) return ptr;
+  return const_cast<unsigned char*>(base + header->data_offset);
 }
 
 int Get_Last_Frame_Length(void) {
   return LastFrameLength;
 }
 
-unsigned long Build_Frame(void const* dataptr, unsigned short framenumber, void* buffptr) {
+void* Build_Frame(void const* dataptr, unsigned short framenumber, void* buffptr) {
   LastFrameLength = 0;
-  if (!dataptr || !buffptr) return 0;
+  if (!dataptr || !buffptr) return nullptr;
 
-  const auto* keyfr = static_cast<const KeyFrameHeaderType*>(dataptr);
-  if (framenumber >= keyfr->frames) return 0;
+  auto* keyfr = const_cast<KeyFrameHeaderType*>(static_cast<const KeyFrameHeaderType*>(dataptr));
+  if (framenumber >= keyfr->frames) return nullptr;
 
   const unsigned long buffsize =
       static_cast<unsigned long>(keyfr->width) * static_cast<unsigned long>(keyfr->height);
-  if (buffsize == 0) return 0;
+  if (buffsize == 0) return nullptr;
+
+  auto ensure_buffers = [&]() -> bool {
+    if (BigShapeBuffer && TheaterShapeBuffer) return true;
+
+    if (!BigShapeBuffer) {
+      BigShapeBufferLength = kInitialBigShapeBufferSize;
+      BigShapeBufferUsed = 0;
+      BigShapeBuffer.reset(new (std::nothrow) unsigned char[BigShapeBufferLength]);
+      if (!BigShapeBuffer) {
+        BigShapeBufferLength = 0;
+        return false;
+      }
+    }
+
+    if (!TheaterShapeBuffer) {
+      TheaterShapeBufferLength = kInitialTheaterShapeBufferSize;
+      TheaterShapeBufferUsed = 0;
+      TheaterShapeBuffer.reset(new (std::nothrow) unsigned char[TheaterShapeBufferLength]);
+      if (!TheaterShapeBuffer) {
+        TheaterShapeBufferLength = 0;
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  auto grow_big_buffer = [&](std::size_t needed) -> bool {
+    if (needed <= BigShapeBufferLength) return true;
+    const std::size_t grow_by = std::max(kBigShapeBufferGrowSize, needed - BigShapeBufferLength);
+    const std::size_t new_len = BigShapeBufferLength + grow_by;
+    std::unique_ptr<unsigned char[]> replacement(new (std::nothrow) unsigned char[new_len]);
+    if (!replacement) return false;
+    if (BigShapeBufferUsed) {
+      std::memcpy(replacement.get(), BigShapeBuffer.get(), BigShapeBufferUsed);
+    }
+    BigShapeBuffer = std::move(replacement);
+    BigShapeBufferLength = new_len;
+    return true;
+  };
+
+  auto slots_ready = [&]() -> bool {
+    if (!UseBigShapeBuffer) return false;
+    if (!ensure_buffers()) return false;
+
+    if (keyfr->x != kUncompressMagicNumber) {
+      keyfr->x = kUncompressMagicNumber;
+      const int slot = IsTheaterShape ? TheaterSlotsUsed++ : TotalSlotsUsed++;
+      if (slot < 0 || slot >= static_cast<int>(KeyFrameSlots.size())) {
+        UseBigShapeBuffer = false;
+        return false;
+      }
+      keyfr->y = static_cast<unsigned short>(slot);
+      KeyFrameSlots[static_cast<std::size_t>(slot)].assign(keyfr->frames, 0u);
+    }
+    return true;
+  };
+
+  auto maybe_cache_hit = [&]() -> void* {
+    if (!slots_ready()) return nullptr;
+
+    const std::size_t slot = keyfr->y;
+    if (slot >= KeyFrameSlots.size()) return nullptr;
+    auto& frames = KeyFrameSlots[slot];
+    if (framenumber >= frames.size()) return nullptr;
+
+    const std::uint32_t stored = frames[framenumber];
+    if (stored == 0u) return nullptr;
+    const std::size_t header_offset = static_cast<std::size_t>(stored - 1u);
+    unsigned char* base = IsTheaterShape ? TheaterShapeBuffer.get() : BigShapeBuffer.get();
+    std::size_t base_len = IsTheaterShape ? TheaterShapeBufferLength : BigShapeBufferLength;
+    if (!base) return nullptr;
+    if (header_offset + sizeof(CachedShapeHeader) > base_len) return nullptr;
+
+    auto* header = reinterpret_cast<CachedShapeHeader*>(base + header_offset);
+    if (header->tag != kCachedShapeTag) return nullptr;
+    if (header->data_offset + header->data_length > base_len) return nullptr;
+
+    std::memcpy(buffptr, base + header->data_offset,
+                std::min<std::size_t>(header->data_length, static_cast<std::size_t>(buffsize)));
+    if (header->data_length < buffsize) {
+      std::memset(static_cast<unsigned char*>(buffptr) + header->data_length, 0,
+                  static_cast<std::size_t>(buffsize) - header->data_length);
+    }
+    LastFrameLength = static_cast<int>(header->data_length);
+    return header;
+  };
+
+  if (void* cached = maybe_cache_hit()) {
+    return cached;
+  }
 
   constexpr int kSubframeOffsets = 7;  // 3.5 frames worth (2 offsets/frame).
   unsigned long offset[kSubframeOffsets] = {};
@@ -207,7 +357,59 @@ unsigned long Build_Frame(void const* dataptr, unsigned short framenumber, void*
     if (has_palette) frame_ptr = static_cast<const char*>(Add_Long_To_Pointer(const_cast<char*>(frame_ptr), 768L));
     const unsigned long written = LCW_Uncompress(frame_ptr, buffptr, buffsize);
     LastFrameLength = static_cast<int>(written);
-    return reinterpret_cast<unsigned long>(buffptr);
+
+    if (slots_ready()) {
+      const std::size_t length = static_cast<std::size_t>(std::min<unsigned long>(written, buffsize));
+      const std::size_t header_offset =
+          Align4(IsTheaterShape ? TheaterShapeBufferUsed : BigShapeBufferUsed);
+      const std::size_t raw_offset =
+          Align4(header_offset + sizeof(CachedShapeHeader) + static_cast<std::size_t>(keyfr->height));
+      const std::size_t needed = raw_offset + length;
+
+      if (IsTheaterShape) {
+        if (needed <= TheaterShapeBufferLength) {
+          auto* header = reinterpret_cast<CachedShapeHeader*>(TheaterShapeBuffer.get() + header_offset);
+          header->tag = kCachedShapeTag;
+          header->draw_flags = -1;
+          header->buffer_kind = 1u;
+          header->data_offset = static_cast<std::uint32_t>(raw_offset);
+          header->data_length = static_cast<std::uint32_t>(length);
+          std::memcpy(TheaterShapeBuffer.get() + raw_offset, buffptr, length);
+          TheaterShapeBufferUsed = Align4(needed);
+
+          const std::size_t slot = keyfr->y;
+          if (slot < KeyFrameSlots.size() && framenumber < KeyFrameSlots[slot].size()) {
+            KeyFrameSlots[slot][framenumber] = static_cast<std::uint32_t>(header_offset + 1u);
+          }
+          return header;
+        }
+      } else {
+        if ((BigShapeBufferLength - BigShapeBufferUsed) < kMinFreeSpaceBeforeGrow) {
+          grow_big_buffer(BigShapeBufferLength + kBigShapeBufferGrowSize);
+        }
+        if (needed > BigShapeBufferLength && !grow_big_buffer(needed)) {
+          UseBigShapeBuffer = false;
+          return buffptr;
+        }
+
+        auto* header = reinterpret_cast<CachedShapeHeader*>(BigShapeBuffer.get() + header_offset);
+        header->tag = kCachedShapeTag;
+        header->draw_flags = -1;
+        header->buffer_kind = 0u;
+        header->data_offset = static_cast<std::uint32_t>(raw_offset);
+        header->data_length = static_cast<std::uint32_t>(length);
+        std::memcpy(BigShapeBuffer.get() + raw_offset, buffptr, length);
+        BigShapeBufferUsed = Align4(needed);
+
+        const std::size_t slot = keyfr->y;
+        if (slot < KeyFrameSlots.size() && framenumber < KeyFrameSlots[slot].size()) {
+          KeyFrameSlots[slot][framenumber] = static_cast<std::uint32_t>(header_offset + 1u);
+        }
+        return header;
+      }
+    }
+
+    return buffptr;
   }
 
   unsigned short currframe = 0;
@@ -255,5 +457,57 @@ unsigned long Build_Frame(void const* dataptr, unsigned short framenumber, void*
   }
 
   LastFrameLength = static_cast<int>(buffsize);
-  return reinterpret_cast<unsigned long>(buffptr);
+
+  if (slots_ready()) {
+    const std::size_t length = static_cast<std::size_t>(buffsize);
+    const std::size_t header_offset =
+        Align4(IsTheaterShape ? TheaterShapeBufferUsed : BigShapeBufferUsed);
+    const std::size_t raw_offset =
+        Align4(header_offset + sizeof(CachedShapeHeader) + static_cast<std::size_t>(keyfr->height));
+    const std::size_t needed = raw_offset + length;
+
+    if (IsTheaterShape) {
+      if (needed <= TheaterShapeBufferLength) {
+        auto* header = reinterpret_cast<CachedShapeHeader*>(TheaterShapeBuffer.get() + header_offset);
+        header->tag = kCachedShapeTag;
+        header->draw_flags = -1;
+        header->buffer_kind = 1u;
+        header->data_offset = static_cast<std::uint32_t>(raw_offset);
+        header->data_length = static_cast<std::uint32_t>(length);
+        std::memcpy(TheaterShapeBuffer.get() + raw_offset, buffptr, length);
+        TheaterShapeBufferUsed = Align4(needed);
+
+        const std::size_t slot = keyfr->y;
+        if (slot < KeyFrameSlots.size() && framenumber < KeyFrameSlots[slot].size()) {
+          KeyFrameSlots[slot][framenumber] = static_cast<std::uint32_t>(header_offset + 1u);
+        }
+        return header;
+      }
+    } else {
+      if ((BigShapeBufferLength - BigShapeBufferUsed) < kMinFreeSpaceBeforeGrow) {
+        grow_big_buffer(BigShapeBufferLength + kBigShapeBufferGrowSize);
+      }
+      if (needed > BigShapeBufferLength && !grow_big_buffer(needed)) {
+        UseBigShapeBuffer = false;
+        return buffptr;
+      }
+
+      auto* header = reinterpret_cast<CachedShapeHeader*>(BigShapeBuffer.get() + header_offset);
+      header->tag = kCachedShapeTag;
+      header->draw_flags = -1;
+      header->buffer_kind = 0u;
+      header->data_offset = static_cast<std::uint32_t>(raw_offset);
+      header->data_length = static_cast<std::uint32_t>(length);
+      std::memcpy(BigShapeBuffer.get() + raw_offset, buffptr, length);
+      BigShapeBufferUsed = Align4(needed);
+
+      const std::size_t slot = keyfr->y;
+      if (slot < KeyFrameSlots.size() && framenumber < KeyFrameSlots[slot].size()) {
+        KeyFrameSlots[slot][framenumber] = static_cast<std::uint32_t>(header_offset + 1u);
+      }
+      return header;
+    }
+  }
+
+  return buffptr;
 }

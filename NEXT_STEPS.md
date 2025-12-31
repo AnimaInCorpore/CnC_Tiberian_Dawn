@@ -53,6 +53,7 @@ Status: Next steps. Scope: eliminate “it runs but isn’t canonical” behavio
 ## Testing and parity verification
 Status: Next steps. Scope: keep the port regressions visible and the docs accurate.
 - Add focused smoke tests/harnesses for: MIX registration order, scenario load, palette fades, and basic input (a 60-second “run a mission loop” headless mode would be ideal).
+- Verify `Build_Frame` big/theater caching path against Win95: exercise WSA/SHP-heavy UI screens and switch theaters to ensure `Reset_Theater_Shapes()` behaves correctly (`src/keyframe_helpers.cpp`, `src/scenario.cpp`).
 - If you need the legacy “pause on fatal error” behavior (useful when launching outside a terminal), run with `TD_PAUSE_ON_FATAL=1`.
 - For scenario-start debugging without UI driving, run with `TD_AUTOSTART_SCENARIO=SCG01EA` plus optional `TD_AUTOSTART_LOAD_ONLY=1`, `TD_AUTOSTART_LOAD_TITLE=1`, `TD_AUTOSTART_DRAW_ONCE=1`, and `TD_AUTOSTART_FRAMES=30` (optionally add `--verbose`).
 - When verifying palette fades, include `Fade_Palette_To(..., ..., NULL)` call sites (Win95 still shows the fade via hardware palette updates) and compare the fade duration against Win95.
