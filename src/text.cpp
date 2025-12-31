@@ -9,7 +9,9 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstddef>
+#include <array>
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <limits>
 #include <string>
@@ -122,15 +124,13 @@ const void* Font_For_Type(TextPrintType type) {
     case TPF_VCR:
       return VCRFontPtr ? VCRFontPtr : FontPtr;
     case TPF_6PT_GRAD:
-      // Gradient rendering uses the normal 6 point font with a separate palette table.
-      return Font6Ptr ? Font6Ptr : FontPtr;
+      return GradFont6Ptr ? GradFont6Ptr : (Font6Ptr ? Font6Ptr : FontPtr);
     case TPF_MAP:
       return MapFontPtr ? MapFontPtr : Font6Ptr;
     case TPF_GREEN12:
       return Green12FontPtr ? Green12FontPtr : FontPtr;
     case TPF_GREEN12_GRAD:
-      // "Graduated" green uses the standard 12-point glyphs; gradient handling is palette-driven.
-      return Green12FontPtr ? Green12FontPtr : FontPtr;
+      return Green12GradFontPtr ? Green12GradFontPtr : (Green12FontPtr ? Green12FontPtr : FontPtr);
     case TPF_LASTPOINT:
     default:
       return FontPtr;
@@ -230,6 +230,118 @@ bool Parse_Font(const void* font_ptr, ParsedFont* out) {
   return parsed.offsets && parsed.widths && parsed.base;
 }
 
+struct Rgb6 {
+  int r = 0;
+  int g = 0;
+  int b = 0;
+};
+
+Rgb6 Get_Palette_Color(unsigned index) {
+  if (!Palette) return {};
+  const unsigned idx = index & 0xFFu;
+  const unsigned offset = idx * 3u;
+  return {static_cast<int>(Palette[offset + 0]),
+          static_cast<int>(Palette[offset + 1]),
+          static_cast<int>(Palette[offset + 2])};
+}
+
+unsigned Find_Nearest_Palette_Index(const Rgb6& target) {
+  if (!Palette) return 0;
+  unsigned best = 0;
+  long best_dist = std::numeric_limits<long>::max();
+  for (unsigned idx = 0; idx < 256; ++idx) {
+    const unsigned offset = idx * 3u;
+    const int dr = static_cast<int>(Palette[offset + 0]) - target.r;
+    const int dg = static_cast<int>(Palette[offset + 1]) - target.g;
+    const int db = static_cast<int>(Palette[offset + 2]) - target.b;
+    const long dist = static_cast<long>(dr) * dr + static_cast<long>(dg) * dg + static_cast<long>(db) * db;
+    if (dist < best_dist) {
+      best_dist = dist;
+      best = idx;
+      if (dist == 0) break;
+    }
+  }
+  return best;
+}
+
+std::array<unsigned char, 16> Build_Gradient_Ramp(unsigned fore, TextPrintType flags) {
+  std::array<unsigned char, 16> ramp{};
+  const Rgb6 base = Get_Palette_Color(fore);
+
+  float scale = 1.0f;
+  if (flags & TPF_MEDIUM_COLOR) {
+    scale = 0.75f;
+  } else if (flags & TPF_BRIGHT_COLOR) {
+    scale = 1.0f;
+  }
+
+  const auto shade = [&](float t) -> unsigned char {
+    const float st = std::clamp(t * scale, 0.0f, 1.0f);
+    const Rgb6 target{static_cast<int>(std::lround(base.r * st)),
+                      static_cast<int>(std::lround(base.g * st)),
+                      static_cast<int>(std::lround(base.b * st))};
+    return static_cast<unsigned char>(Find_Nearest_Palette_Index(target));
+  };
+
+  ramp[0] = 0;
+  for (int i = 1; i < 16; ++i) {
+    ramp[static_cast<std::size_t>(i)] = shade(static_cast<float>(i) / 15.0f);
+  }
+  return ramp;
+}
+
+void Configure_Font_Palette(unsigned fore, unsigned back, TextPrintType point, TextPrintType flags) {
+  auto* xlat = const_cast<unsigned char*>(static_cast<const unsigned char*>(Get_Font_Palette_Ptr()));
+  if (!xlat) return;
+
+  const bool gradient_font = (point == TPF_6PT_GRAD || point == TPF_GREEN12_GRAD);
+  const bool use_grad_pal = gradient_font && ((flags & TPF_USE_GRAD_PAL) != 0);
+
+  if (use_grad_pal) {
+    const auto ramp = Build_Gradient_Ramp(fore, flags);
+    xlat[0] = static_cast<unsigned char>(back & 0xFFu);
+    xlat[0 << 4] = xlat[0];
+    for (int idx = 1; idx < 16; ++idx) {
+      const unsigned char mapped = ramp[static_cast<std::size_t>(idx)];
+      xlat[idx] = mapped;
+      xlat[idx << 4] = mapped;
+    }
+  } else if (gradient_font && ((flags & (TPF_MEDIUM_COLOR | TPF_BRIGHT_COLOR)) != 0)) {
+    const float t = (flags & TPF_MEDIUM_COLOR) ? 0.75f : 1.0f;
+    const Rgb6 base = Get_Palette_Color(fore);
+    const Rgb6 target{static_cast<int>(std::lround(base.r * t)),
+                      static_cast<int>(std::lround(base.g * t)),
+                      static_cast<int>(std::lround(base.b * t))};
+    const unsigned char mapped = static_cast<unsigned char>(Find_Nearest_Palette_Index(target));
+
+    xlat[0] = static_cast<unsigned char>(back & 0xFFu);
+    xlat[0 << 4] = xlat[0];
+    for (int idx = 1; idx < 16; ++idx) {
+      xlat[idx] = mapped;
+      xlat[idx << 4] = mapped;
+    }
+  } else {
+    // Mirror the TXTPRNT.ASM setup: nibble 0 = background, nibble 1 = foreground.
+    xlat[0] = static_cast<unsigned char>(back & 0xFFu);
+    xlat[1] = static_cast<unsigned char>(fore & 0xFFu);
+    xlat[16] = static_cast<unsigned char>(fore & 0xFFu);
+  }
+}
+
+void Configure_Shadow_Palette(unsigned shadow_color) {
+  auto* xlat = const_cast<unsigned char*>(static_cast<const unsigned char*>(Get_Font_Palette_Ptr()));
+  if (!xlat) return;
+
+  // Transparent background, solid shadow color for all glyph shades.
+  xlat[0] = 0;
+  xlat[0 << 4] = 0;
+  const unsigned char mapped = static_cast<unsigned char>(shadow_color & 0xFFu);
+  for (int idx = 1; idx < 16; ++idx) {
+    xlat[idx] = mapped;
+    xlat[idx << 4] = mapped;
+  }
+}
+
 void Select_Font(TextPrintType flag) {
   const TextPrintType point = Resolve_Font_Point(flag);
   const TextPrintType normalized_flag = Normalize_Text_Flag(flag, point);
@@ -237,7 +349,7 @@ void Select_Font(TextPrintType flag) {
 
   const void* requested =
       (point == TPF_LASTPOINT && g_last_font_request) ? g_last_font_request : Font_For_Type(point);
-  const void* gradient = (point == TPF_6PT_GRAD) ? GradFont6Ptr : nullptr;
+  const void* gradient = GradFont6Ptr;
   if (!requested) {
     g_current_font_valid = false;
     FontHeight = 0;
@@ -263,28 +375,17 @@ void Select_Font(TextPrintType flag) {
   Platform_Set_Fonts(requested, gradient, FontHeight, FontYSpacing);
 }
 
-void Draw_Glyph(char ch, int x, int y, unsigned fore, unsigned back, bool fill_background) {
+void Draw_Glyph(char ch, int x, int y) {
   GraphicViewPortClass* page = Target_Page();
   if (!page || !g_current_font_valid) return;
 
-  auto* xlat = const_cast<unsigned char*>(
-      static_cast<const unsigned char*>(Get_Font_Palette_Ptr()));
-  if (xlat) {
-    // Mirror the TXTPRNT.ASM setup: nibble 0 = background, nibble 1 = foreground.
-    xlat[0] = static_cast<unsigned char>(back & 0xFF);
-    xlat[1] = static_cast<unsigned char>(fore & 0xFF);
-    xlat[16] = static_cast<unsigned char>(fore & 0xFF);
-  }
-
-  const auto translate = [&](unsigned char nibble) -> int {
-    if (!xlat) {
-      // Fallback: preserve the basic background/foreground rules.
-      if (nibble == 0) return fill_background ? static_cast<int>(back) : 0;
-      if (nibble == 1) return static_cast<int>(fore);
-      return static_cast<int>(nibble);
-    }
-    return static_cast<int>(xlat[nibble]);
+  const unsigned char* xlat = static_cast<const unsigned char*>(Get_Font_Palette_Ptr());
+  const auto translate = [&](unsigned char index) -> int {
+    if (!xlat) return static_cast<int>(index);
+    return static_cast<int>(xlat[index]);
   };
+  const int translated_back = translate(0);
+  const bool fill_background = (translated_back != 0);
 
   const unsigned idx = static_cast<unsigned char>(ch);
   if (idx >= g_current_font.glyph_count) return;
@@ -309,7 +410,7 @@ void Draw_Glyph(char ch, int x, int y, unsigned fore, unsigned back, bool fill_b
   if (fill_background && top_blank > 0) {
     for (int row = 0; row < top_blank; ++row) {
       for (int col = 0; col < width; ++col) {
-        page->Put_Pixel(x + col, dest_y + row, static_cast<int>(back));
+        page->Put_Pixel(x + col, dest_y + row, translated_back);
       }
     }
   }
@@ -318,8 +419,8 @@ void Draw_Glyph(char ch, int x, int y, unsigned fore, unsigned back, bool fill_b
     const unsigned char* row_ptr = glyph + row * bytes_per_row;
     for (int col = 0; col < width; ++col) {
       const unsigned char byte = row_ptr[col / 2];
-      const unsigned char nibble = (col & 1) ? (byte >> 4) & 0x0F : byte & 0x0F;
-      const int color = translate(nibble);
+      const unsigned char index = (col & 1) ? (byte & 0xF0) : (byte & 0x0F);
+      const int color = translate(index);
       if (color != 0) {
         page->Put_Pixel(x + col, dest_y + top_blank + row, color);
       }
@@ -331,7 +432,7 @@ void Draw_Glyph(char ch, int x, int y, unsigned fore, unsigned back, bool fill_b
     const int start_y = dest_y + top_blank + data_height;
     for (int row = 0; row < bottom_blank; ++row) {
       for (int col = 0; col < width; ++col) {
-        page->Put_Pixel(x + col, start_y + row, static_cast<int>(back));
+        page->Put_Pixel(x + col, start_y + row, translated_back);
       }
     }
   }
@@ -347,6 +448,8 @@ void Draw_String(const char* text, unsigned x, unsigned y, unsigned fore, unsign
   Select_Font(normalized_flag);
   if (!g_current_font_valid) return;
 
+  Configure_Font_Palette(fore, back, point, normalized_flag);
+
   const int width = String_Pixel_Width(text);
   switch (normalized_flag & (TPF_CENTER | TPF_RIGHT)) {
     case TPF_CENTER:
@@ -360,7 +463,8 @@ void Draw_String(const char* text, unsigned x, unsigned y, unsigned fore, unsign
   }
 
   const bool shadow = (normalized_flag & TPF_NOSHADOW) == 0;
-  const bool fill_background = back != TBLACK;
+  const unsigned shadow_color =
+      (normalized_flag & TPF_LIGHTSHADOW) ? DKGREY : BLACK;
   unsigned cursor_x = x;
   for (const char* ptr = text; *ptr; ++ptr) {
     const unsigned char ch = static_cast<unsigned char>(*ptr);
@@ -374,10 +478,11 @@ void Draw_String(const char* text, unsigned x, unsigned y, unsigned fore, unsign
       continue;
     }
     if (shadow) {
-      Draw_Glyph(*ptr, static_cast<int>(cursor_x + 1), static_cast<int>(y + 1), TBLACK, back,
-                 fill_background);
+      Configure_Shadow_Palette(shadow_color);
+      Draw_Glyph(*ptr, static_cast<int>(cursor_x + 1), static_cast<int>(y + 1));
+      Configure_Font_Palette(fore, back, point, normalized_flag);
     }
-    Draw_Glyph(*ptr, static_cast<int>(cursor_x), static_cast<int>(y), fore, back, fill_background);
+    Draw_Glyph(*ptr, static_cast<int>(cursor_x), static_cast<int>(y));
     cursor_x += static_cast<unsigned>(glyph_width + FontXSpacing);
   }
 }

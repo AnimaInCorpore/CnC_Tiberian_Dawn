@@ -413,6 +413,7 @@
 | `MIXFILE/ASSETS` | `src/mixfile.cpp` | Fixed XCC name-table mapping to use the original on-disk subblock order (sorted CRC table is now kept only for lookups), restoring correct asset retrieval for some CD data sets. |
 | `AUDIO/SDL` | `src/include/legacy/audio.h`, `src/platform_audio_sdl.cpp` | Corrected the legacy `Audio_Init` parameter meaning (bits/stereo/rate/buffer) and allow SDL to negotiate spec changes, fixing “Unsupported number of audio channels” on startup. |
 | `TEXT/FONTS` | `src/text.cpp`, `src/game.cpp` | Stopped treating gradient palette/table resources as glyph fonts (6pt + green12) and adjusted score font selection to use the real glyph font. |
+| `TEXT/GRADIENT` | `src/text.cpp` | Restored gradient font selection (`TPF_6PT_GRAD`/`TPF_GREEN12_GRAD`), fixed high/low-nibble ColorXlat lookup parity, and implemented `TPF_USE_GRAD_PAL` ramp generation (plus medium/bright handling) for the SDL text renderer. |
 | `VIDEO/BLIT` | `src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`, `src/gscreen.cpp` | Restored Win95 viewport-to-viewport blit semantics (`source.Blit(dest, ...)` like `HidPage.Blit(SeenBuff)`), ensuring the title/menu pages actually present in the SDL build. |
 | `PALETTE/TEXT` | `src/load_title.cpp`, `src/include/legacy/compat.h`, `src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`, `src/text.cpp` | Matched Win95 title/menu palette behavior (apply full PCX palette), corrected base UI color indices (`TBLACK` vs `BLACK`, `GREEN`, etc), and implemented the legacy ColorXlat-driven `Set_Font_Palette` text color path. |
 | `CCFILE.CPP` | `src/ccfile.cpp` | Re-synced `CCFileClass` to the original Win95 implementation (MIX open/read/seek semantics + override behavior), restored the CD-availability error gate, and reinstated the legacy `Open_File`/`Read_File`/`Seek_File`/`WWDOS_Shutdown` compatibility entry points. |
@@ -431,4 +432,4 @@
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).
-- Implement gradient palette/blend-table support for `TPF_USE_GRAD_PAL` in the SDL text renderer (use `GRAD6FNT.FNT` / `12GRNGRD.FNT` as references) so UI text matches Win95 shading.
+- Verify the `TPF_USE_GRAD_PAL` gradient ramp selection matches Win95 shading (current implementation derives a 16-step ramp from the active palette by nearest-color search).

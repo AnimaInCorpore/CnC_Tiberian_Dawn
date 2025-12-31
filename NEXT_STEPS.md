@@ -32,7 +32,7 @@ Status: Next steps. Scope: audio + movies are required for a “real game” exp
 - Finish SDL audio parity: mixer behavior (priority/channel reservation, pan law, fades/stops) and music/theme streaming should match Win95 and obey menu sliders (`src/audio_play.cpp`, `src/theme.cpp`, `src/options.cpp`).
 - Implementation done!: Implemented the Sound/Visual Controls dialog backends so the in-game UI controls now affect runtime state (`src/sounddlg.cpp`, `src/visudlg.cpp`).
 - Add VQA audio playback + subtitle/EVA timing (current `Play_Movie()` decodes video + palette only) and verify skip rules/centering/cropping against Win95 (`src/movie.cpp`, `src/vqa_decoder.cpp`).
-- Match Win95 gradient UI text: implement `TPF_USE_GRAD_PAL` shading using the shipped gradient resources (`GRAD6FNT.FNT` palette + `12GRNGRD.FNT` blend table) in the SDL text renderer (`src/text.cpp`).
+- Implementation done!: Implemented gradient-font selection and `TPF_USE_GRAD_PAL` shading in the SDL text renderer; verify the ramp matches Win95 (`src/text.cpp`).
 - Verify `Set_Font_Palette`/ColorXlat behavior (including `TBLACK` transparency and the base color indices) matches Win95 across title/menu and in-game palettes (`src/include/legacy/compat.h`, `src/wwlib_runtime.cpp`, `src/text.cpp`).
 
 ## Multiplayer and networking
