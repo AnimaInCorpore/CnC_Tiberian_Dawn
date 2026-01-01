@@ -114,6 +114,7 @@ set(TD_SOURCES
   src/ini.cpp
   src/saveload.cpp
   src/saveload_helpers.cpp
+  src/internet.cpp
   src/conquer_helpers.cpp
   src/network_helpers.cpp
   src/pcx_write.cpp

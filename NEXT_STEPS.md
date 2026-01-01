@@ -38,6 +38,7 @@ Status: Next steps. Scope: audio + movies are required for a “real game” exp
 ## Multiplayer and networking
 Status: Next steps. Scope: restore Win95 multiplayer flows once single-player is playable.
 - Implementation done!: Ported packet serialization and endianness helpers for the multiplayer event stream (`src/packet.cpp`, `src/field.cpp`).
+- Implementation done!: Ported the Planet Westwood / WChat internet glue so `C&CSPAWN.INI` options can be ingested from disk or the portable UDP-backed `DDEServer` (`src/internet.cpp`).
 - Complete the remaining TCP/IP + session behavior (timeouts, lobby dialogs, determinism checks) while keeping the UDP-backed IPX95 path (`src/tcpip.cpp`, `src/connect.cpp`).
 - Keep the portable CCDDE replacement aligned with Win95 WChat expectations and document the integration knobs (`src/ccdde.cpp`, `src/dde.cpp`).
 
