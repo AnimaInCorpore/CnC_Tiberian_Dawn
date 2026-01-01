@@ -53,7 +53,7 @@
 | `CCFILE.CPP` | `src/ccfile.cpp` | Mix-aware file wrapper now streams embedded MIX entries from disk (no implicit full-MIX caching), matching the legacy “seek into container” behavior and avoiding huge `MOVIES.MIX` allocations. |
 | `CDATA.CPP` | `src/cdata.cpp` | Ported to src/; template type tables restored (needs icon-set map helpers and viewport stamp/scale support). |
 | `CDFILE.CPP` | `src/cdfile.cpp` | CD/file search helper now preserves search order, restores the original filename before falling back to a direct open, prioritizes the selected mirror drive, and uses the repo-local `CD/...` asset mirror. |
-| `GAME.CPP` | `src/game.cpp` | Mix bootstrap registers scenario/theater/audio/movie archives (plus scans `SC*.MIX`) from the repo-local `CD/...` mirrors so missions can load. |
+| `GAME.CPP` | `src/game.cpp` | Mix bootstrap registers scenario/theater/audio/movie archives (plus scans `SC*.MIX`) from the repo-local `CD/...` mirrors so missions can load; fixed startup config parsing to free `Load_Alloc_Data` buffers via `Free()` (prevents an invalid `delete[]` abort). |
 | `CELL.CPP` | `src/cell.cpp` | Partial port: core helpers implemented (constructor, lookup, redraw). |
 | `COMBAT.CPP` | `src/combat.cpp` | Ported: `Modify_Damage` and `Explosion_Damage` implemented. |
 | `COMBUF.CPP` | `src/combuf.cpp` | Ported core queue operations and timing helpers. |

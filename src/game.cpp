@@ -463,12 +463,12 @@ void Game_Startup(int argc, char* argv[]) {
 	TD_Debugf("Game_Startup: font resources initialized");
 
 	if (cfile.Is_Available()) {
-		char* cdata = static_cast<char*>(Load_Alloc_Data(cfile));
-		if (cdata) {
-			Read_Private_Config_Struct(cdata, &NewConfig);
-			delete[] cdata;
-		}
-		Read_Setup_Options(&cfile);
+			char* cdata = static_cast<char*>(Load_Alloc_Data(cfile));
+			if (cdata) {
+				Read_Private_Config_Struct(cdata, &NewConfig);
+				Free(cdata);
+			}
+			Read_Setup_Options(&cfile);
 
 		CCDebugString("C&C95 - Initialising audio.\n");
 		// Legacy uses 16-bit mono at 22.05 kHz by default.
