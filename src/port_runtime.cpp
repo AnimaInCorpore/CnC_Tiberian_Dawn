@@ -55,6 +55,10 @@ char* _ShapeBuffer = nullptr;
 bool OverlappedVideoBlits = false;
 bool StreamLowImpact = false;
 
+// One-shot fade-in request for the next title/menu draw. Main_Menu consumes and
+// clears this after applying the fade, mirroring Win95 Select_Game behavior.
+bool TD_MenuFadeIn = false;
+
 namespace {
 
 constexpr int kPaletteSize = 256 * 3;
@@ -770,15 +774,17 @@ bool Select_Game(bool fade) {
   PlaybackGame = 0;
   RecordGame = 0;
 
-  if (fade && GamePalette) {
-    Fade_Palette_To(GamePalette, FADE_PALETTE_MEDIUM, nullptr);
-  }
+  ScenarioInit++;
+  Theme.Queue_Song(THEME_MAP1);
+  ScenarioInit--;
 
   Keyboard::Clear();
   TickCount.Reset(0);
 
+  TD_MenuFadeIn = fade;
   TD_Debugf("Select_Game: entering Main_Menu timeout=%lu", static_cast<unsigned long>(kMenuTimeoutMs));
   const int selection = Main_Menu(kMenuTimeoutMs);
+  TD_MenuFadeIn = false;
   TD_Debugf("Select_Game: Main_Menu returned selection=%d", selection);
   if (selection < 0) {
     ReadyToQuit = true;

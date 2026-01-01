@@ -10,7 +10,7 @@ Status: Definition. Scope: the SDL build should let a user boot to the main menu
 
 ## Playable single-player (critical path)
 Status: Next steps. Scope: make the above definition true before chasing deep parity details.
-- Finish Win95 main menu/game selection parity: new game/campaign progression and a real load-mission entry point (`Select_Game()`) (`src/port_runtime.cpp`, `src/loaddlg.cpp`).
+- Finish Win95 main menu/game selection parity: new game/campaign progression and attract-mode/return-to-multiplayer selection behavior (`Select_Game()`, `Main_Menu()`) (`src/port_runtime.cpp`, `src/menus.cpp`, `src/loaddlg.cpp`).
 - Audit remaining UI screens for canonical `source.Blit(dest)` ordering as modules are ported (`src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`).
 
 ## Save/load and profile persistence

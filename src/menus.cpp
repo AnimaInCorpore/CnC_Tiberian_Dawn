@@ -1,11 +1,15 @@
 #include <SDL.h>
 
+#include <cstring>
+
 #include "legacy/ccdde.h"
 #include "legacy/externs.h"
 #include "legacy/function.h"
 #include "legacy/gscreen.h"
 #include "legacy/textbtn.h"
 #include "platform_input.h"
+
+extern bool TD_MenuFadeIn;
 
 int Main_Menu(unsigned long timeout) {
   enum {
@@ -322,6 +326,13 @@ int Main_Menu(unsigned long timeout) {
     if (display) {
       Load_Title_Screen(const_cast<char*>("HTITLE.PCX"), &HidPage, Palette);
       HidPage.Blit(SeenBuff);
+      if (GamePalette && Palette) {
+        std::memcpy(GamePalette, Palette, 768);
+      }
+      if (TD_MenuFadeIn && Palette) {
+        Fade_Palette_To(Palette, FADE_PALETTE_SLOW, Call_Back);
+        TD_MenuFadeIn = false;
+      }
 
       Set_Logic_Page(HidPage);
       Dialog_Box(D_DIALOG_X, D_DIALOG_Y, D_DIALOG_W, D_DIALOG_H);
