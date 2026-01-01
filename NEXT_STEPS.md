@@ -44,7 +44,7 @@ Status: Next steps. Scope: restore Win95 multiplayer flows once single-player is
 
 ## Clean-up (remove remaining fallbacks)
 Status: Next steps. Scope: eliminate “it runs but isn’t canonical” behaviors once playability is proven.
-- Remove palette/animation fallback paths and match Win95 interpolation/animation timing (`src/interpal_fallback.cpp`, `src/interpal.cpp`).
+- Implementation done!: Ported the legacy palette interpolation + 2x-scaling ASM routines as portable C++ while keeping Win95 behavior (`src/interpal_asm.cpp`, `src/interpal.cpp`).
 - Implementation done!: `Force_CD_Available(cd)` now validates required repo-local disc mirrors (GDI/NOD/COVERT) and prompts to retry/cancel when missing (`src/port_runtime.cpp`, `src/ccfile.cpp`).
 - Implementation done!: Replaced the dummy CD probe in `src/include/legacy/getcd.h` with a real mirror-backed enumerator (`src/include/legacy/getcd.h`, `src/getcd.cpp`).
 - Port the map editor entry points (`Map_Edit_Loop`, map selection flows) so `GameToPlay == GAME_MAP_EDIT` matches Win95 behavior instead of relying on the current minimal loop (`src/maingame.cpp`, `src/port_runtime.cpp`).

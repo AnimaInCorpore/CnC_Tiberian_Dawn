@@ -1,4 +1,4 @@
-#include "legacy/function.h"
+#include "function.h"
 
 #include <algorithm>
 
@@ -56,7 +56,7 @@ namespace {
 
 void Scale_Row_Interpolated(const unsigned char* src_row, const unsigned char* next_row,
                             unsigned char* dest_row, unsigned char* dest_row2, int src_width,
-                            int dest_stride, bool duplicate_lines, bool interpolate_lines) {
+                            bool duplicate_lines, bool interpolate_lines) {
   for (int x = 0; x < src_width; ++x) {
     const unsigned char left = src_row[x];
     const unsigned char right = (x + 1 < src_width) ? src_row[x + 1] : left;
@@ -80,7 +80,6 @@ void Scale_Row_Interpolated(const unsigned char* src_row, const unsigned char* n
       dest_row2[(x << 1) + 1] = PaletteInterpolationTable[down][down_right];
     }
   }
-  (void)dest_stride;
 }
 
 void Interpolate_Scale(unsigned char* src_ptr, unsigned char* dest_ptr, int lines, int src_width,
@@ -93,8 +92,8 @@ void Interpolate_Scale(unsigned char* src_ptr, unsigned char* dest_ptr, int line
         (y + 1 < lines) ? (src_ptr + ((y + 1) * src_width)) : src_row;
     unsigned char* dest_row = dest_ptr + (y * 2 * dest_width);
     unsigned char* dest_row2 = dest_row + dest_width;
-    Scale_Row_Interpolated(src_row, next_row, dest_row, dest_row2, src_width, dest_width,
-                           duplicate_lines, interpolate_lines);
+    Scale_Row_Interpolated(src_row, next_row, dest_row, dest_row2, src_width, duplicate_lines,
+                           interpolate_lines);
   }
 }
 
@@ -114,3 +113,4 @@ void __cdecl Asm_Interpolate_Line_Interpolate(unsigned char* src_ptr, unsigned c
                                               int src_width, int dest_width) {
   Interpolate_Scale(src_ptr, dest_ptr, lines, src_width, dest_width, false, false);
 }
+

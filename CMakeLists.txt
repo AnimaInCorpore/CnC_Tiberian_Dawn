@@ -101,7 +101,7 @@ set(TD_SOURCES
   src/msgbox.cpp
   src/score.cpp
   src/interpal.cpp
-  src/interpal_fallback.cpp
+  src/interpal_asm.cpp
   src/udata.cpp
   src/idata.cpp
   src/odata.cpp

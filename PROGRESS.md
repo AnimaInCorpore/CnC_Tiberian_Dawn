@@ -374,7 +374,7 @@
 | `HELP.CPP` | `src/help.cpp` | Added HelpClass destructor definition to satisfy vtable linkage. |
 | `CELL.CPP` | `src/cell.cpp` | Ported Spot_Index/Clear_Icon helpers used by infantry and radar plots. |
 | `GLOBALS.CPP` | `src/globals.cpp` | Restored ModemGameToPlay global so network flows link. |
-| `INTERPAL` | `src/interpal_fallback.cpp` | Added C++ palette interpolation and 2x scale fallbacks for non-ASM builds. |
+| `INTERPAL` | `src/interpal_asm.cpp` | Ported the legacy palette interpolation and 2x scaling routines (previously ASM) as portable C++ while preserving Win95 behavior. |
 | `KEYFRAME.CPP` | `src/keyframe_helpers.cpp` | Replaced the remaining uncompressed-shape “stub” behavior by caching decoded frames into Win95-style big/theater shape buffers and wiring `Reset_Theater_Shapes`; cache hits copy pixels into the caller buffer to preserve existing SDL draw paths. |
 | `TEXT.CPP` | `src/text.cpp` | Added Simple_Text_Print wrapper for legacy text calls. |
 | `INIT.CPP` | `src/init_helpers.cpp` | Ported Obfuscate helper for hidden option parsing. |
@@ -391,7 +391,7 @@
 | `CRC` | `src/crc_helpers.cpp` | Added Calculate_CRC helper used by obfuscation and legacy CRC checks. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Declared Calculate_CRC helper for obfuscation and network CRC usage. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | Declared Get_Shape_Header_Data helper for radar icon extraction. |
-| `BITBLT` | `src/bitblt_helpers.cpp` | Added Bit_It_In_Scale fallback for score blits. |
+| `BITBLT` | `src/bitblt_helpers.cpp` | Implemented the original `Bit_It_In_Scale` pixel-fade blit effect (randomized copy with optional “dagger” overlay) instead of a simple blit placeholder. |
 | `SOUNDDLG.CPP` / `VISUDLG.CPP` | `src/sounddlg.cpp`, `src/visudlg.cpp` | Ported the sound/visual controls dialogs so the options flow uses real handlers (no placeholder behavior). |
 | `MOUSE.H` | `src/mouse_vtable.cpp` | Defined MouseClass VTable storage to satisfy serialization references. |
 | `LOADDLG.H` | `src/include/legacy/loaddlg.h` | Added missing includes for vector/list/defines types. |
