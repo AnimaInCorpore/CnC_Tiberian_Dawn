@@ -3,6 +3,7 @@
 #include <cerrno>
 #include <cstring>
 #include <cstdio>
+#include <new>
 #include <fcntl.h>
 #include <string>
 #include <sys/stat.h>
@@ -25,9 +26,24 @@
 
 #include "legacy/error.h"
 #include "legacy/function.h"
+#include "legacy/msgbox.h"
 #include "legacy/wwlib32.h"
 
 namespace {
+bool Can_Show_Graphic_Error() {
+  return FontPtr != nullptr && SeenBuff.Get_Width() > 0 && SeenBuff.Get_Height() > 0;
+}
+
+KeyNumType Wait_For_Any_Key() {
+  Keyboard::Clear();
+  for (;;) {
+    const KeyNumType input = Keyboard::Get();
+    if (input != KN_NONE) {
+      return input;
+    }
+    Call_Back();
+  }
+}
 }  // namespace
 
 RawFileClass::RawFileClass(char const* filename)
@@ -65,7 +81,11 @@ char const* RawFileClass::Set_Name(char const* filename) {
 
   if (filename && *filename) {
     const std::string copy = filename;
-    char* buffer = new char[copy.size() + 1];
+    char* buffer = new (std::nothrow) char[copy.size() + 1];
+    if (!buffer) {
+      Error(ENOMEM, false, filename);
+      return nullptr;
+    }
     std::memcpy(buffer, copy.c_str(), copy.size() + 1);
     Filename = buffer;
     Allocated = 1;
@@ -122,31 +142,37 @@ int RawFileClass::Open(int rights) {
 
   Rights = rights;
 
-  errno = 0;
+  for (;;) {
+    errno = 0;
 
-  switch (rights) {
-    case READ:
-      Handle = ::open(Filename, O_RDONLY);
-      break;
-    case WRITE:
-      Handle = ::open(Filename, O_CREAT | O_TRUNC | O_WRONLY, 0666);
-      break;
-    case READ | WRITE:
-      Handle = ::open(Filename, O_CREAT | O_RDWR, 0666);
-      break;
-    default:
-      errno = EINVAL;
-      Handle = -1;
-      break;
+    switch (rights) {
+      case READ:
+        Handle = ::open(Filename, O_RDONLY);
+        break;
+      case WRITE:
+        Handle = ::open(Filename, O_CREAT | O_TRUNC | O_WRONLY, 0666);
+        break;
+      case READ | WRITE:
+        Handle = ::open(Filename, O_CREAT | O_RDWR, 0666);
+        break;
+      default:
+        errno = EINVAL;
+        Handle = -1;
+        break;
+    }
+
+    if (Handle >= 0) {
+      return 1;
+    }
+
+    const int open_errno = Hard_Error_Occured ? static_cast<int>(Hard_Error_Occured)
+                                              : (errno ? errno : EIO);
+    const int canretry = (Hard_Error_Occured || open_errno == ENOENT) ? 1 : 0;
+    Error(open_errno, canretry, Filename);
+    if (!canretry) {
+      return 0;
+    }
   }
-
-  if (Handle >= 0) {
-    return 1;
-  }
-
-  const int open_errno = errno ? errno : EIO;
-  Error(open_errno, 0, Filename);
-  return 0;
 }
 
 long RawFileClass::Read(void* buffer, long size) {
@@ -257,8 +283,16 @@ void RawFileClass::Close() {
 }
 
 void RawFileClass::Error(int error, int canretry, char const* filename) {
-  (void)canretry;
-  std::string message = "FILE ERROR";
+  std::string message;
+#ifdef GERMAN
+  message = "DATEIFEHLER";
+#else
+#ifdef FRENCH
+  message = "ERREUR DE FICHIER";
+#else
+  message = "FILE ERROR";
+#endif
+#endif
   if (filename && *filename) {
     message.push_back('(');
     message.append(filename);
@@ -266,5 +300,44 @@ void RawFileClass::Error(int error, int canretry, char const* filename) {
   }
   message.append(": ");
   message.append(std::strerror(error));
-  Print_Error_End_Exit(const_cast<char*>(message.c_str()));
+  message.append(".\n");
+
+  if (canretry) {
+#ifdef GERMAN
+    message.append("Beliebige Taste dr\x81cken f\x81r erneuten Versuch.\n<ESC> dr\x81cken, um das Programm zu verlassen.");
+#else
+#ifdef FRENCH
+    message.append("Appuyez sur une touche pour recommencer.\nAppuyez sur Echap pour quitter le programme.");
+#else
+    message.append("Press any key to retry.\nPress <ESC> to exit program.");
+#endif
+#endif
+  } else {
+#ifdef GERMAN
+    message.append("Beliebige Taste dr\x81cken, um das Programm zu verlassen.");
+#else
+#ifdef FRENCH
+    message.append("Appuyez sur une touche pour quitter le programme.");
+#else
+    message.append("Press any key to exit program.");
+#endif
+#endif
+  }
+
+  if (Can_Show_Graphic_Error()) {
+    const char* button1 = canretry ? "Retry" : "OK";
+    const int choice = CCMessageBox().Process(message.c_str(), button1, "Exit", nullptr, true);
+    if (choice == 0 && canretry) {
+      return;
+    }
+  } else {
+    std::fprintf(stderr, "%s\n", message.c_str());
+    const KeyNumType input = Wait_For_Any_Key();
+    if (input != KN_ESC && canretry) {
+      return;
+    }
+  }
+
+  Prog_End();
+  std::exit(EXIT_FAILURE);
 }

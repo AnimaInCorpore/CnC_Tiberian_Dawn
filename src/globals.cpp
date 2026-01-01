@@ -411,6 +411,8 @@ unsigned char *WhitePalette;
 unsigned char *OriginalPalette;
 unsigned char *Palette;
 
+WORD Hard_Error_Occured = 0;
+
 
 /***************************************************************************
 **	These are the event queues. One is for holding events until they are ready to be

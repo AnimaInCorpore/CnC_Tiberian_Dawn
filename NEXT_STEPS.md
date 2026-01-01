@@ -16,7 +16,7 @@ Status: Next steps. Scope: make the above definition true before chasing deep pa
 ## Save/load and profile persistence
 Status: Next steps. Scope: allow a normal play session to be resumed and options to persist.
 - Complete the full save/load UI flow parity against Win95 (load/save/delete mission behavior, description rules, error handling, save-game dialog behavior) (`src/loaddlg.cpp`, `src/saveload.cpp`, `src/port_runtime.cpp`).
-- Verify save/profile writes hit disk and surface errors correctly (`RawFileClass::Error()` parity) (`src/rawfile.cpp`, `src/ccfile.cpp`, `src/options.cpp`, `src/game.cpp`).
+- Verify save/profile writes hit disk and surface errors correctly (`RawFileClass::Error()` parity) (RawFileClass retry/exit prompts are now ported; still need in-game verification) (`src/rawfile.cpp`, `src/ccfile.cpp`, `src/options.cpp`, `src/game.cpp`).
 - Replace the minimal `CONQUER.INI` auto-generation with a real SETUP/config flow while keeping the repo-local `CD/...` mirror working (`src/port_setup.cpp`, `src/options.cpp`).
 
 ## Audio and movie parity (needed for “feels like C&C”)

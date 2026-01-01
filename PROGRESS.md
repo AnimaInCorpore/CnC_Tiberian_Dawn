@@ -5,8 +5,8 @@
 | `GETCD` (Win95 CD probe) | `src/include/legacy/getcd.h`, `src/getcd.cpp` | Replaced the dummy CD enumerator with a portable implementation that models "CD drives" as repo-local `CD/...` disc mirror roots, keeping the original `Get_First_CD_Drive`/`Get_Next_CD_Drive` call pattern intact. |
 | `CONQUER.CPP` (`Force_CD_Available`) | `src/port_runtime.cpp`, `src/game.cpp` | `Force_CD_Available(cd)` now validates the required disc mirror roots (GDI/NOD/COVERT) and prompts to retry/cancel when missing; startup MIX registration now registers all matching archives across the known `CD/...` mirrors so disc-specific assets (e.g., movies) resolve correctly. |
 | `SOUNDDLG.CPP` / `VISUDLG.CPP` | `src/sounddlg.cpp`, `src/visudlg.cpp` | Implemented the Sound/Visual Controls dialogs (track list + play/stop, shuffle/repeat, music/SFX sliders; brightness/color/contrast/tint sliders with reset) so the in-game options path no longer calls no-op handlers. |
-| `RAWFILE.CPP` | `src/rawfile.cpp` | Restored Win95 file semantics: `Read()`/`Write()` now auto-open/close the file when needed (so call sites like `CCFileClass(...).Write(...)` work), `Seek()` again treats unopened handles as fatal, `Open()` closes previous handles and creates/truncates on `WRITE` (creates on `READ|WRITE`), and `Is_Available(forced)` honors forced-open behavior. |
-| `GLOBALS.CPP` | `src/globals.cpp` | Ported to src/, replaced NULL with nullptr, and disabled legacy networking code. |
+| `RAWFILE.CPP` | `src/rawfile.cpp` | Restored Win95 file semantics: `Read()`/`Write()` now auto-open/close the file when needed (so call sites like `CCFileClass(...).Write(...)` work), `Seek()` again treats unopened handles as fatal, `Open()` now retries like Win95 (retry on `ENOENT` / hard errors via `Error()`), and `Is_Available(forced)` honors forced-open behavior. |
+| `GLOBALS.CPP` | `src/globals.cpp` | Ported to src/, replaced NULL with nullptr, disabled legacy networking code, and restored the `Hard_Error_Occured` global used by legacy file I/O. |
 | `FTIMER.H` | `src/include/ftimer.h` | Countdown timer helper rewritten with `#pragma once` and the global `Frame` counter. |
 | `RAND.H` | `src/rand.h` | Random helper declarations cleaned up to use `<cstdint>` types. |
 | `RAND.CPP` | `src/rand.cpp` | Random lookup table logic now relies on standard headers and explicit scaling. |
@@ -158,7 +158,7 @@
 | `PROFILE.CPP` | `src/profile.cpp` | Ported Win95 INI/profile helpers (`WWGet/WritePrivateProfile*`, hex/int/string parsing, section/entry deletion) and removed the stub implementations from `src/port_runtime.cpp`; hardened `WWGetPrivateProfileString` to accept LF-only line endings safely (avoids UB pointer comparisons). |
 | `QUEUE.CPP` | `src/queue.cpp` | Ported to src/ with mission queue helper logic and pointer coding helpers. |
 | `RADAR.CPP` | `src/radar.cpp` | Ported to src/; radar UI helpers now build under SDL. |
-| `RAWFILE.CPP` | `src/rawfile.cpp` | RawFileClass rebuilt atop POSIX read/write/seek with simple error handling. |
+| `RAWFILE.CPP` | `src/rawfile.cpp` | RawFileClass rebuilt atop POSIX read/write/seek; `Error()` now mirrors Win95 retry/exit prompts (with a CCMessageBox fallback when fonts are available). |
 | `BUFFER_TO_PAGE` (legacy blit) | `src/buffer_to_page.cpp` | Raw 8-bit buffer copy now performs bounds-aware page blits instead of the stub. |
 | `REINF.CPP` | `src/reinf.cpp` | Ported to src/ with reinforcement creation logic wired for triggers. |
 | `SAVELOAD.CPP` | `src/saveload.cpp` | Ported save/load and misc-value serialization routines (plus pointer coding) so savegame operations have a real implementation again. |
