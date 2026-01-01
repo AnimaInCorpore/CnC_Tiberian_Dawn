@@ -150,15 +150,56 @@ int RawFileClass::Open(int rights) {
 }
 
 long RawFileClass::Read(void* buffer, long size) {
-  if (!Is_Open() || !buffer || size <= 0) return 0;
-  const ssize_t read_bytes = ::read(Handle, buffer, static_cast<size_t>(size));
-  return (read_bytes < 0) ? 0 : static_cast<long>(read_bytes);
+  if (!buffer || size <= 0) return 0;
+
+  int opened = false;
+  if (!Is_Open()) {
+    if (!Open(READ)) {
+      return 0;
+    }
+    opened = true;
+  }
+
+  long bytesread = 0;
+  unsigned char* out = static_cast<unsigned char*>(buffer);
+  while (size > 0) {
+    const long desired = (size < Transfer_Block_Size()) ? size : Transfer_Block_Size();
+    const ssize_t read_bytes = ::read(Handle, out, static_cast<size_t>(desired));
+    if (read_bytes < 0) {
+      const int read_errno = errno ? errno : EIO;
+      Error(read_errno, 0, Filename);
+      break;
+    }
+    if (read_bytes == 0) {
+      break;
+    }
+    out += read_bytes;
+    bytesread += static_cast<long>(read_bytes);
+    size -= static_cast<long>(read_bytes);
+    if (read_bytes != desired) {
+      break;
+    }
+  }
+
+  if (opened) {
+    Close();
+  }
+  return bytesread;
 }
 
 long RawFileClass::Seek(long pos, int dir) {
-  if (!Is_Open()) return 0;
+  if (!Is_Open()) {
+    Error(EBADF, false, Filename);
+    return 0;
+  }
+
   const off_t new_pos = ::lseek(Handle, pos, dir);
-  return (new_pos < 0) ? 0 : static_cast<long>(new_pos);
+  if (new_pos < 0) {
+    const int seek_errno = errno ? errno : EIO;
+    Error(seek_errno, false, Filename);
+    return 0;
+  }
+  return static_cast<long>(new_pos);
 }
 
 long RawFileClass::Size() {
@@ -169,10 +210,43 @@ long RawFileClass::Size() {
 }
 
 long RawFileClass::Write(void const* buffer, long size) {
-  if (!Is_Open() || !buffer || size <= 0) return 0;
-  const ssize_t written =
-      ::write(Handle, buffer, static_cast<size_t>(size));
-  return (written < 0) ? 0 : static_cast<long>(written);
+  if (!buffer || size <= 0) return 0;
+
+  int opened = false;
+  if (!Is_Open()) {
+    if (!Open(WRITE)) {
+      return 0;
+    }
+    opened = true;
+  }
+
+  long byteswritten = 0;
+  const unsigned char* in = static_cast<const unsigned char*>(buffer);
+  while (size > 0) {
+    const long desired = (size < Transfer_Block_Size()) ? size : Transfer_Block_Size();
+    const ssize_t written = ::write(Handle, in, static_cast<size_t>(desired));
+    if (written < 0) {
+      const int write_errno = errno ? errno : EIO;
+      Error(write_errno, false, Filename);
+      break;
+    }
+    if (written == 0) {
+      Error(EIO, false, Filename);
+      break;
+    }
+    in += written;
+    byteswritten += static_cast<long>(written);
+    size -= static_cast<long>(written);
+    if (written != desired) {
+      Error(ENOSPC, false, Filename);
+      break;
+    }
+  }
+
+  if (opened) {
+    Close();
+  }
+  return byteswritten;
 }
 
 void RawFileClass::Close() {

@@ -23,7 +23,7 @@ Status: Next steps. Scope: make the above definition true before chasing deep pa
 Status: Next steps. Scope: allow a normal play session to be resumed and options to persist.
 - Verify load/save/delete mission flows against Win95: empty-slot behavior, list ordering, description editing rules, and error handling (`src/loaddlg.cpp`, `src/saveload.cpp`, `src/port_runtime.cpp`).
 - Port the corresponding save-game dialog and ensure save slots + descriptions match Win95 (no new dependencies; pick a platform-appropriate writable directory and document it).
-- Verify save/profile writes hit disk correctly now that `RawFileClass::Open()` again creates/truncates files on `WRITE`, and that file errors surface via `RawFileClass::Error()` instead of silently failing (`src/rawfile.cpp`, `src/ccfile.cpp`, `src/options.cpp`, `src/game.cpp`).
+- Verify save/profile writes hit disk correctly now that `RawFileClass` again matches Win95 semantics (`Open()` creates/truncates on `WRITE` and `Read()`/`Write()` auto-open/close), and that file errors surface via `RawFileClass::Error()` instead of silently failing (`src/rawfile.cpp`, `src/ccfile.cpp`, `src/options.cpp`, `src/game.cpp`).
 - Implementation done!: `CONQUER.INI` reads/writes now resolve to the same path (prefer working directory, else SDL per-user pref path) so `OptionsClass::Save_Settings()` persists to the config location that startup uses (`src/port_paths.cpp`, `src/options.cpp`, `src/game.cpp`, `src/port_runtime.cpp`, `src/port_setup.cpp`).
 - Replace the minimal `CONQUER.INI` auto-generation with a real SETUP/config flow (INI parsing + persistence) while keeping the repo-local `CD/...` mirror working (`src/port_setup.cpp`, `src/options.cpp`).
 
