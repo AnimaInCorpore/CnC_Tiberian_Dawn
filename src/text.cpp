@@ -419,7 +419,8 @@ void Draw_Glyph(char ch, int x, int y) {
     const unsigned char* row_ptr = glyph + row * bytes_per_row;
     for (int col = 0; col < width; ++col) {
       const unsigned char byte = row_ptr[col / 2];
-      const unsigned char index = (col & 1) ? (byte & 0xF0) : (byte & 0x0F);
+      const unsigned char index = (col & 1) ? static_cast<unsigned char>((byte >> 4) & 0x0F)
+                                            : static_cast<unsigned char>(byte & 0x0F);
       const int color = translate(index);
       if (color != 0) {
         page->Put_Pixel(x + col, dest_y + top_blank + row, color);
