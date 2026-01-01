@@ -11,6 +11,20 @@
 
 extern bool TD_MenuFadeIn;
 
+namespace {
+
+int Find_Button_Index(TextButtonClass* const* buttons, int count, int button_id) {
+  if (!buttons) return -1;
+  for (int index = 0; index < count; ++index) {
+    if (buttons[index] && buttons[index]->ID == button_id) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+}  // namespace
+
 int Main_Menu(unsigned long timeout) {
   enum {
     D_DIALOG_W = 152 * 2,
@@ -274,6 +288,15 @@ int Main_Menu(unsigned long timeout) {
   buttons[3] = &introbtn;
   buttons[4] = &exitbtn;
 #endif
+
+  // Win95 pre-selects the multiplayer entry when returning from a multiplayer game.
+  if (GameToPlay != GAME_NORMAL) {
+    const int multi_index = Find_Button_Index(buttons, static_cast<int>(sizeof(buttons) / sizeof(buttons[0])),
+                                              BUTTON_MULTI);
+    if (multi_index >= 0) {
+      curbutton = multi_index;
+    }
+  }
   buttons[curbutton]->Turn_On();
 
   Keyboard::Clear();

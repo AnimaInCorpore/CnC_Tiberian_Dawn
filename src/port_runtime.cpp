@@ -769,8 +769,10 @@ bool Select_Game(bool fade) {
   Reset_Game_State_For_Menu();
 
   bool gameloaded = false;
+  const bool prefer_multiplayer_menu = (GameToPlay != GAME_NORMAL);
 
-  GameToPlay = GAME_NORMAL;
+  // Note: Do not pre-clear GameToPlay before Main_Menu(); the Win95 build
+  // uses the previous value to decide whether to jump straight to multiplayer.
   PlaybackGame = 0;
   RecordGame = 0;
 
@@ -787,60 +789,87 @@ bool Select_Game(bool fade) {
   TD_MenuFadeIn = false;
   TD_Debugf("Select_Game: Main_Menu returned selection=%d", selection);
   if (selection < 0) {
-    ReadyToQuit = true;
-    return false;
+    // Win95 uses the main menu timeout to enter attract mode. For now we only
+    // support the canonical "play back RECORD.BIN" path when enabled.
+    if (AllowAttract && RecordFile.Is_Available() && RecordFile.Open(READ)) {
+      PlaybackGame = 1;
+      Load_Recording_Values();
+      Theme.Fade_Out();
+      gameloaded = true;
+    } else {
+      // No attract recording available; re-enter the menu loop.
+      return Select_Game(true);
+    }
   }
 
-  const bool wants_scenario = (selection == 0 || selection == 1 || selection == 2 || selection == 4);
-  switch (selection) {
-    case 0:  // New missions (expansion)
-      CarryOverMoney = 0;
-      if (Expansion_Dialog()) {
+  int effective_selection = selection;
+  if (gameloaded && PlaybackGame) {
+    // Treat attract-playback as "load mission"; the recording sets Scenario/ScenPlayer/ScenDir.
+    effective_selection = 4;
+  }
+
+  const bool wants_scenario =
+      (effective_selection == 0 || effective_selection == 1 || effective_selection == 2 || effective_selection == 4);
+  if (!gameloaded) {
+    switch (effective_selection) {
+      case 0:  // New missions (expansion)
+        CarryOverMoney = 0;
+        if (Expansion_Dialog()) {
+          Theme.Fade_Out();
+          GameToPlay = GAME_NORMAL;
+        } else {
+          return Select_Game(false);
+        }
+        break;
+      case 1:  // Start new game
+        CarryOverMoney = 0;
         Theme.Fade_Out();
+        Configure_New_Game_From_Menu();
         GameToPlay = GAME_NORMAL;
-      } else {
+        break;
+      case 2:  // Bonus missions
+        CarryOverMoney = 0;
+        if (Bonus_Dialog()) {
+          Theme.Fade_Out();
+          GameToPlay = GAME_NORMAL;
+        } else {
+          return Select_Game(false);
+        }
+        break;
+      case 3:  // Internet
+        GameToPlay = GAME_INTERNET;
+        break;
+      case 4:  // Load mission
+        if (LoadOptionsClass(LoadOptionsClass::LOAD).Process()) {
+          Theme.Queue_Song(THEME_AOI);
+          GameToPlay = GAME_NORMAL;
+          gameloaded = true;
+        } else {
+          return Select_Game(false);
+        }
+        break;
+      case 5:  // Multiplayer
+        GameToPlay = GAME_IPX;
+        break;
+      case 6:  // Intro
+        // Play the intro/choose-side sequence and then re-open the menu.
+        Choose_Side();
         return Select_Game(false);
-      }
-      break;
-    case 1:  // Start new game
-      CarryOverMoney = 0;
-      Theme.Fade_Out();
-      Configure_New_Game_From_Menu();
-      GameToPlay = GAME_NORMAL;
-      break;
-    case 2:  // Bonus missions
-      CarryOverMoney = 0;
-      if (Bonus_Dialog()) {
-        Theme.Fade_Out();
-        GameToPlay = GAME_NORMAL;
-      } else {
-        return Select_Game(false);
-      }
-      break;
-    case 3:  // Internet
-      GameToPlay = GAME_INTERNET;
-      break;
-    case 4:  // Load mission
-      if (LoadOptionsClass(LoadOptionsClass::LOAD).Process()) {
-        Theme.Queue_Song(THEME_AOI);
-        GameToPlay = GAME_NORMAL;
-        gameloaded = true;
-      } else {
-        return Select_Game(false);
-      }
-      break;
-    case 5:  // Multiplayer
-      GameToPlay = GAME_IPX;
-      break;
-    case 6:  // Intro
-      // Play the intro/choose-side sequence and then re-open the menu.
-      Choose_Side();
-      // Re-enter Select_Game so the user returns to the main menu after the intro.
-      return Select_Game(false);
-    case 7:  // Exit
-    default:
-      ReadyToQuit = true;
-      return false;
+      case 7:  // Exit
+      default:
+        ReadyToQuit = true;
+        return false;
+    }
+  } else if (!PlaybackGame) {
+    // If the menu timed out but attract mode isn't enabled, Main_Menu has
+    // already been re-entered above.
+    GameToPlay = GAME_NORMAL;
+  }
+
+  if (prefer_multiplayer_menu && GameToPlay == GAME_NORMAL && !wants_scenario) {
+    // Preserve Win95 behavior: if the previous game was multiplayer and the
+    // user didn't pick a single-player path, keep the pre-selection sticky.
+    GameToPlay = GAME_IPX;
   }
 
   if (wants_scenario && !Debug_Map && !gameloaded) {
