@@ -1,7 +1,9 @@
 #include "legacy/function.h"
+#include "port_paths.h"
 
 #include <cstdio>
 #include <cstring>
+#include <string>
 
 void Unselect_All(void) {
   while (CurrentObject.Count()) {
@@ -10,9 +12,12 @@ void Unselect_All(void) {
 }
 
 char const* Fading_Table_Name(char const* base, TheaterType theater) {
-  static char buffer[256];
-  std::snprintf(buffer, sizeof(buffer), "%c%s.MRF", Theaters[theater].Root[0], base);
-  return buffer;
+  char filename[256];
+  std::snprintf(filename, sizeof(filename), "%c%s.MRF", Theaters[theater].Root[0], base);
+
+  static std::string resolved;
+  resolved = TD_Resolve_Profile_Write(filename);
+  return resolved.c_str();
 }
 
 void const* Get_Radar_Icon(void const* shapefile, int shapenum, int frames, int zoomfactor) {

@@ -1,5 +1,5 @@
 # Next steps to port the project
-Tackle one chunk at a time; when a chunk has no remaining next steps, mark it with "Implementation done!".
+Tackle one chunk at a time; when a chunk has no remaining next steps, mark it with "Implementation done!". Completed work is tracked in `PROGRESS.md`.
 
 ## What “playable” means (single-player)
 Status: Definition. Scope: the SDL build should let a user boot to the main menu, start a mission, play it to a win/lose, and exit cleanly using only original game assets (no built-in art/audio fallbacks).
@@ -10,58 +10,38 @@ Status: Definition. Scope: the SDL build should let a user boot to the main menu
 
 ## Playable single-player (critical path)
 Status: Next steps. Scope: make the above definition true before chasing deep parity details.
- - Implementation done!: MIX bootstrap registers scenario/theater/audio/movie archives (incl. `SC*.MIX`, `TEMPERAT.MIX`, `SOUNDS.MIX`, `AUD.MIX`, `SCORES.MIX`, `MOVIES.MIX`) from the repo-local `CD/...` mirrors (`src/game.cpp`, `src/load_title.cpp`).
-- Implementation done!: Fail-fast startup validation when the required repo-local `CD/...` asset mirror is missing (`src/port_runtime.cpp`, `src/cdfile.cpp`).
-- Verify all remaining UI screens use canonical `source.Blit(dest)` ordering (avoid accidental `dest.Blit(source)` inversions) as modules are ported (`src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`).
-- Replicate the remaining Win95 `Select_Game()` behavior: new game/campaign progression and a real load-mission entry point (bonus/expansion routing is now implemented) (`src/port_runtime.cpp`, `src/loaddlg.cpp`).
-- Implementation done!: Tightened SDL main-loop timing so game speed and timers behave consistently: `Options.GameSpeed` again controls the frame cadence (not milliseconds), and `TimerClass::Time()` returns Win95-style 60Hz ticks; focus loss pauses simulation updates (`src/port_runtime.cpp`, `src/wwlib_runtime.cpp`, `src/include/legacy/wwlib32.h`).
-- Implementation done!: In-game options overlay now persists settings (restored `Options.Save_Settings()` on resume) so sliders/toggles survive returning to gameplay (`src/goptions.cpp`).
-- Implementation done!: `CDFileClass` now probes all candidate mirrors without triggering the interactive retry loop, and prioritizes the currently selected mirror drive before falling back (prevents getting stuck retrying a missing `CD2/...` when the asset lives on `CD1/...`) (`src/cdfile.cpp`).
-- Verify sidebar palette-morph tables are generated/cached correctly on first use (no missing `*CLOCK.MRF` errors; table contents match Win95 behavior) (`src/sidebar.cpp`, `src/conquer_helpers.cpp`).
+- Finish Win95 main menu/game selection parity: new game/campaign progression and a real load-mission entry point (`Select_Game()`) (`src/port_runtime.cpp`, `src/loaddlg.cpp`).
+- Audit remaining UI screens for canonical `source.Blit(dest)` ordering as modules are ported (`src/include/legacy/wwlib32.h`, `src/wwlib_runtime.cpp`).
 
 ## Save/load and profile persistence
 Status: Next steps. Scope: allow a normal play session to be resumed and options to persist.
-- Verify load/save/delete mission flows against Win95: empty-slot behavior, list ordering, description editing rules, and error handling (`src/loaddlg.cpp`, `src/saveload.cpp`, `src/port_runtime.cpp`).
-- Port the corresponding save-game dialog and ensure save slots + descriptions match Win95 (no new dependencies; pick a platform-appropriate writable directory and document it).
-- Verify save/profile writes hit disk correctly now that `RawFileClass` again matches Win95 semantics (`Open()` creates/truncates on `WRITE` and `Read()`/`Write()` auto-open/close), and that file errors surface via `RawFileClass::Error()` instead of silently failing (`src/rawfile.cpp`, `src/ccfile.cpp`, `src/options.cpp`, `src/game.cpp`).
-- Implementation done!: `CONQUER.INI` reads/writes now resolve to the same path (prefer working directory, else SDL per-user pref path) so `OptionsClass::Save_Settings()` persists to the config location that startup uses (`src/port_paths.cpp`, `src/options.cpp`, `src/game.cpp`, `src/port_runtime.cpp`, `src/port_setup.cpp`).
-- Replace the minimal `CONQUER.INI` auto-generation with a real SETUP/config flow (INI parsing + persistence) while keeping the repo-local `CD/...` mirror working (`src/port_setup.cpp`, `src/options.cpp`).
+- Complete the full save/load UI flow parity against Win95 (load/save/delete mission behavior, description rules, error handling, save-game dialog behavior) (`src/loaddlg.cpp`, `src/saveload.cpp`, `src/port_runtime.cpp`).
+- Verify save/profile writes hit disk and surface errors correctly (`RawFileClass::Error()` parity) (`src/rawfile.cpp`, `src/ccfile.cpp`, `src/options.cpp`, `src/game.cpp`).
+- Replace the minimal `CONQUER.INI` auto-generation with a real SETUP/config flow while keeping the repo-local `CD/...` mirror working (`src/port_setup.cpp`, `src/options.cpp`).
 
 ## Audio and movie parity (needed for “feels like C&C”)
 Status: Next steps. Scope: audio + movies are required for a “real game” experience even if not strictly required to click units.
 - Finish SDL audio parity: mixer behavior (priority/channel reservation, pan law, fades/stops) and music/theme streaming should match Win95 and obey menu sliders (`src/audio_play.cpp`, `src/theme.cpp`, `src/options.cpp`).
-- Implementation done!: Implemented the Sound/Visual Controls dialog backends so the in-game UI controls now affect runtime state (`src/sounddlg.cpp`, `src/visudlg.cpp`).
-- Add VQA audio playback + subtitle/EVA timing (current `Play_Movie()` decodes video + palette only) and verify skip rules/centering/cropping against Win95 (`src/movie.cpp`, `src/vqa_decoder.cpp`).
-- Implementation done!: Implemented gradient-font selection and `TPF_USE_GRAD_PAL` shading in the SDL text renderer; verify the ramp matches Win95 (`src/text.cpp`).
-- Verify `Set_Font_Palette`/ColorXlat behavior (including `TBLACK` transparency and the base color indices) matches Win95 across title/menu and in-game palettes (`src/include/legacy/compat.h`, `src/wwlib_runtime.cpp`, `src/text.cpp`).
+- Add VQA audio playback + subtitle/EVA timing and verify skip rules/centering/cropping against Win95 (`src/movie.cpp`, `src/vqa_decoder.cpp`).
 
 ## Multiplayer and networking
 Status: Next steps. Scope: restore Win95 multiplayer flows once single-player is playable.
-- Implementation done!: Ported packet serialization and endianness helpers for the multiplayer event stream (`src/packet.cpp`, `src/field.cpp`).
-- Implementation done!: Ported the Planet Westwood / WChat internet glue so `C&CSPAWN.INI` options can be ingested from disk or the portable UDP-backed `DDEServer` (`src/internet.cpp`).
 - Complete the remaining TCP/IP + session behavior (timeouts, lobby dialogs, determinism checks) while keeping the UDP-backed IPX95 path (`src/tcpip.cpp`, `src/connect.cpp`).
 - Keep the portable CCDDE replacement aligned with Win95 WChat expectations and document the integration knobs (`src/ccdde.cpp`, `src/dde.cpp`).
 
 ## Clean-up (remove remaining fallbacks)
 Status: Next steps. Scope: eliminate “it runs but isn’t canonical” behaviors once playability is proven.
-- Implementation done!: Ported the legacy palette interpolation + 2x-scaling ASM routines as portable C++ while keeping Win95 behavior (`src/interpal_asm.cpp`, `src/interpal.cpp`).
-- Implementation done!: `Force_CD_Available(cd)` now validates required repo-local disc mirrors (GDI/NOD/COVERT) and prompts to retry/cancel when missing (`src/port_runtime.cpp`, `src/ccfile.cpp`).
-- Implementation done!: Replaced the dummy CD probe in `src/include/legacy/getcd.h` with a real mirror-backed enumerator (`src/include/legacy/getcd.h`, `src/getcd.cpp`).
 - Port the map editor entry points (`Map_Edit_Loop`, map selection flows) so `GameToPlay == GAME_MAP_EDIT` matches Win95 behavior instead of relying on the current minimal loop (`src/maingame.cpp`, `src/port_runtime.cpp`).
-- Ensure radar mini-icon generation uses the canonical `Small_Icon()` sampling behavior wherever iconsets are used for mini-map display (`src/jshell.cpp`, `src/wwlib_runtime.cpp`).
 - Audit remaining “skeleton” translation units and retire them only after behavior-complete ports exist.
 
 ## Testing and parity verification
 Status: Next steps. Scope: keep the port regressions visible and the docs accurate.
 - Add focused smoke tests/harnesses for: MIX registration order, scenario load, palette fades, and basic input (a 60-second “run a mission loop” headless mode would be ideal).
 - Verify `Build_Frame` big/theater caching path against Win95: exercise WSA/SHP-heavy UI screens and switch theaters to ensure `Reset_Theater_Shapes()` behaves correctly (`src/keyframe_helpers.cpp`, `src/scenario.cpp`).
-- If you need the legacy “pause on fatal error” behavior (useful when launching outside a terminal), run with `TD_PAUSE_ON_FATAL=1`.
-- For scenario-start debugging without UI driving, run with `TD_AUTOSTART_SCENARIO=SCG01EA` plus optional `TD_AUTOSTART_LOAD_ONLY=1`, `TD_AUTOSTART_LOAD_TITLE=1`, `TD_AUTOSTART_DRAW_ONCE=1`, and `TD_AUTOSTART_FRAMES=30` (optionally add `--verbose`).
+- For debugging convenience: enable pause-on-fatal when launching outside a terminal (currently controlled via an environment variable), or use the autostart-scenario mode (e.g. `SCG01EA`, also currently env-driven) with the optional load-only/load-title/draw-once/frame-limit controls.
 - When verifying palette fades, include `Fade_Palette_To(..., ..., NULL)` call sites (Win95 still shows the fade via hardware palette updates) and compare the fade duration against Win95.
-- Add a quick visual regression check for text rendering (shadow/background fill and palette index 0 behavior) (`src/text.cpp`).
-- Add a quick visual regression check for title/menu palette correctness (title art + green dialog texture colors, and ensure `Set_Font_Palette` does not mutate the screen palette) (`src/load_title.cpp`, `src/wwlib_runtime.cpp`).
-- When debugging startup hangs, run with `--verbose` (or `TD_VERBOSE=1`) and capture stderr; the port now logs SDL video/render driver selection plus menu/scenario startup milestones.
-- If it hangs at `C&C95 - In Read_Scenario.`, the verbose trace now prints progress through `Clear_Scenario()` and `Read_Scenario_Ini()` (including scenario INI filename + `CCFileClass` availability/size/read).
+- Add quick visual regression checks for text rendering and title/menu palette correctness (`src/text.cpp`, `src/load_title.cpp`, `src/wwlib_runtime.cpp`).
+- When debugging startup hangs, run with `--verbose` and capture stderr; if it hangs at `C&C95 - In Read_Scenario.`, the trace now prints progress through `Clear_Scenario()` and `Read_Scenario_Ini()` (including scenario INI filename + `CCFileClass` availability/size/read).
 - Keep `PROGRESS.md` and this file in sync (remove stale “stubbed” notes once the corresponding module is fully ported).
 
 ## Recently completed (for context)

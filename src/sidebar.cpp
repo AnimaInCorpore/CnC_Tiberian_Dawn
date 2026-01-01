@@ -1215,7 +1215,9 @@ void SidebarClass::StripClass::Init_IO(int id)
  *=============================================================================================*/
 void SidebarClass::StripClass::Init_Theater(TheaterType theater)
 {
-	//if (theater != LastTheater) {
+	if (theater == LastTheater) {
+		return;
+	}
 
 
 		static const char *_file[3] = {
@@ -1242,7 +1244,17 @@ void SidebarClass::StripClass::Init_Theater(TheaterType theater)
 		}
 
 
-#ifndef _RETRIEVE
+		const char* const table_name = Fading_Table_Name("CLOCK", theater);
+		bool loaded = false;
+		if (table_name && *table_name) {
+			CCFileClass table(table_name);
+			if (table.Is_Available()) {
+				loaded = (table.Read(ClockTranslucentTable, sizeof(ClockTranslucentTable)) ==
+						  static_cast<long>(sizeof(ClockTranslucentTable)));
+			}
+		}
+
+		if (!loaded) {
 		static TLucentType const ClockCols[1] = {
 //			{LTGREEN, BLACK, 0, 0},
 			{GREEN, LTGREY, 180, 0}
@@ -1258,13 +1270,12 @@ void SidebarClass::StripClass::Init_Theater(TheaterType theater)
 		**	Create the translucent table used for the sidebar.
 		*/
 		Build_Translucent_Table(GamePalette, &ClockCols[0], 1, (void*)ClockTranslucentTable);
-		CCFileClass(Fading_Table_Name("CLOCK", theater)).Write(ClockTranslucentTable, sizeof(ClockTranslucentTable));
+		if (table_name && *table_name) {
+			CCFileClass(table_name).Write(ClockTranslucentTable, sizeof(ClockTranslucentTable));
+		}
 		Mem_Copy(OriginalPalette, GamePalette, 768);
-#else
-		CCFileClass(Fading_Table_Name("CLOCK", theater)).Read(ClockTranslucentTable, sizeof(ClockTranslucentTable));
-#endif
+		}
 	 	LastTheater = theater;
-	//}
 }
 
 
