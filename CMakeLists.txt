@@ -186,6 +186,7 @@ set(TD_SOURCES
   src/radio.cpp
   src/rand.cpp
   src/rawfile.cpp
+  src/recording.cpp
   src/saveload_utils.cpp
   src/dde.cpp
   src/runtime_sdl.cpp
