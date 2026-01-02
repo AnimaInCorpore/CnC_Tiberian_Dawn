@@ -40,6 +40,9 @@
 #include <thread>
 #include <vector>
 
+extern bool Do_The_Internet_Menu_Thang(void);
+extern void Check_From_WChat(char* wchat_name);
+
 // Global ready flag and null modem instance expected by legacy code paths.
 bool ReadyToQuit = false;
 NullModemClass NullModem(
@@ -783,6 +786,20 @@ bool Select_Game(bool fade) {
   Keyboard::Clear();
   TickCount.Reset(0);
 
+  // Win95 behavior: if we already have WChat-provided connect info, parse it
+  // immediately so subsequent menu selections use the updated Internet fields.
+  if (DDEServer.Get_MPlayer_Game_Info()) {
+    Check_From_WChat(nullptr);
+  }
+
+  // Win95 behavior: if launched from WChat with valid game info, skip the main
+  // menu and go straight to the multiplayer path in Internet mode.
+  if (Special.IsFromWChat && DDEServer.Get_MPlayer_Game_Info()) {
+    Theme.Queue_Song(THEME_NONE);
+    GameToPlay = GAME_INTERNET;
+    return true;
+  }
+
   TD_MenuFadeIn = fade;
   TD_Debugf("Select_Game: entering Main_Menu timeout=%lu", static_cast<unsigned long>(kMenuTimeoutMs));
   const int selection = Main_Menu(kMenuTimeoutMs);
@@ -803,13 +820,12 @@ bool Select_Game(bool fade) {
   }
 
   int effective_selection = selection;
+  bool force_multiplayer_selection = false;
   if (gameloaded && PlaybackGame) {
     // Treat attract-playback as "load mission"; the recording sets Scenario/ScenPlayer/ScenDir.
     effective_selection = 4;
   }
 
-  const bool wants_scenario =
-      (effective_selection == 0 || effective_selection == 1 || effective_selection == 2 || effective_selection == 4);
   if (!gameloaded) {
     switch (effective_selection) {
       case 0:  // New missions (expansion)
@@ -837,7 +853,18 @@ bool Select_Game(bool fade) {
         }
         break;
       case 3:  // Internet
+        // Win95 behavior: clicking "Internet" either hands off to WChat (to
+        // supply connection info) and then enters the multiplayer flow, or
+        // returns to the menu when the handoff is canceled.
+        if (!DDEServer.Get_MPlayer_Game_Info()) {
+          if (!Do_The_Internet_Menu_Thang() || !DDEServer.Get_MPlayer_Game_Info()) {
+            return Select_Game(false);
+          }
+          Check_From_WChat(nullptr);
+        }
+
         GameToPlay = GAME_INTERNET;
+        force_multiplayer_selection = true;
         break;
       case 4:  // Load mission
         if (LoadOptionsClass(LoadOptionsClass::LOAD).Process()) {
@@ -866,6 +893,12 @@ bool Select_Game(bool fade) {
     GameToPlay = GAME_NORMAL;
   }
 
+  if (force_multiplayer_selection) {
+    effective_selection = 5;
+  }
+
+  const bool wants_scenario =
+      (effective_selection == 0 || effective_selection == 1 || effective_selection == 2 || effective_selection == 4);
   if (prefer_multiplayer_menu && GameToPlay == GAME_NORMAL && !wants_scenario) {
     // Preserve Win95 behavior: if the previous game was multiplayer and the
     // user didn't pick a single-player path, keep the pre-selection sticky.
