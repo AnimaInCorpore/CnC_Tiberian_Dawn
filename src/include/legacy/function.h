@@ -724,7 +724,7 @@ int Terrain_Cost(CELL cell, FacingType facing);
 /*
 **	Inline miscellaneous functions.
 */
-#define	XYP_COORD(x,y)	(((x)*ICON_LEPTON_W)/CELL_PIXEL_W + (((int)((y)*ICON_LEPTON_H)/CELL_PIXEL_H) * 65536))
+#define	XYP_COORD(x,y)	(((x)*ICON_LEPTON_W)/CELL_PIXEL_W + ((((y)*ICON_LEPTON_H)/CELL_PIXEL_H)<<16))
 inline FacingType Dir_Facing(DirType facing) {return (FacingType)(((unsigned char)(facing+0x10)&0xFF)>>5);}
 inline DirType Facing_Dir(FacingType facing) {return (DirType)((int)facing << 5);}
 inline int Cell_To_Lepton(int cell) {return cell<<8;}
@@ -936,7 +936,7 @@ inline int Distance(CELL coord1, CELL coord2)
  *=============================================================================================*/
 inline CELL CellClass::Cell_Number(void) const
 {
-	return 0;
+	return(Map.ID(this));
 }
 #if(0)
 #ifndef NOMEMCHECK

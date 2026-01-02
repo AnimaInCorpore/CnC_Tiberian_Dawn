@@ -1086,11 +1086,7 @@ void MapEditClass::AI(KeyNumType &input, int x, int y)
 						*/
 						if (CurrentObject.Count() &&
 							( (TickCount.Time() - LastClickTime) < 15)) {
-						/*
-						** Double-click: re-grab the current object so it can be moved
-						** immediately without changing selection state.
-						*/
-						Grab_Object();
+						;	// stub
 
 						} else {
 							/*
