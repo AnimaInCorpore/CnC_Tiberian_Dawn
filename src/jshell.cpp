@@ -17,7 +17,6 @@ void* Small_Icon(void const* iconptr, int iconnum) {
   int actual_icon = iconnum;
   if (map) {
     actual_icon = static_cast<int>(map[iconnum]);
-    if (actual_icon == 0xFF) return icon.data();
   }
 
   long data_offset = 0;
@@ -52,4 +51,3 @@ void* Small_Icon(void const* iconptr, int iconnum) {
 
   return icon.data();
 }
-

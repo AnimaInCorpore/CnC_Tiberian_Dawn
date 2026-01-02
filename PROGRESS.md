@@ -5,7 +5,7 @@
 | Parity checks (score/map editor headers) | `src/score.cpp`, `src/include/legacy/function.h`, `src/mapedit.cpp` | manual | Checked: `src/score.cpp` matches `SCORE.CPP` aside from safe C++/formatting tweaks, `src/mapedit.cpp` is identical to `MAPEDIT.CPP`, and `XYP_COORD` matches `FUNCTION.H`/`REAL.H`. |
 | `MAP.CPP` | `src/map.cpp`, `src/include/legacy/defines.h` | manual | Restored Win95 tile BIN load semantics by using an 8-bit `TemplateType` and the original read path, so template/icon pairs are parsed exactly like the legacy build. |
 | `MAPEDIT.CPP` / `MAPEDSEL.CPP` (editor includes) | `src/mapedit.cpp`, `src/mapedsel.cpp` | build | Updated editor-only translation units to include `legacy/function.h` so case-sensitive builds don’t depend on `function.h` being present in the include path. |
-| `JSHELL.CPP` | `src/jshell.cpp` | differs | Ported `Small_Icon()` by parsing the existing iconset buffer layout (same offsets already used by `GraphicViewPortClass::Draw_Stamp`) so radar mini-icon generation matches the Win95 sampling pattern. |
+| `JSHELL.CPP` | `src/jshell.cpp` | differs | Ported `Small_Icon()` by parsing the existing iconset buffer layout (same offsets already used by `GraphicViewPortClass::Draw_Stamp`) so radar mini-icon generation matches the Win95 sampling pattern (removed the non-legacy 0xFF map guard). |
 | `CCFILE.CPP` | `src/ccfile.cpp` | differs | CCFileClass now matches Win95 MIX semantics: prefer loose/on-disk overrides when present, otherwise open embedded MIX members from cached RAM images or by seeking within the on-disk parent MIX while keeping the embedded filename bound to the object. |
 | `GETCD` (Win95 CD probe) | `src/include/legacy/getcd.h`, `src/getcd.cpp` | manual | Replaced the dummy CD enumerator with a portable implementation that models "CD drives" as repo-local `CD/...` disc mirror roots, keeping the original `Get_First_CD_Drive`/`Get_Next_CD_Drive` call pattern intact. |
 | `CONQUER.CPP` (`Force_CD_Available`) | `src/port_runtime.cpp`, `src/game.cpp` | manual | `Force_CD_Available(cd)` now validates the required disc mirror roots (GDI/NOD/COVERT) and prompts to retry/cancel when missing; startup MIX registration now registers all matching archives across the known `CD/...` mirrors so disc-specific assets (e.g., movies) resolve correctly. |
@@ -90,7 +90,7 @@
 | `DRIVE.CPP` | `src/drive.cpp` | differs | Ported to src/ with full legacy movement logic restored; Map shim call sites use the port’s compatibility layer. |
 | `ENDING.CPP` | `src/ending.cpp` | differs | Ported: GDI/NOD ending sequences, movie playback and selection UI. |
 | `EVENT.CPP` | `src/event.cpp` | differs | Ported event constructors and execution logic, including mission assignments, production, timing updates, and special handling. |
-| `EXPAND.CPP` | `src/expand.cpp` | differs | Ported `Expansion_Present`, `Expansion_Dialog`, and `Bonus_Dialog` so NEWMENU can list and launch expansion (20–59) and bonus (60–62) missions using the same listbox UI and INI `Basic/Name` lookup as Win95. |
+| `EXPAND.CPP` | `src/expand.cpp` | manual | Ported `Expansion_Present`, `Expansion_Dialog`, and `Bonus_Dialog` so NEWMENU can list and launch expansion (20–59) and bonus (60–62) missions using the same listbox UI and INI `Basic/Name` lookup as Win95 (kept legacy `memcpy` name copy + item selection semantics). |
 | `FACING.CPP` | `src/facing.cpp` | differs | Ported to src/ with legacy facing rotation and adjustment logic preserved. |
 | `FLASHER.CPP` | `src/flasher.cpp` | differs | Ported to src/; flash countdown toggles the blush flag and exposes mono debug output. |
 | `FACTORY.CPP` | `src/factory.cpp` | differs | Ported to src/, switched to legacy include path, and replaced NULL with nullptr. |
@@ -171,7 +171,7 @@
 | `REINF.CPP` | `src/reinf.cpp` | differs | Ported to src/ with reinforcement creation logic wired for triggers. |
 | `SAVELOAD.CPP` | `src/saveload.cpp` | differs | Ported save/load and misc-value serialization routines (plus pointer coding) so savegame operations have a real implementation again. |
 | `SCENARIO.CPP` | `src/scenario.cpp` | differs | Ported to src/; scenario INI loading and theater setup preserved. |
-| `SCORE.CPP` | `src/score.cpp` | differs | Ported to src/; score/ending UI helpers and globals restored. |
+| `SCORE.CPP` | `src/score.cpp` | manual | Ported to src/; score/ending UI helpers and globals restored (verified against legacy aside from safe C++ changes). |
 | `SDATA.CPP` | `src/sdata.cpp` | differs | Ported to src/; smudge type tables/graphics restored. |
 | `SEQCONN.CPP` | `src/seqconn.cpp` | differs | Ported to src/; sequenced packet connection class preserved for future networking parity work. |
 | `SIDEBAR.CPP` | `src/sidebar.cpp` | differs | Ported to src/; sidebar UI logic restored. |
@@ -365,12 +365,12 @@
 | `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | legacy missing | Implemented buffer blit/fill helpers and Check_Key shim for score loops. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | differs | Added Close_Animation/Check_Key/Extract_Shape_Count declarations for score flow. |
 | `PORT_STUBS.CPP` | `src/port_runtime.cpp` | legacy missing | Removed placeholder Close_Animation/Extract_Shape_Count by wiring them into the real keyframe decoder. |
-| `SCORE.CPP` | `src/score.cpp` | differs | Fixed palette type and loop variable scoping for modern C++ builds. |
+| `SCORE.CPP` | `src/score.cpp` | manual | Fixed palette type and loop variable scoping for modern C++ builds. |
 | `WWLIB32.H` | `src/include/legacy/wwlib32.h` | legacy missing | Added KN_Q/KA_TILDA constants and buffer line drawing hook. |
 | `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | legacy missing | Implemented buffer line drawing and Get_Key shim. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | differs | Added Get_Key declaration for score name entry. |
-| `SCORE.CPP` | `src/score.cpp` | differs | Updated multi-score palettes to unsigned char to avoid narrowing errors. |
-| `SCORE.CPP` | `src/score.cpp` | differs | Aligned multi-score palette pointer types with unsigned char buffers. |
+| `SCORE.CPP` | `src/score.cpp` | manual | Updated multi-score palettes to unsigned char to avoid narrowing errors. |
+| `SCORE.CPP` | `src/score.cpp` | manual | Aligned multi-score palette pointer types with unsigned char buffers. |
 | `WWLIB32.H` | `src/include/legacy/wwlib32.h` | legacy missing | Added lock/offset and pitch helpers needed by palette interpolation. |
 | `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | legacy missing | Implemented buffer/view offsets plus lock helpers for interpolation paths. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | differs | Added Wait_Blit declaration for interpolation flow. |

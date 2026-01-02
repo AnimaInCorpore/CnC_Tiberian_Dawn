@@ -46,7 +46,6 @@ void EListClass::Draw_Entry(int index, int x, int y, int width, int selected) {
 }
 
 static void Populate_Expansion_List(EListClass& list, int first_scenario, int last_scenario_exclusive) {
-  if (!_ShapeBuffer) return;
   char* scratch = static_cast<char*>(_ShapeBuffer);
   for (int index = first_scenario; index < last_scenario_exclusive; index++) {
     char scenario_name[128]{};
@@ -105,7 +104,8 @@ static void Populate_Bonus_List(EListClass& list) {
     std::strcat(scenario_name, ".INI");
     file.Set_Name(scenario_name);
     if (file.Is_Available()) {
-      std::strncpy(scenario_name, Text_String(kGdiScenNames[index - 60]), sizeof(scenario_name) - 1);
+      const char* name = Text_String(kGdiScenNames[index - 60]);
+      std::memcpy(scenario_name, name, 1 + std::strlen(name));
       char* data = new char[std::strlen(scenario_name) + 1 + sizeof(int) + 25];
       *reinterpret_cast<int*>(&data[0]) = index;
       std::strcpy(&data[sizeof(int)], "GDI: ");
@@ -122,7 +122,8 @@ static void Populate_Bonus_List(EListClass& list) {
     std::strcat(scenario_name, ".INI");
     file.Set_Name(scenario_name);
     if (file.Is_Available()) {
-      std::strncpy(scenario_name, Text_String(kNodScenNames[index - 60]), sizeof(scenario_name) - 1);
+      const char* name = Text_String(kNodScenNames[index - 60]);
+      std::memcpy(scenario_name, name, 1 + std::strlen(name));
       char* data = new char[std::strlen(scenario_name) + 1 + sizeof(int) + 25];
       *reinterpret_cast<int*>(&data[0]) = index;
       std::strcpy(&data[sizeof(int)], "NOD: ");
@@ -199,11 +200,6 @@ bool Expansion_Dialog(void) {
     switch (input) {
       case KN_RETURN:
       case 200 | KN_BUTTON:
-        if (!list.Current_Item()) {
-          process = false;
-          okval = false;
-          break;
-        }
         if (list.Current_Item()[sizeof(int)] == 'G') {
           ScenPlayer = SCEN_PLAYER_GDI;
         } else {
@@ -221,9 +217,7 @@ bool Expansion_Dialog(void) {
         ScenPlayer = SCEN_PLAYER_GDI;
         ScenDir = SCEN_DIR_EAST;
         Whom = HOUSE_GOOD;
-        if (list.Current_Item()) {
-          Scenario = *reinterpret_cast<const int*>(list.Current_Item());
-        }
+        Scenario = *reinterpret_cast<const int*>(list.Current_Item());
         process = false;
         okval = false;
         break;
@@ -298,11 +292,6 @@ bool Bonus_Dialog(void) {
     switch (input) {
       case KN_RETURN:
       case 200 | KN_BUTTON:
-        if (!list.Current_Item()) {
-          process = false;
-          okval = false;
-          break;
-        }
         if (list.Current_Item()[sizeof(int)] == 'G') {
           ScenPlayer = SCEN_PLAYER_GDI;
         } else {
@@ -320,9 +309,7 @@ bool Bonus_Dialog(void) {
         ScenPlayer = SCEN_PLAYER_GDI;
         ScenDir = SCEN_DIR_EAST;
         Whom = HOUSE_GOOD;
-        if (list.Current_Item()) {
-          Scenario = *reinterpret_cast<const int*>(list.Current_Item());
-        }
+        Scenario = *reinterpret_cast<const int*>(list.Current_Item());
         process = false;
         okval = false;
         break;
