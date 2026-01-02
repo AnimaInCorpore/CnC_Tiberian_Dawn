@@ -101,9 +101,18 @@ void Net_Reconnect_Dialog(int reconn, int fresh, int oldest_index, unsigned long
 
     Show_Mouse();
   } else {
+    Hide_Mouse();
+    Set_Logic_Page(SeenBuff);
+
     std::snprintf(buf2, sizeof(buf2), Text_String(TXT_TIME_ALLOWED), timeval + 1);
+    const int pixwidth = String_Pixel_Width(buf2);
+    LogicPage->Fill_Rect(160 * factor - (pixwidth / 2) - 12, y + (d_margin * 2) + d_txt6_h + d_margin,
+                         160 * factor + (pixwidth / 2) + 12, y + (d_margin * 2) + d_txt6_h * 2 + d_margin,
+                         TBLACK);
     Fancy_Text_Print(buf2, 160 * factor, y + (d_margin * 2) + d_txt6_h + d_margin, CC_GREEN, BLACK,
                      TPF_CENTER | TPF_6PT_GRAD | TPF_USE_GRAD_PAL | TPF_NOSHADOW);
+
+    Show_Mouse();
   }
 }
 
