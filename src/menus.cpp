@@ -515,7 +515,16 @@ int Main_Menu(unsigned long timeout) {
       case KN_RETURN:
         buttons[curbutton]->IsPressed = true;
         buttons[curbutton]->Draw_Me(true);
-        retval = curbutton;
+#ifdef NEWMENU
+        retval = (buttons[curbutton]->ID & 0x7FFF) - BUTTON_EXPAND;
+#else
+        retval = (buttons[curbutton]->ID & 0x7FFF) - BUTTON_START;
+#endif
+#ifdef DEMO
+        if (retval >= 1) {
+          retval += 1;
+        }
+#endif  // DEMO
         process = false;
         break;
 
