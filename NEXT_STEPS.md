@@ -11,7 +11,7 @@ Status: Next steps. Scope: prove the current SDL/CMake build can boot, start a m
 ## Audio + music parity
 Status: Next steps. Scope: match Win95 mixer behavior and theme playback so the port “feels” like C&C.
 - Improve SDL mixer parity (priority/channel reservation, pan law, fade/stop semantics) and ensure menu sliders map to real mixer volume behavior (`src/audio_play.cpp`, `src/platform_audio_sdl.cpp`, `src/options.cpp`).
-- Implement/verify theme/music streaming so `ThemeClass` matches Win95 selection/loop rules (`src/theme.cpp`).
+- Verify theme/music playback so `ThemeClass` advances tracks and matches Win95 selection/repeat/shuffle rules (`src/theme.cpp`).
 
 ## Movies: VQA audio + subtitle/EVA timing
 Status: Next steps. Scope: VQAs should match Win95 A/V sync, subtitle timing, and skip rules.

@@ -191,7 +191,7 @@
 | `TEMP.CPP` | `src/temp.cpp` | modern missing | Ported to src/; temporary data helpers preserved. |
 | `TEMPLATE.CPP` | `src/template.cpp` | differs | Ported to src/; template object logic restored (depends on icon-set map helpers) and map-shim access updated. |
 | `TERRAIN.CPP` | `src/terrain.cpp` | differs | Ported to src/; terrain object logic restored. |
-| `THEME.CPP` | `src/theme.cpp` | differs | Ported to src/ with theme queueing and music selection logic preserved. |
+| `THEME.CPP` | `src/theme.cpp` | differs | Theme playback no longer forces mixer-level looping; scores now end naturally so `ThemeClass::AI()` can advance tracks per Win95 shuffle/repeat rules. |
 | `TRIGGER.CPP` | `src/trigger.cpp` | differs | Ported to src/ with trigger parsing and execution logic preserved. |
 | `TURRET.CPP` | `src/turret.cpp` | differs | Ported to src/; turret control logic restored. |
 | `UDATA.CPP` | `src/udata.cpp` | differs | Ported to src/; unit type tables/constructors restored. |

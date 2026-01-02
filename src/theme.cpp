@@ -325,7 +325,9 @@ int ThemeClass::Play_Song(ThemeType theme)
 			if (_themes[theme].Scenario != 99) {
 				CCFileClass file(Theme_File_Name(theme));
 				if (file.Is_Available()) {
-					Current = File_Stream_Sample_Vol(Theme_File_Name(theme), 0xFF, true);
+					// Win95 plays scores to completion and the theme engine selects the next track.
+					// Don't force looping at the mixer level; repeat/shuffle is handled by ThemeClass.
+					Current = File_Stream_Sample_Vol(Theme_File_Name(theme), 0xFF, false);
 				} else {
 					Current = -1;
 				}
@@ -333,7 +335,9 @@ int ThemeClass::Play_Song(ThemeType theme)
 				Current = -1;
 			}
 #else
-			Current = File_Stream_Sample_Vol(Theme_File_Name(theme), 0xFF, true);
+			// Win95 plays scores to completion and the theme engine selects the next track.
+			// Don't force looping at the mixer level; repeat/shuffle is handled by ThemeClass.
+			Current = File_Stream_Sample_Vol(Theme_File_Name(theme), 0xFF, false);
 #endif
 		}
 	}
