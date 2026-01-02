@@ -1058,7 +1058,7 @@ inline AircraftType operator++(AircraftType &, int);
 **	terrain is broken up into icons, is not transparent, and is drawn
 **	as the bottom most layer, then it is a template.
 */
-typedef enum TemplateType {
+enum TemplateType : unsigned char {
 	TEMPLATE_CLEAR1,
 	TEMPLATE_WATER,			// This must be the first non-clear template.
 	TEMPLATE_WATER2,
@@ -1288,7 +1288,7 @@ typedef enum TemplateType {
 	TEMPLATE_COUNT,
 	TEMPLATE_NONE=255,
 	TEMPLATE_FIRST=0
-} TemplateType;
+};
 
 inline TemplateType operator++(TemplateType &, int);
 

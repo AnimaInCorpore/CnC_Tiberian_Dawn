@@ -42,6 +42,7 @@ Status: Next steps. Scope: keep the port regressions visible and the docs accura
 - When verifying palette fades, include `Fade_Palette_To(..., ..., NULL)` call sites (Win95 still shows the fade via hardware palette updates) and compare the fade duration against Win95.
 - Add quick visual regression checks for text rendering and title/menu palette correctness (`src/text.cpp`, `src/load_title.cpp`, `src/wwlib_runtime.cpp`).
 - Re-check menu/sidebar text after the 4bpp nibble decode fix (look for stray pixels, wrong shadow colors, and clipping edge cases).
+- Verify `.BIN` map loads across multiple theaters now that `TemplateType` is 8-bit again (ensure tile icons and clear terrain resolve correctly) (`src/map.cpp`, `src/include/legacy/defines.h`).
 - When debugging startup hangs, run with `--verbose` and capture stderr; if it hangs at `C&C95 - In Read_Scenario.`, the trace now prints progress through `Clear_Scenario()` and `Read_Scenario_Ini()` (including scenario INI filename + `CCFileClass` availability/size/read).
 - Keep `PROGRESS.md` and this file in sync (remove stale “stubbed” notes once the corresponding module is fully ported).
 

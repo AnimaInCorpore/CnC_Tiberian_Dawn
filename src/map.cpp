@@ -639,7 +639,6 @@ bool MapClass::Read_Binary(char const * root, unsigned long *crc)
 	char *map;
 	void *rawmap;
 	void const * shape;
-	int type_bytes = 4;
 
 	/*
 	**	Filename = INI name with BIN extension.
@@ -655,73 +654,41 @@ bool MapClass::Read_Binary(char const * root, unsigned long *crc)
 	}
 	file.Open(READ);
 
-	const long total_bytes = file.Size();
-	if (total_bytes == static_cast<long>(MAP_CELL_TOTAL) * (static_cast<long>(sizeof(std::uint32_t)) + 1L)) {
-		type_bytes = 4;
-	} else if (total_bytes == static_cast<long>(MAP_CELL_TOTAL) * (static_cast<long>(sizeof(std::uint16_t)) + 1L)) {
-		type_bytes = 2;
-	} else if (total_bytes == static_cast<long>(MAP_CELL_TOTAL) * (static_cast<long>(sizeof(std::uint8_t)) + 1L)) {
-		type_bytes = 1;
-	}
-
 	/*
 	**	Loop through all cells.
 	*/
 	CellClass * cellptr = &Map[0];
 	for (i = 0; i < MAP_CELL_TOTAL; i++) {
-		int ttype_value = 0;
-		unsigned char ticon = 0;
+		struct {
+			TemplateType TType;
+			unsigned char TIcon;
+		} temp;
 
-		if (type_bytes == 4) {
-			std::uint32_t raw = 0;
-			if (file.Read(&raw, sizeof(raw)) != static_cast<long>(sizeof(raw))) break;
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-			raw = ((raw & 0x000000FFu) << 24) | ((raw & 0x0000FF00u) << 8) | ((raw & 0x00FF0000u) >> 8) |
-			      ((raw & 0xFF000000u) >> 24);
-#endif
-			ttype_value = static_cast<int>(raw);
-		} else if (type_bytes == 2) {
-			std::uint16_t raw = 0;
-			if (file.Read(&raw, sizeof(raw)) != static_cast<long>(sizeof(raw))) break;
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-			raw = static_cast<std::uint16_t>(((raw & 0x00FFu) << 8) | ((raw & 0xFF00u) >> 8));
-#endif
-			ttype_value = static_cast<int>(raw);
-		} else {
-			std::uint8_t raw = 0;
-			if (file.Read(&raw, sizeof(raw)) != static_cast<long>(sizeof(raw))) break;
-			ttype_value = static_cast<int>(raw);
-		}
-
-		if (file.Read(&ticon, sizeof(ticon)) != static_cast<long>(sizeof(ticon))) break;
-
-		TemplateType ttype = TEMPLATE_NONE;
-		if (ttype_value == 255) {
-			ttype = TEMPLATE_NONE;
-		} else if (ttype_value >= 0 && ttype_value < static_cast<int>(TEMPLATE_COUNT)) {
-			ttype = static_cast<TemplateType>(ttype_value);
+		if (file.Read(&temp, sizeof(temp)) != sizeof(temp)) break;
+		if (temp.TType == (TemplateType)255) {
+			temp.TType = TEMPLATE_NONE;
 		}
 
 		/*
 		**	Verify that the template type actually contains the template number specified. If
 		**	an illegal icon was specified, then replace it with clear terrain.
 		*/
-		if (ttype != TEMPLATE_CLEAR1 && ttype != TEMPLATE_NONE) {
-			shape = TemplateTypeClass::As_Reference(ttype).Get_Image_Data();
+		if (temp.TType != TEMPLATE_CLEAR1 && temp.TType != TEMPLATE_NONE) {
+			shape = TemplateTypeClass::As_Reference(temp.TType).Get_Image_Data();
 			if (shape) {
 				rawmap = Get_Icon_Set_Map(shape);
 				if (rawmap) {
 					map = (char*)rawmap;
-					if (map[ticon] == -1) {
-						ticon = 0;
-						ttype = TEMPLATE_NONE;
+					if (map[temp.TIcon] == -1) {
+						temp.TIcon = 0;
+						temp.TType = TEMPLATE_NONE;
 					}
 				}
 			}
 		}
 
-		cellptr->TType = ttype;
-		cellptr->TIcon = ticon;
+		cellptr->TType = temp.TType;
+		cellptr->TIcon = temp.TIcon;
 		cellptr->Recalc_Attributes();
 
 #ifndef DEMO

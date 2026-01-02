@@ -1,5 +1,6 @@
 | Legacy file | Modern path | Notes |
 | --- | --- | --- |
+| `MAP.CPP` | `src/map.cpp`, `src/include/legacy/defines.h` | Restored Win95 tile BIN load semantics by using an 8-bit `TemplateType` and the original read path, so template/icon pairs are parsed exactly like the legacy build. |
 | `JSHELL.CPP` | `src/jshell.cpp` | Ported `Small_Icon()` by parsing the existing iconset buffer layout (same offsets already used by `GraphicViewPortClass::Draw_Stamp`) so radar mini-icon generation matches the Win95 sampling pattern. |
 | `CCFILE.CPP` | `src/ccfile.cpp` | CCFileClass now matches Win95 MIX semantics: prefer loose/on-disk overrides when present, otherwise open embedded MIX members from cached RAM images or by seeking within the on-disk parent MIX while keeping the embedded filename bound to the object. |
 | `GETCD` (Win95 CD probe) | `src/include/legacy/getcd.h`, `src/getcd.cpp` | Replaced the dummy CD enumerator with a portable implementation that models "CD drives" as repo-local `CD/...` disc mirror roots, keeping the original `Get_First_CD_Drive`/`Get_Next_CD_Drive` call pattern intact. |
