@@ -36,6 +36,7 @@
 
 #include "legacy/function.h"
 #include "legacy/mapedit.h"
+#include "legacy/mouse.h"
 #include "legacy/windows_compat.h"
 #include "legacy/connect.h"
 #include "legacy/base.h"

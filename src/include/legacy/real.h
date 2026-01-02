@@ -855,25 +855,7 @@ inline int Distance(CELL coord1, CELL coord2)
 }
 
 
-/***********************************************************************************************
- * CellClass::Cell_Number -- Returns the cell ID number for this cell object.                  *
- *                                                                                             *
- *    Call this routine if you wish to determine what the cell number ID is for the currrent   *
- *    cell object. This ID number is the index number into the cell array.                     *
- *                                                                                             *
- * INPUT:   none                                                                               *
- *                                                                                             *
- * OUTPUT:  Returns with the cell number for this cell object.                                 *
- *                                                                                             *
- * WARNINGS:   none                                                                            *
- *                                                                                             *
- * HISTORY:                                                                                    *
- *   03/19/1995 JLB : Created.                                                                 *
- *=============================================================================================*/
-inline CELL CellClass::Cell_Number(void) const
-{
-	return(Map.ID(this));
-}
+// Defined in `src/cell.cpp` to avoid requiring the full `MouseClass` type here.
 
 #ifndef NOMEMCHECK
 #define NO_INTERCEPT

@@ -76,6 +76,7 @@
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #include "legacy/function.h"
+#include "legacy/mouse.h"
 
 #define	FIXUP		0
 
@@ -137,6 +138,11 @@ CellClass::CellClass(void)
 	TType		= TEMPLATE_NONE;
 	Owner		= HOUSE_NONE;
 	InfType	= HOUSE_NONE;
+}
+
+CELL CellClass::Cell_Number(void) const
+{
+	return Map.ID(this);
 }
 
 

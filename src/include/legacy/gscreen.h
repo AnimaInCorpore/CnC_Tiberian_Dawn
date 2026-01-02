@@ -90,13 +90,13 @@ class GScreenClass : public VectorClass<CellClass>
 		*/
 		static void Blit_Display(void);
 
-		/*
-		**	Changes the mouse shape as indicated.
-		*/
-		virtual void Set_Default_Mouse(MouseType mouse, bool wwsmall) = 0;
-		virtual bool Override_Mouse_Shape(MouseType mouse, bool wwsmall) = 0;
-		virtual void Revert_Mouse_Shape(void) = 0;
-		virtual void Mouse_Small(bool wwsmall) = 0;
+			/*
+			**	Changes the mouse shape as indicated.
+			*/
+			virtual void Set_Default_Mouse(MouseType mouse, bool wwsmall);
+			virtual bool Override_Mouse_Shape(MouseType mouse, bool wwsmall);
+			virtual void Revert_Mouse_Shape(void);
+			virtual void Mouse_Small(bool wwsmall);
 
 		/*
 		**	File I/O.

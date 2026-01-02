@@ -436,6 +436,7 @@
 | `AUDIO` (AUD decode/mixer) | `src/audio_play.cpp` | legacy missing | Bounded AUD decoding to the containing MIX subfile (or speech buffer) so corrupted/partial inputs can’t walk off-buffer during decode/mix. |
 | `MAINGAME.CPP` | `src/maingame.cpp` | legacy missing | Extended the `TD_AUTOSTART_SCENARIO` debug hook with `TD_AUTOSTART_LOAD_TITLE`, `TD_AUTOSTART_DRAW_ONCE`, and `TD_AUTOSTART_FRAMES=N` to reproduce scenario-start issues without driving the main menu. |
 | `INTERNET.CPP` | `src/internet.cpp` | differs | Ported the Planet Westwood / WChat glue: parses `C&CSPAWN.INI` (from disk or the portable UDP-backed `DDEServer`), restores `Read_Game_Options`, and adds env-driven `Spawn_WChat`/registration hooks for the cross-platform build (`TD_WCHAT_CMD`, `TD_REGISTER_CMD`, `TD_WCHAT_USER`). |
+| `BUILD FIXES` (`Map` global / headers) | `src/include/legacy/externs.h`, `src/include/legacy/function.h`, `src/include/legacy/real.h`, `src/cell.cpp`, `src/include/legacy/gscreen.h`, `src/globals.cpp`, `src/unit.cpp` | manual | Restored canonical `Map` type (`MouseClass`) and moved `CellClass::Cell_Number()` out of headers to avoid incomplete-type issues; made `GScreenClass` mouse-shape methods non-pure to match the SDL implementation; fixed Clang `\\x..` escape swallowing in mono debug UI strings. |
 
 ## Pending follow-ups
 - Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).
