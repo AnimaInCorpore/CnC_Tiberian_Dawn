@@ -8,6 +8,8 @@ Translate the legacy C++ codebase (the C&C95 Win32 build) to compile with modern
 ## Core Principles
 1.  **Preserve Original Behavior:** The Win32 build is the canonical reference. All ported code must function identically to the original.
     - Treat the C&C95 Win32 release as the authoritative source of truth for gameplay, timing, asset handling, and UI flow.
+2.  **Maintain Parity Wherever Possible:** Keep the port aligned with the Win32 code and assets unless a deviation is required for platform compatibility, and document any unavoidable divergence.
+    - Note: Rendering/audio/networking now route through SDL, and CD asset handling uses the repo-local `CD/...` mirror, so behavior in those subsystems may differ from the original Win32 implementation even when feature parity is the goal.
 2.  **Platform Independence:** Use SDL to replace all direct hardware calls (Graphics, Audio, Input, Networking). Avoid platform-specific code outside of the SDL implementation layer.
 3.  **Modern Tooling:** The codebase must build with `g++` (or a compatible compiler) and `CMake`.
 4.  **Clean Codebase:** Remove all legacy code paths for DOS, Win16, and segmented memory. The target is a flat 32/64-bit memory model.

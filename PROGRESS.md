@@ -1,6 +1,6 @@
 | Legacy file | Modern path | Parity check | Notes |
 | --- | --- | --- | --- |
-| Parity checks (score/map editor headers) | `src/score.cpp`, `src/include/legacy/function.h`, `src/mapedit.cpp` | manual | Restore any remaining parity gaps surfaced during spot checks (e.g., confirm `XYP_COORD` macro equivalence with Win95). |
+| Parity checks (score/map editor headers) | `src/score.cpp`, `src/include/legacy/function.h`, `src/mapedit.cpp` | manual | Checked: `src/score.cpp` matches `SCORE.CPP` aside from safe C++/formatting tweaks, `src/mapedit.cpp` is identical to `MAPEDIT.CPP`, and `XYP_COORD` matches `FUNCTION.H`/`REAL.H`. |
 | `MAP.CPP` | `src/map.cpp`, `src/include/legacy/defines.h` | manual | Restored Win95 tile BIN load semantics by using an 8-bit `TemplateType` and the original read path, so template/icon pairs are parsed exactly like the legacy build. |
 | `JSHELL.CPP` | `src/jshell.cpp` | differs | Ported `Small_Icon()` by parsing the existing iconset buffer layout (same offsets already used by `GraphicViewPortClass::Draw_Stamp`) so radar mini-icon generation matches the Win95 sampling pattern. |
 | `CCFILE.CPP` | `src/ccfile.cpp` | differs | CCFileClass now matches Win95 MIX semantics: prefer loose/on-disk overrides when present, otherwise open embedded MIX members from cached RAM images or by seeking within the on-disk parent MIX while keeping the embedded filename bound to the object. |
