@@ -9,6 +9,7 @@
 #include "legacy/mixfile.h"
 
 #include <algorithm>
+#include <atomic>
 #include <cstdint>
 #include <cstring>
 #include <mutex>
@@ -42,6 +43,7 @@ struct Voice {
   int volume = 0;  // 0..255
   int pan = 0;     // -32767..32767
   bool loop = false;
+  bool is_score = false;
   int fade_ticks_remaining = 0;
   int fade_ticks_total = 0;
   int fade_start_volume = 0;
@@ -52,6 +54,7 @@ std::mutex g_cache_mutex;
 std::unordered_map<const void*, DecodedAudio> g_cache;
 std::vector<Voice> g_voices;
 int g_next_handle = 1;
+std::atomic<int> g_score_volume{255};
 
 inline int ClampInt(int v, int lo, int hi) { return std::max(lo, std::min(hi, v)); }
 constexpr int kMaxVoices = 32;
@@ -303,7 +306,11 @@ static int Mix_Voice(const Voice& voice, std::uint8_t* stream, int len) {
   const std::uint8_t* src = decoded.pcm.data() + pos;
 
   // Volume is 0..255; match legacy behavior where 255 ~= full scale.
-  const StereoScales scales = Compute_Pan_Scales(voice.volume, voice.pan);
+  int effective_volume = voice.volume;
+  if (voice.is_score) {
+    effective_volume = (effective_volume * ClampInt(g_score_volume.load(std::memory_order_relaxed), 0, 255)) / 255;
+  }
+  const StereoScales scales = Compute_Pan_Scales(effective_volume, voice.pan);
 
   if (decoded.format == AUDIO_S16SYS) {
     auto* dst16 = reinterpret_cast<std::int16_t*>(stream);
@@ -352,6 +359,10 @@ static int Mix_Voice(const Voice& voice, std::uint8_t* stream, int len) {
 
 }  // namespace
 
+void Set_Score_Vol(int volume) {
+  g_score_volume.store(ClampInt(volume, 0, 255), std::memory_order_relaxed);
+}
+
 extern "C" void Audio_Mix_Callback(void*, Uint8* stream, int len) {
   if (!stream || len <= 0) return;
   SDL_AudioSpec const* spec = Audio_Get_Spec();
@@ -387,7 +398,7 @@ extern "C" void Audio_Mix_Callback(void*, Uint8* stream, int len) {
   }
 }
 
-static int Play_Aud_Ptr(const void* ptr, int volume, int priority, signed short pan, bool loop) {
+static int Play_Aud_Ptr(const void* ptr, int volume, int priority, signed short pan, bool loop, bool is_score) {
   if (!ptr || Audio_Get_Device() == 0) return 0;
 
   std::lock_guard<std::mutex> lock(g_cache_mutex);
@@ -410,6 +421,7 @@ static int Play_Aud_Ptr(const void* ptr, int volume, int priority, signed short 
   voice.volume = ClampInt(volume, 0, 255);
   voice.pan = pan;
   voice.loop = loop;
+  voice.is_score = is_score;
   voice.fade_ticks_remaining = 0;
   voice.fade_ticks_total = 0;
   voice.fade_start_volume = voice.volume;
@@ -430,7 +442,7 @@ static int Play_Aud_Ptr(const void* ptr, int volume, int priority, signed short 
 }
 
 int Play_Sample(void const* sample, int priority, int volume, int pan) {
-  return Play_Aud_Ptr(sample, volume, priority, static_cast<signed short>(pan), false);
+  return Play_Aud_Ptr(sample, volume, priority, static_cast<signed short>(pan), false, false);
 }
 
 void Stop_Sample(int handle) {
@@ -504,5 +516,5 @@ int File_Stream_Sample_Vol(char const* name, int volume, bool loop) {
   }
   if (!ptr) return 0;
 
-  return Play_Aud_Ptr(ptr, volume, 255, 0, loop);
+  return Play_Aud_Ptr(ptr, volume, 255, 0, loop, true);
 }

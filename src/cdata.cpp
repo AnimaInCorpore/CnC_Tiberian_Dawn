@@ -44,7 +44,7 @@
  *   TemplateTypeClass::TemplateTypeClass -- Constructor for template type objects.            *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"legacy/function.h"
 
 
 static char const _slope00000001[] = {7,-1};
@@ -2767,7 +2767,6 @@ ObjectClass * TemplateTypeClass::Create_One_Of(HouseClass *) const
 void TemplateTypeClass::One_Time(void)
 {
 }
-
 
 
 

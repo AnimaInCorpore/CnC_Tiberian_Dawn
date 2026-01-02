@@ -318,6 +318,7 @@ void Stop_Speaking(void);
 void Sound_Effect(VocType voc, COORDINATE coord=0, int variation=1);
 bool Is_Speaking(void);
 int Play_Sample(void const* data, int priority, int volume, int pan = 0);
+void Set_Score_Vol(int volume);
 
 /*
 **	COMBAT.CPP

@@ -97,7 +97,7 @@
  *   BuildingClass::Validate -- validates building pointer												  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"legacy/function.h"
 #include "legacy/base.h"
 
 #include <algorithm>

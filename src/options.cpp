@@ -123,7 +123,7 @@ OptionsClass::OptionsClass(void)
  *=============================================================================================*/
 void OptionsClass::One_Time(void)
 {
-	Set_Score_Vol(ScoreVolume);
+	::Set_Score_Vol(ScoreVolume);
 }
 
 
@@ -208,6 +208,7 @@ void OptionsClass::Set_Score_Volume(int volume)
 {
 	volume = Bound(volume, 0, 255);
 	ScoreVolume = volume;
+	::Set_Score_Vol(ScoreVolume);
 }
 
 

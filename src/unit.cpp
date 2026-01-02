@@ -96,7 +96,7 @@
  *   UnitClass::~UnitClass -- Destructor for unit objects.                                     *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"legacy/function.h"
 #include <cstdio>
 #include <cstring>
 

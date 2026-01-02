@@ -81,7 +81,7 @@
  *   InfantryClass::Validate -- validates infantry pointer.												  *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include	"legacy/function.h"
 #include <cstdio>
 #include <cstring>
 #include <algorithm>
