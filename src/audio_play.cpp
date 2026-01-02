@@ -54,6 +54,26 @@ std::vector<Voice> g_voices;
 int g_next_handle = 1;
 
 inline int ClampInt(int v, int lo, int hi) { return std::max(lo, std::min(hi, v)); }
+constexpr int kMaxVoices = 32;
+
+struct StereoScales {
+  int left = 255;
+  int right = 255;
+};
+
+static StereoScales Compute_Pan_Scales(int volume, int pan) {
+  StereoScales scales{};
+  const int vol = ClampInt(volume, 0, 255);
+  const int clamped_pan = ClampInt(pan, -32767, 32767);
+
+  // Linear panning in legacy integer space: -32767 is left, 0 is center, 32767 is right.
+  // Convert into per-channel scales (0..255) and apply the overall volume.
+  const int left_scale = (255 * (32767 - clamped_pan)) / (2 * 32767);
+  const int right_scale = (255 * (32767 + clamped_pan)) / (2 * 32767);
+  scales.left = (vol * left_scale) / 255;
+  scales.right = (vol * right_scale) / 255;
+  return scales;
+}
 
 static bool Read_Aud_Header(const std::uint8_t* data,
                             int& sample_rate,
@@ -283,22 +303,47 @@ static int Mix_Voice(const Voice& voice, std::uint8_t* stream, int len) {
   const std::uint8_t* src = decoded.pcm.data() + pos;
 
   // Volume is 0..255; match legacy behavior where 255 ~= full scale.
-  const int vol = ClampInt(voice.volume, 0, 255);
+  const StereoScales scales = Compute_Pan_Scales(voice.volume, voice.pan);
 
   if (decoded.format == AUDIO_S16SYS) {
     auto* dst16 = reinterpret_cast<std::int16_t*>(stream);
     const auto* src16 = reinterpret_cast<const std::int16_t*>(src);
     const int samples = static_cast<int>(to_mix / 2);
-    for (int i = 0; i < samples; ++i) {
-      const int mixed = static_cast<int>(dst16[i]) + (static_cast<int>(src16[i]) * vol) / 255;
-      dst16[i] = static_cast<std::int16_t>(ClampInt(mixed, -32768, 32767));
+    if (decoded.channels == 2) {
+      for (int i = 0; i + 1 < samples; i += 2) {
+        const int mixed_l = static_cast<int>(dst16[i]) + (static_cast<int>(src16[i]) * scales.left) / 255;
+        const int mixed_r = static_cast<int>(dst16[i + 1]) + (static_cast<int>(src16[i + 1]) * scales.right) / 255;
+        dst16[i] = static_cast<std::int16_t>(ClampInt(mixed_l, -32768, 32767));
+        dst16[i + 1] = static_cast<std::int16_t>(ClampInt(mixed_r, -32768, 32767));
+      }
+    } else {
+      const int vol = scales.left;
+      for (int i = 0; i < samples; ++i) {
+        const int mixed = static_cast<int>(dst16[i]) + (static_cast<int>(src16[i]) * vol) / 255;
+        dst16[i] = static_cast<std::int16_t>(ClampInt(mixed, -32768, 32767));
+      }
     }
   } else {
-    for (std::size_t i = 0; i < to_mix; ++i) {
-      const int s = static_cast<int>(src[i]) - 128;
-      const int d = static_cast<int>(stream[i]) - 128;
-      const int mixed = d + (s * vol) / 255;
-      stream[i] = static_cast<std::uint8_t>(ClampInt(mixed + 128, 0, 255));
+    if (decoded.channels == 2) {
+      for (std::size_t i = 0; i + 1 < to_mix; i += 2) {
+        const int s_l = static_cast<int>(src[i]) - 128;
+        const int d_l = static_cast<int>(stream[i]) - 128;
+        const int mixed_l = d_l + (s_l * scales.left) / 255;
+        stream[i] = static_cast<std::uint8_t>(ClampInt(mixed_l + 128, 0, 255));
+
+        const int s_r = static_cast<int>(src[i + 1]) - 128;
+        const int d_r = static_cast<int>(stream[i + 1]) - 128;
+        const int mixed_r = d_r + (s_r * scales.right) / 255;
+        stream[i + 1] = static_cast<std::uint8_t>(ClampInt(mixed_r + 128, 0, 255));
+      }
+    } else {
+      const int vol = scales.left;
+      for (std::size_t i = 0; i < to_mix; ++i) {
+        const int s = static_cast<int>(src[i]) - 128;
+        const int d = static_cast<int>(stream[i]) - 128;
+        const int mixed = d + (s * vol) / 255;
+        stream[i] = static_cast<std::uint8_t>(ClampInt(mixed + 128, 0, 255));
+      }
     }
   }
 
@@ -369,6 +414,17 @@ static int Play_Aud_Ptr(const void* ptr, int volume, int priority, signed short 
   voice.fade_ticks_total = 0;
   voice.fade_start_volume = voice.volume;
   voice.pos = 0;
+
+  if (static_cast<int>(g_voices.size()) >= kMaxVoices) {
+    auto lowest = std::min_element(g_voices.begin(), g_voices.end(),
+                                  [](const Voice& a, const Voice& b) { return a.priority < b.priority; });
+    if (lowest != g_voices.end() && priority > lowest->priority) {
+      g_voices.erase(lowest);
+    } else {
+      return 0;
+    }
+  }
+
   g_voices.push_back(voice);
   return voice.handle;
 }
@@ -448,6 +504,5 @@ int File_Stream_Sample_Vol(char const* name, int volume, bool loop) {
   }
   if (!ptr) return 0;
 
-  // Music is treated as a looping sample in this minimal mixer.
   return Play_Aud_Ptr(ptr, volume, 255, 0, loop);
 }

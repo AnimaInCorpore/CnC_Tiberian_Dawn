@@ -436,10 +436,11 @@
 | `FINDPATH.CPP` | `src/findpath.cpp` | differs | Fixed edge-follow detour setup (copy direction + command/overlap buffer seeding) to prevent negative `Mem_Copy` sizes and startup crashes in `FootClass::Find_Path()`. |
 | `MIXFILE.H` / `MIXFILE.CPP` | `src/include/legacy/mixfile.h`, `src/mixfile.cpp` | manual | Added `MixFileClass::Size_For_Pointer()` to recover a safe byte span for data pointers returned by `Retrieve()` (used to bound decoders). |
 | `AUDIO` (AUD decode/mixer) | `src/audio_play.cpp` | legacy missing | Bounded AUD decoding to the containing MIX subfile (or speech buffer) so corrupted/partial inputs can’t walk off-buffer during decode/mix. |
+| `AUDIO` (mixer pan/priority) | `src/audio_play.cpp` | manual | Implemented stereo panning (legacy -32767..32767 pan range) and priority-based voice limiting to better match Win95 channel behavior under load. |
 | `MAINGAME.CPP` | `src/maingame.cpp` | legacy missing | Extended the `TD_AUTOSTART_SCENARIO` debug hook with `TD_AUTOSTART_LOAD_TITLE`, `TD_AUTOSTART_DRAW_ONCE`, and `TD_AUTOSTART_FRAMES=N` to reproduce scenario-start issues without driving the main menu. |
 | `INTERNET.CPP` | `src/internet.cpp` | differs | Ported the Planet Westwood / WChat glue: parses `C&CSPAWN.INI` (from disk or the portable UDP-backed `DDEServer`), restores `Read_Game_Options`, and adds env-driven `Spawn_WChat`/registration hooks for the cross-platform build (`TD_WCHAT_CMD`, `TD_REGISTER_CMD`, `TD_WCHAT_USER`). |
 | `BUILD FIXES` (`Map` global / headers) | `src/include/legacy/externs.h`, `src/include/legacy/function.h`, `src/include/legacy/real.h`, `src/cell.cpp`, `src/include/legacy/gscreen.h`, `src/globals.cpp`, `src/unit.cpp` | manual | Restored canonical `Map` type (`MouseClass`) and moved `CellClass::Cell_Number()` out of headers to avoid incomplete-type issues; made `GScreenClass` mouse-shape methods non-pure to match the SDL implementation; fixed Clang `\\x..` escape swallowing in mono debug UI strings. |
 
 ## Pending follow-ups
-- Improve SDL audio mixer parity (pan/priority rules, channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).
+- Improve SDL audio mixer parity (channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).
 - Verify the `TPF_USE_GRAD_PAL` gradient ramp selection matches Win95 shading (current implementation derives a 16-step ramp from the active palette by nearest-color search).
