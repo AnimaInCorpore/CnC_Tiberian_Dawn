@@ -47,13 +47,6 @@ struct Fonts {
 PlatformMouseState g_mouse_state{};
 KeyboardImpl g_keyboard{};
 Fonts g_fonts{};
-SDL_Texture* g_present_texture = nullptr;
-int g_present_width = 0;
-int g_present_height = 0;
-std::array<unsigned char, 256 * 3> g_present_palette_snapshot{};
-std::array<Uint32, 256> g_present_palette_lut{};
-bool g_present_palette_valid = false;
-std::vector<Uint32> g_present_argb{};
 
 struct CursorState {
   const unsigned char* shape = nullptr;  // Expected to be width*height bytes of palette indices (0 treated as transparent).
@@ -90,6 +83,16 @@ Uint32 Palette_Index_To_ARGB(const unsigned char* palette, int index) {
   const Uint8 b = fetch(2);
   return (0xFFu << 24) | (static_cast<Uint32>(r) << 16) | (static_cast<Uint32>(g) << 8) | b;
 }
+
+}  // namespace
+
+SDL_Texture* g_present_texture = nullptr;
+int g_present_width = 0;
+int g_present_height = 0;
+std::array<unsigned char, 256 * 3> g_present_palette_snapshot{};
+std::array<Uint32, 256> g_present_palette_lut{};
+bool g_present_palette_valid = false;
+std::vector<Uint32> g_present_argb{};
 
 void Ensure_Palette_Lut(const unsigned char* palette) {
   if (!palette) {
@@ -180,8 +183,6 @@ void Present_View(const GraphicViewPortClass& view) {
   SDL_RenderCopy(renderer, g_present_texture, nullptr, nullptr);
   SDL_RenderPresent(renderer);
 }
-
-}  // namespace
 
 SurfaceCollection AllSurfaces;
 
@@ -582,7 +583,7 @@ GraphicBufferClass* GraphicViewPortClass::Get_Graphic_Buffer() const { return im
 bool GraphicViewPortClass::Get_IsDirectDraw() const { return false; }
 
 void GraphicViewPortClass::Blit(const GraphicBufferClass& src, int src_x, int src_y, int dst_x, int dst_y,
-                                int width, int height) {
+                                int width, int height, bool present) {
   auto* dest_buffer = impl_->buffer ? impl_->buffer->Get_Buffer() : nullptr;
   const auto* src_buffer = src.Get_Buffer();
   if (!dest_buffer || !src_buffer) return;
@@ -599,17 +600,17 @@ void GraphicViewPortClass::Blit(const GraphicBufferClass& src, int src_x, int sr
     }
   }
 
-  if (this == &SeenBuff) {
+  if (present && this == &SeenBuff) {
     Present_View(*this);
   }
 }
 
 void GraphicViewPortClass::Blit(const GraphicBufferClass& src) {
-  Blit(src, 0, 0, impl_->x, impl_->y, src.Get_Width(), src.Get_Height());
+  Blit(src, 0, 0, impl_->x, impl_->y, src.Get_Width(), src.Get_Height(), true);
 }
 
 void GraphicViewPortClass::Blit(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width,
-                                int height) const {
+                                int height, bool present) const {
   const auto* src_storage = impl_->buffer;
   auto* dest_storage = dest.impl_->buffer;
   if (!src_storage || !dest_storage) return;
@@ -630,17 +631,17 @@ void GraphicViewPortClass::Blit(GraphicViewPortClass& dest, int src_x, int src_y
     }
   }
 
-  if (&dest == &SeenBuff) {
+  if (present && &dest == &SeenBuff) {
     Present_View(dest);
   }
 }
 
 void GraphicViewPortClass::Blit(GraphicViewPortClass& dest, int dst_x, int dst_y) const {
-  Blit(dest, impl_->x, impl_->y, dst_x, dst_y, impl_->width, impl_->height);
+  Blit(dest, impl_->x, impl_->y, dst_x, dst_y, impl_->width, impl_->height, true);
 }
 
 void GraphicViewPortClass::Blit(GraphicViewPortClass& dest) const {
-  Blit(dest, impl_->x, impl_->y, dest.impl_->x, dest.impl_->y, impl_->width, impl_->height);
+  Blit(dest, impl_->x, impl_->y, dest.impl_->x, dest.impl_->y, impl_->width, impl_->height, true);
 }
 
 void GraphicViewPortClass::Scale(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width,

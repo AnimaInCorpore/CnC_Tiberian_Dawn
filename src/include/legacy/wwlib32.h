@@ -179,12 +179,12 @@ public:
   GraphicBufferClass* Get_Graphic_Buffer() const;
   bool Get_IsDirectDraw() const;
   // Destination blits (buffer -> viewport).
-  void Blit(const GraphicBufferClass& src, int src_x, int src_y, int dst_x, int dst_y, int width, int height);
+  void Blit(const GraphicBufferClass& src, int src_x, int src_y, int dst_x, int dst_y, int width, int height, bool present = true);
   void Blit(const GraphicBufferClass& src);
 
   // Source blits (viewport -> viewport). The original code consistently calls
   // `source.Blit(dest, ...)` (e.g. `HidPage.Blit(SeenBuff)` to present).
-  void Blit(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width, int height) const;
+  void Blit(GraphicViewPortClass& dest, int src_x, int src_y, int dst_x, int dst_y, int width, int height, bool present = true) const;
   void Blit(GraphicViewPortClass& dest, int dst_x, int dst_y) const;
   void Blit(GraphicViewPortClass& dest) const;
 
@@ -330,3 +330,5 @@ struct PlatformMouseState {
 
 void Platform_Update_Mouse_State(const PlatformMouseState& state);
 void Platform_Queue_Key_Event(int key, bool pressed);
+
+void Present_View(const GraphicViewPortClass& view);
