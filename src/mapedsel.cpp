@@ -43,7 +43,7 @@
  *   MapEditClass::Change_House -- changes CurrentObject's house           *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include "legacy/function.h"
 
 #ifdef SCENARIO_EDITOR
 
