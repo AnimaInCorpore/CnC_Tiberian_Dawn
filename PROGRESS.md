@@ -136,8 +136,7 @@
 | `LOAD_TITLE.CPP` | `src/load_title.cpp` | legacy missing | Title palette normalization now mirrors the legacy PCX loader and no longer overwrites the first 16 palette entries, matching Win95 background colors. |
 | `LOGIC.CPP` | `src/logic.cpp` | differs | Ported to src/; game logic loop and orchestration now builds under SDL. |
 | `MAIN.CPP` | `src/main.cpp` | legacy missing | SDL bootstrap now requests a high-DPI window and nearest-neighbor scaling so UI/text pixels stay crisp. |
-| `WWLIB_RUNTIME.CPP` (present blit) | `src/wwlib_runtime.cpp` | legacy missing | Present texture now pins SDL texture scale mode to `nearest` to avoid blurry text when SDL scales the 8-bit buffer, and ModeX_Blit forwards legacy menu blits to the SDL presenter. |
-| `WWLIB_RUNTIME.CPP` (`WWMouseClass`) | `src/wwlib_runtime.cpp` | legacy missing | Implemented software cursor draw/erase (save-under + restore) and wired `Set_Mouse_Cursor` so legacy Hide/Show/Conditional mouse logic works. |
+| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | legacy missing | Present texture pins SDL scale mode to `nearest` to avoid blurry 8-bit UI; ModeX_Blit forwards legacy menu blits to the SDL presenter; implemented `WWMouseClass` cursor draw/erase + `Set_Mouse_Cursor`; added viewport/buffer blit helpers (including logic-page + buffer-backed text printing) used by dialogs/score; added `Get_Key`/`Check_Key` shims, buffer line drawing, lock/offset/pitch helpers, and Win95-style palette expansion (`<<2`) with a palette LUT for deterministic presentation. |
 | `MOUSE.CPP` | `src/mouse.cpp` | differs | Ported MouseClass cursor controller (loads `MOUSE.SHP`, supports small variants, and animates cursor frames via the legacy countdown timer). |
 | `GSCREEN.CPP` | `src/gscreen.cpp` | differs | Title screen blit texture also forces `nearest` scale mode to keep fonts/pixels sharp. |
 | `GSCREEN.CPP` | `src/gscreen.cpp` | differs | Blit_Display now routes through SeenBuff blits with mouse draw/erase hooks so SDL presentation matches the legacy flow and palette conversion stays consistent. |
@@ -177,7 +176,7 @@
 | `REINF.CPP` | `src/reinf.cpp` | differs | Ported to src/ with reinforcement creation logic wired for triggers. |
 | `SAVELOAD.CPP` | `src/saveload.cpp` | differs | Ported save/load and misc-value serialization routines (plus pointer coding) so savegame operations have a real implementation again. |
 | `SCENARIO.CPP` | `src/scenario.cpp` | differs | Ported to src/; scenario INI loading and theater setup preserved. |
-| `SCORE.CPP` | `src/score.cpp` | manual | Ported to src/; score/ending UI helpers and globals restored (verified against legacy aside from safe C++ changes). |
+| `SCORE.CPP` | `src/score.cpp` | manual | Ported to src/; score/ending UI helpers and globals restored (verified against legacy aside from safe C++ changes); fixed palette signedness/typing so indices > `0x7F` are stable cross-platform, and aligned multi-score palette pointer types/loop scoping for modern C++ builds. |
 | `SDATA.CPP` | `src/sdata.cpp` | differs | Ported to src/; smudge type tables/graphics restored. |
 | `SEQCONN.CPP` | `src/seqconn.cpp` | differs | Ported to src/; sequenced packet connection class preserved for future networking parity work. |
 | `SIDEBAR.CPP` | `src/sidebar.cpp` | differs | Ported to src/; sidebar UI logic restored. |
@@ -209,14 +208,14 @@
 | `COMPAT.H` | `src/include/legacy/compat.h` | differs | Palette/buffer macros and legacy globals wrapped in portable defaults. |
 | `DEFINES.H` | `src/include/legacy/defines.h` | differs | Lowercase mirror preserving gameplay feature toggles until modernization. |
 | `EXTERNS.H` | `src/include/legacy/externs.h` | differs | Lowercase copy to keep the sprawling extern declarations accessible. |
-| `FUNCTION.H` | `src/include/legacy/function.h` | differs | Lowercase mirror ensuring the UI hierarchy declarations keep compiling; added icon-set helper declarations used by the template pipeline. |
+| `FUNCTION.H` | `src/include/legacy/function.h` | differs | Lowercase mirror ensuring the UI hierarchy declarations keep compiling; added icon-set helpers, palette helpers (RGB/HSV), viewport Buffer_To_Page overloads, score/audio UI declarations (`Play_Sample`, animation + shape decode entry points, `Close_Animation`/`Check_Key`/`Get_Key`/`Wait_Blit`), plus CRC/icon/radar helpers (`Calculate_CRC`, `Get_Shape_Header_Data`, `Invalidate_Cached_Icons`). |
 | `MISSION.H` | `src/include/legacy/mission.h` | differs | Lowercase copy of the mission AI declarations for case-sensitive builds. |
 | `OBJECT.H` | `src/include/legacy/object.h` | differs | Lowercase mirror safeguarding the core object hierarchy headers. |
 | `REAL.H` | `src/include/legacy/real.h` | differs | Lowercase copy retaining the original fixed-point math helpers. |
 | `TARGET.H` | `src/include/legacy/target.h` | differs | Lowercase mirror for the targeting helper declarations. |
 | `TYPE.H` | `src/include/legacy/type.h` | differs | Lowercase copy of the shared enums/typedefs used throughout the game. |
 | `WWFILE.H` | `src/include/legacy/wwfile.h` | differs | FileClass interface refreshed with `std::size_t` and a namespace alias. |
-| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | legacy missing | Navigation key constants now mirror SDL keycodes for menu/input handling; added viewport stamp/scale helpers used by template previews. |
+| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | legacy missing | Navigation/key constants mirror SDL keycodes; added `Set_Font`/font hooks, viewport stamp/scale helpers, dialog/score blit helpers (viewport-to-viewport, buffer-to-buffer, logic-page overloads), buffer line drawing hooks, and lock/offset/pitch helpers used by palette/interpolation flows. |
 | `WATCOM.H` | `src/include/legacy/watcom.h` | differs | Watcom pragma wrappers swapped for GCC diagnostic helpers. |
 | `PLATFORM (new)` | `src/include/legacy/platform.h` | legacy missing | Win16/Watcom typedef shim that turns `near`/`far` keywords into no-ops. |
 | `WINDOWS_COMPAT (new)` | `src/include/legacy/windows_compat.h` | legacy missing | Win32 handle/struct typedef shim so the port never includes platform headers directly. |
@@ -342,44 +341,16 @@
 | `UTRACKER.H` | `src/include/legacy/utracker.h` | differs | Lowercase mirror retained for Linux-friendly includes. |
 | `VISUDLG.H` | `src/include/legacy/visudlg.h` | identical | Lowercase mirror retained for Linux-friendly includes. |
 | `WWALLOC.H` | `src/include/legacy/wwalloc.h` | differs | Lowercase mirror retained for Linux-friendly includes. |
-| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | legacy missing | Added `KN_TAB` and `Set_Font` helper to align sidebar/font usage with SDL key constants. |
 | `OPTIONS.H` | `src/include/legacy/options.h` | differs | Added legacy `Set_Score_Vol` alias for score volume control. |
-| `FUNCTION.H` | `src/include/legacy/function.h` | differs | Declared palette helpers and RGB/HSV conversion utilities used by options and score flows. |
 | `DISPLAY.CPP` | `src/display.cpp` | differs | Added palette setter plus HSV conversion helpers to support options palette adjustments. |
 | `MSGLIST.CPP` | `src/msglist.cpp` | differs | Included the message list header so the class definitions are complete for compilation. |
 | `MSGLIST.H` | `src/include/legacy/msglist.h` | differs | Added required includes so message list types/constants resolve. |
 | `TXTLABEL.H` | `src/include/legacy/txtlabel.h` | differs | Added missing includes for gadget and text flag dependencies. |
-| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | legacy missing | Added legacy key constants and new blit/to-buffer helper declarations. |
-| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | legacy missing | Implemented buffer blit overload and viewport copy helpers for message dialogs. |
-| `FUNCTION.H` | `src/include/legacy/function.h` | differs | Declared Buffer_To_Page overloads for viewports. |
 | `BUFFER_TO_PAGE.CPP` | `src/buffer_to_page.cpp` | legacy missing | Added viewport overloads for raw buffer copies. |
 | `FTIMER.H` | `src/include/legacy/ftimer.h` | differs | Added CountDownTimerClass start helper for modal message timing. |
-| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | legacy missing | Added viewport blit overloads for message box restore paths. |
-| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | legacy missing | Implemented viewport blit overload for buffer restore in dialogs. |
-| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | legacy missing | Added buffer-to-buffer blit overloads used by message box saves. |
-| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | legacy missing | Implemented buffer-to-buffer blit for dialog buffer preservation. |
-| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | legacy missing | Added logic-page overloads and text print helpers for score rendering. |
-| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | legacy missing | Implemented buffer-backed logic pages and buffer text printing for score flows. |
-| `FUNCTION.H` | `src/include/legacy/function.h` | differs | Declared Play_Sample for score audio hooks. |
 | `AUDIO.CPP` | `src/audio.cpp` | differs | Removed duplicate default argument on Play_Sample declaration. |
-| `FUNCTION.H` | `src/include/legacy/function.h` | differs | Added WSA animation declarations and StreamLowImpact flag used by score screens. |
-| `PORT_STUBS.CPP` | `src/port_runtime.cpp` | legacy missing | Ported WSA/SHP drawing entry points: `Open_Animation`/`Animate_Frame`/`Get_Animation_Frame_Count`/`Close_Animation`, `Extract_Shape_Count`, and `CC_Draw_Shape` now decode and blit frames (incl. fade/translucency tables) for score/UI flows. |
-| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | legacy missing | Added buffer blit/fill helpers needed by score screen drawing. |
-| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | legacy missing | Implemented buffer blit/fill helpers and Check_Key shim for score loops. |
-| `FUNCTION.H` | `src/include/legacy/function.h` | differs | Added Close_Animation/Check_Key/Extract_Shape_Count declarations for score flow. |
-| `PORT_STUBS.CPP` | `src/port_runtime.cpp` | legacy missing | Removed placeholder Close_Animation/Extract_Shape_Count by wiring them into the real keyframe decoder. |
-| `SCORE.CPP` | `src/score.cpp` | manual | Fixed palette type and loop variable scoping for modern C++ builds. |
-| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | legacy missing | Added KN_Q/KA_TILDA constants and buffer line drawing hook. |
-| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | legacy missing | Implemented buffer line drawing and Get_Key shim. |
-| `FUNCTION.H` | `src/include/legacy/function.h` | differs | Added Get_Key declaration for score name entry. |
-| `SCORE.CPP` | `src/score.cpp` | manual | Updated multi-score palettes to unsigned char to avoid narrowing errors. |
-| `SCORE.CPP` | `src/score.cpp` | manual | Aligned multi-score palette pointer types with unsigned char buffers. |
-| `WWLIB32.H` | `src/include/legacy/wwlib32.h` | legacy missing | Added lock/offset and pitch helpers needed by palette interpolation. |
-| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | legacy missing | Implemented buffer/view offsets plus lock helpers for interpolation paths. |
-| `FUNCTION.H` | `src/include/legacy/function.h` | differs | Added Wait_Blit declaration for interpolation flow. |
-| `PORT_STUBS.CPP` | `src/port_runtime.cpp` | legacy missing | Implemented `Wait_Blit` to pump SDL events and yield (keeps palette interpolation flows responsive and closer to the Win95 “wait for blitter/vblank” intent). |
+| `PORT_STUBS.CPP` | `src/port_runtime.cpp` | legacy missing | Ported WSA/SHP drawing entry points: `Open_Animation`/`Animate_Frame`/`Get_Animation_Frame_Count`/`Close_Animation`, `Extract_Shape_Count`, and `CC_Draw_Shape` now decode and blit frames (incl. fade/translucency tables) for score/UI flows; added global animation helper definitions for link parity and removed the duplicate `Send_Data_To_DDE_Server` stub so CCDDE is authoritative. |
 | `DISPLAY.CPP` | `src/display.cpp` | differs | Updated `Fade_Palette_To` so fades are visible even when callers pass `NULL` and paced in Win95-style 60Hz ticks. |
-| `WWLIB_RUNTIME.CPP` | `src/wwlib_runtime.cpp` | legacy missing | Adjusted palette expansion to Win95-style 6-bit→8-bit (`<<2`) and added a palette LUT to keep SDL presentation behavior deterministic and fast. |
 | `SMUDGE.H` | `src/include/legacy/smudge.h` | differs | Included `wwfile.h` so FileClass I/O methods resolve. |
 | `SDATA.CPP` | `src/sdata.cpp` | differs | Added missing legacy includes for theater/mix/map helpers used by smudge setup. |
 | `HELP.CPP` | `src/help.cpp` | differs | Added HelpClass destructor definition to satisfy vtable linkage. |
@@ -398,10 +369,7 @@
 | `GAMEDLG.CPP` | `src/gamedlg.cpp` | differs | Ported game controls dialog processing. |
 | `LOADDLG.CPP` | `src/loaddlg.cpp` | differs | Re-synced the Win95 load/save/delete dialog: adds the SAVE “Empty Slot” entry, preserves “(old)” save markers, sorts newest-first, enforces description + disk-space rules, prompts on delete, and matches the original exit/refresh flow. |
 | `MAP.CPP` / `LOGIC.CPP` | `src/map.cpp` / `src/logic.cpp` | differs | Restored the original map/logic runtime and removed the linked gameplay/map stub units; fixed `MapClass::Read_Binary` to read packed `.BIN` map cell streams (no struct padding), eliminating the scenario-load crash when starting new campaigns. |
-| `PORT_STUBS.CPP` | `src/port_runtime.cpp` | legacy missing | Added global animation helper definitions for link parity. |
 | `CRC` | `src/crc_helpers.cpp` | legacy missing | Added Calculate_CRC helper used by obfuscation and legacy CRC checks. |
-| `FUNCTION.H` | `src/include/legacy/function.h` | differs | Declared Calculate_CRC helper for obfuscation and network CRC usage. |
-| `FUNCTION.H` | `src/include/legacy/function.h` | differs | Declared Get_Shape_Header_Data helper for radar icon extraction. |
 | `BITBLT` | `src/bitblt_helpers.cpp` | legacy missing | Implemented the original `Bit_It_In_Scale` pixel-fade blit effect (randomized copy with optional “dagger” overlay) instead of a simple blit placeholder. |
 | `SOUNDDLG.CPP` / `VISUDLG.CPP` | `src/sounddlg.cpp`, `src/visudlg.cpp` | manual | Ported the sound/visual controls dialogs so the options flow uses real handlers (no placeholder behavior). |
 | `MOUSE.H` | `src/mouse_vtable.cpp` | differs | Defined MouseClass VTable storage to satisfy serialization references. |
@@ -412,11 +380,9 @@
 | `BUILD FIXES` | `src/*.cpp` | legacy missing | Cleaned up a handful of warnings that commonly break strict builds (snprintf, signed/unsigned comparisons, missing default cases, and NULL-to-integer conversions). |
 | `CCDDE.CPP` | `src/ccdde.cpp` | differs | Replaced the `Send_Data_To_DDE_Server` stub with a portable UDP localhost implementation for launcher/lobby integration. |
 | `DDE.CPP` | `src/dde.cpp` | differs | Implemented a cross-platform DDE replacement using loopback UDP sockets (client poke + optional server bind) to preserve the legacy API surface. |
-| `PORT_STUBS.CPP` | `src/port_runtime.cpp` | legacy missing | Removed the duplicate `Send_Data_To_DDE_Server` stub so the CCDDE implementation is authoritative. |
 | Tracking | `PROGRESS.md`, `NEXT_STEPS.md`, `README.md` | manual | Removed stale “stubbed” wording where implementations are now present (DDE/CCDDE/TCPIP/Map shim notes) and kept follow-ups scoped to incomplete subsystems. |
 | `INTRO.CPP` (`Choose_Side`) | `src/intro.cpp`, `src/port_runtime.cpp`, `src/include/legacy/function.h` | manual | Replaced the temporary message-box stub with the legacy choose-side animation flow and briefing playback, fixed `Load_Alloc_Data(FileClass&)` to allocate via `Alloc()` so `Free()` is safe, and added a portable `Wait_Vert_Blank()` hook used by legacy UI code. |
 | `DISPLAY.CPP` | `src/display.cpp` | differs | Restored `DisplayClass::Compute_Start_Pos`/`Write_INI` implementations needed by scenario INI workflows. |
-| `FUNCTION.H` | `src/include/legacy/function.h` | differs | Declared `Invalidate_Cached_Icons` and implemented it for the SDL icon path. |
 | `MPLAYER.CPP` (`Surrender_Dialog`) | `src/port_runtime.cpp` | differs | Ported the in-game surrender confirmation dialog (OK/Cancel) and removed the unconditional “accept” stub. |
 | `WWALLOC` (`Ram_Free`/`Heap_Size`) | `src/alloc.cpp` | legacy missing | Removed placeholder “infinite RAM” return; allocations are now tracked with a size header and `Ram_Free` reports remaining bytes based on `SDL_GetSystemRAM()`. |
 | `DEBUG/STARTUP` | `src/port_debug.h`, `src/maingame.cpp` | manual | Added verbose startup tracing gated by `TD_VERBOSE=1` / `--verbose` / `--debug`, plus an opt-in `TD_AUTOSTART_SCENARIO=SCG01EA` debug hook (with `TD_AUTOSTART_LOAD_ONLY=1`) to reproduce scenario loads without driving the main menu. |
