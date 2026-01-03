@@ -1472,13 +1472,13 @@ int AircraftClass::Exit_Object(TechnoClass * unit)
 	if (unit->Unlimbo(Coord, Facing_Dir(_toface[chosen_face]))) {
 		unit->Assign_Mission(MISSION_MOVE);
 		unit->Assign_Destination(::As_Target(cell));
-		if (Transmit_Message(RADIO_HELLO, unit) == RADIO_ROGER) {
-			Transmit_Message(RADIO_UNLOAD);
+			if (Transmit_Message(RADIO_HELLO, unit) == RADIO_ROGER) {
+				Transmit_Message(RADIO_UNLOAD);
+			}
+			return(true);
 		}
-		return(true);
+		return(false);
 	}
-	return(false);
-}
 
 
 /***********************************************************************************************
@@ -1908,6 +1908,7 @@ int AircraftClass::Process_Fly_To(bool slowdown)
 
 
 #ifdef CHEAT_KEYS
+#include "aircraft_debug_dump_text.inc"
 /***********************************************************************************************
  * AircraftClass::Debug_Dump -- Displays the status of the aircraft to the mono monitor.       *
  *                                                                                             *
@@ -1927,27 +1928,7 @@ void AircraftClass::Debug_Dump(MonoClass *mono) const
 {
 	Validate();
 	mono->Set_Cursor(0, 0);
-	mono->Print(
-		"�Name:���������������Mission:����TarCom:�NavCom:�Radio:�Coord:���Altitude�St:Ŀ\n"
-		"�                   �           �       �       �      �        �        �    �\n"
-		"����������������N�Y�Health:��Fdir:��Bdir:��Speed:��������������Cargo:��������Ĵ\n"
-		"�Active........� � �        �     �       �      �            �               �\n"
-		"�Limbo.........� � ����������������������������������������������������������Ĵ\n"
-		"�Owned.........� � �Last Message:                                             �\n"
-		"�Discovered....� � �Timer:�Arm:������������������Flash:�Stage:�Team:�����Arch:�\n"
-		"�Selected......� � �      �    �      �         �      �      �         �     �\n"
-		"�Teathered.....� � ������������������������������������������������������������\n"
-		"�Locked on Map.� � �                                                           \n"
-		"�              � � �                                                           \n"
-		"�Is A Loaner...� � �                                                           \n"
-		"�Is Landing....� � �                                                           \n"
-		"�Is Taking Off.� � �                                                           \n"
-		"�              � � �                                                           \n"
-		"�              � � �                                                           \n"
-		"�              � � �                                                           \n"
-		"�Recoiling.....� � �                                                           \n"
-		"�To Display....� � �                                                           \n"
-		"��������������������                                                           \n");
+	mono->Print(reinterpret_cast<char const*>(AircraftDebugDumpText));
 	mono->Set_Cursor(1, 1);mono->Printf("%s:%s", House->Class->IniName, Class->IniName);
 	mono->Set_Cursor(36, 3);mono->Printf("%02X:%02X", SecondaryFacing.Current(), SecondaryFacing.Desired());
 	mono->Set_Cursor(42, 1);mono->Printf("%04X", NavCom);

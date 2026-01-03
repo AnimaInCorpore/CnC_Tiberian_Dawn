@@ -1,5 +1,5 @@
 /* Ported from AUDIO.CPP -- EVA and SFX control logic. */
-#include "function.h"
+#include "legacy/function.h"
 
 // Playback primitives (implemented in src/audio_play.cpp for the SDL port build)
 extern int Play_Sample(void const *data, int priority, int volume, int pan);
