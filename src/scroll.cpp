@@ -1,4 +1,4 @@
-#include "function.h"
+#include "legacy/function.h"
 #include "scroll.h"
 
 namespace {

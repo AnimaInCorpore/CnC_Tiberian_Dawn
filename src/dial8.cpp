@@ -2,7 +2,7 @@
 **	Command & Conquer(tm) — Dial8 port
 */
 
-#include "function.h"
+#include "legacy/function.h"
 #include "dial8.h"
 
 Dial8Class::Dial8Class(int id, int x, int y, int w, int h, DirType dir) :

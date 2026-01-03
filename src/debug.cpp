@@ -2,7 +2,7 @@
 ** Debug helpers (partial port)
 */
 
-#include "function.h"
+#include "legacy/function.h"
 #include "wwlib32.h"
 #include "wwalloc.h"
 #include <unistd.h>

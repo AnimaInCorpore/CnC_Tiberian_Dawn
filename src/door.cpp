@@ -2,7 +2,7 @@
 **	Command & Conquer(tm) — Door port
 */
 
-#include "function.h"
+#include "legacy/function.h"
 #include "door.h"
 
 DoorClass::DoorClass(void)

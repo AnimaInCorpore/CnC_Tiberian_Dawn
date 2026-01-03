@@ -1,4 +1,4 @@
-#include "function.h"
+#include "legacy/function.h"
 #include "checkbox.h"
 
 int CheckBoxClass::Draw_Me(int forced) {

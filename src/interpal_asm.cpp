@@ -1,4 +1,4 @@
-#include "function.h"
+#include "legacy/function.h"
 
 #include <algorithm>
 
@@ -113,4 +113,3 @@ void __cdecl Asm_Interpolate_Line_Interpolate(unsigned char* src_ptr, unsigned c
                                               int src_width, int dest_width) {
   Interpolate_Scale(src_ptr, dest_ptr, lines, src_width, dest_width, false, false);
 }
-

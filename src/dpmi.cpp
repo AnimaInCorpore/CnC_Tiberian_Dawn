@@ -2,7 +2,7 @@
 **	Command & Conquer(tm) — DPMI portability layer
 */
 
-#include "function.h"
+#include "legacy/function.h"
 #include "dpmi.h"
 #include <cstring>
 #include <vector>

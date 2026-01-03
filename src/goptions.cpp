@@ -37,7 +37,7 @@
  *   Draw_Caption -- Draws a caption on a dialog box.                                          *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "legacy/function.h"
 
 #include "goptions.h"
 #include "loaddlg.h"

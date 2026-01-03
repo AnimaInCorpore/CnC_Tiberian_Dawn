@@ -1,4 +1,4 @@
-#include "function.h"
+#include "legacy/function.h"
 #include "control.h"
 
 ControlClass::~ControlClass() = default;

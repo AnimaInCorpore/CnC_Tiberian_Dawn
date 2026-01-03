@@ -1,4 +1,4 @@
-#include "function.h"
+#include "legacy/function.h"
 #include "edit.h"
 #include "wwlib32.h"
 

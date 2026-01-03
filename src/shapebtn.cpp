@@ -1,4 +1,4 @@
-#include "function.h"
+#include "legacy/function.h"
 #include "shapebtn.h"
 
 ShapeButtonClass::ShapeButtonClass() : ToggleClass(0, 0, 0, 0, 0) { ReflectButtonState = false; }

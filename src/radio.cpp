@@ -1,4 +1,4 @@
-#include "function.h"
+#include "legacy/function.h"
 #include "radio.h"
 
 char const* RadioClass::Messages[RADIO_COUNT] = {

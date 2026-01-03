@@ -38,7 +38,7 @@
  *   CreditClass::CreditClass -- Default constructor for the credit class object.              *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "legacy/function.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -163,4 +163,3 @@ void CreditClass::AI(bool forced) {
   IsToRedraw = true;
   Map.Flag_To_Redraw(false);
 }
-

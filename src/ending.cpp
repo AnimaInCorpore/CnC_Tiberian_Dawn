@@ -2,7 +2,7 @@
 **	Command & Conquer(tm) - ported ending sequence
 */
 
-#include "function.h"
+#include "legacy/function.h"
 #include "textblit.h"
 #include <vector>
 #include <cstring>
@@ -218,4 +218,3 @@ void Nod_Ending(void)
     BlitList.Clear();
 }
 #endif
-

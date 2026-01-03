@@ -1,4 +1,4 @@
-#include "function.h"
+#include "legacy/function.h"
 #include "cheklist.h"
 
 CheckListClass::CheckListClass(int id, int x, int y, int w, int h, TextPrintType flags,

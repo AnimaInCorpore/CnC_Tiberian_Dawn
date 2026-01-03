@@ -2,7 +2,7 @@
 
 #include <SDL.h>
 
-#include "function.h"
+#include "legacy/function.h"
 #include "legacy/audio.h"
 #include "legacy/defines.h"
 #include "legacy/externs.h"

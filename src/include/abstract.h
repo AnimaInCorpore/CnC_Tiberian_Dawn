@@ -1,6 +1,6 @@
 #pragma once
 
-#include "function.h"
+#include "legacy/function.h"
 #include "type.h"
 
 class AbstractClass

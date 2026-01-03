@@ -41,7 +41,7 @@
  *                                                                                             *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include "function.h"
+#include "legacy/function.h"
 
 BOOL	InterpolationPaletteChanged = FALSE;
 extern "C" {
@@ -452,7 +452,6 @@ void Interpolate_2X_Scale( GraphicBufferClass *source, GraphicViewPortClass *des
 
 }
 #endif
-
 
 
 

@@ -1,6 +1,6 @@
 #include <algorithm>
 
-#include "function.h"
+#include "legacy/function.h"
 #include "slider.h"
 
 SliderClass::SliderClass(unsigned id, int x, int y, int w, int h, int belong_to_list)

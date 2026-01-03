@@ -2,7 +2,7 @@
 ** Description dialog port (partial)
 */
 
-#include "function.h"
+#include "legacy/function.h"
 #include "descdlg.h"
 
 void DescriptionClass::Process(char *string)
