@@ -34,6 +34,17 @@ bool Can_Show_Graphic_Error() {
   return FontPtr != nullptr && SeenBuff.Get_Width() > 0 && SeenBuff.Get_Height() > 0;
 }
 
+bool Commit_File_Handle(int handle) {
+  if (handle < 0) {
+    return false;
+  }
+#if defined(_WIN32)
+  return ::_commit(handle) == 0;
+#else
+  return ::fsync(handle) == 0;
+#endif
+}
+
 KeyNumType Wait_For_Any_Key() {
   Keyboard::Clear();
   for (;;) {
@@ -277,7 +288,17 @@ long RawFileClass::Write(void const* buffer, long size) {
 
 void RawFileClass::Close() {
   if (Handle >= 0) {
-    ::close(Handle);
+    if ((Rights & WRITE) != 0) {
+      if (!Commit_File_Handle(Handle)) {
+        const int commit_errno = errno ? errno : EIO;
+        Error(commit_errno, false, Filename);
+      }
+    }
+    if (::close(Handle) != 0) {
+      const int close_errno = errno ? errno : EIO;
+      Handle = -1;
+      Error(close_errno, false, Filename);
+    }
     Handle = -1;
   }
 }
