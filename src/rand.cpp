@@ -1,6 +1,6 @@
+#include "legacy/function.h"
 #include "rand.h"
 
-#include <algorithm>
 #include <cstdint>
 
 int SimRandIndex = 0;
@@ -41,19 +41,7 @@ int Sim_Random() {
 }
 
 int Sim_IRandom(int minval, int maxval) {
-  if (minval == maxval) {
-    return minval;
-  }
-  if (minval > maxval) {
-    std::swap(minval, maxval);
-  }
-  const int range = maxval - minval;
-  if (range <= 0) {
-    return minval;
-  }
-  const int sample = Sim_Random();
-  const int scaled = (range * sample + 0x80) >> 8;
-  return minval + scaled;
+  return Fixed_To_Cardinal((maxval - minval), Sim_Random()) + minval;
 }
 
 int IRandom(int minval, int maxval) {

@@ -24,7 +24,7 @@
 | `GLOBALS.CPP` | `src/globals.cpp` | differs | Ported to src/, replaced NULL with nullptr, disabled legacy networking code, and restored the `Hard_Error_Occured` global used by legacy file I/O. |
 | `FTIMER.H` | `src/include/ftimer.h` | differs | Countdown timer helper rewritten with `#pragma once` and the global `Frame` counter. |
 | `RAND.H` | `src/rand.h` | legacy missing | Random helper declarations cleaned up to use `<cstdint>` types. |
-| `RAND.CPP` | `src/rand.cpp` | differs | Random lookup table logic now relies on standard headers and explicit scaling. |
+| `RAND.CPP` | `src/rand.cpp` | build | Restored Win95 `Sim_IRandom()` semantics by delegating to `Fixed_To_Cardinal(...)` (removes non-legacy min/max guards and matches legacy wrap/rounding behavior). |
 | `VECTOR.H` | `src/vector.h` | differs | Vector template modernized with RAII allocation and portable guards. |
 | `VECTOR.CPP` | `src/vector.cpp` | differs | Boolean vector utilities rewritten around clear helpers and `std::memcpy`. |
 | `LINK.CPP` | `src/link.cpp` | differs | Doubly linked helper now uses `nullptr` checks and RAII-friendly removal. |
@@ -34,7 +34,7 @@
 | `TAB.CPP` | `src/tab.cpp` | differs | Sidebar tab UI now lives in `src/` with `nullptr` guards and cleaned text drawing helpers. |
 | `TOGGLE.CPP` | `src/toggle.cpp` | differs | Windows-style toggle gadget refactored with explicit hover handling and sticky state flow. |
 | `TXTLABEL.CPP` | `src/txtlabel.cpp` | differs | Text label gadget retained the quirky format print path with optional clipping width tracking. |
-| `CHECKBOX.CPP` | `src/checkbox.cpp` | differs | Checkbox gadget draws the interior using the shared box helpers and keeps mouse flicker hidden. |
+| `CHECKBOX.CPP` | `src/checkbox.cpp` | build | Restored legacy `Hide_Mouse()`/`Show_Mouse()` draw bracketing (matches Win95 behavior and avoids conditional hide semantics). |
 | `CHEKLIST.CPP` | `src/cheklist.cpp` | differs | Check list delegates selection to `ListClass` then toggles the inline checkmark unless read-only. |
 | `COLRLIST.CPP` | `src/colrlist.cpp` | differs | Color-aware list tracks a parallel color vector and draws selected entries using the requested style. |
 | `EDIT.CPP` | `src/edit.cpp` | differs | Edit control rebuilt with explicit focus handling, read-only guards, and caret drawing driven by the modern viewport helpers. |

@@ -6,9 +6,7 @@ int CheckBoxClass::Draw_Me(int forced) {
     return false;
   }
 
-  if (LogicPage == &SeenBuff) {
-    Conditional_Hide_Mouse(X, Y, X + Width - 1, Y + Height - 1);
-  }
+  Hide_Mouse();
   Draw_Box(X, Y, Width, Height, BOXSTYLE_GREEN_DOWN, false);
   LogicPage->Fill_Rect(X + 1, Y + 1, X + Width - 2, Y + Height - 2, DKGREY);
 
@@ -17,8 +15,6 @@ int CheckBoxClass::Draw_Me(int forced) {
     LogicPage->Draw_Line(X + Width - 2, Y + 1, X + 1, Y + Height - 2, BLACK);
   }
 
-  if (LogicPage == &SeenBuff) {
-    Conditional_Show_Mouse();
-  }
+  Show_Mouse();
   return true;
 }
