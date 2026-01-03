@@ -268,34 +268,34 @@ void Map_Selection(void)
 	if (CountryArray[scenario].Choices[ScenDir]==0) return;
 
 	Theme.Queue_Song(THEME_MAP1);
-	PseudoSeenBuff = new GraphicBufferClass(320,200,(void*)NULL);
+	PseudoSeenBuff = new GraphicBufferClass(320,200,nullptr);
 
 	/*
 	** Extra graphic buffer to draw text into
 	*/
-	TextPrintBuffer = new GraphicBufferClass(SeenBuff.Get_Width(), SeenBuff.Get_Height(), (void*)NULL);
+	TextPrintBuffer = new GraphicBufferClass(SeenBuff.Get_Width(), SeenBuff.Get_Height(), nullptr);
 	TextPrintBuffer->Clear();
 	BlitList.Clear();
 
 	/*
 	** Now start the process where we fade the gray earth in.
 	*/
-	greyearth  = Open_Animation("GREYERTH.WSA", NULL, 0, (WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE), localpalette);
-	greyearth2 = Open_Animation("E-BWTOCL.WSA", NULL, 0, (WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE), grey2palette);
+	greyearth  = Open_Animation("GREYERTH.WSA", nullptr, 0, (WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE), localpalette);
+	greyearth2 = Open_Animation("E-BWTOCL.WSA", nullptr, 0, (WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE), grey2palette);
 
 	/*
 	** Load the spinning-globe anim
 	*/
 	if (house == HOUSE_GOOD) {
 		//anim     = Open_Animation("EARTH_E.WSA", NULL,0,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),Palette);
-		anim     = Open_Animation("HEARTH_E.WSA", NULL,0,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),Palette);
+		anim     = Open_Animation("HEARTH_E.WSA", nullptr,0,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),Palette);
 		//progress = Open_Animation(lastscenario ? "BOSNIA.WSA" : "EUROPE.WSA",NULL,0,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),progresspalette);
-		progress = Open_Animation(lastscenario ? "HBOSNIA.WSA" : "EUROPE.WSA",NULL,0,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),progresspalette);
+		progress = Open_Animation(lastscenario ? "HBOSNIA.WSA" : "EUROPE.WSA",nullptr,0,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),progresspalette);
 	} else {
 		//anim     = Open_Animation("EARTH_A.WSA", NULL,0,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),Palette);
-		anim     = Open_Animation("HEARTH_A.WSA", NULL,0,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),Palette);
+		anim     = Open_Animation("HEARTH_A.WSA", nullptr,0,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),Palette);
 		//progress = Open_Animation(lastscenario ? "S_AFRICA.WSA" : "AFRICA.WSA",NULL,0,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),progresspalette);
-		progress = Open_Animation(lastscenario ? "HSAFRICA.WSA" : "AFRICA.WSA",NULL,0,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),progresspalette);
+		progress = Open_Animation(lastscenario ? "HSAFRICA.WSA" : "AFRICA.WSA",nullptr,0,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),progresspalette);
 	}
 
 	void const * appear1 = MixFileClass::Retrieve("APPEAR1.AUD");
@@ -365,7 +365,7 @@ void Map_Selection(void)
 	SysMemPage.Clear();
 	Animate_Frame(anim, SysMemPage, 1);//, 0,0, (WSAType)0,0,0);
 	SysMemPage.Blit(*PseudoSeenBuff);
-	Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff ,NULL);
+	Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff ,nullptr);
 
 	Stop_Speaking();
 
@@ -380,7 +380,7 @@ void Map_Selection(void)
 	** now make the grid appear
 	*/
 	SysMemPage.Blit(*PseudoSeenBuff);
-	Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff, NULL);
+	Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff, nullptr);
 	Play_Sample(sfx4, 255, Options.Normalize_Sound(130));
 	Play_Sample(text2, 255, Options.Normalize_Sound(90));
 
@@ -512,7 +512,7 @@ void Map_Selection(void)
 	PseudoSeenBuff->Fill_Rect(xcoord,0,xcoord + 6*16,8,BLACK);
 	TextPrintBuffer->Fill_Rect(2*xcoord,0,2*(xcoord + 6*16),2*8,BLACK);
 #endif
-	Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff,NULL);
+	Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff,nullptr);
 	SysMemPage.Blit(backpage, xcoord,1, 0,0, 20*6,8);
 	if (!lastscenario) {
 		Play_Sample(text2, 255, Options.Normalize_Sound(90));
@@ -537,7 +537,7 @@ void Map_Selection(void)
 	PseudoSeenBuff->Fill_Rect(xcoord,12,xcoord+6*16,20,BLACK);
 	TextPrintBuffer->Fill_Rect(2*xcoord,2*12,2*(xcoord+6*16),2*20,BLACK);
 #endif
-	Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff,NULL);
+	Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff,nullptr);
 
 	startframe = CountryArray[scenario].ContAnim[ScenDir];
 
@@ -662,7 +662,7 @@ void Map_Selection(void)
 		TextPrintBuffer->Fill_Rect(0,2*160, 2*20*6,2*176, BLACK);
 #endif
 	}
-	Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff, NULL);
+	Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff, nullptr);
 
 	/*
 	** Now the crosshairs are over the target countries - loop until a
@@ -733,7 +733,7 @@ void Map_Selection(void)
 		PseudoSeenBuff->Fill_Rect(attackxcoord+(17*6),160, attackxcoord+(21*6),178,BLACK);
 		TextPrintBuffer->Fill_Rect(2*attackxcoord+(17*6*2),2*160, 2*(attackxcoord+(21*6)),2*178,BLACK);
 #endif	//GERMAN
-		Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff ,NULL);
+		Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff ,nullptr);
 
 		/*
 		** Draw the country's shape in non-fading colors
@@ -747,7 +747,7 @@ void Map_Selection(void)
 					 _countryx[xyindex],_countryy[xyindex],
 					 WINDOW_MAIN, SHAPE_WIN_REL | SHAPE_CENTER, 0,0);
 		SysMemPage.Blit(*PseudoSeenBuff);
-		Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff ,NULL);
+		Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff ,nullptr);
 
 		/*
 		** Now clear the palette of all but the country's colors, and fade
@@ -783,7 +783,7 @@ void Map_Selection(void)
 		PseudoSeenBuff->Fill_Rect(attackxcoord, 160, attackxcoord + (17*6), 199, BLACK);	// erase "Select country to attack"
 		TextPrintBuffer->Fill_Rect(2*attackxcoord, 2*160, 2*(attackxcoord + (17*6)), 2*199, BLACK);	// erase "Select country to attack"
 #endif
-		Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff, NULL);
+		Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff, nullptr);
 		Animate_Frame(progress, *PseudoSeenBuff, Get_Animation_Frame_Count(progress)-1);
 		Set_Palette(localpalette);
 		Close_Animation(progress);
@@ -792,12 +792,12 @@ void Map_Selection(void)
 	}
 
 	Theme.Queue_Song(THEME_NONE);
-	Fade_Palette_To(BlackPalette, FADE_PALETTE_MEDIUM, NULL);
+	Fade_Palette_To(BlackPalette, FADE_PALETTE_MEDIUM, nullptr);
 	delete europe;
 	delete progresspalette;
 	delete grey2palette;
 	delete TextPrintBuffer;
-	TextPrintBuffer = NULL;
+	TextPrintBuffer = nullptr;
 	BlitList.Clear();
 }
 
@@ -1271,5 +1271,5 @@ void Bit_It_In_Scale(int x, int y, int w, int h, GraphicBufferClass *src, Graphi
 
 void Bit_It_In(int x, int y, int w, int h, GraphicBufferClass *src, GraphicBufferClass *dest, int delay, int dagger)
 {
-	Bit_It_In_Scale (x, y, w, h,  src, dest, NULL , delay,  dagger);
+	Bit_It_In_Scale (x, y, w, h,  src, dest, nullptr , delay,  dagger);
 }

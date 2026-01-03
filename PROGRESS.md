@@ -447,5 +447,6 @@
 ## Pending follow-ups
 - `COORD PACKING` (`XYP_COORD`): made `XYP_COORD(x,y)` mask before shifting so negative Y offsets don’t invoke undefined behavior under Clang/GCC while preserving the legacy 16-bit high-word packing (`src/include/legacy/function.h`, `src/include/legacy/real.h`).
 - `BUILD HYGIENE`: removed an unused local `RedrawType` typedef and annotated legacy layout fields with `[[maybe_unused]]` so `-DTD_ENABLE_WERROR=ON` builds cleanly (`src/loaddlg.cpp`, `src/include/legacy/sounddlg.h`).
+- `BUILD HYGIENE`: replaced remaining legacy `NULL` call sites with `nullptr` in score/map-selection flows (`src/score.cpp`, `src/mapsel.cpp`).
 - Improve SDL audio mixer parity (channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).
 - Verify the `TPF_USE_GRAD_PAL` gradient ramp selection matches Win95 shading (current implementation derives a 16-step ramp from the active palette by nearest-color search).

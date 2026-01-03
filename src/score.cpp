@@ -614,8 +614,8 @@ void ScoreClass::Presentation(void)
 
 	if (Special.IsJurassic && AreThingiesEnabled) return;
 
-	PseudoSeenBuff = new GraphicBufferClass(320,200,(void*)NULL);
-	TextPrintBuffer = new GraphicBufferClass(SeenBuff.Get_Width(), SeenBuff.Get_Height(), (void*)NULL);
+	PseudoSeenBuff = new GraphicBufferClass(320,200,nullptr);
+	TextPrintBuffer = new GraphicBufferClass(SeenBuff.Get_Width(), SeenBuff.Get_Height(), nullptr);
 	TextPrintBuffer->Clear();
 	BlitList.Clear();
 	Disable_Uncompressed_Shapes ();
@@ -641,7 +641,7 @@ void ScoreClass::Presentation(void)
 	/*
 	** Load the background for the score screen
 	*/
-	anim = Open_Animation(ScreenNames[house],NULL,0L,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),Palette);
+	anim = Open_Animation(ScreenNames[house],nullptr,0L,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),Palette);
 
 	unsigned minutes = (unsigned)((ElapsedTime / (long)TIMER_MINUTE))+1;
 
@@ -972,7 +972,7 @@ void ScoreClass::Presentation(void)
 		delete ScoreObjs[i];
 		ScoreObjs[i] = 0;
 	}
-	Fade_Palette_To(BlackPalette, FADE_PALETTE_FAST, NULL);
+	Fade_Palette_To(BlackPalette, FADE_PALETTE_FAST, nullptr);
 	VisiblePage.Clear();
 
 	Show_Mouse();
@@ -980,7 +980,7 @@ void ScoreClass::Presentation(void)
 
 	Theme.Queue_Song(THEME_NONE);
 
-	Fade_Palette_To(BlackPalette, FADE_PALETTE_FAST, NULL);
+	Fade_Palette_To(BlackPalette, FADE_PALETTE_FAST, nullptr);
 	VisiblePage.Clear();
 	Set_Palette(GamePalette);
 
@@ -992,7 +992,7 @@ void ScoreClass::Presentation(void)
 
 	delete PseudoSeenBuff;
 	delete TextPrintBuffer;
-	TextPrintBuffer = NULL;
+	TextPrintBuffer = nullptr;
 	BlitList.Clear();
 	Enable_Uncompressed_Shapes();
 }
@@ -1147,7 +1147,7 @@ void ScoreClass::Do_Nod_Buildings_Graph(void)
 		/*
 		** Extra font related stuff. ST - 7/29/96 2:22PM
 		*/
-		Interpolate_2X_Scale(PseudoSeenBuff , &HidPage ,NULL);
+		Interpolate_2X_Scale(PseudoSeenBuff , &HidPage ,nullptr);
 		BlitList.Update();
 		WWMouse->Draw_Mouse(&HidPage);
 		HidPage.Blit(SeenBuff);
@@ -1323,7 +1323,7 @@ void ScoreClass::Do_Nod_Casualties_Graph(void)
 	/*
 	** Extra font related stuff. ST - 7/29/96 2:22PM
 	*/
-	Interpolate_2X_Scale(PseudoSeenBuff , &HidPage ,NULL);
+	Interpolate_2X_Scale(PseudoSeenBuff , &HidPage ,nullptr);
 	BlitList.Update();
 	WWMouse->Draw_Mouse(&HidPage);
 	HidPage.Blit(SeenBuff);
@@ -1544,7 +1544,7 @@ void ScoreClass::Input_Name(char str[], int xpos, int ypos, char const pal[])
 		/*
 		** Extra font related stuff. ST - 7/29/96 2:22PM
 		*/
-		Interpolate_2X_Scale (PseudoSeenBuff , &HidPage ,NULL);
+		Interpolate_2X_Scale (PseudoSeenBuff , &HidPage ,nullptr);
 		BlitList.Update();
 		HidPage.Blit(SeenBuff);
 
@@ -1848,7 +1848,7 @@ void Call_Back_Delay(int time)
 			//BlitList.Update();
 		//}else{
 			Animate_Score_Objs();
-			Interpolate_2X_Scale(PseudoSeenBuff , &HidPage ,NULL);
+			Interpolate_2X_Scale(PseudoSeenBuff , &HidPage ,nullptr);
 			BlitList.Update();
 			WWMouse->Draw_Mouse(&HidPage);
 			HidPage.Blit(SeenBuff);
@@ -1921,8 +1921,8 @@ void Multi_Score_Presentation(void)
 	Map.Override_Mouse_Shape(MOUSE_NORMAL);
 	Theme.Queue_Song(THEME_WIN1);
 
-	PseudoSeenBuff = new GraphicBufferClass(320,200,(void*)NULL);
-	TextPrintBuffer = new GraphicBufferClass(SeenBuff.Get_Width(), SeenBuff.Get_Height() ,(void*)NULL);
+	PseudoSeenBuff = new GraphicBufferClass(320,200,nullptr);
+	TextPrintBuffer = new GraphicBufferClass(SeenBuff.Get_Width(), SeenBuff.Get_Height() ,nullptr);
 	BlitList.Clear();
 
    	SysMemPage.Clear();
@@ -1932,7 +1932,7 @@ void Multi_Score_Presentation(void)
 
 	Set_Palette(BlackPalette);
 
-	anim = Open_Animation("MLTIPLYR.WSA",NULL,0L,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),Palette);
+	anim = Open_Animation("MLTIPLYR.WSA",nullptr,0L,(WSAOpenType)(WSA_OPEN_FROM_MEM | WSA_OPEN_TO_PAGE),Palette);
 	Hide_Mouse();
 
 	/*
@@ -2007,7 +2007,7 @@ void Multi_Score_Presentation(void)
 
 	Theme.Queue_Song(THEME_NONE);
 
-	Fade_Palette_To(BlackPalette, FADE_PALETTE_FAST, NULL);
+	Fade_Palette_To(BlackPalette, FADE_PALETTE_FAST, nullptr);
 	VisiblePage.Clear();
 	Set_Palette(GamePalette);
 
