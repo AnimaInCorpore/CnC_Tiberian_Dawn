@@ -103,7 +103,7 @@
 | `FACTORY.CPP` | `src/factory.cpp` | differs | Ported to src/, switched to legacy include path, and replaced NULL with nullptr. |
 | `FIELD.CPP` | `src/field.cpp` | differs | Ported to src/; moved to portable headers and retained original net byte-order conversions. |
 | `FINDPATH.CPP` | `src/findpath.cpp` | differs | Ported to src/ with pathfinding and FootClass path helpers restored. |
-| `FLY.CPP` | `src/fly.cpp` | differs | Ported FlyClass movement/physics and speed throttle logic; removed `src/fly_stub.cpp`. |
+| `FLY.CPP` | `src/fly.cpp` | differs | Ported FlyClass movement/physics and speed throttle logic; removed the old fly stub translation unit (deleted during port). |
 | `FOOT.CPP` | `src/foot.cpp` | differs | Ported to src/ with legacy movement/mission logic intact and includes updated for the SDL build. |
 | `FUSE.CPP` | `src/fuse.cpp` | differs | Ported to src/; fuse countdown and explosion trigger logic preserved. |
 | `GADGET.CPP` | `src/gadget_control.cpp` | differs | Ported base GadgetClass chain/input logic into a modernized translation unit (same API, SDL-friendly internals). |
@@ -194,7 +194,7 @@
 | `TEAM.CPP` | `src/team.cpp` | differs | Ported to src/ with legacy team coordination logic and mission routing. |
 | `TEAMTYPE.CPP` | `src/teamtype.cpp` | differs | Ported to src/ with team type tables, INI parsing, and mission name helpers intact. |
 | `TECHNO.CPP` | `src/techno.cpp` | differs | Ported to src/; shared TechnoClass logic restored. |
-| `TEMP.CPP` | `src/temp.cpp` | modern missing | Ported to src/; temporary data helpers preserved. |
+| `TEMP.CPP` |  | legacy missing | Present in the legacy tree as an incomplete snippet (no translation unit/function wrapper); no `src/` port exists yet. |
 | `TEMPLATE.CPP` | `src/template.cpp` | differs | Ported to src/; template object logic restored (depends on icon-set map helpers) and map-shim access updated. |
 | `TERRAIN.CPP` | `src/terrain.cpp` | differs | Ported to src/; terrain object logic restored. |
 | `THEME.CPP` | `src/theme.cpp` | differs | Theme playback no longer forces mixer-level looping; scores now end naturally so `ThemeClass::AI()` can advance tracks per Win95 shuffle/repeat rules. |
@@ -220,7 +220,7 @@
 | `WATCOM.H` | `src/include/legacy/watcom.h` | differs | Watcom pragma wrappers swapped for GCC diagnostic helpers. |
 | `PLATFORM (new)` | `src/include/legacy/platform.h` | legacy missing | Win16/Watcom typedef shim that turns `near`/`far` keywords into no-ops. |
 | `WINDOWS_COMPAT (new)` | `src/include/legacy/windows_compat.h` | legacy missing | Win32 handle/struct typedef shim so the port never includes platform headers directly. |
-| `CMakeLists.txt` | `CMakeLists.txt` | identical | Added missing ported sources and gated `src/platform_win32.cpp` behind `WIN32`, then pruned duplicate stub units (`src/base_stub.cpp`, `src/gameplay_minimal_stubs.cpp`, `src/gameplay_shims.cpp`, `src/tiny_linker_shims.cpp`) to avoid duplicate symbols; `src/debug.cpp`/`src/ending.cpp` are now linked. |
+| `CMakeLists.txt` | `CMakeLists.txt` | identical | Added missing ported sources and gated `src/platform_win32.cpp` behind `WIN32`, then pruned duplicate stub units (deleted during port) to avoid duplicate symbols; `src/debug.cpp`/`src/ending.cpp` are now linked. |
 | `STARTUP.CPP` (error exit) | `src/error.cpp` + `src/include/legacy/error.h` | differs | Ported `Print_Error_End_Exit`/`Print_Error_Exit` and restored the allocation failure callbacks without dummy `printf/exit` stubs. |
 | `MMX.ASM` | `src/mmx.cpp` + `src/include/legacy/mmx.h` | differs | Replaced the MMX detection stub with a CPUID-based probe; the patch-table init is a no-op in the SDL renderer path. |
 | `AIRCRAFT.H` | `src/include/legacy/aircraft.h` | differs | Lowercase mirror retained for Linux-friendly includes. |
@@ -342,9 +342,6 @@
 | `UTRACKER.H` | `src/include/legacy/utracker.h` | differs | Lowercase mirror retained for Linux-friendly includes. |
 | `VISUDLG.H` | `src/include/legacy/visudlg.h` | identical | Lowercase mirror retained for Linux-friendly includes. |
 | `WWALLOC.H` | `src/include/legacy/wwalloc.h` | differs | Lowercase mirror retained for Linux-friendly includes. |
-| `MAP_SHIM.H` | `src/include/legacy/map_shim.h` | legacy missing | Map compatibility header updated with missing shim helpers/fields (cell effects + theater) needed by drive/overlay/terrain logic during the SDL bring-up. |
-| `MAP_SHIM.H` | `src/include/legacy/map_shim.h` | legacy missing | Added missing sidebar/radar shim members plus gadget helpers for the sidebar build path. |
-| `MAP_SHIM.CPP` | `src/map_shim.cpp` | legacy missing | Initialized radar geometry and wired shim add/remove button helpers into the shared button list. |
 | `WWLIB32.H` | `src/include/legacy/wwlib32.h` | legacy missing | Added `KN_TAB` and `Set_Font` helper to align sidebar/font usage with SDL key constants. |
 | `OPTIONS.H` | `src/include/legacy/options.h` | differs | Added legacy `Set_Score_Vol` alias for score volume control. |
 | `FUNCTION.H` | `src/include/legacy/function.h` | differs | Declared palette helpers and RGB/HSV conversion utilities used by options and score flows. |
@@ -410,7 +407,7 @@
 | `MOUSE.H` | `src/mouse_vtable.cpp` | differs | Defined MouseClass VTable storage to satisfy serialization references. |
 | `LOADDLG.H` | `src/include/legacy/loaddlg.h` | differs | Added missing includes for vector/list/defines types. |
 | `HEAP.CPP` / `COMBUF.CPP` | `src/heap.cpp`, `src/combuf.cpp` | manual | Restored original heap Save/Load pointer coding flow and ported `CommBufferClass::Mono_Debug_Print2` so networking debug output matches the Win95 mono view again. |
-| `FLY_STUB.CPP` |  | manual | `src/fly_stub.cpp` retired after porting `src/fly.cpp`; prior cleanup removed duplicate As_Movement_Coord stub to resolve linker conflicts. |
+| `FLY_STUB.CPP` |  | manual | The old fly stub translation unit was retired after porting `src/fly.cpp`; prior cleanup removed duplicate As_Movement_Coord stub to resolve linker conflicts. |
 | `BUILD FIXES` | `CMakeLists.txt` | legacy missing | Made `TD_ENABLE_WERROR=ON` build reliably on Clang/AppleClang by suppressing legacy-warning classes while the port is in progress. |
 | `BUILD FIXES` | `src/*.cpp` | legacy missing | Cleaned up a handful of warnings that commonly break strict builds (snprintf, signed/unsigned comparisons, missing default cases, and NULL-to-integer conversions). |
 | `CCDDE.CPP` | `src/ccdde.cpp` | differs | Replaced the `Send_Data_To_DDE_Server` stub with a portable UDP localhost implementation for launcher/lobby integration. |
