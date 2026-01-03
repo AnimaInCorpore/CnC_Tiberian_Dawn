@@ -44,12 +44,8 @@ constexpr int kPaletteSize = 256 * 3;
 constexpr std::size_t kMaxScanSize = 2 * 1024 * 1024;
 
 unsigned char Normalize_Pcx_Channel(unsigned char value) {
-	// Win95-era assets can store PCX palettes as either 8-bit (0..255) or already
-	// downshifted 6-bit (0..63). Only downshift when the data is in 8-bit range.
-	if (value > 63) {
-		value = static_cast<unsigned char>(value >> 2);
-	}
-	return value;
+	// Legacy PCX loader always downshifted palette entries to 6-bit.
+	return static_cast<unsigned char>(value >> 2);
 }
 
 unsigned char Normalize_Cps_Channel(unsigned char value) {
@@ -411,28 +407,21 @@ bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, Decoded
 	const std::size_t payload_size = data_size - payload_offset;
 	const unsigned char* payload = data + payload_offset;
 
-	// PCX palettes are stored at the end of the file. Many PCX files include the
-	// 0x0C palette marker byte immediately before the 768-byte palette.
 	if (payload_size < kPaletteSize) return false;
+	// Legacy loader always pulled the last 768 bytes as the palette (marker optional).
 	const std::size_t palette_offset = payload_size - kPaletteSize;
-	if (palette_offset == 0) return false;
-	if (palette_offset >= payload_size) return false;
-	const std::size_t pixel_data_size =
-	    (payload_size >= kPaletteSize + 1 && payload[palette_offset - 1] == 0x0C) ? (palette_offset - 1) : palette_offset;
+	const std::size_t pixel_data_size = palette_offset;
 	output.width = width;
 	output.height = height;
 	output.pixels.assign(static_cast<std::size_t>(width) * height, 0);
 
-	// Decode RLE stream sequentially. PCX encodes "bytes per line" (padded) rows;
-	// decode the full padded stream so we don't desync on files where
-	// bytes_per_line > width.
-	const int bytes_per_line = std::max<int>(1, static_cast<int>(header.bytes_per_line));
-	const std::size_t decoded_stride = static_cast<std::size_t>(bytes_per_line);
-	const std::size_t decoded_size = decoded_stride * static_cast<std::size_t>(height);
-	std::vector<unsigned char> decoded(decoded_size, 0);
+	// Decode RLE stream sequentially into the pixel buffer. PCX RLE runs may span
+	// across scanline boundaries, so treating rows independently can drop pixels
+	// or desynchronize the stream. Decode into a flat buffer to preserve runs.
 	std::size_t pos = 0;
+	const std::size_t total_pixels = static_cast<std::size_t>(width) * static_cast<std::size_t>(height);
 	std::size_t out_pos = 0;
-	while (out_pos < decoded_size && pos < pixel_data_size) {
+	while (out_pos < total_pixels && pos < pixel_data_size) {
 		unsigned char value = payload[pos++];
 		std::size_t count = 1;
 		if ((value & 0xC0) == 0xC0) {
@@ -440,15 +429,9 @@ bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, Decoded
 			count = static_cast<std::size_t>(value & 0x3F);
 			value = payload[pos++];
 		}
-		const std::size_t write_count = std::min(count, decoded_size - out_pos);
-		std::fill_n(decoded.data() + out_pos, write_count, value);
+		const std::size_t write_count = std::min(count, total_pixels - out_pos);
+		std::fill_n(output.pixels.data() + out_pos, write_count, value);
 		out_pos += write_count;
-	}
-
-	for (int row = 0; row < height; ++row) {
-		const unsigned char* src = decoded.data() + static_cast<std::size_t>(row) * decoded_stride;
-		unsigned char* dst = output.pixels.data() + static_cast<std::size_t>(row) * static_cast<std::size_t>(width);
-		std::memcpy(dst, src, static_cast<std::size_t>(width));
 	}
 
 	output.has_palette = true;
