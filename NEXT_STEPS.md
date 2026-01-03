@@ -27,6 +27,7 @@ Status: Next steps. Scope: allow normal sessions to persist/resume without the W
 ## Deferred (after single-player is solid)
 Status: Later. Scope: avoid expanding these until the above milestone is consistently reproducible.
 - Multiplayer TCP/IP/session/lobby parity while keeping the UDP-backed IPX95 path (`src/tcpip.cpp`, `src/connect.cpp`, `src/ipx95.cpp`).
+- Verify `Send_Statistics_Packet()` output matches Win95 field layout and that an external lobby/helper can consume the UDP `DDE_PACKET_GAME_RESULTS` payload (`src/stats.cpp`, `src/ccdde.cpp`).
 - Verify the Planet Westwood / WChat handoff flags (`Special.IsFromWChat`, `UseVirtualSubnetServer`) and any remaining `Internet/HWND` call sites are either ported or cleanly disabled in the SDL build (`src/internet.cpp`, `src/tcpip.cpp`, `src/connect.cpp`).
 - Map editor entry points and `GAME_MAP_EDIT` loop parity (`src/maingame.cpp`, `src/mapedit.cpp`, `src/mapedsel.cpp`).
 
