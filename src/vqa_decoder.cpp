@@ -191,6 +191,7 @@ struct VqaDecoder::Impl {
   bool cbp_is_compressed = false;
 
   std::vector<std::uint8_t> scratch;
+  std::vector<std::uint8_t> audio_chunk;
 
   bool ParseHeader();
   bool LoadFrame(std::uint16_t frame_index);
@@ -256,6 +257,11 @@ bool VqaDecoder::Decode_Frame(std::uint16_t frame_index, Frame& out) {
   out.palette = impl_->palette;
   out.indices.resize(static_cast<std::size_t>(impl_->width) * static_cast<std::size_t>(impl_->height));
   impl_->DecodeFrameIndices(out.indices);
+
+  out.audio_pcm = impl_->audio_chunk;
+  out.audio_rate = impl_->audio_rate;
+  out.audio_channels = impl_->audio_channels;
+  out.audio_bits = impl_->audio_bits;
   return true;
 }
 
@@ -346,6 +352,7 @@ bool VqaDecoder::Impl::LoadFrame(std::uint16_t frame_index) {
   if (frame_index >= frame_count) return false;
   const long file_size = file->Size();
   if (file_size <= 0) return false;
+  audio_chunk.clear();
 
   const std::uint32_t start = offsets[frame_index];
   const std::uint32_t end_u32 =
@@ -494,6 +501,13 @@ bool VqaDecoder::Impl::DecodeVQFR(long /*end_offset*/, bool vqfl) {
         if (!file->Seek(cur + static_cast<long>(sub_len - to_read))) return false;
       }
       return true;
+    } else if (subtype == "SND0") {
+      if (sub_len != 0) {
+        const std::size_t start = audio_chunk.size();
+        audio_chunk.resize(start + sub_len);
+        if (!file->ReadExact(audio_chunk.data() + start, sub_len)) return false;
+      }
+      if (vqfl) return true;
     } else {
       // Unknown/unsupported subchunk: skip payload and keep scanning.
       const long cur = file->Tell();
@@ -525,4 +539,3 @@ void VqaDecoder::Impl::DecodeFrameIndices(std::vector<std::uint8_t>& out_indices
     }
   }
 }
-

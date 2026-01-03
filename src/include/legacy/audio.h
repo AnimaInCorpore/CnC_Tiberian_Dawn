@@ -5,6 +5,8 @@
 
 #if defined(TD_PORT_USE_SDL2)
 #include <SDL.h>
+#include <cstddef>
+#include <cstdint>
 #endif
 
 // Mirrors the legacy Win95 startup call shape:
@@ -16,4 +18,8 @@ void Sound_End();
 #if defined(TD_PORT_USE_SDL2)
 SDL_AudioDeviceID Audio_Get_Device();
 SDL_AudioSpec const* Audio_Get_Spec();
+
+void Movie_Audio_Begin(int volume, SDL_AudioFormat src_format, std::uint8_t src_channels, int src_freq);
+void Movie_Audio_Push(const std::uint8_t* data, std::size_t len);
+void Movie_Audio_End();
 #endif

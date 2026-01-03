@@ -16,6 +16,11 @@ class VqaDecoder {
     std::uint16_t height = 0;
     std::vector<std::uint8_t> indices;  // width*height
     std::array<std::uint8_t, 256 * 3> palette{};  // 6-bit RGB triplets (0..63)
+
+    std::vector<std::uint8_t> audio_pcm;
+    int audio_rate = 0;
+    std::uint8_t audio_channels = 0;
+    std::uint8_t audio_bits = 0;
   };
 
   VqaDecoder();

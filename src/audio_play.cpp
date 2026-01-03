@@ -56,6 +56,19 @@ std::vector<Voice> g_voices;
 int g_next_handle = 1;
 std::atomic<int> g_score_volume{255};
 
+struct MovieStream {
+  bool active = false;
+  int volume = 255;
+  SDL_AudioFormat src_format = AUDIO_U8;
+  std::uint8_t src_channels = 1;
+  int src_freq = 22050;
+  std::vector<std::uint8_t> queued;
+  std::size_t pos = 0;
+};
+
+std::mutex g_movie_mutex;
+MovieStream g_movie_stream;
+
 inline int ClampInt(int v, int lo, int hi) { return std::max(lo, std::min(hi, v)); }
 constexpr int kMaxVoices = 32;
 
@@ -363,6 +376,122 @@ void Set_Score_Vol(int volume) {
   g_score_volume.store(ClampInt(volume, 0, 255), std::memory_order_relaxed);
 }
 
+static void Mix_Movie_Stream(std::uint8_t* stream, int len) {
+  std::lock_guard<std::mutex> lock(g_movie_mutex);
+  if (!g_movie_stream.active) return;
+  if (g_movie_stream.queued.empty()) return;
+
+  SDL_AudioSpec const* spec = Audio_Get_Spec();
+  if (!spec) return;
+
+  const std::size_t available = g_movie_stream.queued.size();
+  if (g_movie_stream.pos >= available) return;
+
+  const std::size_t want = static_cast<std::size_t>(len);
+  const std::size_t to_mix = std::min(want, available - g_movie_stream.pos);
+  const std::uint8_t* src = g_movie_stream.queued.data() + g_movie_stream.pos;
+
+  const int vol = ClampInt(g_movie_stream.volume, 0, 255);
+  const StereoScales scales = Compute_Pan_Scales(vol, 0);
+
+  if (spec->format == AUDIO_S16SYS) {
+    auto* dst16 = reinterpret_cast<std::int16_t*>(stream);
+    const auto* src16 = reinterpret_cast<const std::int16_t*>(src);
+    const int samples = static_cast<int>(to_mix / 2);
+    if (spec->channels == 2) {
+      for (int i = 0; i + 1 < samples; i += 2) {
+        const int mixed_l = static_cast<int>(dst16[i]) + (static_cast<int>(src16[i]) * scales.left) / 255;
+        const int mixed_r = static_cast<int>(dst16[i + 1]) + (static_cast<int>(src16[i + 1]) * scales.right) / 255;
+        dst16[i] = static_cast<std::int16_t>(ClampInt(mixed_l, -32768, 32767));
+        dst16[i + 1] = static_cast<std::int16_t>(ClampInt(mixed_r, -32768, 32767));
+      }
+    } else {
+      for (int i = 0; i < samples; ++i) {
+        const int mixed = static_cast<int>(dst16[i]) + (static_cast<int>(src16[i]) * scales.left) / 255;
+        dst16[i] = static_cast<std::int16_t>(ClampInt(mixed, -32768, 32767));
+      }
+    }
+  } else {
+    if (spec->channels == 2) {
+      for (std::size_t i = 0; i + 1 < to_mix; i += 2) {
+        const int s_l = static_cast<int>(src[i]) - 128;
+        const int d_l = static_cast<int>(stream[i]) - 128;
+        const int mixed_l = d_l + (s_l * scales.left) / 255;
+        stream[i] = static_cast<std::uint8_t>(ClampInt(mixed_l + 128, 0, 255));
+
+        const int s_r = static_cast<int>(src[i + 1]) - 128;
+        const int d_r = static_cast<int>(stream[i + 1]) - 128;
+        const int mixed_r = d_r + (s_r * scales.right) / 255;
+        stream[i + 1] = static_cast<std::uint8_t>(ClampInt(mixed_r + 128, 0, 255));
+      }
+    } else {
+      for (std::size_t i = 0; i < to_mix; ++i) {
+        const int s = static_cast<int>(src[i]) - 128;
+        const int d = static_cast<int>(stream[i]) - 128;
+        const int mixed = d + (s * scales.left) / 255;
+        stream[i] = static_cast<std::uint8_t>(ClampInt(mixed + 128, 0, 255));
+      }
+    }
+  }
+
+  g_movie_stream.pos += to_mix;
+  if (g_movie_stream.pos >= g_movie_stream.queued.size()) {
+    g_movie_stream.queued.clear();
+    g_movie_stream.pos = 0;
+  } else if (g_movie_stream.pos > 65536) {
+    g_movie_stream.queued.erase(g_movie_stream.queued.begin(), g_movie_stream.queued.begin() + g_movie_stream.pos);
+    g_movie_stream.pos = 0;
+  }
+}
+
+void Movie_Audio_Begin(int volume, SDL_AudioFormat src_format, std::uint8_t src_channels, int src_freq) {
+  std::lock_guard<std::mutex> lock(g_movie_mutex);
+  g_movie_stream.active = true;
+  g_movie_stream.volume = ClampInt(volume, 0, 255);
+  g_movie_stream.src_format = src_format;
+  g_movie_stream.src_channels = std::max<std::uint8_t>(1, src_channels);
+  g_movie_stream.src_freq = std::max(1, src_freq);
+  g_movie_stream.queued.clear();
+  g_movie_stream.pos = 0;
+}
+
+void Movie_Audio_Push(const std::uint8_t* data, std::size_t len) {
+  if (!data || len == 0) return;
+  SDL_AudioSpec const* spec = Audio_Get_Spec();
+  if (!spec) return;
+
+  SDL_AudioCVT cvt;
+  {
+    std::lock_guard<std::mutex> lock(g_movie_mutex);
+    if (!g_movie_stream.active) return;
+    if (SDL_BuildAudioCVT(&cvt, g_movie_stream.src_format, g_movie_stream.src_channels, g_movie_stream.src_freq,
+                          spec->format, spec->channels, spec->freq) < 0) {
+      return;
+    }
+  }
+
+  std::vector<std::uint8_t> converted;
+  converted.assign(data, data + len);
+  if (cvt.needed) {
+    cvt.len = static_cast<int>(converted.size());
+    converted.resize(static_cast<std::size_t>(cvt.len * cvt.len_mult));
+    cvt.buf = converted.data();
+    if (SDL_ConvertAudio(&cvt) < 0) return;
+    converted.resize(static_cast<std::size_t>(cvt.len_cvt));
+  }
+
+  std::lock_guard<std::mutex> lock(g_movie_mutex);
+  if (!g_movie_stream.active) return;
+  g_movie_stream.queued.insert(g_movie_stream.queued.end(), converted.begin(), converted.end());
+}
+
+void Movie_Audio_End() {
+  std::lock_guard<std::mutex> lock(g_movie_mutex);
+  g_movie_stream.active = false;
+  g_movie_stream.queued.clear();
+  g_movie_stream.pos = 0;
+}
+
 extern "C" void Audio_Mix_Callback(void*, Uint8* stream, int len) {
   if (!stream || len <= 0) return;
   SDL_AudioSpec const* spec = Audio_Get_Spec();
@@ -374,6 +503,8 @@ extern "C" void Audio_Mix_Callback(void*, Uint8* stream, int len) {
   } else {
     std::memset(stream, 128, static_cast<std::size_t>(len));
   }
+
+  Mix_Movie_Stream(stream, len);
 
   std::lock_guard<std::mutex> lock(g_cache_mutex);
   for (auto it = g_voices.begin(); it != g_voices.end();) {

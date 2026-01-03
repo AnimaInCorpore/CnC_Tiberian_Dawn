@@ -16,6 +16,7 @@ Status: Next steps. Scope: match Win95 mixer behavior and theme playback so the 
 ## Movies: VQA audio + subtitle/EVA timing
 Status: Next steps. Scope: VQAs should match Win95 A/V sync, subtitle timing, and skip rules.
 - Add VQA audio playback routed through the mixer and verify subtitle/EVA timing against Win95 (`src/movie.cpp`, `src/vqa_decoder.cpp`, `src/audio_play.cpp`).
+- Follow up: confirm which VQA audio chunk variants the TD assets use (`SND0` vs compressed forms) and extend the decoder accordingly so all movies carry audio.
 
 ## Save/load + config persistence
 Status: Next steps. Scope: allow normal sessions to persist/resume without the Win95 `SETUP.EXE`.

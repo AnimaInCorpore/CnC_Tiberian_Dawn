@@ -6,6 +6,8 @@
 #include <SDL.h>
 
 #include "legacy/debug.h"
+#include "legacy/audio.h"
+#include "legacy/externs.h"
 #include "legacy/function.h"
 #include "legacy/gscreen.h"
 
@@ -99,12 +101,21 @@ void Play_Movie(char const* name, ThemeType /*theme*/, bool clrscrn) {
   VqaDecoder::Frame frame;
   using clock = std::chrono::steady_clock;
   auto next_tick = clock::now();
+  bool started_audio = false;
 
   for (std::uint16_t i = 0; i < frames; ++i) {
     if (Movie_Should_Skip()) break;
     if (!decoder.Decode_Frame(i, frame)) break;
 
     Set_Palette(frame.palette.data());
+    if (!frame.audio_pcm.empty() && frame.audio_rate > 0 && frame.audio_channels > 0) {
+      SDL_AudioFormat fmt = (frame.audio_bits >= 16) ? AUDIO_S16LSB : AUDIO_U8;
+      if (!started_audio) {
+        Movie_Audio_Begin(Options.Volume, fmt, frame.audio_channels, frame.audio_rate);
+        started_audio = true;
+      }
+      Movie_Audio_Push(frame.audio_pcm.data(), frame.audio_pcm.size());
+    }
 
     const int src_w = static_cast<int>(frame.width);
     const int src_h = static_cast<int>(frame.height);
@@ -127,5 +138,9 @@ void Play_Movie(char const* name, ThemeType /*theme*/, bool clrscrn) {
     } else {
       next_tick = now;
     }
+  }
+
+  if (started_audio) {
+    Movie_Audio_End();
   }
 }
