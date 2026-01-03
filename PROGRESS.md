@@ -444,5 +444,7 @@
 | `BUILD FIXES` (`Map` global / headers) | `src/include/legacy/externs.h`, `src/include/legacy/function.h`, `src/include/legacy/real.h`, `src/cell.cpp`, `src/include/legacy/gscreen.h`, `src/globals.cpp`, `src/unit.cpp` | manual | Restored canonical `Map` type (`MouseClass`) and moved `CellClass::Cell_Number()` out of headers to avoid incomplete-type issues; made `GScreenClass` mouse-shape methods non-pure to match the SDL implementation; fixed Clang `\\x..` escape swallowing in mono debug UI strings. |
 
 ## Pending follow-ups
+- `COORD PACKING` (`XYP_COORD`): made `XYP_COORD(x,y)` mask before shifting so negative Y offsets don’t invoke undefined behavior under Clang/GCC while preserving the legacy 16-bit high-word packing (`src/include/legacy/function.h`, `src/include/legacy/real.h`).
+- `BUILD HYGIENE`: removed an unused local `RedrawType` typedef and annotated legacy layout fields with `[[maybe_unused]]` so `-DTD_ENABLE_WERROR=ON` builds cleanly (`src/loaddlg.cpp`, `src/include/legacy/sounddlg.h`).
 - Improve SDL audio mixer parity (channel reservation, fade/stop semantics) and implement streaming/music (ThemeClass).
 - Verify the `TPF_USE_GRAD_PAL` gradient ramp selection matches Win95 shading (current implementation derives a 16-step ramp from the active palette by nearest-color search).

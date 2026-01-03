@@ -84,13 +84,6 @@ int LoadOptionsClass::Process(void) {
 		BUTTON_EDIT,
 	};
 
-	typedef enum {
-		REDRAW_NONE = 0,
-		REDRAW_BUTTONS,
-		REDRAW_BACKGROUND,
-		REDRAW_ALL = REDRAW_BACKGROUND
-	} RedrawType;
-
 	bool cancel = false; // true = user cancels
 	int list_ht = d_list_h;
 	int btn_txt;

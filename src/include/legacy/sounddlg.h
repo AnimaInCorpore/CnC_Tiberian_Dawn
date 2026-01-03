@@ -115,44 +115,44 @@ class SoundControlsClass
 
 	private:
 
-		int	Option_Width;
-		int	Option_Height;
+		[[maybe_unused]] int	Option_Width;
+		[[maybe_unused]] int	Option_Height;
 		
-		int	Option_X;
-		int	Option_Y;
+		[[maybe_unused]] int	Option_X;
+		[[maybe_unused]] int	Option_Y;
 		
-		int	Listbox_X;
-		int	Listbox_Y;
-		int	Listbox_W;
-		int	Listbox_H;
+		[[maybe_unused]] int	Listbox_X;
+		[[maybe_unused]] int	Listbox_Y;
+		[[maybe_unused]] int	Listbox_W;
+		[[maybe_unused]] int	Listbox_H;
 
-		int	Button_Width;
-		int	Button_X;
-		int	Button_Y;
+		[[maybe_unused]] int	Button_Width;
+		[[maybe_unused]] int	Button_X;
+		[[maybe_unused]] int	Button_Y;
 
-		int	Stop_X;
-		int	Stop_Y;
+		[[maybe_unused]] int	Stop_X;
+		[[maybe_unused]] int	Stop_Y;
 
-		int	Play_X;
-		int	Play_Y;
+		[[maybe_unused]] int	Play_X;
+		[[maybe_unused]] int	Play_Y;
 
-		int	OnOff_Width;
+		[[maybe_unused]] int	OnOff_Width;
 
-		int	Shuffle_X;
-		int	Shuffle_Y;
+		[[maybe_unused]] int	Shuffle_X;
+		[[maybe_unused]] int	Shuffle_Y;
 
-		int	Repeat_X;
-		int	Repeat_Y;
+		[[maybe_unused]] int	Repeat_X;
+		[[maybe_unused]] int	Repeat_Y;
 
-		int	MSlider_X;
-		int	MSlider_Y;
-		int	MSlider_W;
-		int	MSlider_Height;
+		[[maybe_unused]] int	MSlider_X;
+		[[maybe_unused]] int	MSlider_Y;
+		[[maybe_unused]] int	MSlider_W;
+		[[maybe_unused]] int	MSlider_Height;
 
-		int	FXSlider_X;
-		int	FXSlider_Y;
-		int	FXSlider_W;
-		int	FXSlider_Height;
+		[[maybe_unused]] int	FXSlider_X;
+		[[maybe_unused]] int	FXSlider_Y;
+		[[maybe_unused]] int	FXSlider_W;
+		[[maybe_unused]] int	FXSlider_Height;
 
 };
 
