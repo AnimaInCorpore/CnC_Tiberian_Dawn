@@ -28,6 +28,7 @@
 #include "port_paths.h"
 
 #include <cstdlib>
+#include <cstdint>
 #include <cstring>
 #include <string>
 
@@ -114,6 +115,9 @@ void Check_From_WChat(char* wchat_name) {
                             const_cast<char*>(ini_buffer));
   if (!std::strcmp(key_string, default_string)) return;
   PlanetWestwoodIsHost = (std::strchr(key_string, '1') != nullptr);
+
+  UseVirtualSubnetServer = (WWGetPrivateProfileInt("Internet", "UseVSS", 0, const_cast<char*>(ini_buffer)) != 0);
+  Special.IsFromWChat = true;
 #endif
 }
 
@@ -163,6 +167,8 @@ int Read_Game_Options(char* name) {
   Special.IsCaptureTheFlag = WWGetPrivateProfileInt("Options", "CaptureTheFlag", 0, buffer);
   PlanetWestwoodGameID = static_cast<unsigned long>(WWGetPrivateProfileInt("Internet", "GameID", 0, buffer));
   PlanetWestwoodStartTime = static_cast<unsigned long>(WWGetPrivateProfileInt("Internet", "StartTime", 0, buffer));
+  WChatHWND = reinterpret_cast<HWND>(static_cast<std::intptr_t>(
+      WWGetPrivateProfileInt("Internet", "HWND", 0, buffer)));
   InternetMaxPlayers = WWGetPrivateProfileInt("Internet", "MaxPlayers", 2, buffer);
 
   if (MPlayerTiberium) {
@@ -315,4 +321,3 @@ bool Do_The_Internet_Menu_Thang(void) {
 
   return false;
 }
-
