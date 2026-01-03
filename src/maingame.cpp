@@ -39,6 +39,54 @@ void Push_Quit_Event() {
     quit_event.type = SDL_QUIT;
     SDL_PushEvent(&quit_event);
 }
+
+void Normalize_Autostart_Scenario(const char* input, char* out, std::size_t out_size) {
+    if (!out || out_size == 0) return;
+    out[0] = '\0';
+    if (!input) return;
+
+    // Accept either "SCG01EA" or "SCG01EA.INI" (and tolerate paths).
+    const char* base = input;
+    for (const char* p = input; *p; ++p) {
+        if (*p == '/' || *p == '\\') {
+            base = p + 1;
+        }
+    }
+
+    std::strncpy(out, base, out_size - 1);
+    out[out_size - 1] = '\0';
+
+    const std::size_t len = std::strlen(out);
+    if (len >= 4) {
+        const char* ext = out + (len - 4);
+        if ((ext[0] == '.') &&
+            (std::toupper(static_cast<unsigned char>(ext[1])) == 'I') &&
+            (std::toupper(static_cast<unsigned char>(ext[2])) == 'N') &&
+            (std::toupper(static_cast<unsigned char>(ext[3])) == 'I')) {
+            out[len - 4] = '\0';
+        }
+    }
+}
+
+void Normalize_Autostart_Scenario_Path(const char* input, char* out, std::size_t out_size) {
+    if (!out || out_size == 0) return;
+    out[0] = '\0';
+    if (!input) return;
+
+    std::strncpy(out, input, out_size - 1);
+    out[out_size - 1] = '\0';
+
+    const std::size_t len = std::strlen(out);
+    if (len >= 4) {
+        const char* ext = out + (len - 4);
+        if ((ext[0] == '.') &&
+            (std::toupper(static_cast<unsigned char>(ext[1])) == 'I') &&
+            (std::toupper(static_cast<unsigned char>(ext[2])) == 'N') &&
+            (std::toupper(static_cast<unsigned char>(ext[3])) == 'I')) {
+            out[len - 4] = '\0';
+        }
+    }
+}
 }  // namespace
 
 // Global flag the legacy runtime flips while inside the main loop.
@@ -56,8 +104,9 @@ void Main_Game(int argc, char* argv[]) {
     CCDebugString("C&C95 - Game initialisation complete.\n");
 
     if (const char* scenario_root = SDL_getenv("TD_AUTOSTART_SCENARIO"); scenario_root && *scenario_root) {
-        std::strncpy(ScenarioName, scenario_root, sizeof(ScenarioName) - 1);
-        ScenarioName[sizeof(ScenarioName) - 1] = '\0';
+        char scenario_root_path[256]{};
+        Normalize_Autostart_Scenario_Path(scenario_root, scenario_root_path, sizeof(scenario_root_path));
+        Normalize_Autostart_Scenario(scenario_root, ScenarioName, sizeof(ScenarioName));
 
         if (SDL_getenv("TD_AUTOSTART_LOAD_TITLE") != nullptr) {
             Load_Title_Screen(const_cast<char*>("HTITLE.PCX"), &HidPage, Palette);
@@ -89,7 +138,7 @@ void Main_Game(int argc, char* argv[]) {
 
         CCDebugString("TD_AUTOSTART_SCENARIO active; loading scenario.\n");
         const bool load_only = (SDL_getenv("TD_AUTOSTART_LOAD_ONLY") != nullptr);
-        const bool ok = load_only ? Read_Scenario(ScenarioName) : Start_Scenario(ScenarioName);
+        const bool ok = load_only ? Read_Scenario(scenario_root_path) : Start_Scenario(scenario_root_path);
         std::fprintf(stderr, "TD_AUTOSTART_SCENARIO=%s result=%s\n", ScenarioName, ok ? "OK" : "FAIL");
 
         if (ok && !load_only && SDL_getenv("TD_AUTOSTART_DRAW_ONCE") != nullptr) {

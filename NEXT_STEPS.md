@@ -5,6 +5,7 @@ Tackle one chunk at a time; when a chunk has no remaining work, mark it with “
 Status: Next steps. Scope: prove the current SDL/CMake build can boot, start a mission, reach a win/lose, return to the menu, and exit cleanly using only original assets from the repo-local `CD/...` mirrors.
 - Exercise boot → title/menu → new game → in-mission → win/lose → back to menu → quit, and log any divergences in `PROGRESS.md`.
 - Use the debug hook (`TD_AUTOSTART_SCENARIO`, plus `TD_AUTOSTART_LOAD_ONLY` / `TD_AUTOSTART_LOAD_TITLE` / `TD_AUTOSTART_DRAW_ONCE` / `TD_AUTOSTART_FRAMES`) to reproduce scenario-load issues without driving the UI (`src/maingame.cpp`).
+  - Note: `TD_AUTOSTART_SCENARIO` accepts either a bare scenario root like `SCG01EA` or a filename/path like `SCG01EA.INI` / `CD/.../SCG01EA.INI` (the port strips the `.INI` for legacy parsing).
 - Re-verify palette fades against Win95, including `Fade_Palette_To(..., ..., NULL)` call sites (Win95 still shows the fade via hardware palette updates) (`src/interpal.cpp`, `src/wwlib_runtime.cpp`).
 - Re-verify title/menu text rendering parity (font selection, gradient ramp selection via `TPF_USE_GRAD_PAL`, clipping/spacing) (`src/text.cpp`, `src/load_title.cpp`).
 

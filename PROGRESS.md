@@ -377,6 +377,7 @@
 | `HEAP.CPP` / `COMBUF.CPP` | `src/heap.cpp`, `src/combuf.cpp` | manual | Restored original heap Save/Load pointer coding flow and ported `CommBufferClass::Mono_Debug_Print2` so networking debug output matches the Win95 mono view again. |
 | `FLY_STUB.CPP` |  | manual | The old fly stub translation unit was retired after porting `src/fly.cpp`; prior cleanup removed duplicate As_Movement_Coord stub to resolve linker conflicts. |
 | `BUILD FIXES` | `CMakeLists.txt` | legacy missing | Made `TD_ENABLE_WERROR=ON` build reliably on Clang/AppleClang by suppressing legacy-warning classes while the port is in progress. |
+| Autostart scenario debug hook | `src/maingame.cpp` | differs | Fixed `TD_AUTOSTART_SCENARIO` to accept `SCG01EA` as well as `SCG01EA.INI` or `CD/.../SCG01EA.INI` by stripping the `.INI` extension for legacy parsing while still loading via the full path root. |
 | `BUILD FIXES` | `src/*.cpp` | legacy missing | Cleaned up a handful of warnings that commonly break strict builds (snprintf, signed/unsigned comparisons, missing default cases, and NULL-to-integer conversions). |
 | `CCDDE.CPP` | `src/ccdde.cpp` | differs | Replaced the `Send_Data_To_DDE_Server` stub with a portable UDP localhost implementation for launcher/lobby integration. |
 | `DDE.CPP` | `src/dde.cpp` | differs | Implemented a cross-platform DDE replacement using loopback UDP sockets (client poke + optional server bind) to preserve the legacy API surface. |
