@@ -1,5 +1,5 @@
-#include "function.h"
-#include "txtlabel.h"
+#include "legacy/function.h"
+#include "legacy/txtlabel.h"
 
 TextLabelClass::TextLabelClass(char* txt, int x, int y, int color, TextPrintType style)
     : GadgetClass(x, y, 1, 1, 0, 0) {
@@ -23,4 +23,3 @@ int TextLabelClass::Draw_Me(int forced) {
   }
   return false;
 }
-

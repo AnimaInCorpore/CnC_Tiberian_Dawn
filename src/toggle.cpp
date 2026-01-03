@@ -1,5 +1,5 @@
-#include "function.h"
-#include "toggle.h"
+#include "legacy/function.h"
+#include "legacy/toggle.h"
 
 ToggleClass::ToggleClass(unsigned id, int x, int y, int w, int h)
     : ControlClass(id, x, y, w, h, LEFTPRESS | LEFTRELEASE, true) {
@@ -57,4 +57,3 @@ int ToggleClass::Action(unsigned flags, KeyNumType& key) {
 
   return ControlClass::Action(flags, key);
 }
-

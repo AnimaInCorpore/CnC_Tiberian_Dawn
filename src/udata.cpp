@@ -47,7 +47,7 @@
  *   UnitTypeClass::Who_Can_Build_Me -- Determines which factory can build this unit type.     *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#include	"function.h"
+#include "legacy/function.h"
 
 #include <cstdio>
 
@@ -1594,11 +1594,11 @@ void UnitTypeClass::One_Time(void)
 			/*
 			**	Fetch the supporting data files for the unit.
 			*/
-				if ( Get_Resolution_Factor() ) {
-					std::snprintf(buffer, sizeof(buffer), "%sICNH", uclass.IniName);
-				} else {
-					std::snprintf(buffer, sizeof(buffer), "%sICON", uclass.IniName);
-				}
+			if (Get_Resolution_Factor()) {
+				std::snprintf(buffer, sizeof(buffer), "%sICNH", uclass.IniName);
+			} else {
+				std::snprintf(buffer, sizeof(buffer), "%sICON", uclass.IniName);
+			}
 			_makepath(fullname, NULL, NULL, buffer, ".SHP");
 			((void const *&)uclass.CameoData) = MixFileClass::Retrieve(fullname);
 		}
@@ -1673,14 +1673,14 @@ void UnitTypeClass::Init(TheaterType theater)
 						std::snprintf(buffer, sizeof(buffer), "%sICNH", uclass.IniName);
 						_makepath(fullname, NULL, NULL, buffer, Theaters[theater].Suffix);
 						cameo_ptr = MixFileClass::Retrieve(fullname);
-					if (cameo_ptr){
-						((void const *&)uclass.CameoData) = cameo_ptr;
+						if (cameo_ptr) {
+							((void const *&)uclass.CameoData) = cameo_ptr;
+						}
 					}
 				}
 			}
 		}
 	}
-}
 
 
 /***********************************************************************************************
