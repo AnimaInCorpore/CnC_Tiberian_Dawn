@@ -219,7 +219,7 @@
 | `WATCOM.H` | `src/include/legacy/watcom.h` | differs | Watcom pragma wrappers swapped for GCC diagnostic helpers. |
 | `PLATFORM (new)` | `src/include/legacy/platform.h` | legacy missing | Win16/Watcom typedef shim that turns `near`/`far` keywords into no-ops. |
 | `WINDOWS_COMPAT (new)` | `src/include/legacy/windows_compat.h` | legacy missing | Win32 handle/struct typedef shim so the port never includes platform headers directly. |
-| `CMakeLists.txt` | `CMakeLists.txt` | identical | Added missing ported sources and gated `src/platform_win32.cpp` behind `WIN32`, then pruned duplicate stub units (deleted during port) to avoid duplicate symbols; `src/debug.cpp`/`src/ending.cpp` are now linked. |
+| `CMakeLists.txt` | `CMakeLists.txt` | identical | Added missing ported sources and gated `src/platform_win32.cpp` behind `WIN32`, then pruned duplicate stub units (deleted during port) and removed a duplicate `src/cdata.cpp` entry to avoid duplicate symbols; `src/debug.cpp`/`src/ending.cpp` are now linked. |
 | `STARTUP.CPP` (error exit) | `src/error.cpp` + `src/include/legacy/error.h` | differs | Ported `Print_Error_End_Exit`/`Print_Error_Exit` and restored the allocation failure callbacks without dummy `printf/exit` stubs. |
 | `MMX.ASM` | `src/mmx.cpp` + `src/include/legacy/mmx.h` | differs | Replaced the MMX detection stub with a CPUID-based probe; the patch-table init is a no-op in the SDL renderer path. |
 | `AIRCRAFT.H` | `src/include/legacy/aircraft.h` | differs | Lowercase mirror retained for Linux-friendly includes. |

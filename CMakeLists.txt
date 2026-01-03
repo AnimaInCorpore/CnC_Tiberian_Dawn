@@ -106,7 +106,6 @@ set(TD_SOURCES
   src/idata.cpp
   src/odata.cpp
   src/sdata.cpp
-  src/cdata.cpp
   src/tdata.cpp
   src/keyframe_helpers.cpp
   src/init_helpers.cpp
