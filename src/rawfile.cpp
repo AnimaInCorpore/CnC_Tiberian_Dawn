@@ -178,7 +178,15 @@ int RawFileClass::Open(int rights) {
 
     const int open_errno = Hard_Error_Occured ? static_cast<int>(Hard_Error_Occured)
                                               : (errno ? errno : EIO);
-    const int canretry = (Hard_Error_Occured || open_errno == ENOENT) ? 1 : 0;
+    // Treat "file not found" as a normal failure that callers can handle.
+    // The legacy behavior was to prompt/retry or exit, but that blocks the SDL
+    // port for optional assets (e.g., missing movies/animations in a partial
+    // `CD/` mirror).
+    if (open_errno == ENOENT) {
+      return 0;
+    }
+
+    const int canretry = Hard_Error_Occured ? 1 : 0;
     Error(open_errno, canretry, Filename);
     if (!canretry) {
       return 0;

@@ -90,6 +90,16 @@ namespace {
             if (std::filesystem::exists(candidate)) {
                 add(candidate);
             }
+
+            // Some distributions keep supporting archives in subfolders (e.g. INSTALL/AUD1).
+            std::filesystem::path install_candidate = root / "INSTALL" / filename;
+            if (std::filesystem::exists(install_candidate)) {
+                add(install_candidate);
+            }
+            std::filesystem::path aud_candidate = root / "AUD1" / filename;
+            if (std::filesystem::exists(aud_candidate)) {
+                add(aud_candidate);
+            }
         }
 
         return results;

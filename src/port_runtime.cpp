@@ -11,6 +11,7 @@
 #include "legacy/nullmgr.h"
 #include "legacy/cdfile.h"
 #include "legacy/ccfile.h"
+#include "legacy/rawfile.h"
 #include "legacy/windows_compat.h"
 #include "legacy/logic.h"
 #include "legacy/options.h"
@@ -170,6 +171,7 @@ void Reset_Game_State_For_Menu() {
 }
 
 void Configure_New_Game_From_Menu() {
+  TD_Debugf("Configure_New_Game_From_Menu: begin");
   CarryOverMoney = 0;
   Scenario = 1;
   BuildLevel = 1;
@@ -178,13 +180,18 @@ void Configure_New_Game_From_Menu() {
   Whom = HOUSE_GOOD;
 
 #ifndef DEMO
+  TD_Debugf("Configure_New_Game_From_Menu: calling Choose_Side()");
   Choose_Side();
+  TD_Debugf("Configure_New_Game_From_Menu: Choose_Side() returned (Scenario=%d ScenPlayer=%d Whom=%d)",
+            Scenario, static_cast<int>(ScenPlayer), static_cast<int>(Whom));
 #endif
 
   if (Special.IsJurassic && AreThingiesEnabled) {
     ScenPlayer = SCEN_PLAYER_JP;
     ScenDir = SCEN_DIR_EAST;
   }
+  TD_Debugf("Configure_New_Game_From_Menu: done (Scenario=%d ScenPlayer=%d Whom=%d)",
+            Scenario, static_cast<int>(ScenPlayer), static_cast<int>(Whom));
 }
 
 struct WsaAnimationHandle {
@@ -295,7 +302,13 @@ void* Open_Animation(char const* name, void* buffer, long length, WSAOpenType fl
     if (mix_ptr) {
       handle->data = mix_ptr;
     } else {
-      CCFileClass file(name);
+      // Use RawFileClass here so missing optional animations don't trigger the
+      // CD search / prompt flow (which can block the port when assets are absent).
+      RawFileClass file(name);
+      if (!file.Is_Available()) {
+        delete handle;
+        return nullptr;
+      }
       if (!file.Open(READ)) {
         delete handle;
         return nullptr;
@@ -843,8 +856,14 @@ bool Select_Game(bool fade) {
   }
 
   TD_MenuFadeIn = fade;
-  TD_Debugf("Select_Game: entering Main_Menu timeout=%lu", static_cast<unsigned long>(kMenuTimeoutMs));
-  const int selection = Main_Menu(kMenuTimeoutMs);
+  int selection = -1;
+  if (const char* forced = SDL_getenv("TD_AUTOMENU_SELECTION"); forced && *forced) {
+    selection = std::atoi(forced);
+    TD_Debugf("Select_Game: TD_AUTOMENU_SELECTION=%d (skipping Main_Menu)", selection);
+  } else {
+    TD_Debugf("Select_Game: entering Main_Menu timeout=%lu", static_cast<unsigned long>(kMenuTimeoutMs));
+    selection = Main_Menu(kMenuTimeoutMs);
+  }
   TD_MenuFadeIn = false;
   TD_Debugf("Select_Game: Main_Menu returned selection=%d", selection);
   if (selection < 0) {
@@ -880,9 +899,13 @@ bool Select_Game(bool fade) {
         }
         break;
       case 1:  // Start new game
+        TD_Debugf("Select_Game: Start new game selected");
         CarryOverMoney = 0;
+        TD_Debugf("Select_Game: calling Theme.Fade_Out()");
         Theme.Fade_Out();
+        TD_Debugf("Select_Game: Theme.Fade_Out() returned; configuring new game");
         Configure_New_Game_From_Menu();
+        TD_Debugf("Select_Game: new game configured; returning to scenario start");
         GameToPlay = GAME_NORMAL;
         break;
       case 2:  // Bonus missions

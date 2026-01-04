@@ -6,7 +6,6 @@
 #include <cstring>
 #include <memory>
 #include <string>
-#include <vector>
 #include <cctype>
 
 #include "legacy/ccfile.h"
@@ -14,6 +13,12 @@
 #include "legacy/rawfile.h"
 
 namespace {
+
+bool Verbose_Enabled() {
+  const char* value = std::getenv("TD_VERBOSE");
+  if (!value || !*value) return false;
+  return std::strcmp(value, "0") != 0 && std::strcmp(value, "false") != 0 && std::strcmp(value, "FALSE") != 0;
+}
 
 unsigned long Crc_For_Name(char const* filename) {
   if (!filename) return 0;
@@ -72,6 +77,7 @@ MixFileClass::~MixFileClass() {
   Buffer = nullptr;
   delete[] static_cast<unsigned char*>(Data);
   Data = nullptr;
+  BlockCache.clear();
 
   if (this == First) {
     First = static_cast<MixFileClass*>(Get_Next());
@@ -98,6 +104,7 @@ void MixFileClass::Free_All(void) {
 void MixFileClass::Free(void) {
   delete[] static_cast<unsigned char*>(Data);
   Data = nullptr;
+  BlockCache.clear();
 }
 
 bool MixFileClass::Cache(char const* filename) {
@@ -153,6 +160,8 @@ bool MixFileClass::Offset(char const* filename, void** realptr, MixFileClass** m
                           long* size) {
   if (!filename) return false;
 
+  constexpr std::uint32_t kCacheThresholdBytes = 32u * 1024u * 1024u;
+
   MixFileClass* ptr = First;
   while (ptr) {
     const std::uint32_t crc = ptr->Resolve_Crc_For_Name(filename);
@@ -169,10 +178,57 @@ bool MixFileClass::Offset(char const* filename, void** realptr, MixFileClass** m
             static_cast<long>(block->Offset + sizeof(SubBlock) * ptr->Count + sizeof(FileHeader));
       }
       if (realptr) {
-        if (ptr->Data || ptr->Cache()) {
+        const bool verbose = Verbose_Enabled();
+        if (verbose) {
+          std::fprintf(stderr, "[mix] resolve '%s' -> %s block_size=%u data_size=%u\n",
+                       filename,
+                       ptr->Filename ? ptr->Filename : "(null)",
+                       static_cast<unsigned>(block->Size),
+                       static_cast<unsigned>(ptr->DataSize));
+        }
+        if (ptr->Data || (ptr->DataSize <= kCacheThresholdBytes && ptr->Cache())) {
+          if (verbose && !ptr->Data) {
+            std::fprintf(stderr, "[mix] cache failed for '%s' in %s\n",
+                         filename, ptr->Filename ? ptr->Filename : "(null)");
+          }
           *realptr = static_cast<unsigned char*>(ptr->Data) + block->Offset;
         } else {
-          *realptr = nullptr;
+          // Avoid caching massive mixes (e.g. MOVIES.MIX) just to access a small subfile.
+          auto& cached = ptr->BlockCache[crc];
+          if (cached.empty()) {
+            if (verbose) {
+              std::fprintf(stderr, "[mix] streaming '%s' from %s\n",
+                           filename, ptr->Filename ? ptr->Filename : "(null)");
+            }
+            CCFileClass file(ptr->Filename);
+            if (!file.Open(READ)) {
+              ptr->BlockCache.erase(crc);
+              *realptr = nullptr;
+              return false;
+            }
+
+            const long data_base =
+                static_cast<long>(sizeof(SubBlock) * ptr->Count + sizeof(FileHeader));
+            const long abs_off = data_base + static_cast<long>(block->Offset);
+            const long block_size = static_cast<long>(block->Size);
+            if (abs_off < 0 || block_size <= 0) {
+              file.Close();
+              ptr->BlockCache.erase(crc);
+              *realptr = nullptr;
+              return false;
+            }
+
+            cached.resize(static_cast<std::size_t>(block_size));
+            file.Seek(abs_off, SEEK_SET);
+            const long read = file.Read(cached.data(), block_size);
+            file.Close();
+            if (read != block_size) {
+              ptr->BlockCache.erase(crc);
+              *realptr = nullptr;
+              return false;
+            }
+          }
+          *realptr = cached.data();
         }
       }
       return true;

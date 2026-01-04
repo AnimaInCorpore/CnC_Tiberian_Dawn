@@ -3,6 +3,7 @@
 
 #include "legacy/function.h"
 #include "legacy/textblit.h"
+#include "port_debug.h"
 
 extern bool Is_Sample_Playing(void const* data);
 extern void Stop_Sample(int handle);
@@ -22,6 +23,7 @@ extern void Stop_Sample(int handle);
  *   5/08/1995 BWG : Created.                                                                  *
  *=============================================================================================*/
 void Choose_Side(void) {
+  TD_Debugf("Choose_Side: begin (Screen=%dx%d)", SeenBuff.Get_Width(), SeenBuff.Get_Height());
   static unsigned char const _yellowpal[] = {0x0,  0xC9, 0xBA, 0x93, 0x61, 0xEE, 0xEE, 0x0,
                                              0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0};
   static unsigned char const _redpal[] = {0x0,  0xA8, 0xD9, 0xDA, 0xE1, 0xD4, 0xDA, 0x0,
@@ -48,30 +50,51 @@ void Choose_Side(void) {
   BlitList.Clear();
   PseudoSeenBuff = new GraphicBufferClass(320, 200, (void*)NULL);
   int frame = 0, endframe = 255, selection = 0, lettersdone = 0;
+  TD_Debugf("Choose_Side: buffers allocated");
 
   Hide_Mouse();
   oldfont = Set_Font(ScoreFontPtr);
 
+  TD_Debugf("Choose_Side: calling Call_Back()");
   Call_Back();
+  TD_Debugf("Choose_Side: Call_Back() returned");
 
+  TD_Debugf("Choose_Side: retrieving audio assets");
   staticaud = MixFileClass::Retrieve("STRUGGLE.AUD");
   speechg = MixFileClass::Retrieve("GDI_SLCT.AUD");
   speechn = MixFileClass::Retrieve("NOD_SLCT.AUD");
+  TD_Debugf("Choose_Side: audio retrieved (static=%s gdi=%s nod=%s)",
+            staticaud ? "yes" : "no",
+            speechg ? "yes" : "no",
+            speechn ? "yes" : "no");
 
   if (Special.IsFromInstall) {
     if (system_mb >= 12) {
       VisiblePage.Clear();
       PreserveVQAScreen = 1;
+      TD_Debugf("Choose_Side: playing INTRO2 (install flow)");
       Play_Movie("INTRO2", THEME_NONE, false);
     }
     BreakoutAllowed = true;
   }
 
+  TD_Debugf("Choose_Side: opening CHOOSE.WSA");
   anim = Open_Animation("CHOOSE.WSA", NULL, 0L, (WSAOpenType)(WSA_OPEN_TO_PAGE), Palette);
+  TD_Debugf("Choose_Side: Open_Animation(CHOOSE.WSA) returned %s", anim ? "non-null" : "null");
+  if (!anim) {
+    // If the side-select animation cannot be loaded (e.g. missing mix registration),
+    // don't spin forever; keep the preselected side (defaults to GDI) and proceed.
+    CCDebugString("Choose_Side: failed to load CHOOSE.WSA; defaulting to current side.\n");
+    endframe = 0;
+  }
+  TD_Debugf("Choose_Side: CHOOSE.WSA frames=%d", Get_Animation_Frame_Count(anim));
   Call_Back();
   InterpolationPaletteChanged = TRUE;
   InterpolationPalette = Palette;
+  TD_Debugf("Choose_Side: calling Read_Interpolation_Palette(SIDES.PAL)");
   Read_Interpolation_Palette("SIDES.PAL");
+  TD_Debugf("Choose_Side: Read_Interpolation_Palette returned (changed=%s)",
+            InterpolationPaletteChanged ? "true" : "false");
 
   WWMouse->Erase_Mouse(&HidPage, TRUE);
   HiddenPage.Clear();
@@ -168,7 +191,9 @@ void Choose_Side(void) {
 
   PseudoSeenBuff->Fill_Rect(0, 180, 319, 199, 0);
   SeenBuff.Fill_Rect(0, 180 * 2, 319 * 2, 199 * 2, 0);
+  TD_Debugf("Choose_Side: interpolating side screen to SeenBuff");
   Interpolate_2X_Scale(PseudoSeenBuff, &SeenBuff, "SIDES.PAL");
+  TD_Debugf("Choose_Side: interpolate complete");
   Keyboard::Clear();
   SysMemPage.Clear();
 
@@ -205,6 +230,7 @@ void Choose_Side(void) {
   BlitList.Clear();
 
   (void)selection;
+  TD_Debugf("Choose_Side: end (ScenPlayer=%d Whom=%d)", static_cast<int>(ScenPlayer), static_cast<int>(Whom));
 }
 
 #endif

@@ -42,6 +42,7 @@
 #include <unordered_map>
 #include <string>
 #include <cstddef>
+#include <vector>
 
 #include	<wwlib32.h>
 #include	"link.h"
@@ -90,6 +91,7 @@ class MixFileClass : public LinkClass
 		std::uint32_t DataSize;						// Size of raw data.
 		SubBlock * Buffer;				// Array of sub blocks (could be in EMS).
 		void *Data;							// Pointer to raw data.
+		std::unordered_map<std::uint32_t, std::vector<unsigned char>> BlockCache;
 		std::unordered_map<std::string, std::uint32_t> NameToCrc;
 
 		static MixFileClass * First;

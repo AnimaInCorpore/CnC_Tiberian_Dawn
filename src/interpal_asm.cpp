@@ -86,12 +86,21 @@ void Interpolate_Scale(unsigned char* src_ptr, unsigned char* dest_ptr, int line
                        int dest_width, bool duplicate_lines, bool interpolate_lines) {
   if (!src_ptr || !dest_ptr || lines <= 0 || src_width <= 0 || dest_width <= 0) return;
 
+  // The original Watcom ASM helpers for `Interpolate_2X_Scale` take `dest_width`
+  // as the byte stride between the start of each *pair* of destination lines
+  // (i.e. two output rows per source row). The port preserves the call-site
+  // contract from `interpal.cpp`, so `dest_width` here is "pair stride", not
+  // bytes-per-row.
+  const int pair_stride = dest_width;
+  const int row_stride = pair_stride / 2;
+  if (row_stride <= 0) return;
+
   for (int y = 0; y < lines; ++y) {
     const unsigned char* src_row = src_ptr + (y * src_width);
     const unsigned char* next_row =
         (y + 1 < lines) ? (src_ptr + ((y + 1) * src_width)) : src_row;
-    unsigned char* dest_row = dest_ptr + (y * 2 * dest_width);
-    unsigned char* dest_row2 = dest_row + dest_width;
+    unsigned char* dest_row = dest_ptr + (y * pair_stride);
+    unsigned char* dest_row2 = dest_row + row_stride;
     Scale_Row_Interpolated(src_row, next_row, dest_row, dest_row2, src_width, duplicate_lines,
                            interpolate_lines);
   }

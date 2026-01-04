@@ -1,5 +1,7 @@
 #include "platform_input.h"
 
+#include "runtime_sdl.h"
+
 #include <cstdint>
 
 namespace {
@@ -12,6 +14,23 @@ PlatformMouseState Build_Mouse_State(int x, int y, bool left_down, bool right_do
   g_mouse_state.right_button_down = right_down;
   return g_mouse_state;
 }
+
+#if defined(TD_PORT_USE_SDL2)
+void Window_To_Logical_Coords(int in_x, int in_y, int& out_x, int& out_y) {
+  SDL_Renderer* renderer = Runtime_Get_Sdl_Renderer();
+  if (!renderer) {
+    out_x = in_x;
+    out_y = in_y;
+    return;
+  }
+  float lx = static_cast<float>(in_x);
+  float ly = static_cast<float>(in_y);
+  SDL_RenderWindowToLogical(renderer, in_x, in_y, &lx, &ly);
+  out_x = static_cast<int>(lx + 0.5f);
+  out_y = static_cast<int>(ly + 0.5f);
+}
+#endif
+
 }  // namespace
 
 bool Platform_Handle_Host_Event(const PlatformInputEvent& event) {
@@ -41,8 +60,11 @@ bool Platform_Handle_Sdl_Event(const SDL_Event& event) {
   switch (event.type) {
     case SDL_MOUSEMOTION: {
       const Uint32 state = event.motion.state;
+      int x = event.motion.x;
+      int y = event.motion.y;
+      Window_To_Logical_Coords(x, y, x, y);
       PlatformMouseState mouse_state = Build_Mouse_State(
-          event.motion.x, event.motion.y,
+          x, y,
           (state & SDL_BUTTON_LMASK) != 0,
           (state & SDL_BUTTON_RMASK) != 0);
       Platform_Update_Mouse_State(mouse_state);
@@ -60,8 +82,11 @@ bool Platform_Handle_Sdl_Event(const SDL_Event& event) {
         right_down = pressed;
         Platform_Queue_Key_Event(KN_RMOUSE, pressed);
       }
+      int x = event.button.x;
+      int y = event.button.y;
+      Window_To_Logical_Coords(x, y, x, y);
       Platform_Update_Mouse_State(
-          Build_Mouse_State(event.button.x, event.button.y, left_down, right_down));
+          Build_Mouse_State(x, y, left_down, right_down));
       return true;
     }
     case SDL_KEYDOWN:
