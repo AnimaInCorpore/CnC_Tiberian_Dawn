@@ -179,12 +179,12 @@ Legend: `[x]` handled (ported or retired), `[ ]` pending.
 - [x] `COORDA.ASM` (ported) — merged into `src/coord.cpp` (was split `COORD.CPP` + `COORDA.ASM`)
 - [x] `IPXPROT.ASM` (retired) — real/protected-mode IPX shim; not applicable to flat 32/64-bit port
 - [x] `IPXREAL.ASM` (retired) — real/protected-mode IPX shim; not applicable to flat 32/64-bit port
-- [ ] `KEYFBUFF.ASM` (pending) — not yet ported/replaced
+- [x] `KEYFBUFF.ASM` (ported) — `Buffer_Frame_To_Page` reimplemented as `src/buffer_frame_to_page.cpp`
 - [x] `MMX.ASM` (ported) — ported as `src/mmx.cpp` (MMX feature detection init)
-- [ ] `PAGFAULT.ASM` (pending) — not yet ported/replaced
-- [ ] `SUPPORT.ASM` (pending) — not yet ported/replaced
+- [x] `PAGFAULT.ASM` (retired) — DPMI exception handler; not used in the SDL/flat-memory port
+- [x] `SUPPORT.ASM` (ported) — split across `src/strtrim.cpp`, `src/radar.cpp` (`Fat_Put_Pixel`), and `src/display.cpp` (`Conquer_Build_Fading_Table`)
 - [x] `TXTPRNT.ASM` (ported) — ported as `src/txtprnt.cpp` (text blit helpers)
-- [ ] `WINASM.ASM` (pending) — not yet ported/replaced
+- [x] `WINASM.ASM` (handled) — `ModeX_Blit` implemented in `src/wwlib_runtime.cpp`; remaining modem/ModeX-era routines unused in the current port
 
 ## Headers
 

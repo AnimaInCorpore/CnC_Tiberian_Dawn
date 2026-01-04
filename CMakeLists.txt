@@ -177,6 +177,7 @@ set(TD_SOURCES
   src/object.cpp
   src/crew.cpp
   src/buffer_to_page.cpp
+  src/buffer_frame_to_page.cpp
   src/platform_input.cpp
   src/power.cpp
   src/profile.cpp

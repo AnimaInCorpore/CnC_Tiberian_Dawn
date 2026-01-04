@@ -22,10 +22,10 @@ Create the missing `src/<lower>.cpp` translation units (or explicitly retire the
 
 ## 2) Resolve the remaining legacy `.ASM` (4 pending + 1 Win32-specific)
 
-- [ ] `KEYFBUFF.ASM` — port to C/C++ (or replace by reworking the callers to use the modern blitters)
-- [ ] `PAGFAULT.ASM` — determine if still required; if so, port to portable memory/page-fault-safe logic
-- [ ] `SUPPORT.ASM` — port/replace any remaining helper routines still referenced from C++
-- [ ] `WINASM.ASM` — confirm whether anything still depends on it; retire or replace with portable code (or Win32-only C++)
+- [x] `KEYFBUFF.ASM` — `Buffer_Frame_To_Page` reimplemented as `src/buffer_frame_to_page.cpp`
+- [x] `PAGFAULT.ASM` — retired (DPMI exception handler; not used in the SDL/flat-memory port)
+- [x] `SUPPORT.ASM` — ported (`strtrim`/`Fat_Put_Pixel`/`Conquer_Build_Fading_Table`)
+- [x] `WINASM.ASM` — handled (`ModeX_Blit` implemented; remaining routines unused)
 
 (`IPXPROT.ASM`/`IPXREAL.ASM` are considered retired for the flat 32/64-bit port; see `PROGRESS.md`.)
 
