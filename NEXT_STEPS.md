@@ -10,13 +10,13 @@ Create the missing `src/<lower>.cpp` translation units (or explicitly retire the
 - [x] `GADGET.CPP` → `src/gadget.cpp`
 - [x] `INIT.CPP` → `src/init.cpp`
 - [x] `KEYFRAME.CPP` → `src/keyframe.cpp`
-- [ ] `MAPEDDLG.CPP` → `src/mapeddlg.cpp`
-- [ ] `MAPEDPLC.CPP` → `src/mapedplc.cpp`
-- [ ] `MAPEDTM.CPP` → `src/mapedtm.cpp`
+- [x] `MAPEDDLG.CPP` → `src/mapeddlg.cpp`
+- [x] `MAPEDPLC.CPP` → `src/mapedplc.cpp`
+- [x] `MAPEDTM.CPP` → `src/mapedtm.cpp`
 - [x] `MPLAYER.CPP` → `src/mplayer.cpp` (present, not in CMake target yet; depends on `Select_Serial_Dialog`/modem UI work)
-- [ ] `NETDLG.CPP` → `src/netdlg.cpp`
-- [ ] `NULLDLG.CPP` → `src/nulldlg.cpp`
-- [ ] `STARTUP.CPP` → `src/startup.cpp` (entry/init logic currently spread across `src/main.cpp`/`src/game.cpp`)
+- [x] `NETDLG.CPP` → `src/netdlg.cpp`
+- [x] `NULLDLG.CPP` → `src/nulldlg.cpp`
+- [x] `STARTUP.CPP` → `src/startup.cpp` (entry/init logic currently spread across `src/main.cpp`/`src/game.cpp`)
 - [ ] `TEMP.CPP` — retire (legacy file appears truncated/invalid; no references in the modern build)
 - [ ] `WINSTUB.CPP` → `src/winstub.cpp` (likely stays retired; confirm Windows launcher approach)
 

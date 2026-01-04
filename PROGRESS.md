@@ -100,11 +100,11 @@ Legend: `[x]` migrated, `[ ]` pending. Notes call out non-1:1 splits or files pr
 - [x] `LOADDLG.CPP` → `src/loaddlg.cpp`
 - [x] `LOGIC.CPP` → `src/logic.cpp`
 - [x] `MAP.CPP` → `src/map.cpp`
-- [ ] `MAPEDDLG.CPP` → `src/mapeddlg.cpp`
+- [x] `MAPEDDLG.CPP` → `src/mapeddlg.cpp`
 - [x] `MAPEDIT.CPP` → `src/mapedit.cpp` (present, not in CMake target yet)
-- [ ] `MAPEDPLC.CPP` → `src/mapedplc.cpp`
+- [x] `MAPEDPLC.CPP` → `src/mapedplc.cpp`
 - [x] `MAPEDSEL.CPP` → `src/mapedsel.cpp` (present, not in CMake target yet)
-- [ ] `MAPEDTM.CPP` → `src/mapedtm.cpp`
+- [x] `MAPEDTM.CPP` → `src/mapedtm.cpp`
 - [x] `MAPSEL.CPP` → `src/mapsel.cpp` (present, not in CMake target yet)
 - [x] `MENUS.CPP` → `src/menus.cpp`
 - [x] `MISSION.CPP` → `src/mission.cpp`
@@ -114,10 +114,10 @@ Legend: `[x]` migrated, `[ ]` pending. Notes call out non-1:1 splits or files pr
 - [x] `MPLAYER.CPP` → `src/mplayer.cpp` (present, not in CMake target yet)
 - [x] `MSGBOX.CPP` → `src/msgbox.cpp`
 - [x] `MSGLIST.CPP` → `src/msglist.cpp`
-- [ ] `NETDLG.CPP` → `src/netdlg.cpp`
+- [x] `NETDLG.CPP` → `src/netdlg.cpp`
 - [x] `NOSEQCON.CPP` → `src/noseqcon.cpp`
 - [x] `NULLCONN.CPP` → `src/nullconn.cpp`
-- [ ] `NULLDLG.CPP` → `src/nulldlg.cpp`
+- [x] `NULLDLG.CPP` → `src/nulldlg.cpp`
 - [x] `NULLMGR.CPP` → `src/nullmgr.cpp`
 - [x] `OBJECT.CPP` → `src/object.cpp`
 - [x] `ODATA.CPP` → `src/odata.cpp`
@@ -144,7 +144,7 @@ Legend: `[x]` migrated, `[ ]` pending. Notes call out non-1:1 splits or files pr
 - [x] `SMUDGE.CPP` → `src/smudge.cpp`
 - [x] `SOUNDDLG.CPP` → `src/sounddlg.cpp`
 - [x] `SPECIAL.CPP` → `src/special.cpp`
-- [ ] `STARTUP.CPP` → `src/startup.cpp` (missing; startup logic currently lives across `src/main.cpp`/`src/game.cpp` and should be consolidated)
+- [x] `STARTUP.CPP` → `src/startup.cpp` (entry/init logic currently lives across `src/main.cpp`/`src/game.cpp` and should be consolidated)
 - [x] `STATS.CPP` → `src/stats.cpp`
 - [x] `SUPER.CPP` → `src/super.cpp`
 - [x] `TAB.CPP` → `src/tab.cpp`
