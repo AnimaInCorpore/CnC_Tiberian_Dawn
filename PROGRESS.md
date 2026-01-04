@@ -93,7 +93,7 @@ Legend: `[x]` migrated, `[ ]` pending. Notes call out non-1:1 splits or files pr
 - [x] `IPXGCONN.CPP` → `src/ipxgconn.cpp`
 - [x] `IPXMGR.CPP` → `src/ipxmgr.cpp`
 - [x] `JSHELL.CPP` → `src/jshell.cpp`
-- [ ] `KEYFRAME.CPP` → `src/keyframe.cpp` (missing; keyframe work appears in `src/keyframe_helpers.cpp` and `src/keyframe_info.cpp`)
+- [x] `KEYFRAME.CPP` → `src/keyframe.cpp` (consolidated from `src/keyframe_helpers.cpp` + `src/keyframe_info.cpp`)
 - [x] `LAYER.CPP` → `src/layer.cpp`
 - [x] `LINK.CPP` → `src/link.cpp`
 - [x] `LIST.CPP` → `src/list.cpp`

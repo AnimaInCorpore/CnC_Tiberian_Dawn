@@ -107,7 +107,7 @@ set(TD_SOURCES
   src/odata.cpp
   src/sdata.cpp
   src/tdata.cpp
-  src/keyframe_helpers.cpp
+  src/keyframe.cpp
   src/init_helpers.cpp
   src/scenario.cpp
   src/ini.cpp
@@ -177,7 +177,6 @@ set(TD_SOURCES
   src/object.cpp
   src/crew.cpp
   src/buffer_to_page.cpp
-  src/keyframe_info.cpp
   src/platform_input.cpp
   src/power.cpp
   src/profile.cpp

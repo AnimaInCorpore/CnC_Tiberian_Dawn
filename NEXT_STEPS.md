@@ -9,7 +9,7 @@ Create the missing `src/<lower>.cpp` translation units (or explicitly retire the
 - [ ] `CONQUER.CPP` → `src/conquer.cpp` (currently only `src/conquer_helpers.cpp` exists)
 - [x] `GADGET.CPP` → `src/gadget.cpp`
 - [ ] `INIT.CPP` → `src/init.cpp` (currently `src/init_helpers.cpp` exists)
-- [ ] `KEYFRAME.CPP` → `src/keyframe.cpp` (currently `src/keyframe_helpers.cpp`/`src/keyframe_info.cpp` exist)
+- [x] `KEYFRAME.CPP` → `src/keyframe.cpp`
 - [ ] `MAPEDDLG.CPP` → `src/mapeddlg.cpp`
 - [ ] `MAPEDPLC.CPP` → `src/mapedplc.cpp`
 - [ ] `MAPEDTM.CPP` → `src/mapedtm.cpp`

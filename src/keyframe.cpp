@@ -511,3 +511,51 @@ void* Build_Frame(void const* dataptr, unsigned short framenumber, void* buffptr
 
   return buffptr;
 }
+
+unsigned short Get_Build_Frame_Count(void const* dataptr) {
+  if (dataptr) {
+    return static_cast<const KeyFrameHeaderType*>(dataptr)->frames;
+  }
+  return 0;
+}
+
+unsigned short Get_Build_Frame_X(void const* dataptr) {
+  if (dataptr) {
+    return static_cast<const KeyFrameHeaderType*>(dataptr)->x;
+  }
+  return 0;
+}
+
+unsigned short Get_Build_Frame_Y(void const* dataptr) {
+  if (dataptr) {
+    return static_cast<const KeyFrameHeaderType*>(dataptr)->y;
+  }
+  return 0;
+}
+
+unsigned short Get_Build_Frame_Width(void const* dataptr) {
+  if (dataptr) {
+    return static_cast<const KeyFrameHeaderType*>(dataptr)->width;
+  }
+  return 0;
+}
+
+unsigned short Get_Build_Frame_Height(void const* dataptr) {
+  if (dataptr) {
+    return static_cast<const KeyFrameHeaderType*>(dataptr)->height;
+  }
+  return 0;
+}
+
+bool Get_Build_Frame_Palette(void const* dataptr, void* palette) {
+  if (dataptr && palette && (static_cast<const KeyFrameHeaderType*>(dataptr)->flags & 1)) {
+    const char* ptr = static_cast<const char*>(
+        Add_Long_To_Pointer(const_cast<void*>(dataptr),
+                            (static_cast<long>(sizeof(unsigned long)) << 1) *
+                                    static_cast<const KeyFrameHeaderType*>(dataptr)->frames +
+                                16 + sizeof(KeyFrameHeaderType)));
+    std::memcpy(palette, ptr, 768L);
+    return true;
+  }
+  return false;
+}
