@@ -10,6 +10,7 @@ Tracks migration from the legacy C&C95 Win32 source drop (repo root: `*.CPP`/`*.
 - Headers: 133/133 legacy `.H` mirrored under `src/include/legacy/`
 - Build: `cmake --build build` succeeds for target `cnc_tiberian_dawn` (requires SDL2)
 - Rendering: `CC_Draw_Shape` now handles Win95-style special shadow draw (`SHAPE_FADING|SHAPE_PREDATOR` → `SpecialGhost`) and `SHAPE_PREDATOR` ripple sampling
+- Palette: `Set_Palette`/`Fade_Palette_To` no longer clobber `GamePalette` when applying temporary palettes (fixes “start new game → black screen” after `Choose_Side`)
 
 ## Legacy `.CPP` → `src/*.cpp` checklist
 

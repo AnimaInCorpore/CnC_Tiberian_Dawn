@@ -460,7 +460,6 @@ void Fade_Palette_To(unsigned char* target_palette, int speed, void (*callback)(
 			Palette[index] =
 			    static_cast<unsigned char>(start[index] + (delta * step) / steps);
 		}
-		Copy_Palette(Palette, GamePalette);
 
 		if (callback) {
 			callback();
@@ -482,14 +481,12 @@ void Fade_Palette_To(unsigned char* target_palette, int speed, void (*callback)(
 	}
 
 	Copy_Palette(target_palette, Palette);
-	Copy_Palette(Palette, GamePalette);
 }
 
 void Set_Palette(void const* palette) {
 	if (!palette) return;
 	Prepare_Global_Palettes();
 	Copy_Palette(static_cast<const unsigned char*>(palette), Palette);
-	Copy_Palette(Palette, GamePalette);
 }
 
 void Convert_RGB_To_HSV(unsigned r, unsigned g, unsigned b, unsigned* h, unsigned* s, unsigned* v) {
