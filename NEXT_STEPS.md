@@ -1,38 +1,42 @@
-# Next steps
-Tackle one chunk at a time; when a chunk has no remaining work, mark it with “Implementation done!”. Completed work is tracked in `PROGRESS.md`.
+# Next Steps
 
-## Milestone: playable single-player loop (manual)
-Status: Next steps. Scope: prove the current SDL/CMake build can boot, start a mission, reach a win/lose, return to the menu, and exit cleanly using only original assets from the repo-local `CD/...` mirrors.
-- Exercise boot → title/menu → new game → in-mission → win/lose → back to menu → quit, and log any divergences in `PROGRESS.md`.
-- Use the debug hook (`TD_AUTOSTART_SCENARIO`, plus `TD_AUTOSTART_LOAD_ONLY` / `TD_AUTOSTART_LOAD_TITLE` / `TD_AUTOSTART_DRAW_ONCE` / `TD_AUTOSTART_FRAMES`) to reproduce scenario-load issues without driving the UI (`src/maingame.cpp`).
-  - Note: `TD_AUTOSTART_SCENARIO` accepts either a bare scenario root like `SCG01EA` or a filename/path like `SCG01EA.INI` / `CD/.../SCG01EA.INI` (the port strips the `.INI` for legacy parsing).
-- Re-verify palette fades against Win95, including `Fade_Palette_To(..., ..., NULL)` call sites (Win95 still shows the fade via hardware palette updates) (`src/interpal.cpp`, `src/wwlib_runtime.cpp`).
-- Re-verify title/menu text rendering parity (font selection, gradient ramp selection via `TPF_USE_GRAD_PAL`, clipping/spacing) (`src/text.cpp`, `src/load_title.cpp`).
-- Exercise title art loading across different CD mirrors/distributions (PCX vs CPS, named vs unnamed MIX payloads) to confirm the stricter PCX RLE validation doesn't reject valid assets (`src/load_title.cpp`).
+Prioritized follow-up tasks to continue porting the legacy C&C95 Win32 sources into a modern, cross-platform (SDL2) build while preserving original behavior.
 
-## Audio + music parity
-Status: Next steps. Scope: match Win95 mixer behavior and theme playback so the port “feels” like C&C.
-- Improve SDL mixer parity (channel reservation, fade/stop semantics) and ensure menu sliders map to real mixer volume behavior (`src/audio_play.cpp`, `src/platform_audio_sdl.cpp`, `src/options.cpp`).
-- Verify theme/music playback so `ThemeClass` advances tracks and matches Win95 selection/repeat/shuffle rules (`src/theme.cpp`).
+## 1) Close the remaining legacy `.CPP` gaps (13 files)
 
-## Movies: VQA audio + subtitle/EVA timing
-Status: Next steps. Scope: VQAs should match Win95 A/V sync, subtitle timing, and skip rules.
-- Add VQA audio playback routed through the mixer and verify subtitle/EVA timing against Win95 (`src/movie.cpp`, `src/vqa_decoder.cpp`, `src/audio_play.cpp`).
-- Follow up: confirm which VQA audio chunk variants the TD assets use (`SND0` vs compressed forms) and extend the decoder accordingly so all movies carry audio.
+Create the missing `src/<lower>.cpp` translation units (or explicitly retire them if obsolete) and keep behavior aligned with the Win32 reference:
 
-## Save/load + config persistence
-Status: Next steps. Scope: allow normal sessions to persist/resume without the Win95 `SETUP.EXE`.
-- Verify the full save/load UI flow parity (save/load/delete behaviors, description rules, error handling) (`src/loaddlg.cpp`, `src/saveload.cpp`).
-- Verify profile/config writes hit disk and surface errors correctly (`RawFileClass::Error()` parity) (`src/rawfile.cpp`, `src/profile.cpp`, `src/port_paths.cpp`).
-- Replace the minimal `CONQUER.INI` auto-creation with a behavior-equivalent setup/config flow while keeping the repo-local `CD/...` mirror working (`src/port_setup.cpp`, `src/options.cpp`).
+- [ ] `CONQUER.CPP` → `src/conquer.cpp` (currently only `src/conquer_helpers.cpp` exists)
+- [ ] `GADGET.CPP` → `src/gadget.cpp` (currently `src/gadget_control.cpp` exists)
+- [ ] `INIT.CPP` → `src/init.cpp` (currently `src/init_helpers.cpp` exists)
+- [ ] `KEYFRAME.CPP` → `src/keyframe.cpp` (currently `src/keyframe_helpers.cpp`/`src/keyframe_info.cpp` exist)
+- [ ] `MAPEDDLG.CPP` → `src/mapeddlg.cpp`
+- [ ] `MAPEDPLC.CPP` → `src/mapedplc.cpp`
+- [ ] `MAPEDTM.CPP` → `src/mapedtm.cpp`
+- [ ] `MPLAYER.CPP` → `src/mplayer.cpp`
+- [ ] `NETDLG.CPP` → `src/netdlg.cpp`
+- [ ] `NULLDLG.CPP` → `src/nulldlg.cpp`
+- [ ] `STARTUP.CPP` → `src/startup.cpp` (entry/init logic currently spread across `src/main.cpp`/`src/game.cpp`)
+- [ ] `TEMP.CPP` → `src/temp.cpp` (confirm if still needed; retire if not)
+- [ ] `WINSTUB.CPP` → `src/winstub.cpp` (likely stays retired; confirm Windows launcher approach)
 
-## Deferred (after single-player is solid)
-Status: Later. Scope: avoid expanding these until the above milestone is consistently reproducible.
-- Multiplayer TCP/IP/session/lobby parity while keeping the UDP-backed IPX95 path (`src/tcpip.cpp`, `src/connect.cpp`, `src/ipx95.cpp`).
-- Verify `Send_Statistics_Packet()` output matches Win95 field layout and that an external lobby/helper can consume the UDP `DDE_PACKET_GAME_RESULTS` payload (`src/stats.cpp`, `src/ccdde.cpp`).
-- Verify the Planet Westwood / WChat handoff flags (`Special.IsFromWChat`, `UseVirtualSubnetServer`) and any remaining `Internet/HWND` call sites are either ported or cleanly disabled in the SDL build (`src/internet.cpp`, `src/tcpip.cpp`, `src/connect.cpp`).
-- Map editor entry points and `GAME_MAP_EDIT` loop parity (`src/maingame.cpp`, `src/mapedit.cpp`, `src/mapedsel.cpp`).
+## 2) Resolve the remaining legacy `.ASM` (4 pending + 1 Win32-specific)
 
-## Docs and hygiene
-Status: Ongoing. Scope: keep contributor-facing docs aligned with the actual port state.
-- Keep `PROGRESS.md`, `README.md`, and this file in sync as subsystems move from “ported” to “verified” (`PROGRESS.md`, `README.md`, `NEXT_STEPS.md`).
+- [ ] `KEYFBUFF.ASM` — port to C/C++ (or replace by reworking the callers to use the modern blitters)
+- [ ] `PAGFAULT.ASM` — determine if still required; if so, port to portable memory/page-fault-safe logic
+- [ ] `SUPPORT.ASM` — port/replace any remaining helper routines still referenced from C++
+- [ ] `WINASM.ASM` — confirm whether anything still depends on it; retire or replace with portable code (or Win32-only C++)
+
+(`IPXPROT.ASM`/`IPXREAL.ASM` are considered retired for the flat 32/64-bit port; see `PROGRESS.md`.)
+
+## 3) Wire up “ported but not built” sources
+
+Currently present in `src/` but not compiled by the main `cnc_tiberian_dawn` CMake target:
+
+- [ ] Decide whether to include and maintain `src/mapedit.cpp`, `src/mapedsel.cpp`, and `src/mapsel.cpp` (map editor/UI selection flow)
+- [ ] Either integrate or retire helper-only units (`src/ini_helpers.cpp`, `src/scenario_helpers.cpp`)
+
+## 4) Verification cadence (keep behavior canonical)
+
+- [ ] After each major module lands, compare flow/behavior vs. the Win32 build (boot → title → menus → in-game loop)
+- [ ] Add small regression tests under `src/tests/` when a subsystem is stabilized (e.g., file/CRC helpers, PCX/CPS decode, UI widget behavior)
