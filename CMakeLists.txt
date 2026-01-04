@@ -165,7 +165,7 @@ set(TD_SOURCES
   src/movie.cpp
   src/vqa_decoder.cpp
   src/mixfile.cpp
-	  src/mmx.cpp
+  src/mmx.cpp
   src/monoc.cpp
   src/mouse.cpp
   src/mousehelp.cpp

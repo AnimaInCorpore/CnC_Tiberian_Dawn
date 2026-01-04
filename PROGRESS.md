@@ -111,7 +111,7 @@ Legend: `[x]` migrated, `[ ]` pending. Notes call out non-1:1 splits or files pr
 - [x] `MIXFILE.CPP` → `src/mixfile.cpp`
 - [x] `MONOC.CPP` → `src/monoc.cpp`
 - [x] `MOUSE.CPP` → `src/mouse.cpp`
-- [ ] `MPLAYER.CPP` → `src/mplayer.cpp`
+- [x] `MPLAYER.CPP` → `src/mplayer.cpp` (present, not in CMake target yet)
 - [x] `MSGBOX.CPP` → `src/msgbox.cpp`
 - [x] `MSGLIST.CPP` → `src/msglist.cpp`
 - [ ] `NETDLG.CPP` → `src/netdlg.cpp`

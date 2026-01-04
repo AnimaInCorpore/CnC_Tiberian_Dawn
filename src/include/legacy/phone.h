@@ -2,7 +2,7 @@
 
 #include <cstring>
 
-#include "session.h"
+#include "defines.h"
 
 class PhoneEntryClass {
  public:

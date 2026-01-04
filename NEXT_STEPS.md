@@ -13,7 +13,7 @@ Create the missing `src/<lower>.cpp` translation units (or explicitly retire the
 - [ ] `MAPEDDLG.CPP` → `src/mapeddlg.cpp`
 - [ ] `MAPEDPLC.CPP` → `src/mapedplc.cpp`
 - [ ] `MAPEDTM.CPP` → `src/mapedtm.cpp`
-- [ ] `MPLAYER.CPP` → `src/mplayer.cpp`
+- [x] `MPLAYER.CPP` → `src/mplayer.cpp` (present, not in CMake target yet; depends on `Select_Serial_Dialog`/modem UI work)
 - [ ] `NETDLG.CPP` → `src/netdlg.cpp`
 - [ ] `NULLDLG.CPP` → `src/nulldlg.cpp`
 - [ ] `STARTUP.CPP` → `src/startup.cpp` (entry/init logic currently spread across `src/main.cpp`/`src/game.cpp`)
