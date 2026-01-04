@@ -2,13 +2,13 @@
 
 Prioritized follow-up tasks to continue porting the legacy C&C95 Win32 sources into a modern, cross-platform (SDL2) build while preserving original behavior.
 
-## 1) Close the remaining legacy `.CPP` gaps (11 files)
+## 1) Close the remaining legacy `.CPP` gaps (9 files)
 
 Create the missing `src/<lower>.cpp` translation units (or explicitly retire them if obsolete) and keep behavior aligned with the Win32 reference:
 
-- [ ] `CONQUER.CPP` → `src/conquer.cpp` (currently only `src/conquer_helpers.cpp` exists)
+- [x] `CONQUER.CPP` → `src/conquer.cpp`
 - [x] `GADGET.CPP` → `src/gadget.cpp`
-- [ ] `INIT.CPP` → `src/init.cpp` (currently `src/init_helpers.cpp` exists)
+- [x] `INIT.CPP` → `src/init.cpp`
 - [x] `KEYFRAME.CPP` → `src/keyframe.cpp`
 - [ ] `MAPEDDLG.CPP` → `src/mapeddlg.cpp`
 - [ ] `MAPEDPLC.CPP` → `src/mapedplc.cpp`

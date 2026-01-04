@@ -6,7 +6,7 @@ Tracks migration from the legacy C&C95 Win32 source drop (repo root: `*.CPP`/`*.
 
 - Date: 2026-01-04
 - Legacy sources: 156 `.CPP`, 133 `.H`, 9 `.ASM`
-- Migrated (by same-stem file presence): 144/156 legacy `.CPP` have `src/<name>.cpp` counterparts
+- Migrated (by same-stem file presence): 146/156 legacy `.CPP` have `src/<name>.cpp` counterparts
 - Headers: 133/133 legacy `.H` mirrored under `src/include/legacy/`
 - Build: `cmake --build build` succeeds for target `cnc_tiberian_dawn` (requires SDL2)
 
@@ -40,7 +40,7 @@ Legend: `[x]` migrated, `[ ]` pending. Notes call out non-1:1 splits or files pr
 - [x] `COMQUEUE.CPP` → `src/comqueue.cpp`
 - [x] `CONFDLG.CPP` → `src/confdlg.cpp`
 - [x] `CONNECT.CPP` → `src/connect.cpp`
-- [ ] `CONQUER.CPP` → `src/conquer.cpp` (missing; partial helpers exist as `src/conquer_helpers.cpp`)
+- [x] `CONQUER.CPP` → `src/conquer.cpp` (ported helpers consolidated into `src/conquer.cpp`)
 - [x] `CONST.CPP` → `src/const.cpp`
 - [x] `CONTROL.CPP` → `src/control.cpp`
 - [x] `COORD.CPP` → `src/coord.cpp`
@@ -80,7 +80,7 @@ Legend: `[x]` migrated, `[ ]` pending. Notes call out non-1:1 splits or files pr
 - [x] `IDATA.CPP` → `src/idata.cpp`
 - [x] `INFANTRY.CPP` → `src/infantry.cpp`
 - [x] `INI.CPP` → `src/ini.cpp`
-- [ ] `INIT.CPP` → `src/init.cpp` (missing; init-related work appears in `src/init_helpers.cpp`)
+- [x] `INIT.CPP` → `src/init.cpp` (ported helpers consolidated into `src/init.cpp`)
 - [x] `INTERNET.CPP` → `src/internet.cpp`
 - [x] `INTERPAL.CPP` → `src/interpal.cpp`
 - [x] `INTRO.CPP` → `src/intro.cpp`

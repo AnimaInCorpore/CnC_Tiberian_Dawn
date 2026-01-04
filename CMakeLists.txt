@@ -108,13 +108,13 @@ set(TD_SOURCES
   src/sdata.cpp
   src/tdata.cpp
   src/keyframe.cpp
-  src/init_helpers.cpp
+  src/init.cpp
   src/scenario.cpp
   src/ini.cpp
   src/saveload.cpp
   src/saveload_helpers.cpp
   src/internet.cpp
-  src/conquer_helpers.cpp
+  src/conquer.cpp
   src/network_helpers.cpp
   src/pcx_write.cpp
   src/crc_helpers.cpp
