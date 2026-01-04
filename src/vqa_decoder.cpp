@@ -386,6 +386,28 @@ bool VqaDecoder::Impl::LoadFrame(std::uint16_t frame_index) {
       if (!DecodeVQFR(end, false)) return false;
     } else if (t == "VQFL") {
       if (!DecodeVQFR(end, true)) return false;
+    } else if (t == "CPL0" || t == "CPZ0") {
+      // Handle palette if it appears as a top-level chunk in the frame.
+      const bool compressed = t == "CPZ0";
+      std::vector<std::uint8_t> pal_data;
+      if (compressed) {
+        if (!file->ReadExact(scratch.data(), length)) return false;
+        pal_data.resize(768);
+        int decoded = LCW_DecodeInto(scratch.data(), static_cast<int>(length), pal_data.data(), 768);
+        pal_data.resize(static_cast<std::size_t>(decoded));
+      } else {
+        pal_data.resize(length);
+        if (!file->ReadExact(pal_data.data(), length)) return false;
+      }
+
+      const int colors = std::min<int>(static_cast<int>(pal_data.size() / 3), 256);
+      if (colors > 0) {
+        for (int i = 0; i < colors; ++i) {
+          palette[static_cast<std::size_t>(i) * 3 + 0] = pal_data[static_cast<std::size_t>(i) * 3 + 0];
+          palette[static_cast<std::size_t>(i) * 3 + 1] = pal_data[static_cast<std::size_t>(i) * 3 + 1];
+          palette[static_cast<std::size_t>(i) * 3 + 2] = pal_data[static_cast<std::size_t>(i) * 3 + 2];
+        }
+      }
     } else if (t.size() == 4 && t[0] == '\0' && t[1] == 'V' && t[2] == 'Q' && t[3] == 'F') {
       (void)file->ReadU8(&ok);
       if (!ok) return false;
@@ -404,13 +426,12 @@ bool VqaDecoder::Impl::LoadFrame(std::uint16_t frame_index) {
   return true;
 }
 
-bool VqaDecoder::Impl::DecodeVQFR(long /*end_offset*/, bool vqfl) {
+bool VqaDecoder::Impl::DecodeVQFR(long end_offset, bool vqfl) {
   // Apply pending CBP tables when complete.
   if (chunk_buffer_parts != 0 && current_chunk_buffer == chunk_buffer_parts) {
     if (!cbp_is_compressed) {
       cbf = cbp;
     } else {
-      std::fill(cbf.begin(), cbf.end(), 0);
       (void)LCW_DecodeInto(cbp.data(), static_cast<int>(cbp.size()), cbf.data(), static_cast<int>(cbf.size()));
     }
     chunk_buffer_offset = 0;
@@ -418,12 +439,14 @@ bool VqaDecoder::Impl::DecodeVQFR(long /*end_offset*/, bool vqfl) {
   }
 
   bool ok = true;
-  while (true) {
+  while (file->Tell() < end_offset) {
     // Subchunks are aligned on even bytes and may be prefixed by a single null.
     if (file->PeekIsNullByte()) {
       (void)file->ReadU8(&ok);
       if (!ok) return false;
     }
+
+    if (file->Tell() + 8 > end_offset) break;
 
     char sub[5]{};
     if (!file->ReadTag(sub)) return false;
@@ -436,12 +459,11 @@ bool VqaDecoder::Impl::DecodeVQFR(long /*end_offset*/, bool vqfl) {
     }
 
     if (subtype == "CBF0") {
-      cbf.resize(static_cast<std::size_t>(sub_len));
+      if (cbf.size() < sub_len) cbf.resize(sub_len);
       if (!file->ReadExact(cbf.data(), sub_len)) return false;
       if (vqfl) return true;
     } else if (subtype == "CBFZ") {
       if (!file->ReadExact(scratch.data(), sub_len)) return false;
-      std::fill(cbf.begin(), cbf.end(), 0);
       (void)LCW_DecodeInto(scratch.data(), static_cast<int>(sub_len), cbf.data(), static_cast<int>(cbf.size()),
                           (scratch[0] == 0) ? 1 : 0, scratch[0] == 0);
       if (vqfl) return true;
@@ -464,43 +486,42 @@ bool VqaDecoder::Impl::DecodeVQFR(long /*end_offset*/, bool vqfl) {
       }
       current_chunk_buffer++;
       cbp_is_compressed = subtype == "CBPZ";
-    } else if (subtype == "CPL0") {
-      const int colors = std::min<int>(num_colors, 256);
-      for (int i = 0; i < colors; ++i) {
-        const std::uint8_t r = file->ReadU8(&ok);
-        const std::uint8_t g = file->ReadU8(&ok);
-        const std::uint8_t b = file->ReadU8(&ok);
-        if (!ok) return false;
-        palette[static_cast<std::size_t>(i) * 3 + 0] = r;
-        palette[static_cast<std::size_t>(i) * 3 + 1] = g;
-        palette[static_cast<std::size_t>(i) * 3 + 2] = b;
+    } else if (subtype == "CPL0" || subtype == "CPZ0") {
+      const bool compressed = subtype == "CPZ0";
+      std::vector<std::uint8_t> pal_data;
+      if (compressed) {
+        if (!file->ReadExact(scratch.data(), sub_len)) return false;
+        pal_data.resize(768);
+        int decoded = LCW_DecodeInto(scratch.data(), static_cast<int>(sub_len), pal_data.data(), 768);
+        pal_data.resize(static_cast<std::size_t>(decoded));
+      } else {
+        pal_data.resize(sub_len);
+        if (!file->ReadExact(pal_data.data(), sub_len)) return false;
       }
-      // Skip any extra palette bytes if present.
-      const std::uint32_t consumed = static_cast<std::uint32_t>(colors) * 3u;
-      if (sub_len > consumed) {
-        const long cur = file->Tell();
-        if (!file->Seek(cur + static_cast<long>(sub_len - consumed))) return false;
+
+      const int colors = std::min<int>(static_cast<int>(pal_data.size() / 3), 256);
+      if (colors > 0) {
+        for (int i = 0; i < colors; ++i) {
+          palette[static_cast<std::size_t>(i) * 3 + 0] = pal_data[static_cast<std::size_t>(i) * 3 + 0];
+          palette[static_cast<std::size_t>(i) * 3 + 1] = pal_data[static_cast<std::size_t>(i) * 3 + 1];
+          palette[static_cast<std::size_t>(i) * 3 + 2] = pal_data[static_cast<std::size_t>(i) * 3 + 2];
+        }
       }
     } else if (subtype == "VPTZ") {
       if (!file->ReadExact(scratch.data(), sub_len)) return false;
-      std::fill(orig_data.begin(), orig_data.end(), 0);
-      (void)LCW_DecodeInto(scratch.data(), static_cast<int>(sub_len), orig_data.data(), static_cast<int>(orig_data.size()));
-      return true;
-    } else if (subtype == "VPRZ") {
-      if (!file->ReadExact(scratch.data(), sub_len)) return false;
-      std::fill(orig_data.begin(), orig_data.end(), 0);
       (void)LCW_DecodeInto(scratch.data(), static_cast<int>(sub_len), orig_data.data(), static_cast<int>(orig_data.size()),
                           (scratch[0] == 0) ? 1 : 0, scratch[0] == 0);
-      return true;
+    } else if (subtype == "VPRZ") {
+      if (!file->ReadExact(scratch.data(), sub_len)) return false;
+      (void)LCW_DecodeInto(scratch.data(), static_cast<int>(sub_len), orig_data.data(), static_cast<int>(orig_data.size()),
+                          (scratch[0] == 0) ? 1 : 0, scratch[0] == 0);
     } else if (subtype == "VPTR") {
-      std::fill(orig_data.begin(), orig_data.end(), 0);
       const std::uint32_t to_read = std::min<std::uint32_t>(sub_len, static_cast<std::uint32_t>(orig_data.size()));
       if (!file->ReadExact(orig_data.data(), to_read)) return false;
       if (sub_len > to_read) {
         const long cur = file->Tell();
         if (!file->Seek(cur + static_cast<long>(sub_len - to_read))) return false;
       }
-      return true;
     } else if (subtype == "SND0") {
       if (sub_len != 0) {
         const std::size_t start = audio_chunk.size();
@@ -514,6 +535,7 @@ bool VqaDecoder::Impl::DecodeVQFR(long /*end_offset*/, bool vqfl) {
       if (!file->Seek(cur + static_cast<long>(sub_len))) return false;
     }
   }
+  return true;
 }
 
 void VqaDecoder::Impl::DecodeFrameIndices(std::vector<std::uint8_t>& out_indices) const {
@@ -529,7 +551,7 @@ void VqaDecoder::Impl::DecodeFrameIndices(std::vector<std::uint8_t>& out_indices
       const std::uint8_t mod = orig_data[static_cast<std::size_t>(bx + (by + blocks_y) * blocks_x)];
       for (int j = 0; j < block_h; ++j) {
         for (int i = 0; i < block_w; ++i) {
-          const int cbfi = (static_cast<int>(mod) * 256 + static_cast<int>(px)) * 8 + j * block_w + i;
+          const int cbfi = (static_cast<int>(mod) * 256 + static_cast<int>(px)) * (block_w * block_h) + j * block_w + i;
           const std::uint8_t color_index = (mod == 0x0f) ? px : cbf[static_cast<std::size_t>(cbfi)];
           const int x = bx * block_w + i;
           const int y = by * block_h + j;
