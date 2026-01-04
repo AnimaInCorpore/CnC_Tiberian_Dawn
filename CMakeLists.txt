@@ -125,7 +125,7 @@ set(TD_SOURCES
   src/gamedlg.cpp
   src/loaddlg.cpp
   
-  src/gadget_control.cpp
+  src/gadget.cpp
   src/game.cpp
   src/gauge.cpp
   src/globals.cpp

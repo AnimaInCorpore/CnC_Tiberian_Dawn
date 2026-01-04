@@ -6,7 +6,7 @@ Tracks migration from the legacy C&C95 Win32 source drop (repo root: `*.CPP`/`*.
 
 - Date: 2026-01-04
 - Legacy sources: 156 `.CPP`, 133 `.H`, 9 `.ASM`
-- Migrated (by same-stem file presence): 143/156 legacy `.CPP` have `src/<name>.cpp` counterparts
+- Migrated (by same-stem file presence): 144/156 legacy `.CPP` have `src/<name>.cpp` counterparts
 - Headers: 133/133 legacy `.H` mirrored under `src/include/legacy/`
 - Build: `cmake --build build` succeeds for target `cnc_tiberian_dawn` (requires SDL2)
 
@@ -67,7 +67,7 @@ Legend: `[x]` migrated, `[ ]` pending. Notes call out non-1:1 splits or files pr
 - [x] `FLY.CPP` → `src/fly.cpp`
 - [x] `FOOT.CPP` → `src/foot.cpp`
 - [x] `FUSE.CPP` → `src/fuse.cpp`
-- [ ] `GADGET.CPP` → `src/gadget.cpp` (missing; some gadget work appears in `src/gadget_control.cpp`)
+- [x] `GADGET.CPP` → `src/gadget.cpp` (previously named `src/gadget_control.cpp`)
 - [x] `GAMEDLG.CPP` → `src/gamedlg.cpp`
 - [x] `GAUGE.CPP` → `src/gauge.cpp`
 - [x] `GLOBALS.CPP` → `src/globals.cpp`
@@ -155,7 +155,7 @@ Legend: `[x]` migrated, `[ ]` pending. Notes call out non-1:1 splits or files pr
 - [x] `TEAM.CPP` → `src/team.cpp`
 - [x] `TEAMTYPE.CPP` → `src/teamtype.cpp`
 - [x] `TECHNO.CPP` → `src/techno.cpp`
-- [ ] `TEMP.CPP` → `src/temp.cpp` (missing; may be obsolete/unused in the modern build)
+- [ ] `TEMP.CPP` — retire (legacy file appears truncated/invalid; no references in the modern build)
 - [x] `TEMPLATE.CPP` → `src/template.cpp`
 - [x] `TERRAIN.CPP` → `src/terrain.cpp`
 - [x] `TEXTBTN.CPP` → `src/textbtn.cpp`

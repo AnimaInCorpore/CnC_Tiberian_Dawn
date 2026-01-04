@@ -2,12 +2,12 @@
 
 Prioritized follow-up tasks to continue porting the legacy C&C95 Win32 sources into a modern, cross-platform (SDL2) build while preserving original behavior.
 
-## 1) Close the remaining legacy `.CPP` gaps (13 files)
+## 1) Close the remaining legacy `.CPP` gaps (11 files)
 
 Create the missing `src/<lower>.cpp` translation units (or explicitly retire them if obsolete) and keep behavior aligned with the Win32 reference:
 
 - [ ] `CONQUER.CPP` → `src/conquer.cpp` (currently only `src/conquer_helpers.cpp` exists)
-- [ ] `GADGET.CPP` → `src/gadget.cpp` (currently `src/gadget_control.cpp` exists)
+- [x] `GADGET.CPP` → `src/gadget.cpp`
 - [ ] `INIT.CPP` → `src/init.cpp` (currently `src/init_helpers.cpp` exists)
 - [ ] `KEYFRAME.CPP` → `src/keyframe.cpp` (currently `src/keyframe_helpers.cpp`/`src/keyframe_info.cpp` exist)
 - [ ] `MAPEDDLG.CPP` → `src/mapeddlg.cpp`
@@ -17,7 +17,7 @@ Create the missing `src/<lower>.cpp` translation units (or explicitly retire the
 - [ ] `NETDLG.CPP` → `src/netdlg.cpp`
 - [ ] `NULLDLG.CPP` → `src/nulldlg.cpp`
 - [ ] `STARTUP.CPP` → `src/startup.cpp` (entry/init logic currently spread across `src/main.cpp`/`src/game.cpp`)
-- [ ] `TEMP.CPP` → `src/temp.cpp` (confirm if still needed; retire if not)
+- [ ] `TEMP.CPP` — retire (legacy file appears truncated/invalid; no references in the modern build)
 - [ ] `WINSTUB.CPP` → `src/winstub.cpp` (likely stays retired; confirm Windows launcher approach)
 
 ## 2) Resolve the remaining legacy `.ASM` (4 pending + 1 Win32-specific)
