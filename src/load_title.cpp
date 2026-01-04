@@ -135,32 +135,29 @@ bool Decode_Pcx_Or_Cps(const std::vector<unsigned char>& data, DecodedPcx& outpu
 	return Decode_Cps(data, output);
 }
 
-	void Apply_Title_Palette(const unsigned char* source, unsigned char* dest) {
-		if (!source) return;
+void Apply_Title_Palette(const unsigned char* source, unsigned char* dest) {
+	if (!source) return;
 
-		// Win95 reads the full 256-color palette from the PCX/CPS and uses it as-is
-		// for the title/menu screens (no reserved-index preservation).
-		if (!GamePalette) {
-			GamePalette = new unsigned char[kPaletteSize];
-			std::fill_n(GamePalette, kPaletteSize, 0);
-		}
-		std::memcpy(GamePalette, source, kPaletteSize);
-		if (OriginalPalette) {
-			std::memcpy(OriginalPalette, source, kPaletteSize);
-		}
-
-		unsigned char* target = dest ? dest : Palette;
-		if (!target) {
-			target = new unsigned char[kPaletteSize];
-			if (!dest) {
-				Palette = target;
-			}
-		}
-		if (target) {
-			std::memcpy(target, source, kPaletteSize);
-		}
+	// Win95 reads the full 256-color palette from the PCX/CPS and uses it as-is
+	// for the title/menu screens (no reserved-index preservation).
+	if (!GamePalette) {
+		GamePalette = new unsigned char[kPaletteSize];
+		std::fill_n(GamePalette, kPaletteSize, 0);
+	}
+	std::memcpy(GamePalette, source, kPaletteSize);
+	if (OriginalPalette) {
+		std::memcpy(OriginalPalette, source, kPaletteSize);
 	}
 
+	unsigned char* target = dest ? dest : Palette;
+	if (!target) {
+		target = new unsigned char[kPaletteSize];
+		Palette = target;
+	}
+	if (target) {
+		std::memcpy(target, source, kPaletteSize);
+	}
+}
 
 void Present_Title(GraphicViewPortClass* view) {
 	if (view == &HidPage) {
@@ -427,11 +424,18 @@ bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, Decoded
 		if ((value & 0xC0) == 0xC0) {
 			if (pos >= pixel_data_size) break; // malformed stream
 			count = static_cast<std::size_t>(value & 0x3F);
+			if (count == 0) {
+				// Invalid PCX RLE length; treat as malformed.
+				break;
+			}
 			value = payload[pos++];
 		}
 		const std::size_t write_count = std::min(count, total_pixels - out_pos);
 		std::fill_n(output.pixels.data() + out_pos, write_count, value);
 		out_pos += write_count;
+	}
+	if (out_pos != total_pixels) {
+		return false;
 	}
 
 	output.has_palette = true;

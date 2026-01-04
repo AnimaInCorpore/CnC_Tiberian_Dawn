@@ -8,6 +8,7 @@ Status: Next steps. Scope: prove the current SDL/CMake build can boot, start a m
   - Note: `TD_AUTOSTART_SCENARIO` accepts either a bare scenario root like `SCG01EA` or a filename/path like `SCG01EA.INI` / `CD/.../SCG01EA.INI` (the port strips the `.INI` for legacy parsing).
 - Re-verify palette fades against Win95, including `Fade_Palette_To(..., ..., NULL)` call sites (Win95 still shows the fade via hardware palette updates) (`src/interpal.cpp`, `src/wwlib_runtime.cpp`).
 - Re-verify title/menu text rendering parity (font selection, gradient ramp selection via `TPF_USE_GRAD_PAL`, clipping/spacing) (`src/text.cpp`, `src/load_title.cpp`).
+- Exercise title art loading across different CD mirrors/distributions (PCX vs CPS, named vs unnamed MIX payloads) to confirm the stricter PCX RLE validation doesn't reject valid assets (`src/load_title.cpp`).
 
 ## Audio + music parity
 Status: Next steps. Scope: match Win95 mixer behavior and theme playback so the port “feels” like C&C.
