@@ -172,6 +172,7 @@
 | `QUEUE.CPP` | `src/queue.cpp` | differs | Ported to src/ with mission queue helper logic and pointer coding helpers. |
 | `RADAR.CPP` | `src/radar.cpp` | differs | Ported to src/; radar UI helpers now build under SDL. |
 | `RAWFILE.CPP` | `src/rawfile.cpp` | differs | RawFileClass rebuilt atop POSIX read/write/seek; `Error()` now mirrors Win95 retry/exit prompts (with a CCMessageBox fallback when fonts are available). |
+| Parity fix (title MIX discovery registration) | `src/load_title.cpp` | build | Fixed a title-screen loading disparity across CD mirrors/distributions: `Load_Title_Screen` now registers discovered `*.MIX` paths with `MixFileClass` (not just tracking the filenames), so `CCFileClass` can resolve title art embedded in those mixes. |
 | `BUFFER_TO_PAGE` (legacy blit) | `src/buffer_to_page.cpp` | legacy missing | Raw 8-bit buffer copy now performs bounds-aware page blits instead of the stub. |
 | `REINF.CPP` | `src/reinf.cpp` | differs | Ported to src/ with reinforcement creation logic wired for triggers. |
 | `SAVELOAD.CPP` | `src/saveload.cpp` | differs | Ported save/load and misc-value serialization routines (plus pointer coding) so savegame operations have a real implementation again. |

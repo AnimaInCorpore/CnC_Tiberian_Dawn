@@ -557,6 +557,31 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 	static std::vector<std::unique_ptr<MixFileClass>> registered;
 	static std::vector<std::string> registered_paths;
 	if (!mixes_registered) {
+		auto register_mix_path = [&](const std::string& path_str) {
+			if (path_str.empty()) return;
+
+			bool already_registered = std::any_of(
+			    registered.begin(), registered.end(),
+			    [&](auto const& mix) { return strcasecmp(mix->Filename, path_str.c_str()) == 0; });
+			bool path_known = std::any_of(
+			    registered_paths.begin(), registered_paths.end(),
+			    [&](auto const& p) { return strcasecmp(p.c_str(), path_str.c_str()) == 0; });
+
+			if (!path_known) {
+				registered_paths.push_back(path_str);
+			}
+
+			if (already_registered) return;
+
+			std::ifstream test(path_str, std::ios::binary);
+			if (!test) return;
+
+			registered.emplace_back(std::make_unique<MixFileClass>(path_str.c_str()));
+			CCDebugString("Load_Title_Screen: registered mix ");
+			CCDebugString(path_str.c_str());
+			CCDebugString("\n");
+		};
+
 		auto register_mix = [&](const char* filename) {
 			if (!filename) return;
 			std::vector<std::filesystem::path> candidates;
@@ -592,25 +617,7 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 			}
 
 			for (auto const& path : candidates) {
-				const std::string path_str = path.string();
-				std::ifstream test(path_str, std::ios::binary);
-				if (!test) continue;
-
-				bool already_registered = std::any_of(
-				    registered.begin(), registered.end(),
-				    [&](auto const& mix) { return strcasecmp(mix->Filename, path_str.c_str()) == 0; });
-				bool path_known = std::any_of(
-				    registered_paths.begin(), registered_paths.end(),
-				    [&](auto const& p) { return strcasecmp(p.c_str(), path_str.c_str()) == 0; });
-				if (!already_registered) {
-					registered.emplace_back(std::make_unique<MixFileClass>(path_str.c_str()));
-					CCDebugString("Load_Title_Screen: registered mix ");
-					CCDebugString(path_str.c_str());
-					CCDebugString("\n");
-				}
-				if (!path_known) {
-					registered_paths.push_back(path_str);
-				}
+				register_mix_path(path.string());
 			}
 		};
 
@@ -623,12 +630,7 @@ void Load_Title_Screen(char* name, GraphicViewPortClass* video_page, unsigned ch
 		register_mix("UPDATEC.MIX");
 		register_mix("UPDATA.MIX");
 		for (auto const& path : Discover_Mix_Files(cd_subfolder)) {
-			if (std::find(registered_paths.begin(), registered_paths.end(), path) == registered_paths.end()) {
-				std::ifstream test(path, std::ios::binary);
-				if (test) {
-					registered_paths.push_back(path);
-				}
-			}
+			register_mix_path(path);
 		}
 		mixes_registered = true;
 	}
