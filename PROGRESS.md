@@ -11,6 +11,7 @@ Tracks migration from the legacy C&C95 Win32 source drop (repo root: `*.CPP`/`*.
 - Build: `cmake --build build` succeeds for target `cnc_tiberian_dawn` (requires SDL2)
 - Rendering: `CC_Draw_Shape` now handles Win95-style special shadow draw (`SHAPE_FADING|SHAPE_PREDATOR` → `SpecialGhost`) and `SHAPE_PREDATOR` ripple sampling
 - Palette: `Set_Palette`/`Fade_Palette_To` no longer clobber `GamePalette` when applying temporary palettes (fixes “start new game → black screen” after `Choose_Side`)
+- MIX lookup: fixed filename hashing fallback for archives without XCC name tables (e.g. `MOVIES.MIX`) so `*.VQA` playback can resolve entries like `LANDING.VQA`
 
 ## Legacy `.CPP` → `src/*.cpp` checklist
 

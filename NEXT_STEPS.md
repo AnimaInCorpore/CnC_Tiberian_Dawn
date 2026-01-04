@@ -41,4 +41,5 @@ Currently present in `src/` but not compiled by the main `cnc_tiberian_dawn` CMa
 - [ ] After each major module lands, compare flow/behavior vs. the Win32 build (boot → title → menus → in-game loop)
 - [ ] Re-verify `Choose_Side` → `Start_Scenario` palette transitions (temporary palette changes must not blank the in-game view)
 - [ ] Spot-check cloaking ripple + shadow rendering (`CC_Draw_Shape`: `SHAPE_PREDATOR` and special shadow path)
+- [ ] Add a small regression test for MIX filename hashing (archives without XCC name tables must resolve expected assets like `LANDING.VQA`)
 - [ ] Add small regression tests under `src/tests/` when a subsystem is stabilized (e.g., file/CRC helpers, PCX/CPS decode, UI widget behavior)

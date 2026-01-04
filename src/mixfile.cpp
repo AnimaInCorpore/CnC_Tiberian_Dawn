@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 #include <cctype>
+#include <vector>
 
 #include "legacy/ccfile.h"
 #include "legacy/function.h"
@@ -20,12 +21,29 @@ bool Verbose_Enabled() {
   return std::strcmp(value, "0") != 0 && std::strcmp(value, "false") != 0 && std::strcmp(value, "FALSE") != 0;
 }
 
-unsigned long Crc_For_Name(char const* filename) {
+std::uint32_t Mix_Hash_Classic(char const* filename) {
   if (!filename) return 0;
-  std::string upper = filename;
-  std::transform(upper.begin(), upper.end(), upper.begin(),
-                 [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
-  return Compute_Name_CRC(upper.data());
+
+  const std::size_t length = std::strlen(filename);
+  const std::size_t padding = (length % 4u) ? (4u - (length % 4u)) : 0u;
+  const std::size_t padded_length = length + padding;
+
+  std::vector<std::uint8_t> bytes(padded_length, 0);
+  for (std::size_t i = 0; i < length; ++i) {
+    const unsigned char c = static_cast<unsigned char>(filename[i]);
+    bytes[i] = static_cast<std::uint8_t>(std::toupper(c));
+  }
+
+  std::uint32_t result = 0;
+  for (std::size_t i = 0; i < padded_length; i += 4u) {
+    const std::uint32_t word = static_cast<std::uint32_t>(bytes[i]) |
+                               (static_cast<std::uint32_t>(bytes[i + 1]) << 8) |
+                               (static_cast<std::uint32_t>(bytes[i + 2]) << 16) |
+                               (static_cast<std::uint32_t>(bytes[i + 3]) << 24);
+    result = (result << 1) | (result >> 31);
+    result += word;
+  }
+  return result;
 }
 
 }  // namespace
@@ -287,7 +305,7 @@ std::uint32_t MixFileClass::Resolve_Crc_For_Name(char const* filename) const {
   if (it != NameToCrc.end()) {
     return it->second;
   }
-  return static_cast<std::uint32_t>(Crc_For_Name(filename));
+  return Mix_Hash_Classic(filename);
 }
 
 void MixFileClass::Load_Xcc_Name_Table() {
