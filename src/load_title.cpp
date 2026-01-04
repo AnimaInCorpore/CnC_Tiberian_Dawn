@@ -412,30 +412,50 @@ bool Decode_Pcx_Buffer(const unsigned char* data, std::size_t data_size, Decoded
 	output.height = height;
 	output.pixels.assign(static_cast<std::size_t>(width) * height, 0);
 
-	// Decode RLE stream sequentially into the pixel buffer. PCX RLE runs may span
-	// across scanline boundaries, so treating rows independently can drop pixels
-	// or desynchronize the stream. Decode into a flat buffer to preserve runs.
+	// Win95 reads PCX scanlines differently depending on whether `bytes_per_line`
+	// matches the image width. When `bytes_per_line` is larger, the file contains
+	// per-scanline padding that must be consumed but not stored.
 	std::size_t pos = 0;
-	const std::size_t total_pixels = static_cast<std::size_t>(width) * static_cast<std::size_t>(height);
-	std::size_t out_pos = 0;
-	while (out_pos < total_pixels && pos < pixel_data_size) {
-		unsigned char value = payload[pos++];
-		std::size_t count = 1;
-		if ((value & 0xC0) == 0xC0) {
-			if (pos >= pixel_data_size) break; // malformed stream
-			count = static_cast<std::size_t>(value & 0x3F);
-			if (count == 0) {
-				// Invalid PCX RLE length; treat as malformed.
-				break;
+	const std::size_t bytes_per_line = std::max<std::size_t>(1, header.bytes_per_line);
+	if (static_cast<int>(bytes_per_line) == width) {
+		// Decode the whole image as a single stream (matches Win95 fast-path).
+		const std::size_t total_pixels = static_cast<std::size_t>(width) * static_cast<std::size_t>(height);
+		std::size_t out_pos = 0;
+		while (out_pos < total_pixels && pos < pixel_data_size) {
+			unsigned char value = payload[pos++];
+			std::size_t count = 1;
+			if ((value & 0xC0) == 0xC0) {
+				if (pos >= pixel_data_size) break; // malformed stream
+				count = static_cast<std::size_t>(value & 0x3F);
+				if (count == 0) break;
+				value = payload[pos++];
 			}
-			value = payload[pos++];
+			const std::size_t write_count = std::min(count, total_pixels - out_pos);
+			std::fill_n(output.pixels.data() + out_pos, write_count, value);
+			out_pos += write_count;
 		}
-		const std::size_t write_count = std::min(count, total_pixels - out_pos);
-		std::fill_n(output.pixels.data() + out_pos, write_count, value);
-		out_pos += write_count;
-	}
-	if (out_pos != total_pixels) {
-		return false;
+		if (out_pos != total_pixels) return false;
+	} else {
+		// Decode one scanline at a time, consuming padding bytes (matches Win95 slow-path).
+		for (int y = 0; y < height; ++y) {
+			std::size_t x = 0;
+			while (x < bytes_per_line && pos < pixel_data_size) {
+				unsigned char value = payload[pos++];
+				std::size_t count = 1;
+				if ((value & 0xC0) == 0xC0) {
+					if (pos >= pixel_data_size) return false;
+					count = static_cast<std::size_t>(value & 0x3F);
+					if (count == 0) return false;
+					value = payload[pos++];
+				}
+				for (std::size_t run = 0; run < count && x < bytes_per_line; ++run, ++x) {
+					if (static_cast<int>(x) < width) {
+						output.pixels[static_cast<std::size_t>(y) * static_cast<std::size_t>(width) + x] = value;
+					}
+				}
+			}
+			if (x != bytes_per_line) return false;
+		}
 	}
 
 	output.has_palette = true;
