@@ -3,13 +3,13 @@
 // original game assets and renders frames into the existing 8-bit software
 // pages managed by the SDL runtime.
 
-#include <SDL.h>
-
 #include "legacy/debug.h"
 #include "legacy/audio.h"
 #include "legacy/externs.h"
 #include "legacy/function.h"
 #include "legacy/gscreen.h"
+
+#include <SDL.h>
 
 #include "vqa_decoder.h"
 
@@ -44,11 +44,8 @@ bool Is_No_Movie_Sentinel(std::string const& name) {
 }
 
 bool Movie_Should_Skip() {
-  SDL_Event e;
-  while (SDL_PollEvent(&e)) {
-    if (e.type == SDL_QUIT) return true;
-    if (e.type == SDL_KEYDOWN || e.type == SDL_MOUSEBUTTONDOWN) return true;
-  }
+  if (ReadyToQuit) return true;
+  if (Keyboard::Check()) return true;
   return false;
 }
 
@@ -69,11 +66,80 @@ std::string Normalize_Vqa_Name(char const* name) {
   return result;
 }
 
+void Fill_View(GraphicViewPortClass& view, std::uint8_t color) {
+  const int width = view.Get_Width();
+  const int height = view.Get_Height();
+  if (width <= 0 || height <= 0) return;
+  const int pitch = view.Get_Pitch();
+  auto* base = static_cast<std::uint8_t*>(view.Get_Offset());
+  if (!base || pitch <= 0) return;
+  for (int y = 0; y < height; ++y) {
+    std::memset(base + static_cast<std::size_t>(y) * pitch, color, static_cast<std::size_t>(width));
+  }
+}
+
+void Blit_Scaled_Centered(GraphicViewPortClass& dest, const VqaDecoder::Frame& frame) {
+  const int dst_w = dest.Get_Width();
+  const int dst_h = dest.Get_Height();
+  const int pitch = dest.Get_Pitch();
+  auto* dst_base = static_cast<std::uint8_t*>(dest.Get_Offset());
+  if (!dst_base || dst_w <= 0 || dst_h <= 0 || pitch <= 0) return;
+
+  const int src_w = static_cast<int>(frame.width);
+  const int src_h = static_cast<int>(frame.height);
+  if (src_w <= 0 || src_h <= 0) return;
+  if (frame.indices.size() < static_cast<std::size_t>(src_w) * static_cast<std::size_t>(src_h)) return;
+
+  const int scale_x = dst_w / src_w;
+  const int scale_y = dst_h / src_h;
+  const int scale = std::max(1, std::min(scale_x, scale_y));
+
+  const int out_w = src_w * scale;
+  const int out_h = src_h * scale;
+  const int offset_x = (dst_w - out_w) / 2;
+  const int offset_y = (dst_h - out_h) / 2;
+
+  Fill_View(dest, 0);
+
+  for (int y = 0; y < src_h; ++y) {
+    const std::uint8_t* src_row = frame.indices.data() + static_cast<std::size_t>(y) * src_w;
+    for (int sy = 0; sy < scale; ++sy) {
+      const int dy = offset_y + y * scale + sy;
+      if (dy < 0 || dy >= dst_h) continue;
+      auto* dst_row = dst_base + static_cast<std::size_t>(dy) * pitch;
+      for (int x = 0; x < src_w; ++x) {
+        const std::uint8_t color = src_row[x];
+        const int dx0 = offset_x + x * scale;
+        if (dx0 >= dst_w) continue;
+        if (dx0 + scale <= 0) continue;
+        const int clipped_dx = std::max(0, dx0);
+        const int clipped_w = std::min(dst_w, dx0 + scale) - clipped_dx;
+        if (clipped_w <= 0) continue;
+        std::memset(dst_row + clipped_dx, color, static_cast<std::size_t>(clipped_w));
+      }
+    }
+  }
+}
+
 }  // namespace
 
-void Play_Movie(char const* name, ThemeType /*theme*/, bool clrscrn) {
+void Play_Movie(char const* name, ThemeType theme, bool clrscrn) {
   const std::string filename = Normalize_Vqa_Name(name);
   if (filename.empty()) return;
+
+  /*
+  ** Don't play movies in editor mode.
+  */
+  if (Debug_Map) {
+    return;
+  }
+
+  /*
+  ** Don't play movies in multiplayer mode.
+  */
+  if (GameToPlay != GAME_NORMAL) {
+    return;
+  }
 
   VqaDecoder decoder;
   if (!decoder.Open(filename)) {
@@ -84,27 +150,33 @@ void Play_Movie(char const* name, ThemeType /*theme*/, bool clrscrn) {
     return;
   }
 
-  if (clrscrn) {
-    VisiblePage.Clear();
-    GScreenClass::Blit_Display();
-  }
-
   const std::uint16_t frames = decoder.Frame_Count();
   const std::uint8_t fps = decoder.Frame_Rate() ? decoder.Frame_Rate() : 15;
   const int frame_ms = std::max(1, 1000 / static_cast<int>(fps));
 
-  const int dst_w = VisiblePage.Get_Width();
-  const int dst_h = VisiblePage.Get_Height();
-  std::uint8_t* dst = VisiblePage.Get_Buffer();
-  if (!dst || dst_w <= 0 || dst_h <= 0) return;
+  // Mirror the legacy flow: fade/clear before playback unless the caller
+  // requested the VQA screen be preserved between transitions.
+  const int mouse_state_before = Get_Mouse_State();
+  Hide_Mouse();
+  Theme.Queue_Song(theme);
+  if (PreserveVQAScreen == 0) {
+    Fade_Palette_To(BlackPalette, FADE_PALETTE_MEDIUM, Call_Back);
+    VisiblePage.Clear();
+    std::memset(BlackPalette, 0x01, 768);
+    Set_Palette(BlackPalette);
+    std::memset(BlackPalette, 0x00, 768);
+  }
+  PreserveVQAScreen = 0;
+  Keyboard::Clear();
 
   VqaDecoder::Frame frame;
   using clock = std::chrono::steady_clock;
   auto next_tick = clock::now();
   bool started_audio = false;
+  const auto old_logic_page = Set_Logic_Page(&SeenBuff);
+  Brokeout = false;
 
   for (std::uint16_t i = 0; i < frames; ++i) {
-    if (Movie_Should_Skip()) break;
     if (!decoder.Decode_Frame(i, frame)) break;
 
     Set_Palette(frame.palette.data());
@@ -117,18 +189,12 @@ void Play_Movie(char const* name, ThemeType /*theme*/, bool clrscrn) {
       Movie_Audio_Push(frame.audio_pcm.data(), frame.audio_pcm.size());
     }
 
-    const int src_w = static_cast<int>(frame.width);
-    const int src_h = static_cast<int>(frame.height);
-    const int copy_w = std::min(dst_w, src_w);
-    const int copy_h = std::min(dst_h, src_h);
-
-    for (int y = 0; y < copy_h; ++y) {
-      const std::uint8_t* src_row = frame.indices.data() + static_cast<std::size_t>(y) * src_w;
-      std::uint8_t* dst_row = dst + static_cast<std::size_t>(y) * dst_w;
-      std::memcpy(dst_row, src_row, static_cast<std::size_t>(copy_w));
+    Blit_Scaled_Centered(SeenBuff, frame);
+    Call_Back();
+    if (Movie_Should_Skip()) {
+      Brokeout = true;
+      break;
     }
-
-    GScreenClass::Blit_Display();
 
     next_tick += std::chrono::milliseconds(frame_ms);
     const auto now = clock::now();
@@ -142,5 +208,26 @@ void Play_Movie(char const* name, ThemeType /*theme*/, bool clrscrn) {
 
   if (started_audio) {
     Movie_Audio_End();
+  }
+
+  Set_Logic_Page(old_logic_page);
+
+  if (Brokeout) {
+    clrscrn = true;
+    VisiblePage.Clear();
+    Brokeout = false;
+  }
+
+  // When requested, clear to black after playback (legacy semantics).
+  if (clrscrn) {
+    VisiblePage.Clear();
+    std::memset(BlackPalette, 0x01, 768);
+    Set_Palette(BlackPalette);
+    std::memset(BlackPalette, 0x00, 768);
+    Set_Palette(BlackPalette);
+  }
+
+  while (Get_Mouse_State() > mouse_state_before) {
+    Show_Mouse();
   }
 }

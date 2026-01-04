@@ -38,6 +38,8 @@ Currently present in `src/` but not compiled by the main `cnc_tiberian_dawn` CMa
 
 ## 4) Verification cadence (keep behavior canonical)
 
+- [ ] Re-check VQA playback end-to-end: palette correctness (especially post-movie fades), integer scaling/centering at both `640x400` and `640x480`, and skip/breakout behavior (mouse/keyboard) returning cleanly to gameplay.
+
 - [ ] After each major module lands, compare flow/behavior vs. the Win32 build (boot → title → menus → in-game loop)
 - [ ] Re-verify `Choose_Side` → `Start_Scenario` palette transitions (temporary palette changes must not blank the in-game view)
 - [ ] Spot-check cloaking ripple + shadow rendering (`CC_Draw_Shape`: `SHAPE_PREDATOR` and special shadow path)

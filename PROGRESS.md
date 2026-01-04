@@ -12,6 +12,7 @@ Tracks migration from the legacy C&C95 Win32 source drop (repo root: `*.CPP`/`*.
 - Rendering: `CC_Draw_Shape` now handles Win95-style special shadow draw (`SHAPE_FADING|SHAPE_PREDATOR` → `SpecialGhost`) and `SHAPE_PREDATOR` ripple sampling
 - Palette: `Set_Palette`/`Fade_Palette_To` no longer clobber `GamePalette` when applying temporary palettes (fixes “start new game → black screen” after `Choose_Side`)
 - MIX lookup: fixed filename hashing fallback for archives without XCC name tables (e.g. `MOVIES.MIX`) so `*.VQA` playback can resolve entries like `LANDING.VQA`
+- Movies: `Play_Movie` now pumps the normal SDL input path during playback and scales/centers VQA frames into `SeenBuff` (matches UI scaling); VQA palettes are normalized to the engine’s 6-bit format when assets store 8-bit RGB.
 
 ## Legacy `.CPP` → `src/*.cpp` checklist
 
