@@ -61,22 +61,21 @@ struct CursorState {
 
 CursorState g_cursor{};
 
-Uint8 Palette_Channel_To_Byte(int value) {
-  // Palettes in C&C are stored as VGA 6-bit values (0..63). Windows 95 builds
-  // expand these to 8-bit by shifting left two bits (0..252).
-  const int clamped = std::clamp(value, 0, 255);
-  const int scaled = std::clamp(clamped * 4, 0, 255);
-  return static_cast<Uint8>(scaled);
-}
-
-Uint32 Palette_Index_To_ARGB(const unsigned char* palette, int index) {
+Uint32 Palette_Index_To_ARGB(const unsigned char* palette, int index, bool palette_is_8bit) {
   index = std::clamp(index, 0, 255);
   const int offset = index * 3;
-  const auto fetch = [palette, offset, index](int channel) -> Uint8 {
+  const auto fetch = [palette, offset, index, palette_is_8bit](int channel) -> Uint8 {
     if (!palette) {
       return static_cast<Uint8>(index);
     }
-    return Palette_Channel_To_Byte(static_cast<int>(palette[offset + channel]));
+    const int value = static_cast<int>(palette[offset + channel]);
+    if (palette_is_8bit) {
+      return static_cast<Uint8>(std::clamp(value, 0, 255));
+    }
+    // Palettes in C&C are stored as VGA 6-bit values (0..63). Windows 95 builds
+    // expand these to 8-bit by shifting left two bits (0..252).
+    const int clamped = std::clamp(value, 0, 63);
+    return static_cast<Uint8>(clamped * 4);
   };
   const Uint8 r = fetch(0);
   const Uint8 g = fetch(1);
@@ -92,16 +91,18 @@ int g_present_height = 0;
 std::array<unsigned char, 256 * 3> g_present_palette_snapshot{};
 std::array<Uint32, 256> g_present_palette_lut{};
 bool g_present_palette_valid = false;
+bool g_present_palette_is_8bit = false;
 std::vector<Uint32> g_present_argb{};
 
 void Ensure_Palette_Lut(const unsigned char* palette) {
   if (!palette) {
     if (!g_present_palette_valid) {
       for (int i = 0; i < 256; ++i) {
-        g_present_palette_lut[static_cast<std::size_t>(i)] = Palette_Index_To_ARGB(nullptr, i);
+        g_present_palette_lut[static_cast<std::size_t>(i)] = Palette_Index_To_ARGB(nullptr, i, false);
       }
       g_present_palette_snapshot.fill(0);
       g_present_palette_valid = true;
+      g_present_palette_is_8bit = false;
     }
     return;
   }
@@ -112,8 +113,12 @@ void Ensure_Palette_Lut(const unsigned char* palette) {
   }
 
   std::memcpy(g_present_palette_snapshot.data(), palette, g_present_palette_snapshot.size());
+  g_present_palette_is_8bit =
+      std::any_of(g_present_palette_snapshot.begin(), g_present_palette_snapshot.end(),
+                  [](unsigned char value) { return value > 63; });
   for (int i = 0; i < 256; ++i) {
-    g_present_palette_lut[static_cast<std::size_t>(i)] = Palette_Index_To_ARGB(palette, i);
+    g_present_palette_lut[static_cast<std::size_t>(i)] =
+        Palette_Index_To_ARGB(palette, i, g_present_palette_is_8bit);
   }
   g_present_palette_valid = true;
 }

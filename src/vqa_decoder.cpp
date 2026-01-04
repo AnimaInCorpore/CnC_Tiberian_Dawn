@@ -466,25 +466,14 @@ bool VqaDecoder::Impl::DecodeVQFR(long /*end_offset*/, bool vqfl) {
       cbp_is_compressed = subtype == "CBPZ";
     } else if (subtype == "CPL0") {
       const int colors = std::min<int>(num_colors, 256);
-      bool palette_looks_8bit = false;
       for (int i = 0; i < colors; ++i) {
         const std::uint8_t r = file->ReadU8(&ok);
         const std::uint8_t g = file->ReadU8(&ok);
         const std::uint8_t b = file->ReadU8(&ok);
         if (!ok) return false;
-        palette_looks_8bit = palette_looks_8bit || r > 63 || g > 63 || b > 63;
         palette[static_cast<std::size_t>(i) * 3 + 0] = r;
         palette[static_cast<std::size_t>(i) * 3 + 1] = g;
         palette[static_cast<std::size_t>(i) * 3 + 2] = b;
-      }
-      if (palette_looks_8bit) {
-        // The classic palettes used by C&C are 6-bit (0..63). Some assets store
-        // 8-bit RGB; detect that and convert down so the renderer's VGA->8-bit
-        // expansion matches the original.
-        const std::size_t total = static_cast<std::size_t>(colors) * 3u;
-        for (std::size_t i = 0; i < total; ++i) {
-          palette[i] = static_cast<std::uint8_t>(std::min<int>(63, static_cast<int>(palette[i] >> 2)));
-        }
       }
       // Skip any extra palette bytes if present.
       const std::uint32_t consumed = static_cast<std::uint32_t>(colors) * 3u;

@@ -70,20 +70,22 @@ void Fill_View(GraphicViewPortClass& view, std::uint8_t color) {
   const int width = view.Get_Width();
   const int height = view.Get_Height();
   if (width <= 0 || height <= 0) return;
-  const int pitch = view.Get_Pitch();
+  const GraphicBufferClass* buffer = view.Get_Graphic_Buffer();
+  const int stride = buffer ? buffer->Get_Width() : 0;
   auto* base = static_cast<std::uint8_t*>(view.Get_Offset());
-  if (!base || pitch <= 0) return;
+  if (!base || stride <= 0) return;
   for (int y = 0; y < height; ++y) {
-    std::memset(base + static_cast<std::size_t>(y) * pitch, color, static_cast<std::size_t>(width));
+    std::memset(base + static_cast<std::size_t>(y) * stride, color, static_cast<std::size_t>(width));
   }
 }
 
 void Blit_Scaled_Centered(GraphicViewPortClass& dest, const VqaDecoder::Frame& frame) {
   const int dst_w = dest.Get_Width();
   const int dst_h = dest.Get_Height();
-  const int pitch = dest.Get_Pitch();
+  const GraphicBufferClass* buffer = dest.Get_Graphic_Buffer();
+  const int stride = buffer ? buffer->Get_Width() : 0;
   auto* dst_base = static_cast<std::uint8_t*>(dest.Get_Offset());
-  if (!dst_base || dst_w <= 0 || dst_h <= 0 || pitch <= 0) return;
+  if (!dst_base || dst_w <= 0 || dst_h <= 0 || stride <= 0) return;
 
   const int src_w = static_cast<int>(frame.width);
   const int src_h = static_cast<int>(frame.height);
@@ -106,7 +108,7 @@ void Blit_Scaled_Centered(GraphicViewPortClass& dest, const VqaDecoder::Frame& f
     for (int sy = 0; sy < scale; ++sy) {
       const int dy = offset_y + y * scale + sy;
       if (dy < 0 || dy >= dst_h) continue;
-      auto* dst_row = dst_base + static_cast<std::size_t>(dy) * pitch;
+      auto* dst_row = dst_base + static_cast<std::size_t>(dy) * stride;
       for (int x = 0; x < src_w; ++x) {
         const std::uint8_t color = src_row[x];
         const int dx0 = offset_x + x * scale;
