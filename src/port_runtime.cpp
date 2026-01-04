@@ -386,6 +386,16 @@ void CC_Draw_Shape(void const* shapefile, int shapenum, int x, int y, WindowNumb
   const int height = static_cast<int>(Get_Build_Frame_Height(shapefile));
   if (width <= 0 || height <= 0) return;
 
+  // Special shadow drawing code (used for aircraft and bullets). The Win95 build
+  // routes this through the KEYFBUFF "ghost" path using a 1-entry translucency
+  // table that shades the destination pixels.
+  if ((flags & (SHAPE_FADING | SHAPE_PREDATOR)) == (SHAPE_FADING | SHAPE_PREDATOR)) {
+    flags &= ~(SHAPE_FADING | SHAPE_PREDATOR);
+    flags |= SHAPE_GHOST;
+    fadingdata = nullptr;
+    ghostdata = Map.SpecialGhost;
+  }
+
   if ((flags & SHAPE_CENTER) != 0) {
     x -= width / 2;
     y -= height / 2;
@@ -408,6 +418,29 @@ void CC_Draw_Shape(void const* shapefile, int shapenum, int x, int y, WindowNumb
   const int clip_x1 = clip_x0 + dest_view.Get_Width();
   const int clip_y1 = clip_y0 + dest_view.Get_Height();
 
+  bool predator_enabled = (flags & SHAPE_PREDATOR) != 0;
+  unsigned predator_cycle = 0;
+  int const* predator_offsets = nullptr;
+  if (predator_enabled) {
+    static constexpr int kPredatorOffsetsPos[8] = {1, 3, 2, 5, 2, 3, 4, 1};
+    static constexpr int kPredatorOffsetsNeg[8] = {-1, -3, -2, -5, -2, -4, -3, -1};
+
+    int predoffset = static_cast<int>(Frame);
+    const int window_origin_x = WindowList[window][WINDOWX] << 3;
+    const int local_x = x - window_origin_x;
+    if (local_x > (WindowList[window][WINDOWWIDTH] << 2)) {
+      predoffset = -predoffset;
+    }
+
+    if (predoffset < 0) {
+      predator_offsets = kPredatorOffsetsNeg;
+      predoffset = -predoffset;
+    } else {
+      predator_offsets = kPredatorOffsetsPos;
+    }
+    predator_cycle = static_cast<unsigned>(predoffset) & 7u;
+  }
+
   for (int sy = 0; sy < height; ++sy) {
     const int dy = y + sy;
     if (dy < clip_y0 || dy >= clip_y1) continue;
@@ -418,6 +451,15 @@ void CC_Draw_Shape(void const* shapefile, int shapenum, int x, int y, WindowNumb
 
       unsigned char src_color = temp[static_cast<std::size_t>(sy) * width + sx];
       if (src_color == 0) continue;
+
+      if (predator_enabled && predator_offsets) {
+        int sample_x = dx + predator_offsets[predator_cycle];
+        if (sample_x < clip_x0 || sample_x >= clip_x1) {
+          sample_x = dx;
+        }
+        src_color = *(dst + (dy - clip_y0) * dst_pitch + (sample_x - clip_x0));
+        predator_cycle = (predator_cycle + 1u) & 7u;
+      }
 
       if (fadingdata && ((flags & SHAPE_FADING) != 0)) {
         src_color = static_cast<const unsigned char*>(fadingdata)[src_color];

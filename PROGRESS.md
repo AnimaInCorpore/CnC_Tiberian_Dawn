@@ -9,6 +9,7 @@ Tracks migration from the legacy C&C95 Win32 source drop (repo root: `*.CPP`/`*.
 - Migrated (by same-stem file presence): 146/156 legacy `.CPP` have `src/<name>.cpp` counterparts
 - Headers: 133/133 legacy `.H` mirrored under `src/include/legacy/`
 - Build: `cmake --build build` succeeds for target `cnc_tiberian_dawn` (requires SDL2)
+- Rendering: `CC_Draw_Shape` now handles Win95-style special shadow draw (`SHAPE_FADING|SHAPE_PREDATOR` → `SpecialGhost`) and `SHAPE_PREDATOR` ripple sampling
 
 ## Legacy `.CPP` → `src/*.cpp` checklist
 
