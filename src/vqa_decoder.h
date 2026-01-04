@@ -7,7 +7,7 @@
 
 // Minimal Westwood VQA (C&C/RA era) decoder.
 // - Supports the 8-bit (non-HQ) VQA variant used by Tiberian Dawn assets.
-// - Decodes frames to an 8-bit index buffer and exposes the active 6-bit palette (768 bytes).
+// - Decodes frames to an 8-bit index buffer and exposes the active palette triplets (768 bytes).
 // - Uses LCW/Format80 decompression for VQA subchunks.
 class VqaDecoder {
  public:
@@ -15,7 +15,7 @@ class VqaDecoder {
     std::uint16_t width = 0;
     std::uint16_t height = 0;
     std::vector<std::uint8_t> indices;  // width*height
-    std::array<std::uint8_t, 256 * 3> palette{};  // 6-bit RGB triplets (0..63)
+    std::array<std::uint8_t, 256 * 3> palette{};  // 8-bit RGB triplets (0..255)
 
     std::vector<std::uint8_t> audio_pcm;
     int audio_rate = 0;

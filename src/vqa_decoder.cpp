@@ -183,7 +183,7 @@ struct VqaDecoder::Impl {
   std::vector<std::uint8_t> cbf;
   std::vector<std::uint8_t> cbp;
   std::vector<std::uint8_t> orig_data;
-  std::array<std::uint8_t, 256 * 3> palette{};  // 6-bit RGB triplets
+  std::array<std::uint8_t, 256 * 3> palette{};  // 8-bit RGB triplets
 
   int chunk_buffer_parts = 0;
   int current_chunk_buffer = 0;
@@ -403,6 +403,7 @@ bool VqaDecoder::Impl::LoadFrame(std::uint16_t frame_index) {
       const int colors = std::min<int>(static_cast<int>(pal_data.size() / 3), 256);
       if (colors > 0) {
         for (int i = 0; i < colors; ++i) {
+          // VQA stores palette triplets as 8-bit values (0..255); copy through unchanged.
           palette[static_cast<std::size_t>(i) * 3 + 0] = pal_data[static_cast<std::size_t>(i) * 3 + 0];
           palette[static_cast<std::size_t>(i) * 3 + 1] = pal_data[static_cast<std::size_t>(i) * 3 + 1];
           palette[static_cast<std::size_t>(i) * 3 + 2] = pal_data[static_cast<std::size_t>(i) * 3 + 2];
@@ -502,6 +503,7 @@ bool VqaDecoder::Impl::DecodeVQFR(long end_offset, bool vqfl) {
       const int colors = std::min<int>(static_cast<int>(pal_data.size() / 3), 256);
       if (colors > 0) {
         for (int i = 0; i < colors; ++i) {
+          // VQA stores palette triplets as 8-bit values (0..255); copy through unchanged.
           palette[static_cast<std::size_t>(i) * 3 + 0] = pal_data[static_cast<std::size_t>(i) * 3 + 0];
           palette[static_cast<std::size_t>(i) * 3 + 1] = pal_data[static_cast<std::size_t>(i) * 3 + 1];
           palette[static_cast<std::size_t>(i) * 3 + 2] = pal_data[static_cast<std::size_t>(i) * 3 + 2];
