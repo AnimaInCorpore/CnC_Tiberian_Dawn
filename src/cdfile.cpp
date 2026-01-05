@@ -3,8 +3,11 @@
 #include <algorithm>
 #include <cctype>
 #include <cstring>
+#include <filesystem>
 #include <string>
 #include <vector>
+
+#include <SDL.h>
 
 namespace {
 
@@ -47,7 +50,10 @@ std::string Normalize_Cd_Subfolder(const char* subfolder) {
 bool Is_Absolute_Path(std::string const& path) {
   if (path.empty()) return false;
   if (path[0] == '/' || path[0] == '\\') return true;
-  if (path.size() >= 2 && std::isalpha(static_cast<unsigned char>(path[0])) && path[1] == ':') return true;
+  if (path.size() >= 2 && std::isalpha(static_cast<unsigned char>(path[0])) &&
+      path[1] == ':') {
+    return true;
+  }
   return false;
 }
 
@@ -64,6 +70,15 @@ bool Starts_With_Path_Prefix(std::string const& path, std::string const& prefix)
   return next == '/' || next == '\\';
 }
 
+void Add_Search_Drive_From_Path(std::filesystem::path const& candidate) {
+  if (candidate.empty()) return;
+  std::filesystem::path normalized = candidate.lexically_normal();
+  if (normalized.empty()) return;
+  std::string path = normalized.string();
+  if (path.empty()) return;
+  CDFileClass::Add_Search_Drive(const_cast<char*>(path.c_str()));
+}
+
 void Ensure_Default_Search_Drives() {
   if (g_search_head) return;
 
@@ -72,7 +87,40 @@ void Ensure_Default_Search_Drives() {
     CDFileClass::Add_Search_Drive(const_cast<char*>(path));
   };
 
-  // If the caller selected a specific CD mirror, try that first.
+  std::vector<std::filesystem::path> base_paths;
+  auto append_candidate = [&](std::filesystem::path candidate) {
+    for (int depth = 0; depth < 3 && !candidate.empty(); ++depth) {
+      std::filesystem::path normalized = candidate.lexically_normal();
+      if (normalized.empty()) break;
+      bool duplicate = false;
+      for (auto const& existing : base_paths) {
+        if (existing == normalized) {
+          duplicate = true;
+          break;
+        }
+      }
+      if (!duplicate) {
+        base_paths.push_back(normalized);
+      }
+      candidate = candidate.parent_path();
+    }
+  };
+
+  try {
+    append_candidate(std::filesystem::current_path());
+  } catch (...) {
+  }
+  if (char* base = SDL_GetBasePath()) {
+    append_candidate(std::filesystem::path(base));
+    SDL_free(base);
+  }
+  if (base_paths.empty()) {
+    try {
+      append_candidate(std::filesystem::current_path());
+    } catch (...) {
+    }
+  }
+
   switch (CDFileClass::Get_CD_Drive()) {
     case 1:
       add_drive("CD/TIBERIAN_DAWN/CD1");
@@ -102,23 +150,37 @@ void Ensure_Default_Search_Drives() {
       break;
   }
 
-  // Prefer explicit subfolder selection, then fall back to all known CD mirrors.
   if (!g_cd_subfolder.empty()) {
     const std::string primary = Join_Path("CD", g_cd_subfolder.c_str());
     CDFileClass::Add_Search_Drive(const_cast<char*>(primary.c_str()));
   }
 
-  // Always include the Tiberian Dawn unpacked discs first so fonts/MIXes are found.
-  // Prefer CD2 (often contains the most complete GENERAL.MIX), then fall back.
   add_drive("CD/TIBERIAN_DAWN/CD2");
   add_drive("CD/TIBERIAN_DAWN/CD1");
   add_drive("CD/TIBERIAN_DAWN/CD3");
-
-  // Legacy mirrors.
   add_drive("CD/GDI");
   add_drive("CD/NOD");
   add_drive("CD/CNC95");
   add_drive("CD");
+
+  static char const* const kRelativeRoots[] = {
+      "CD/TIBERIAN_DAWN/CD2",
+      "CD/TIBERIAN_DAWN/CD1",
+      "CD/TIBERIAN_DAWN/CD3",
+      "CD/GDI",
+      "CD/NOD",
+      "CD/CNC95",
+      "CD",
+  };
+
+  for (auto const& root : base_paths) {
+    for (char const* rel : kRelativeRoots) {
+      Add_Search_Drive_From_Path(root / rel);
+    }
+    if (!g_cd_subfolder.empty()) {
+      Add_Search_Drive_From_Path(root / "CD" / g_cd_subfolder);
+    }
+  }
 }
 
 }  // namespace
@@ -129,7 +191,6 @@ int CDFileClass::CurrentCDDrive = 0;
 int CDFileClass::LastCDDrive = 0;
 
 CDFileClass::CDFileClass(char const* filename) : RawFileClass(filename), IsDisabled(0) {}
-
 CDFileClass::CDFileClass() : RawFileClass(), IsDisabled(0) {}
 
 void CDFileClass::Set_CD_Subfolder(char const* subfolder) {
@@ -163,14 +224,6 @@ int CDFileClass::Open(int rights) {
 
   Ensure_Default_Search_Drives();
 
-  /*
-  ** If the caller already provided a rooted or subdirectory path, try it
-  ** directly first. This avoids accidentally prefixing an already-expanded
-  ** search-drive path (which can lead to duplicated segments).
-  **
-  ** Important: probe for existence first so missing candidates don't trigger
-  ** RawFileClass's interactive retry loop before we've tried other drives.
-  */
   if (!original_name.empty() && (Is_Absolute_Path(original_name) || Has_Path_Separator(original_name))) {
     RawFileClass::Set_Name(original_name.c_str());
     if (RawFileClass::Is_Available(false) && RawFileClass::Open(rights)) {
