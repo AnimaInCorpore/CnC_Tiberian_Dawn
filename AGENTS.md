@@ -42,10 +42,7 @@ For each file (`*.CPP`, `*.H`, `*.ASM`):
 
 ### 2. Dependency Replacement
 
-- **Graphics:** Replace all DirectDraw calls with SDL2 rendering API.
-- **Audio:** Replace DirectSound and HMI/SOS calls with SDL2 audio API.
-- **Networking:** Replace Greenleaf (GCL) and IPX calls with SDL_net or standard sockets.
-- **Input:** Replace DirectInput and low-level keyboard/mouse hooks with SDL2 event system.
+See `PORTING_RULES.md` for detailed SDL emulation guidelines.
 
 ### 3. Build System
 

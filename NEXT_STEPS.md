@@ -2,6 +2,8 @@
 
 Prioritized follow-up tasks to continue porting the legacy C&C95 Win32 sources into a modern, cross-platform (SDL2) build while preserving original behavior.
 
+For porting rules and guidelines, see `PORTING_RULES.md`.
+
 ## 1) Close the remaining legacy `.CPP` gaps (9 files)
 
 Create the missing `src/<lower>.cpp` translation units (or explicitly retire them if obsolete) and keep behavior aligned with the Win32 reference:
