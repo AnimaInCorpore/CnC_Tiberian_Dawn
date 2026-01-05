@@ -233,9 +233,9 @@ void CommQueueClass::Mono_Debug_Print2(int refresh) {
         if (DebugSize == 1) {
           val = *(SendQueue[i].Buffer + DebugOffset);
         } else if (DebugSize == 2) {
-          val = *((short*)(SendQueue[i].Buffer + DebugOffset));
+          val = *reinterpret_cast<short*>(SendQueue[i].Buffer + DebugOffset);
         } else if (DebugSize == 4) {
-          val = *((int*)(SendQueue[i].Buffer + DebugOffset));
+          val = *reinterpret_cast<int*>(SendQueue[i].Buffer + DebugOffset);
         }
         size_t len = std::strlen(txt);
         if (len < sizeof(txt)) {
@@ -275,9 +275,9 @@ void CommQueueClass::Mono_Debug_Print2(int refresh) {
         if (DebugSize == 1) {
           val = *(ReceiveQueue[i].Buffer + DebugOffset);
         } else if (DebugSize == 2) {
-          val = *((short*)(ReceiveQueue[i].Buffer + DebugOffset));
+          val = *reinterpret_cast<short*>(ReceiveQueue[i].Buffer + DebugOffset);
         } else if (DebugSize == 4) {
-          val = *((int*)(ReceiveQueue[i].Buffer + DebugOffset));
+          val = *reinterpret_cast<int*>(ReceiveQueue[i].Buffer + DebugOffset);
         }
         size_t len = std::strlen(txt);
         if (len < sizeof(txt)) {

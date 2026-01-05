@@ -462,11 +462,11 @@ void OptionsClass::Adjust_Palette(void *oldpal, void *newpal, unsigned char brig
 	*/
 	for (index = 0; index < 256; index++) {
 		if (/*index == LTGREEN ||*/ index == 255) {
-			memcpy(&((char*)newpal)[index*3], &((char*)oldpal)[index*3], 3);
+			memcpy(&reinterpret_cast<char*>(newpal)[index*3], &reinterpret_cast<char*>(oldpal)[index*3], 3);
 		} else {
-			r = ((char*)oldpal)[(index*3)+0];
-			g = ((char*)oldpal)[(index*3)+1];
-			b = ((char*)oldpal)[(index*3)+2];
+			r = reinterpret_cast<char*>(oldpal)[(index*3)+0];
+			g = reinterpret_cast<char*>(oldpal)[(index*3)+1];
+			b = reinterpret_cast<char*>(oldpal)[(index*3)+2];
 			Convert_RGB_To_HSV(r, g, b, &h, &s, &v);
 
 			/*
@@ -488,9 +488,9 @@ void OptionsClass::Adjust_Palette(void *oldpal, void *newpal, unsigned char brig
 			temp = Bound(temp, 0, 0xFF);
 			h = temp;
 			Convert_HSV_To_RGB(h, s, v, &r, &g, &b);
-			((char*)newpal)[(index*3)+0] = r;
-			((char*)newpal)[(index*3)+1] = g;
-			((char*)newpal)[(index*3)+2] = b;
+			reinterpret_cast<char*>(newpal)[(index*3)+0] = r;
+			reinterpret_cast<char*>(newpal)[(index*3)+1] = g;
+			reinterpret_cast<char*>(newpal)[(index*3)+2] = b;
 		}
 	}
 }

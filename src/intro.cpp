@@ -45,10 +45,10 @@ void Choose_Side(void) {
 
   const int system_mb = SDL_GetSystemRAM();
 
-  TextPrintBuffer = new GraphicBufferClass(SeenBuff.Get_Width(), SeenBuff.Get_Height(), (void*)NULL);
+  TextPrintBuffer = new GraphicBufferClass(SeenBuff.Get_Width(), SeenBuff.Get_Height(), nullptr);
   TextPrintBuffer->Clear();
   BlitList.Clear();
-  PseudoSeenBuff = new GraphicBufferClass(320, 200, (void*)NULL);
+  PseudoSeenBuff = new GraphicBufferClass(320, 200, nullptr);
   int frame = 0, endframe = 255, selection = 0, lettersdone = 0;
   TD_Debugf("Choose_Side: buffers allocated");
 

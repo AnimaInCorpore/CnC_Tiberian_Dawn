@@ -493,7 +493,7 @@ int PASCAL WinMain ( HINSTANCE instance , HINSTANCE , char * command_line , int 
 			** See if we should run the intro
 			*/
 			CCDebugString ("C&C95 - Reading CONQUER.INI.\n");
-			char *buffer = (char*)Alloc(64000 , MEM_NORMAL);		//(char *)HidPage.Get_Buffer();
+			char *buffer = reinterpret_cast<char*>(Alloc(64000 , MEM_NORMAL));		//(char *)HidPage.Get_Buffer();
 			cfile.Read(buffer, cfile.Size());
 			buffer[cfile.Size()] = '\0';
 

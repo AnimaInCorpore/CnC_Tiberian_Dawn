@@ -157,7 +157,7 @@ for (int index = 0; index < teamtype->ClassCount; index++) {
 				**	Add the object to the team. This is true even for the transports. The one
 				**	exception is for the hover lander which never becomes part of the team.
 				*/
-				if (team && (temp->What_Am_I() != RTTI_UNIT || *((UnitClass*)temp) != UNIT_HOVER)) {
+				if (team && (temp->What_Am_I() != RTTI_UNIT || *static_cast<UnitClass const*>(temp) != UNIT_HOVER)) {
 					ScenarioInit++;
 					team->Add(temp);
 					ScenarioInit--;

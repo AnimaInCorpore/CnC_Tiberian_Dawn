@@ -678,7 +678,7 @@ bool MapClass::Read_Binary(char const * root, unsigned long *crc)
 			if (shape) {
 				rawmap = Get_Icon_Set_Map(shape);
 				if (rawmap) {
-					map = (char*)rawmap;
+					map = reinterpret_cast<char*>(rawmap);
 					if (map[temp.TIcon] == -1) {
 						temp.TIcon = 0;
 						temp.TType = TEMPLATE_NONE;

@@ -1897,7 +1897,7 @@ void InfantryClass::Random_Animate(void)
 			}
 		}
 
-		switch (Random_Picky((int)0, (int)55, (char*)nullptr, (int)0)) {
+		switch (Random_Picky(0, 55, static_cast<char*>(nullptr), 0)) {
 			case 10:
 				Do_Action(DO_SALUTE1);
 				break;

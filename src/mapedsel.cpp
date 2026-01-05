@@ -65,7 +65,7 @@
  *=========================================================================*/
 int MapEditClass::Select_Object(void)
 {
-	ObjectClass	*object=NULL;		// Generic object clicked on.
+	ObjectClass	*object = nullptr;		// Generic object clicked on.
 	int			x,y;
 	CELL			cell;					// Cell that was selected.
 	int			rc=0;
@@ -268,7 +268,7 @@ void MapEditClass::Select_Next(void)
  *=========================================================================*/
 void MapEditClass::Popup_Controls(void)
 {
-	const TechnoTypeClass * objtype = NULL;
+	const TechnoTypeClass * objtype = nullptr;
 	HousesType owner;							// object's current owner
 	int mission_index;						// object's current mission
 	int strength;								// object's 0-255 strength value
@@ -482,7 +482,7 @@ int MapEditClass::Move_Grabbed_Object(void)
 //			Map[Coord_Cell(GrabbedObject->Coord)].Flag.Composite &=
 //				~(1 << CellClass::Spot_Index(GrabbedObject->Coord));
 		} else {
-			new_coord = NULL;
+			new_coord = 0;
 		}
 
 	} else {
@@ -502,10 +502,10 @@ int MapEditClass::Move_Grabbed_Object(void)
 		................ Try to place object at new coordinate ................
 		*/
 		if (GrabbedObject->Can_Enter_Cell(Coord_Cell(new_coord)) != MOVE_OK) {
-			new_coord = NULL;
+			new_coord = 0;
 		}
 	}
-	if (new_coord != NULL) {
+	if (new_coord != 0) {
 		/*
 		** If this object is part of the AI's Base list, change the coordinate
 		** in the Base's Node list.
@@ -583,7 +583,7 @@ bool MapEditClass::Change_House(HousesType newhouse)
 	/*------------------------------------------------------------------------
 	Verify that the target house exists
 	------------------------------------------------------------------------*/
-	if (HouseClass::As_Pointer(newhouse)==NULL) {
+	if (HouseClass::As_Pointer(newhouse) == nullptr) {
 		return(false);
 	}
 

@@ -2704,7 +2704,7 @@ void TechnoClass::Record_The_Kill(TechnoClass * source)
 			}
 			if (source){
 				if (GameToPlay == GAME_INTERNET){
-					source->House->DestroyedBuildings->Increment_Unit_Total( ((BuildingClass*)this)->Class->Type );
+					source->House->DestroyedBuildings->Increment_Unit_Total( static_cast<BuildingClass*>(this)->Class->Type );
 				}
 				source->House->BuildingsKilled[Owner()]++;
 			}
@@ -2723,7 +2723,7 @@ void TechnoClass::Record_The_Kill(TechnoClass * source)
 			House->UnitsLost++;
 			if (source){
 				if (GameToPlay == GAME_INTERNET){
-					source->House->DestroyedAircraft->Increment_Unit_Total( ((AircraftClass*)this)->Class->Type );
+					source->House->DestroyedAircraft->Increment_Unit_Total( static_cast<AircraftClass*>(this)->Class->Type );
 				}
 				source->House->UnitsKilled[Owner()]++;
 			}
@@ -2741,7 +2741,7 @@ void TechnoClass::Record_The_Kill(TechnoClass * source)
 			House->UnitsLost++;
 			if (source){
 				if (GameToPlay == GAME_INTERNET){
-					source->House->DestroyedInfantry->Increment_Unit_Total( ((InfantryClass*)this)->Class->Type );
+					source->House->DestroyedInfantry->Increment_Unit_Total( static_cast<InfantryClass*>(this)->Class->Type );
 				}
 				source->House->UnitsKilled[Owner()]++;
 			}
@@ -2759,7 +2759,7 @@ void TechnoClass::Record_The_Kill(TechnoClass * source)
 			House->UnitsLost++;
 			if (source){
 				if (GameToPlay == GAME_INTERNET){
-					source->House->DestroyedUnits->Increment_Unit_Total( ((UnitClass*)this)->Class->Type );
+					source->House->DestroyedUnits->Increment_Unit_Total( static_cast<UnitClass*>(this)->Class->Type );
 				}
 				source->House->UnitsKilled[Owner()]++;
 			}

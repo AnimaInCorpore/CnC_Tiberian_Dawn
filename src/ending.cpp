@@ -79,8 +79,8 @@ void Nod_Ending(void)
     oldfont = nullptr;
     Platform_Set_Fonts(ScoreFontPtr, nullptr, FontHeight, FontYSpacing);
 
-    PseudoSeenBuff = new GraphicBufferClass(320,200,(void*)NULL);
-    TextPrintBuffer = new GraphicBufferClass(SeenBuff.Get_Width(), SeenBuff.Get_Height(), (void*)NULL);
+    PseudoSeenBuff = new GraphicBufferClass(320,200, nullptr);
+    TextPrintBuffer = new GraphicBufferClass(SeenBuff.Get_Width(), SeenBuff.Get_Height(), nullptr);
     TextPrintBuffer->Clear();
     BlitList.Clear();
     SeenBuff.Clear();

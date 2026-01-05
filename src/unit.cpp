@@ -3363,7 +3363,7 @@ ActionType UnitClass::What_Action(ObjectClass * object) const
 	**	Special return to friendly refinery action.
 	*/
 	if (IsOwnedByPlayer && object->Is_Techno() && ((TechnoClass const *)object)->House->Is_Ally(this)) {
-		if (object->What_Am_I() == RTTI_BUILDING && ((UnitClass *)this)->Transmit_Message(RADIO_CAN_LOAD, (TechnoClass*)object) == RADIO_ROGER) {
+		if (object->What_Am_I() == RTTI_BUILDING && const_cast<UnitClass*>(this)->Transmit_Message(RADIO_CAN_LOAD, static_cast<TechnoClass*>(const_cast<ObjectClass*>(object))) == RADIO_ROGER) {
 			action = ACTION_ENTER;
 		}
 	}

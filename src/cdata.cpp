@@ -2609,7 +2609,7 @@ void TemplateTypeClass::Init(TheaterType theater)
 				_makepath(fullname, NULL, NULL, tplate.IniName, Theaters[theater].Suffix);
 				ptr = MixFileClass::Retrieve(fullname);
 				((void const *&)tplate.ImageData) = ptr;
-				Register_Icon_Set((void*)ptr,TRUE);		//Register icon set for video memory caching
+				Register_Icon_Set(const_cast<void*>(ptr), TRUE);		//Register icon set for video memory caching
 			}
 		}
 	//}

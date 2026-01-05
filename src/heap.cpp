@@ -114,7 +114,7 @@ int FixedHeapClass::Free(void* pointer) {
 
 int FixedHeapClass::ID(void const* pointer) {
   if (pointer && Size) {
-    return (int)(((char*)pointer - (char*)Buffer) / Size);
+    return static_cast<int>((reinterpret_cast<char const*>(pointer) - reinterpret_cast<char const*>(Buffer)) / Size);
   }
   return -1;
 }

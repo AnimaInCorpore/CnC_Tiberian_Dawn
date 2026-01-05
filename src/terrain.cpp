@@ -592,7 +592,7 @@ void TerrainClass::AI(void)
 		} else {
 
 			// If it hasn't tried to blossom yet, can it do so now?
-			if (Random_Picky((int)1, (int)5000, (char*)NULL, (int)0) == 1) {
+			if (Random_Picky(1, 5000, static_cast<char*>(nullptr), 0) == 1) {
 				IsBlossoming = true;
 				StageClass::Set_Stage(1);
 				StageClass::Set_Rate(Options.Normalize_Delay(1));

@@ -639,7 +639,7 @@ int FootClass::Mission_Guard(void)
 	if (!Target_Something_Nearby(THREAT_RANGE)) {
 		Random_Animate();
 	}
-	return(TICKS_PER_SECOND+Random_Picky((int)0, (int)4, (char*)NULL, (int)0));
+	return(TICKS_PER_SECOND + Random_Picky(0, 4, static_cast<char*>(nullptr), 0));
 }
 
 
@@ -1016,7 +1016,7 @@ int FootClass::Mission_Guard_Area(void)
 	} else {
 		Approach_Target();
 	}
-	return(TICKS_PER_SECOND+Random_Picky((int)0, (int)4, (char*)NULL, (int)0));
+	return(TICKS_PER_SECOND + Random_Picky(0, 4, static_cast<char*>(nullptr), 0));
 }
 
 
