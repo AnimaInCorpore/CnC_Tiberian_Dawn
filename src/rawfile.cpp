@@ -3,6 +3,7 @@
 #include <cerrno>
 #include <cstring>
 #include <cstdio>
+#include <cstdlib>
 #include <new>
 #include <fcntl.h>
 #include <string>
@@ -10,7 +11,6 @@
 #if defined(_WIN32)
 #include <io.h>
 #include <BaseTsd.h>
-#include <stdlib.h>
 #else
 #include <unistd.h>
 #endif
@@ -197,7 +197,7 @@ int RawFileClass::Open(int rights) {
 long RawFileClass::Read(void* buffer, long size) {
   if (!buffer || size <= 0) return 0;
 
-  int opened = false;
+  bool opened = false;
   if (!Is_Open()) {
     if (!Open(READ)) {
       return 0;
@@ -257,7 +257,7 @@ long RawFileClass::Size() {
 long RawFileClass::Write(void const* buffer, long size) {
   if (!buffer || size <= 0) return 0;
 
-  int opened = false;
+  bool opened = false;
   if (!Is_Open()) {
     if (!Open(WRITE)) {
       return 0;

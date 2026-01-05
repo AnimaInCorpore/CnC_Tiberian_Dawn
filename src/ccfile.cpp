@@ -232,7 +232,7 @@ long CCFileClass::Write(void const* buffer, long size)
  *=============================================================================================*/
 long CCFileClass::Read(void* buffer, long size)
 {
-	int opened = false;
+	bool opened = false;
 
 	if (!Is_Open()) {
 		if (Open()) {

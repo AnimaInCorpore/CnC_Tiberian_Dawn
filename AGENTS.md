@@ -7,6 +7,7 @@ This guide directs the process of porting the original Command & Conquer source 
 Translate the legacy C++ codebase (the C&C95 Win32 build) to compile with modern tools (`g++`, `CMake`) while preserving original game logic and behavior. The end-goal is a platform-independent application using SDL for hardware abstraction.
 
 For **mechanical C++ edits** (e.g., `NULL` → `nullptr`, portable types/casts), follow `PORTING_RULES.md` so changes stay consistent across the codebase. Treat `PORTING_RULES.md` as a living document: apply it for every ported change, and update it whenever a new rule is needed project-wide.
+If you bump into a recurring Watcom-era construct that requires a consistent fix, add that rule to `PORTING_RULES.md` before (or alongside) applying it broadly.
 
 ## Core Principles
 
