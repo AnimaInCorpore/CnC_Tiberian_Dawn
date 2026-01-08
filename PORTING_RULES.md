@@ -6,5 +6,7 @@
 - Assets: expect game data under `CD/` and its existing subfolders; do not relocate or rename assets.
 - Memory model: keep flat Win32 assumptions; avoid 16-bit/segmented constructs.
 - Change scope: prefer minimal, localized shims over broad refactors; keep data layouts intact.
+- Compatibility scaffolding: early ports can lean on `src/legacy_compat.h`/`legacy_compat.cpp` for placeholder enums, RTTI, and helpers (e.g., `_makepath`, `stricmp`, stub `MixFileClass::Retrieve`, theater data, basic TechnoTypeClass/House/Building scaffolds). Replace these placeholders with real implementations as the surrounding systems get ported.
+- C++98 quirks: avoid defaulted special members and enum post-increment; iterate enums via int index and cast back. Prefer `snprintf` over `sprintf` to satisfy modern toolchains.
 - Tracking: update `PROGRESS.md` when a file builds and runs correctly through the SDL/CMake path.
 - Keep this document updated with new porting conventions or findings as they emerge.
