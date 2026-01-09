@@ -31,7 +31,7 @@ Source inventory:
 - [x] coorda.asm
 - [x] credits.cpp
 - [x] crew.cpp
-- [ ] debug.cpp
+- [x] debug.cpp
 - [ ] deldlg.cpp
 - [ ] descdlg.cpp
 - [ ] dial8.cpp
