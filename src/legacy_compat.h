@@ -74,6 +74,15 @@ enum VolumeConstants {
 #ifndef DKGREY
 #define DKGREY GREY
 #endif
+#ifndef LTBLUE
+#define LTBLUE 9
+#endif
+#ifndef LTCYAN
+#define LTCYAN 11
+#endif
+#ifndef CC_GREEN_BKGD
+#define CC_GREEN_BKGD 141
+#endif
 
 // Constants mirrored from the legacy headers.
 #ifndef MAP_CELL_W
@@ -313,14 +322,31 @@ private:
     std::vector<T> Data;
 };
 
-// Minimal UI/text rendering shims (no-op until display port lands).
-enum TextPrintFlagsEnum {
-    TPF_6PT_GRAD = 1u << 0,
-    TPF_BRIGHT_COLOR = 1u << 1,
-    TPF_NOSHADOW = 1u << 2,
-    TPF_USE_GRAD_PAL = 1u << 3,
-    TPF_CENTER = 1u << 4,
-    TPF_GREEN12_GRAD = 1u << 5
+// UI/text rendering shims (no-op until display port lands).
+enum TextPrintConstants {
+    TPF_LASTPOINT = 0x0000,
+    TPF_6POINT = 0x0001,
+    TPF_8POINT = 0x0002,
+    TPF_3POINT = 0x0003,
+    TPF_LED = 0x0004,
+    TPF_VCR = 0x0005,
+    TPF_6PT_GRAD = 0x0006,
+    TPF_MAP = 0x0007,
+    TPF_GREEN12 = 0x0008,
+    TPF_GREEN12_GRAD = 0x0009,
+
+    TPF_LASTSHADOW = 0x0000,
+    TPF_NOSHADOW = 0x0010,
+    TPF_DROPSHADOW = 0x0020,
+    TPF_FULLSHADOW = 0x0040,
+    TPF_LIGHTSHADOW = 0x0080,
+
+    TPF_CENTER = 0x0100,
+    TPF_RIGHT = 0x0200,
+
+    TPF_MEDIUM_COLOR = 0x1000,
+    TPF_BRIGHT_COLOR = 0x2000,
+    TPF_USE_GRAD_PAL = 0x4000
 };
 
 enum TextColorEnum {
@@ -331,11 +357,37 @@ enum TextColorEnum {
     CC_GREEN = 2
 };
 
+typedef struct {
+    int Filler;
+    int Shadow;
+    int Highlight;
+    int Corner;
+} BoxStyleType;
+
+typedef enum BoxStyleEnum {
+    BOXSTYLE_DOWN,
+    BOXSTYLE_RAISED,
+    BOXSTYLE_BLUE_UP,
+    BOXSTYLE_DIS_DOWN,
+    BOXSTYLE_DIS_RAISED,
+    BOXSTYLE_RAISED_ARROW,
+    BOXSTYLE_GREEN_DOWN,
+    BOXSTYLE_GREEN_RAISED,
+    BOXSTYLE_GREEN_DIS_DOWN,
+    BOXSTYLE_GREEN_DIS_RAISED,
+    BOXSTYLE_GREEN_BOX,
+    BOXSTYLE_GREEN_BORDER,
+
+    BOXSTYLE_COUNT
+} BoxStyleEnum;
+
 class GraphicPageClass {
 public:
     void Draw_Rect(int, int, int, int, int) {}
     void Fill_Rect(int, int, int, int, int) {}
     void Draw_Line(int, int, int, int, int) {}
+    void Put_Pixel(int, int, int) {}
+    void Print(char const*, int, int, int, int) {}
 };
 
 class GraphicBufferClass : public GraphicPageClass {
@@ -363,20 +415,26 @@ enum WindowIds {
     WINDOW_EDITOR = 1
 };
 
-enum WindowBoxStyle {
-    BOXSTYLE_GREEN_BORDER = 1,
-    BOXSTYLE_GREEN_DOWN = 2,
-    BOXSTYLE_GREEN_RAISED = 3
+enum WindowListFields {
+    WINDOWX = 0,
+    WINDOWY = 1,
+    WINDOWWIDTH = 2,
+    WINDOWHEIGHT = 3
 };
+
+extern int WindowList[256][4];
 
 inline void Set_Window(WindowNumberType, int, int, int, int) {}
 inline void Window_Hide_Mouse(WindowNumberType) { Hide_Mouse(); }
 inline void Window_Show_Mouse() { Show_Mouse(); }
-inline void Window_Box(WindowNumberType, int) {}
+
+void Conditional_Hide_Mouse(int x, int y, int w, int h);
+void Conditional_Show_Mouse(void);
 
 void Dialog_Box(int x, int y, int w, int h);
 void Draw_Caption(int text, int x, int y, int w);
-void Draw_Box(int x, int y, int w, int h, int style, bool filled);
+void Draw_Box(int x, int y, int w, int h, BoxStyleEnum style, bool filled);
+void Window_Box(WindowNumberType window, BoxStyleEnum style);
 
 int Get_Mouse_X();
 int Get_Mouse_Y();
@@ -390,31 +448,42 @@ enum UiColorConstants {
 
 int String_Pixel_Width(char const* text);
 extern int FontHeight;
+extern int FontXSpacing;
 extern int FontYSpacing;
 
-void Format_Window_String(char* text, int max_width, int& out_width, int& out_height);
+int Char_Pixel_Width(char character);
+void Set_Font(void const* font);
+void Set_Font_Palette(unsigned char const palette[16]);
+
+extern void const* FontPtr;
+extern void const* Green12FontPtr;
+extern void const* Green12GradFontPtr;
+extern void const* MapFontPtr;
+extern void const* VCRFontPtr;
+extern void const* GradFont6Ptr;
+extern void const* Font3Ptr;
+extern void const* Font6Ptr;
+extern void const* Font8Ptr;
+extern void const* FontLEDPtr;
+
+int Format_Window_String(char* text, int max_width, int& out_width, int& out_height);
+void Simple_Text_Print(char const* text, unsigned x, unsigned y, unsigned fore, unsigned back, TextPrintType flag);
 
 char const* Text_String(int text_id);
 
-void Fancy_Text_Print(char const* text,
-                      int x,
-                      int y,
-                      int fore,
-                      int back,
-                      TextPrintType flags,
-                      ...);
-inline void Fancy_Text_Print(int text_id, int x, int y, int fore, int back, TextPrintType flags) {
-    Fancy_Text_Print(Text_String(text_id), x, y, fore, back, flags);
-}
+void Fancy_Text_Print(int text_id, unsigned x, unsigned y, unsigned fore, unsigned back, TextPrintType flags, ...);
+void Fancy_Text_Print(char const* text, unsigned x, unsigned y, unsigned fore, unsigned back, TextPrintType flags, ...);
 
 void Conquer_Clip_Text_Print(char const* text,
-                             int x,
-                             int y,
-                             int fore,
-                             int back,
+                             unsigned x,
+                             unsigned y,
+                             unsigned fore,
+                             unsigned back,
                              TextPrintType flags,
-                             int width,
+                             unsigned width,
                              int const* tabs);
+
+void CC_Texture_Fill(void const* shapefile, int shapenum, int xpos, int ypos, int width, int height);
 
 typedef int KeyNumType;
 enum KeyNumConstants {
@@ -432,6 +501,7 @@ enum GameType {
 };
 
 extern GameType GameToPlay;
+extern bool InMainLoop;
 void Call_Back();
 bool Main_Loop();
 

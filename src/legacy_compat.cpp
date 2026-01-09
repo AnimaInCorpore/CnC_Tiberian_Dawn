@@ -13,17 +13,30 @@ GraphicBufferClass SeenBuff;
 
 SurfaceManager AllSurfaces = {false};
 GameType GameToPlay = GAME_NORMAL;
+bool InMainLoop = false;
 
 int FontHeight = 8;
+int FontXSpacing = 1;
 int FontYSpacing = 1;
+
+void const* FontPtr = NULL;
+void const* Green12FontPtr = NULL;
+void const* Green12GradFontPtr = NULL;
+void const* MapFontPtr = NULL;
+void const* VCRFontPtr = NULL;
+void const* GradFont6Ptr = NULL;
+void const* Font3Ptr = NULL;
+void const* Font6Ptr = NULL;
+void const* Font8Ptr = NULL;
+void const* FontLEDPtr = NULL;
+
+int WindowList[256][4];
 
 VoxType SpeakQueue = VOX_NONE;
 HouseClass* PlayerPtr = NULL;
 
 void Hide_Mouse() {}
 void Show_Mouse() {}
-
-void Draw_Box(int, int, int, int, int, bool) {}
 
 int Get_Mouse_X() { return 0; }
 int Get_Mouse_Y() { return 0; }
@@ -34,33 +47,23 @@ FacingType Dir_Facing(DirType) { return FACING_N; }
 
 void Sticky_Process(unsigned) {}
 
-void Dialog_Box(int, int, int, int) {}
 void Draw_Caption(int, int, int, int) {}
+void Conditional_Hide_Mouse(int, int, int, int) {}
+void Conditional_Show_Mouse(void) {}
 
 int String_Pixel_Width(char const* text) {
     if (!text) return 0;
     return static_cast<int>(std::strlen(text)) * 6;
 }
 
-void Format_Window_String(char* text, int max_width, int& out_width, int& out_height) {
-    if (!text) {
-        out_width = 0;
-        out_height = 0;
-        return;
-    }
-
-    int pixel_width = String_Pixel_Width(text);
-    if (max_width <= 0) max_width = pixel_width;
-    if (pixel_width <= max_width) {
-        out_width = pixel_width;
-        out_height = FontHeight + FontYSpacing;
-        return;
-    }
-
-    int lines = (pixel_width + max_width - 1) / max_width;
-    out_width = max_width;
-    out_height = lines * (FontHeight + FontYSpacing);
+int Char_Pixel_Width(char character) {
+    (void)character;
+    return 6;
 }
+
+void Set_Font(void const*) {}
+
+void Set_Font_Palette(unsigned char const[16]) {}
 
 char const* Text_String(int text_id) {
     switch (text_id) {
@@ -76,7 +79,7 @@ char const* Text_String(int text_id) {
     }
 }
 
-void Fancy_Text_Print(char const*, int, int, int, int, TextPrintType, ...) {}
+void CC_Texture_Fill(void const*, int, int, int, int, int) {}
 
 void TabClass::Draw_Credits_Tab() {}
 
@@ -329,21 +332,3 @@ bool Offset(char const* filename, void** realptr, char const** mix_filename, lon
     return false;
 }
 }  // namespace MixFileClass
-
-void Conquer_Clip_Text_Print(char const* text,
-                             int x,
-                             int y,
-                             int fore,
-                             int back,
-                             TextPrintType flags,
-                             int width,
-                             int const* tabs) {
-    (void)text;
-    (void)x;
-    (void)y;
-    (void)fore;
-    (void)back;
-    (void)flags;
-    (void)width;
-    (void)tabs;
-}
