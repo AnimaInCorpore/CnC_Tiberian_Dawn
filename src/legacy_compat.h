@@ -37,11 +37,28 @@ typedef unsigned int TextPrintType;
 
 // Basic legacy-sized types used throughout the original codebase.
 typedef int CELL;
-typedef int COORDINATE;
+typedef long COORDINATE;
 typedef int DirType;
 typedef int VolType;
 typedef int WindowNumberType;
 typedef int TARGET;
+
+// Constants mirrored from DEFINES.H for legacy volume scales.
+enum VolumeConstants {
+    VOL_OFF = 0,
+    VOL_0 = VOL_OFF,
+    VOL_1 = 0x19,
+    VOL_2 = 0x32,
+    VOL_3 = 0x4C,
+    VOL_4 = 0x66,
+    VOL_5 = 0x80,
+    VOL_6 = 0x9A,
+    VOL_7 = 0xB4,
+    VOL_8 = 0xCC,
+    VOL_9 = 0xE6,
+    VOL_10 = 0xFF,
+    VOL_FULL = VOL_10
+};
 
 // Common palette indices used by the legacy UI/terrain tables.
 #ifndef BLUE
@@ -300,7 +317,9 @@ enum TextPrintFlagsEnum {
     TPF_6PT_GRAD = 1u << 0,
     TPF_BRIGHT_COLOR = 1u << 1,
     TPF_NOSHADOW = 1u << 2,
-    TPF_USE_GRAD_PAL = 1u << 3
+    TPF_USE_GRAD_PAL = 1u << 3,
+    TPF_CENTER = 1u << 4,
+    TPF_GREEN12_GRAD = 1u << 5
 };
 
 enum TextColorEnum {
@@ -354,7 +373,8 @@ void Fancy_Text_Print(char const* text,
                       int y,
                       int fore,
                       int back,
-                      TextPrintType flags);
+                      TextPrintType flags,
+                      ...);
 inline void Fancy_Text_Print(int text_id, int x, int y, int fore, int back, TextPrintType flags) {
     Fancy_Text_Print(Text_String(text_id), x, y, fore, back, flags);
 }
@@ -1472,6 +1492,8 @@ public:
 
     explicit HouseClass(HousesType house = HOUSE_NONE) : Class(house) {}
 
+    long Available_Money(void) const { return 0; }
+
     bool Can_Build(AircraftType, int) const { return true; }
     bool Can_Build(StructType, int) const { return true; }
     const unsigned char* Remap_Table(bool = false, bool = false) const { return NULL; }
@@ -1492,6 +1514,8 @@ public:
 
     TypeRef Class;
 };
+
+extern HouseClass* PlayerPtr;
 
 class BuildingTypeClass;
 
@@ -1600,12 +1624,18 @@ public:
     CellClass& operator[](CELL cell);
     CellClass const& operator[](CELL cell) const;
     bool In_Radar(CELL) const { return true; }
+    void Flag_To_Redraw(bool) {}
 
 private:
     CellClass* Dummy;
 };
 
 extern MapClass Map;
+
+class TabClass {
+public:
+    static void Draw_Credits_Tab();
+};
 
 class ObjectTypeClass : public AbstractTypeClass {
 public:
@@ -1887,6 +1917,10 @@ inline int Bound(unsigned value, int low, int high) {
 
 #ifndef MAX
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef ABS
+#define ABS(a) ((a) < 0 ? -(a) : (a))
 #endif
 
 static const int REPAIR_PERCENT = 102;

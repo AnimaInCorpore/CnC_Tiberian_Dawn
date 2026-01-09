@@ -29,7 +29,7 @@ Source inventory:
 - [x] control.cpp
 - [x] coord.cpp
 - [x] coorda.asm
-- [ ] credits.cpp
+- [x] credits.cpp
 - [ ] crew.cpp
 - [ ] debug.cpp
 - [ ] deldlg.cpp

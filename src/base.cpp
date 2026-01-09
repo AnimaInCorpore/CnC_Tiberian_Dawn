@@ -43,7 +43,11 @@ void BaseClass::Write_INI(char* buffer) {
 
     for (int i = 0; i < Nodes.Count(); i++) {
         std::snprintf(uname, sizeof(uname), "%03d", i);
-        std::snprintf(buf, sizeof(buf), "%s,%d", BuildingTypeClass::As_Reference(Nodes[i].Type).IniName, Nodes[i].Coord);
+        std::snprintf(buf,
+                      sizeof(buf),
+                      "%s,%ld",
+                      BuildingTypeClass::As_Reference(Nodes[i].Type).IniName,
+                      static_cast<long>(Nodes[i].Coord));
         WWWritePrivateProfileString(INI_Name(), uname, buf, buffer);
     }
 }
@@ -164,4 +168,3 @@ BaseNodeClass* BaseClass::Next_Buildable(StructType type) {
     }
     return (NULL);
 }
-

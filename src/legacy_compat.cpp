@@ -18,6 +18,7 @@ int FontHeight = 8;
 int FontYSpacing = 1;
 
 VoxType SpeakQueue = VOX_NONE;
+HouseClass* PlayerPtr = NULL;
 
 void Hide_Mouse() {}
 void Show_Mouse() {}
@@ -64,7 +65,9 @@ char const* Text_String(int text_id) {
     }
 }
 
-void Fancy_Text_Print(char const*, int, int, int, int, TextPrintType) {}
+void Fancy_Text_Print(char const*, int, int, int, int, TextPrintType, ...) {}
+
+void TabClass::Draw_Credits_Tab() {}
 
 namespace {
 std::FILE* Try_Open_File_Mode(const std::string& name, const char* mode) {
