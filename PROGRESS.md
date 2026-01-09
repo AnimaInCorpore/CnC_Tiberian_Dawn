@@ -4,7 +4,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 Source inventory:
 - [x] aadata.cpp
 - [x] abstract.cpp
-- [ ] adata.cpp
+- [x] adata.cpp
 - [ ] aircraft.cpp
 - [ ] anim.cpp
 - [ ] audio.cpp

@@ -1,6 +1,69 @@
 #include "legacy_compat.h"
 
 #include <cstdlib>
+#include <cstdio>
+#include <string>
+
+void const* ObjectTypeClass::SelectShapes = NULL;
+void const* ObjectTypeClass::PipShapes = NULL;
+
+namespace {
+std::FILE* Try_Open_File(const std::string& name) {
+    if (name.empty()) return NULL;
+    std::FILE* handle = std::fopen(name.c_str(), "rb");
+    if (!handle && name.find('/') == std::string::npos) {
+        std::string with_cd("CD/");
+        with_cd += name;
+        handle = std::fopen(with_cd.c_str(), "rb");
+    }
+    return handle;
+}
+}  // namespace
+
+FileClass::FileClass(const char* filename) : Filename(filename ? filename : ""), Handle(NULL) {}
+
+FileClass::~FileClass() { Close(); }
+
+bool FileClass::Is_Available() {
+    if (Handle) return true;
+    Handle = Try_Open_File(Filename);
+    return Handle != NULL;
+}
+
+long FileClass::Size() {
+    if (!Is_Available()) return 0;
+    long old_pos = std::ftell(Handle);
+    if (std::fseek(Handle, 0, SEEK_END) != 0) return 0;
+    long size = std::ftell(Handle);
+    std::fseek(Handle, old_pos, SEEK_SET);
+    return size;
+}
+
+long FileClass::Read(void* buffer, long length) {
+    if (!Is_Available() || !buffer || length <= 0) return 0;
+    return static_cast<long>(std::fread(buffer, 1, static_cast<size_t>(length), Handle));
+}
+
+void FileClass::Close() {
+    if (Handle) {
+        std::fclose(Handle);
+        Handle = NULL;
+    }
+}
+
+void* Load_Alloc_Data(FileClass& file) {
+    if (!file.Is_Available()) return NULL;
+    long size = file.Size();
+    if (size <= 0) return NULL;
+
+    unsigned char* buffer = new unsigned char[size];
+    long read = file.Read(buffer, size);
+    if (read <= 0) {
+        delete[] buffer;
+        return NULL;
+    }
+    return buffer;
+}
 
 BuildingCollection Buildings;
 

@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <cstring>
 #include <strings.h>
+#include <string>
 
 // Basic legacy-sized types used throughout the original codebase.
 typedef int CELL;
@@ -42,6 +43,7 @@ enum RTTIType {
     RTTI_BUILDING,
     RTTI_BUILDINGTYPE,
     RTTI_ABSTRACTTYPE,
+    RTTI_ANIMTYPE,
 };
 
 enum MissionType {
@@ -205,6 +207,236 @@ enum TheaterType {
     THEATER_FIRST = 0
 };
 
+enum AnimType {
+    ANIM_NONE = -1,
+    ANIM_FBALL1 = 0,
+    ANIM_GRENADE,
+    ANIM_FRAG1,
+    ANIM_FRAG2,
+    ANIM_VEH_HIT1,
+    ANIM_VEH_HIT2,
+    ANIM_VEH_HIT3,
+    ANIM_ART_EXP1,
+    ANIM_NAPALM1,
+    ANIM_NAPALM2,
+    ANIM_NAPALM3,
+    ANIM_SMOKE_PUFF,
+    ANIM_PIFF,
+    ANIM_PIFFPIFF,
+    ANIM_FLAME_N,
+    ANIM_FLAME_NE,
+    ANIM_FLAME_E,
+    ANIM_FLAME_SE,
+    ANIM_FLAME_S,
+    ANIM_FLAME_SW,
+    ANIM_FLAME_W,
+    ANIM_FLAME_NW,
+    ANIM_CHEM_N,
+    ANIM_CHEM_NE,
+    ANIM_CHEM_E,
+    ANIM_CHEM_SE,
+    ANIM_CHEM_S,
+    ANIM_CHEM_SW,
+    ANIM_CHEM_W,
+    ANIM_CHEM_NW,
+    ANIM_FIRE_SMALL,
+    ANIM_FIRE_MED,
+    ANIM_FIRE_MED2,
+    ANIM_FIRE_TINY,
+    ANIM_MUZZLE_FLASH,
+#ifdef NEVER
+    ANIM_E1_ROT_FIRE,
+    ANIM_E1_ROT_GRENADE,
+    ANIM_E1_ROT_GUN,
+    ANIM_E1_ROT_EXP,
+    ANIM_E2_ROT_FIRE,
+    ANIM_E2_ROT_GRENADE,
+    ANIM_E2_ROT_GUN,
+    ANIM_E2_ROT_EXP,
+    ANIM_E3_ROT_FIRE,
+    ANIM_E3_ROT_GRENADE,
+    ANIM_E3_ROT_GUN,
+    ANIM_E3_ROT_EXP,
+    ANIM_E4_ROT_FIRE,
+    ANIM_E4_ROT_GRENADE,
+    ANIM_E4_ROT_GUN,
+    ANIM_E4_ROT_EXP,
+#endif
+    ANIM_SMOKE_M,
+    ANIM_BURN_SMALL,
+    ANIM_BURN_MED,
+    ANIM_BURN_BIG,
+    ANIM_ON_FIRE_SMALL,
+    ANIM_ON_FIRE_MED,
+    ANIM_ON_FIRE_BIG,
+    ANIM_SAM_N,
+    ANIM_SAM_NE,
+    ANIM_SAM_E,
+    ANIM_SAM_SE,
+    ANIM_SAM_S,
+    ANIM_SAM_SW,
+    ANIM_SAM_W,
+    ANIM_SAM_NW,
+    ANIM_GUN_N,
+    ANIM_GUN_NE,
+    ANIM_GUN_E,
+    ANIM_GUN_SE,
+    ANIM_GUN_S,
+    ANIM_GUN_SW,
+    ANIM_GUN_W,
+    ANIM_GUN_NW,
+    ANIM_LZ_SMOKE,
+    ANIM_ION_CANNON,
+    ANIM_ATOM_BLAST,
+    ANIM_CRATE_DEVIATOR,
+    ANIM_CRATE_DOLLAR,
+    ANIM_CRATE_EARTH,
+    ANIM_CRATE_EMPULSE,
+    ANIM_CRATE_INVUN,
+    ANIM_CRATE_MINE,
+    ANIM_CRATE_RAPID,
+    ANIM_CRATE_STEALTH,
+    ANIM_CRATE_MISSILE,
+    ANIM_ATOM_DOOR,
+    ANIM_MOVE_FLASH,
+    ANIM_OILFIELD_BURN,
+    ANIM_TRIC_DIE,
+    ANIM_TREX_DIE,
+    ANIM_STEG_DIE,
+    ANIM_RAPT_DIE,
+    ANIM_CHEM_BALL,
+    ANIM_COUNT,
+    ANIM_FIRST = 0
+};
+
+inline AnimType operator++(AnimType& value, int) {
+    AnimType old = value;
+    value = static_cast<AnimType>(static_cast<int>(value) + 1);
+    return old;
+}
+
+enum VocType {
+    VOC_NONE = -1,
+    VOC_RAMBO_PRESENT,
+    VOC_RAMBO_CMON,
+    VOC_RAMBO_UGOTIT,
+    VOC_RAMBO_COMIN,
+    VOC_RAMBO_LAUGH,
+    VOC_RAMBO_LEFTY,
+    VOC_RAMBO_NOPROB,
+    VOC_RAMBO_ONIT,
+    VOC_RAMBO_YELL,
+    VOC_RAMBO_ROCK,
+    VOC_RAMBO_TUFF,
+    VOC_RAMBO_YEA,
+    VOC_RAMBO_YES,
+    VOC_RAMBO_YO,
+    VOC_GIRL_OKAY,
+    VOC_GIRL_YEAH,
+    VOC_GUY_OKAY,
+    VOC_GUY_YEAH,
+    VOC_2DANGER,
+    VOC_ACKNOWL,
+    VOC_AFFIRM,
+    VOC_AHA,
+    VOC_ALRIGHT,
+    VOC_AOK,
+    VOC_APPROACH,
+    VOC_AT_ONCE,
+    VOC_ATTACK1,
+    VOC_ATTACK2,
+    VOC_BEST_SHOT,
+    VOC_BLAST,
+    VOC_BOOM,
+    VOC_CHECK_THIS,
+    VOC_CIV_ATTACK,
+    VOC_CLICK,
+    VOC_COME,
+    VOC_COMEIN,
+    VOC_CONFIRM,
+    VOC_CONTACT,
+    VOC_COVERME,
+    VOC_COWSAY,
+    VOC_DEFEND,
+    VOC_DESELECT,
+    VOC_DIE,
+    VOC_EVILATK,
+    VOC_FIRE,
+    VOC_FIREREADY,
+    VOC_FIRST_BLOOD,
+    VOC_FOLLOWME,
+    VOC_GOTIT,
+    VOC_HAVEAT,
+    VOC_HERE,
+    VOC_HOLD,
+    VOC_HOTDIG,
+    VOC_HUH,
+    VOC_IM_ON_IT,
+    VOC_INCOMING,
+    VOC_INPOSITION,
+    VOC_MOVEOUT,
+    VOC_NEGATIVE,
+    VOC_NO_PROB,
+    VOC_READY,
+    VOC_REPORT,
+    VOC_RIGHT_AWAY,
+    VOC_ROGER,
+    VOC_UGOTIT,
+    VOC_UNIT,
+    VOC_VEHIC,
+    VOC_YESSIR,
+    VOC_BAZOOKA,
+    VOC_BLEEP,
+    VOC_BOMB1,
+    VOC_BUTTON,
+    VOC_RADAR_ON,
+    VOC_CONSTRUCTION,
+    VOC_CRUMBLE,
+    VOC_FLAMER1,
+    VOC_RIFLE,
+    VOC_M60,
+    VOC_GUN20,
+    VOC_M60A,
+    VOC_MINI,
+    VOC_RELOAD,
+    VOC_SLAM,
+    VOC_HVYGUN10,
+    VOC_ION_CANNON,
+    VOC_MGUN11,
+    VOC_MGUN2,
+    VOC_NUKE_FIRE,
+    VOC_NUKE_EXPLODE,
+    VOC_LASER,
+    VOC_LASER_POWER,
+    VOC_RADAR_OFF,
+    VOC_SNIPER,
+    VOC_ROCKET1,
+    VOC_ROCKET2,
+    VOC_MOTOR,
+    VOC_SCOLD,
+    VOC_SIDEBAR_OPEN,
+    VOC_SIDEBAR_CLOSE,
+    VOC_SQUISH2,
+    VOC_TANK1,
+    VOC_TANK2,
+    VOC_TANK3,
+    VOC_TANK4,
+    VOC_UP,
+    VOC_DOWN,
+    VOC_TARGET,
+    VOC_SONAR,
+    VOC_TOSS,
+    VOC_CLOAK,
+    VOC_BURN,
+    VOC_TURRET,
+    VOC_XPLOBIG4,
+    VOC_XPLOBIG6,
+    VOC_XPLOBIG7,
+    VOC_XPLODE,
+    VOC_XPLOS,
+    VOC_XPLOSML2
+};
+
 struct TheaterDataType {
     char Name[16];
     char Root[10];
@@ -213,9 +445,10 @@ struct TheaterDataType {
 
 // Legacy text identifiers used by the type constructors.
 enum TextId {
+    TXT_NONE = 0,
+    TXT_TRANS = 95,
     TXT_A10 = 96,
     TXT_C17 = 97,
-    TXT_TRANS = 95,
     TXT_HELI = 108,
     TXT_ORCA = 109
 };
@@ -348,6 +581,128 @@ class BuildingCollection {
 public:
     int Count() const { return 0; }
     BuildingClass* Ptr(int) const { return NULL; }
+};
+
+class FileClass {
+public:
+    explicit FileClass(const char* filename);
+    virtual ~FileClass();
+
+    virtual bool Is_Available();
+    virtual long Size();
+    virtual long Read(void* buffer, long length);
+    virtual void Close();
+
+protected:
+    std::string Filename;
+    std::FILE* Handle;
+};
+
+class RawFileClass : public FileClass {
+public:
+    explicit RawFileClass(const char* filename) : FileClass(filename) {}
+};
+
+class ObjectTypeClass : public AbstractTypeClass {
+public:
+    ObjectTypeClass(bool is_sentient,
+                    bool is_flammable,
+                    bool is_crushable,
+                    bool is_stealthy,
+                    bool is_selectable,
+                    bool is_legal_target,
+                    bool is_insignificant,
+                    bool is_immune,
+                    int fullname,
+                    char const* name,
+                    ArmorType armor,
+                    unsigned short strength)
+        : AbstractTypeClass(fullname, name),
+          IsCrushable(is_crushable),
+          IsStealthy(is_stealthy),
+          IsSelectable(is_selectable),
+          IsLegalTarget(is_legal_target),
+          IsInsignificant(is_insignificant),
+          IsImmune(is_immune),
+          IsFlammable(is_flammable),
+          IsSentient(is_sentient),
+          Armor(armor),
+          MaxStrength(strength),
+          ImageData(NULL),
+          RadarIcon(NULL) {}
+
+    virtual ~ObjectTypeClass() {}
+
+    bool IsCrushable;
+    bool IsStealthy;
+    bool IsSelectable;
+    bool IsLegalTarget;
+    bool IsInsignificant;
+    bool IsImmune;
+    bool IsFlammable;
+    bool IsSentient;
+    ArmorType Armor;
+    unsigned short MaxStrength;
+    void const* ImageData;
+    void const* RadarIcon;
+
+    static void const* SelectShapes;
+    static void const* PipShapes;
+};
+
+class AnimTypeClass : public ObjectTypeClass {
+public:
+    AnimTypeClass(AnimType anim,
+                  char const* name,
+                  int size,
+                  int biggest,
+                  bool isnormal,
+                  bool iswhite,
+                  bool isscorcher,
+                  bool iscrater,
+                  bool issticky,
+                  bool ground,
+                  bool istrans,
+                  bool isflame,
+                  unsigned int damage,
+                  int delaytime,
+                  int start,
+                  int loopstart,
+                  int loopend,
+                  int stages,
+                  int loops,
+                  VocType sound,
+                  AnimType chainto);
+
+    virtual RTTIType What_Am_I(void) const { return RTTI_ANIMTYPE; }
+
+    static AnimTypeClass const& As_Reference(AnimType type) { return *Pointers[type]; }
+    static void Init(TheaterType) {}
+    static void One_Time(void);
+
+    AnimType Type;
+    int Size;
+    int Biggest;
+    unsigned int Damage;
+    unsigned char Delay;
+    int Start;
+    int LoopStart;
+    int LoopEnd;
+    int Stages;
+    unsigned char Loops;
+    VocType Sound;
+    AnimType ChainTo;
+    bool IsNormalized;
+    bool IsGroundLayer;
+    bool IsTranslucent;
+    bool IsWhiteTrans;
+    bool IsFlameThrower;
+    bool IsScorcher;
+    bool IsCraterForming;
+    bool IsSticky;
+
+private:
+    static AnimTypeClass const* const Pointers[ANIM_COUNT];
 };
 
 class TechnoTypeClass : public AbstractTypeClass {
@@ -549,6 +904,7 @@ inline void _makepath(char* path, const char*, const char* dir, const char* fnam
 
 int Fixed_To_Cardinal(int value, int percent_fixed);
 int Get_Resolution_Factor(void);
+void* Load_Alloc_Data(FileClass& file);
 
 namespace MixFileClass {
 void const* Retrieve(const char* filename);
