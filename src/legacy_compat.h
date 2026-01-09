@@ -1344,6 +1344,15 @@ inline int Coord_X(COORDINATE coord) { return static_cast<short>(coord & 0xFFFF)
 inline int Coord_Y(COORDINATE coord) { return static_cast<short>((coord >> 16) & 0xFFFF); }
 inline CELL Coord_XCell(COORDINATE coord) { return static_cast<CELL>((coord >> 8) & 0xFF); }
 inline CELL Coord_YCell(COORDINATE coord) { return static_cast<CELL>((coord >> 24) & 0xFF); }
+inline int Coord_XLepton(COORDINATE coord) { return static_cast<int>(static_cast<unsigned>(coord) & 0xFFu); }
+inline int Coord_YLepton(COORDINATE coord) { return static_cast<int>((static_cast<unsigned>(coord) >> 16) & 0xFFu); }
+
+inline COORDINATE Coord_Snap(COORDINATE coord) {
+    unsigned packed = static_cast<unsigned>(coord);
+    packed &= 0xFF00FF00u;
+    packed |= 0x00800080u;
+    return static_cast<COORDINATE>(packed);
+}
 
 DirType Direction(COORDINATE coord1, COORDINATE coord2);
 int Distance(COORDINATE coord1, COORDINATE coord2);
@@ -1351,6 +1360,10 @@ COORDINATE As_Coord(TARGET target);
 BuildingClass* As_Building(TARGET target);
 int Modify_Damage(int damage, WarheadType warhead, ArmorType armor, int distance);
 void Explosion_Damage(COORDINATE coord, unsigned strength, TechnoClass* source, WarheadType warhead);
+short const* Coord_Spillage_List(COORDINATE coord, int maxsize);
+COORDINATE Coord_Move(COORDINATE start, DirType dir, unsigned short distance);
+COORDINATE Coord_Scatter(COORDINATE coord, unsigned distance, bool lock);
+void Move_Point(short& x, short& y, DirType dir, unsigned short distance);
 
 inline COORDINATE Cell_Coord(CELL cell) { return static_cast<COORDINATE>(cell); }
 
