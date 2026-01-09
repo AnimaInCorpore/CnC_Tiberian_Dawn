@@ -26,7 +26,7 @@ Source inventory:
 - [x] connect.cpp
 - [x] conquer.cpp
 - [x] const.cpp
-- [ ] control.cpp
+- [x] control.cpp
 - [ ] coord.cpp
 - [ ] coorda.asm
 - [ ] credits.cpp

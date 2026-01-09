@@ -19,7 +19,7 @@
 #ifndef CONFDLG_H
 #define CONFDLG_H
 
-#include "gadget.h"
+#include "control.h"
 
 class ConfirmationClass {
 private:
@@ -35,4 +35,3 @@ public:
 };
 
 #endif
-
