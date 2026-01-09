@@ -11,6 +11,7 @@
 - If a port needs shared legacy enums/structs (e.g., `LayerType`, `MarkType`, new `RTTI_*` values) and the original header isn't ported yet, add a minimal equivalent to `src/legacy_compat.h` and keep the usage localized.
 - When porting a header that includes other unported headers, prefer forward declarations + `src/legacy_compat.h` for shared typedefs/enums (e.g., `OverlayType`, `SmudgeType`) to keep include-order churn low.
 - Object lists: legacy code frequently chains objects via `ObjectClass::Next` (and cargo/passenger holds via `FootClass`); prefer adding the minimal fields/methods to `src/legacy_compat.h` rather than rewriting call sites.
+- Map/cell shim: `Map` is a `MapClass` that returns a `CellClass&` so legacy `Map[cell]....` call sites compile; ensure `CellClass` is a complete type at call sites (include `src/cell.h` as needed).
 - Header ordering: when adding shim types to `src/legacy_compat.h` that reference other shim types (e.g., `FileClass`), add forward declarations to avoid include-order fragility.
 - When porting a legacy class that previously lived as a placeholder in `src/legacy_compat.h`, move it into a dedicated `src/<name>.h`/`src/<name>.cpp` pair and remove the placeholder to avoid diverging definitions; if most ports include `src/legacy_compat.h`, it’s OK for `src/legacy_compat.h` to `#include` the new header to minimize churn.
 - Some legacy code mixes `house->Class.House` and `house->Class->House`; prefer a small proxy wrapper in the compatibility layer so both access patterns compile without touching legacy call sites.

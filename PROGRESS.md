@@ -20,7 +20,7 @@ Source inventory:
 - [x] cell.cpp
 - [x] cheklist.cpp
 - [x] colrlist.cpp
-- [ ] combat.cpp
+- [x] combat.cpp
 - [ ] combuf.cpp
 - [ ] confdlg.cpp
 - [ ] connect.cpp

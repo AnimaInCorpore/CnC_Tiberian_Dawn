@@ -48,6 +48,14 @@ typedef int TARGET;
 #define MAP_CELL_W 64
 #endif
 
+#ifndef MAP_CELL_H
+#define MAP_CELL_H 64
+#endif
+
+#ifndef MAP_CELL_TOTAL
+#define MAP_CELL_TOTAL (MAP_CELL_W * MAP_CELL_H)
+#endif
+
 #ifndef REFRESH_EOL
 #define REFRESH_EOL 32767
 #endif
@@ -73,6 +81,12 @@ enum RTTIType {
     RTTI_ABSTRACTTYPE,
     RTTI_ANIMTYPE,
     RTTI_BULLETTYPE,
+};
+
+enum ResultType {
+    RESULT_NONE = 0,
+    RESULT_DAMAGED = 1,
+    RESULT_DESTROYED = 2,
 };
 
 enum MarkType {
@@ -470,6 +484,21 @@ typedef enum WarheadType {
     WARHEAD_COUNT
 } WarheadType;
 
+struct WarheadTypeClass {
+    WarheadTypeClass() : Modifier(), SpreadFactor(0), IsWallDestroyer(false), IsWoodDestroyer(false) {
+        for (int i = 0; i < ARMOR_COUNT; ++i) {
+            Modifier[i] = 256;
+        }
+    }
+
+    int Modifier[ARMOR_COUNT];
+    unsigned char SpreadFactor;
+    bool IsWallDestroyer;
+    bool IsWoodDestroyer;
+};
+
+extern WarheadTypeClass Warheads[WARHEAD_COUNT];
+
 enum WeaponType {
     WEAPON_NONE = -1,
     WEAPON_RIFLE,
@@ -776,6 +805,19 @@ typedef enum OverlayType {
     OVERLAY_GENERIC = 0,
     OVERLAY_COUNT
 } OverlayType;
+
+class OverlayTypeClass {
+public:
+    OverlayTypeClass() : IsWall(false), IsWooden(false) {}
+
+    static OverlayTypeClass const& As_Reference(OverlayType) {
+        static OverlayTypeClass dummy;
+        return dummy;
+    }
+
+    bool IsWall;
+    bool IsWooden;
+};
 
 enum AnimType {
     ANIM_NONE = -1,
@@ -1123,6 +1165,7 @@ enum StructureFlag {
 };
 
 class BuildingClass;
+class TechnoClass;
 
 // Minimal direction constants used by early ports.
 static const DirType DIR_N = 0;
@@ -1146,6 +1189,11 @@ static const DirType DIR_N = 0;
 #define ICON_PIXEL_H 24
 #endif
 
+// Legacy scale used for coordinate math (see DISPLAY.H).
+#ifndef ICON_LEPTON_W
+#define ICON_LEPTON_W 256
+#endif
+
 #ifndef TICKS_PER_SECOND
 #define TICKS_PER_SECOND 15
 #endif
@@ -1162,6 +1210,8 @@ DirType Direction(COORDINATE coord1, COORDINATE coord2);
 int Distance(COORDINATE coord1, COORDINATE coord2);
 COORDINATE As_Coord(TARGET target);
 BuildingClass* As_Building(TARGET target);
+int Modify_Damage(int damage, WarheadType warhead, ArmorType armor, int distance);
+void Explosion_Damage(COORDINATE coord, unsigned strength, TechnoClass* source, WarheadType warhead);
 
 inline COORDINATE Cell_Coord(CELL cell) { return static_cast<COORDINATE>(cell); }
 
@@ -1210,12 +1260,25 @@ public:
     int Name;
 };
 
+class TechnoClass;
+
 class ObjectClass : public AbstractClass {
 public:
-    ObjectClass() : Next(NULL) {}
+    ObjectClass() : Next(NULL), IsDown(true), IsInLimbo(false), IsToDamage(false) {}
     virtual ~ObjectClass() {}
 
+    virtual ResultType Take_Damage(int& damage, int distance, WarheadType warhead, TechnoClass* source = 0) {
+        (void)damage;
+        (void)distance;
+        (void)warhead;
+        (void)source;
+        return RESULT_NONE;
+    }
+
     ObjectClass* Next;
+    bool IsDown;
+    bool IsInLimbo;
+    bool IsToDamage;
 };
 
 class FootClass : public ObjectClass {
@@ -1224,6 +1287,11 @@ public:
 
     virtual void Limbo() {}
     virtual TARGET As_Target() const { return 0; }
+};
+
+class TechnoClass : public ObjectClass {
+public:
+    virtual ~TechnoClass() {}
 };
 
 class HouseTypeClass {
@@ -1283,7 +1351,6 @@ public:
     bool Unlimbo(COORDINATE, DirType) { return true; }
     bool In_Radio_Contact() const { return false; }
 
-    bool IsInLimbo;
     HouseClass* House;
     MissionType Mission;
     int ActLike;
@@ -1368,27 +1435,22 @@ bool WWWritePrivateProfileInt(char const* section, char const* key, int value, c
 
 class MapCellClass {
 public:
-    MapCellClass() : Overlapper(), Building(NULL) {
-        Overlapper[0] = NULL;
-        Overlapper[1] = NULL;
-        Overlapper[2] = NULL;
-    }
-
-    ObjectClass* Cell_Building() { return Building; }
-    bool Is_Generally_Clear() const { return true; }
-
-    ObjectClass* Overlapper[3];
-    ObjectClass* Building;
+    // Placeholder retained for historical reasons; superseded by CellClass-backed MapClass.
 };
+
+class CellClass;
 
 class MapClass {
 public:
-    MapClass() : Dummy() {}
-    MapCellClass& operator[](CELL) { return Dummy; }
+    MapClass();
+    ~MapClass();
+
+    CellClass& operator[](CELL cell);
+    CellClass const& operator[](CELL cell) const;
     bool In_Radar(CELL) const { return true; }
 
 private:
-    MapCellClass Dummy;
+    CellClass* Dummy;
 };
 
 extern MapClass Map;
@@ -1682,7 +1744,8 @@ struct SpecialClass {
     bool IsRoad;
     bool IsNamed;
     bool IsSeparate;
-    SpecialClass() : IsRoad(false), IsNamed(false), IsSeparate(false) {}
+    bool IsInert;
+    SpecialClass() : IsRoad(false), IsNamed(false), IsSeparate(false), IsInert(false) {}
 };
 
 extern SpecialClass Special;
@@ -1834,3 +1897,6 @@ bool Offset(char const* filename,
 extern BuildingCollection Buildings;
 extern TheaterDataType Theaters[THEATER_COUNT];
 extern TheaterType LastTheater;
+
+// Most ported sources include only this header; include commonly-needed core types here.
+#include "cell.h"

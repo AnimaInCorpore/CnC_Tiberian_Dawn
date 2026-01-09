@@ -1,5 +1,7 @@
 #include "legacy_compat.h"
 
+#include "cell.h"
+
 #include <cstdlib>
 #include <cstdio>
 #include <string>
@@ -81,9 +83,21 @@ void* Load_Alloc_Data(FileClass& file) {
 
 BuildingCollection Buildings;
 MapClass Map;
+WarheadTypeClass Warheads[WARHEAD_COUNT];
 SpecialClass Special;
 int Scenario = 0;
 bool Debug_Map = false;
+
+MapClass::MapClass() : Dummy(NULL) {
+    static CellClass dummy;
+    Dummy = &dummy;
+}
+
+MapClass::~MapClass() {}
+
+CellClass& MapClass::operator[](CELL) { return *Dummy; }
+
+CellClass const& MapClass::operator[](CELL) const { return *Dummy; }
 
 namespace {
 static short const SmudgeEmptyList[] = {REFRESH_EOL};
