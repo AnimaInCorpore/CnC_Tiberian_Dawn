@@ -143,7 +143,6 @@ void* Load_Alloc_Data(FileClass& file) {
 
 BuildingCollection Buildings;
 MapClass Map;
-WarheadTypeClass Warheads[WARHEAD_COUNT];
 SpecialClass Special;
 int Scenario = 0;
 bool Debug_Map = false;
@@ -282,13 +281,6 @@ int WWGetPrivateProfileString(char const* section,
 
 bool WWWritePrivateProfileString(char const*, char const*, char const*, char*) { return true; }
 bool WWWritePrivateProfileInt(char const*, char const*, int, char*) { return true; }
-
-TheaterDataType Theaters[THEATER_COUNT] = {
-    {"DESERT", "DESERT", "DES"},
-    {"JUNGLE", "JUNGLE", "JUN"},
-    {"TEMPERATE", "TEMPERAT", "TEM"},
-    {"WINTER", "WINTER", "WIN"},
-};
 
 TheaterType LastTheater = THEATER_NONE;
 

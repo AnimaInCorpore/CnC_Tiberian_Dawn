@@ -43,6 +43,20 @@ typedef int VolType;
 typedef int WindowNumberType;
 typedef int TARGET;
 
+// Common palette indices used by the legacy UI/terrain tables.
+#ifndef BLUE
+#define BLUE 1
+#endif
+#ifndef GREEN
+#define GREEN 2
+#endif
+#ifndef GREY
+#define GREY 7
+#endif
+#ifndef DKGREY
+#define DKGREY GREY
+#endif
+
 // Constants mirrored from the legacy headers.
 #ifndef MAP_CELL_W
 #define MAP_CELL_W 64
@@ -162,6 +176,21 @@ typedef enum LandType {
 
     LAND_COUNT
 } LandType;
+
+enum SourceType {
+    SOURCE_NORTH,
+    SOURCE_EAST,
+    SOURCE_SOUTH,
+    SOURCE_WEST,
+    SOURCE_SHIPPING,
+    SOURCE_BEACH,
+    SOURCE_AIR,
+    SOURCE_VISIBLE,
+    SOURCE_ENEMY_BASE,
+    SOURCE_HOME_BASE,
+    SOURCE_OCEAN,
+    SOURCE_COUNT
+};
 
 typedef enum StructType {
     STRUCT_NONE = -1,
@@ -560,19 +589,14 @@ typedef enum WarheadType {
 } WarheadType;
 
 struct WarheadTypeClass {
-    WarheadTypeClass() : Modifier(), SpreadFactor(0), IsWallDestroyer(false), IsWoodDestroyer(false) {
-        for (int i = 0; i < ARMOR_COUNT; ++i) {
-            Modifier[i] = 256;
-        }
-    }
-
-    int Modifier[ARMOR_COUNT];
-    unsigned char SpreadFactor;
+    int SpreadFactor;
     bool IsWallDestroyer;
     bool IsWoodDestroyer;
+    bool IsTiberiumDestroyer;
+    int Modifier[ARMOR_COUNT];
 };
 
-extern WarheadTypeClass Warheads[WARHEAD_COUNT];
+extern WarheadTypeClass const Warheads[WARHEAD_COUNT];
 
 enum WeaponType {
     WEAPON_NONE = -1,
@@ -603,6 +627,41 @@ enum WeaponType {
     WEAPON_TREX,
     WEAPON_COUNT
 };
+
+struct WeaponTypeClass {
+    BulletType Fires;
+    int Attack;
+    int ROF;
+    int Range;
+    int Sound;
+    int Explosion;
+};
+
+extern WeaponTypeClass const Weapons[WEAPON_COUNT];
+
+extern char const* SourceName[SOURCE_COUNT];
+extern COORDINATE const StoppingCoordAbs[5];
+extern unsigned char const Pixel2Lepton[24];
+extern CELL const AdjacentCell[FACING_COUNT];
+extern COORDINATE const AdjacentCoord[FACING_COUNT];
+extern unsigned char const Facing8[256];
+extern unsigned char const Facing32[256];
+
+struct GroundType {
+    int RadarColor;
+    unsigned char Speed[7];
+    bool IsBuildable;
+};
+
+extern GroundType const Ground[LAND_COUNT];
+
+extern unsigned char const RemapYellow[256];
+extern unsigned char const RemapRed[256];
+extern unsigned char const RemapBlueGreen[256];
+extern unsigned char const RemapOrange[256];
+extern unsigned char const RemapGreen[256];
+extern unsigned char const RemapBlue[256];
+extern unsigned char const RemapNone[256];
 
 enum AircraftType {
     AIRCRAFT_TRANSPORT,
@@ -1122,6 +1181,7 @@ enum VocType {
     VOC_XPLODE,
     VOC_XPLOS,
     VOC_XPLOSML2,
+    VOC_DINOATK1,
     VOC_COUNT
 };
 
@@ -1975,7 +2035,7 @@ bool Offset(char const* filename,
 }
 
 extern BuildingCollection Buildings;
-extern TheaterDataType Theaters[THEATER_COUNT];
+extern TheaterDataType const Theaters[THEATER_COUNT];
 extern TheaterType LastTheater;
 
 // Most ported sources include only this header; include commonly-needed core types here.

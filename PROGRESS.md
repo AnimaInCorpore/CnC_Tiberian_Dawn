@@ -25,7 +25,7 @@ Source inventory:
 - [x] confdlg.cpp
 - [x] connect.cpp
 - [x] conquer.cpp
-- [ ] const.cpp
+- [x] const.cpp
 - [ ] control.cpp
 - [ ] coord.cpp
 - [ ] coorda.asm

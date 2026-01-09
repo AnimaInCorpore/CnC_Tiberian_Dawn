@@ -9,7 +9,10 @@ int Modify_Damage(int damage, WarheadType warhead, ArmorType armor, int distance
     damage = Fixed_To_Cardinal(damage, whead->Modifier[armor]);
 
     if (damage) {
-        distance >>= whead->SpreadFactor;
+        int spread = whead->SpreadFactor;
+        if (spread < 0) spread = 0;
+        if (spread > 30) spread = 30;
+        distance >>= spread;
         distance = Bound(distance, 0, 16);
         damage >>= distance;
     }
@@ -90,4 +93,3 @@ void Explosion_Damage(COORDINATE coord, unsigned strength, TechnoClass* source, 
         }
     }
 }
-
