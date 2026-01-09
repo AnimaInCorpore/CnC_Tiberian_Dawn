@@ -21,7 +21,7 @@ Source inventory:
 - [x] cheklist.cpp
 - [x] colrlist.cpp
 - [x] combat.cpp
-- [ ] combuf.cpp
+- [x] combuf.cpp
 - [ ] confdlg.cpp
 - [ ] connect.cpp
 - [ ] conquer.cpp

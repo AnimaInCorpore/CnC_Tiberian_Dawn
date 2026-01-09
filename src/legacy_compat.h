@@ -1884,6 +1884,7 @@ inline void Register_Icon_Set(void*, bool) {}
 int Fixed_To_Cardinal(int value, int percent_fixed);
 int Get_Resolution_Factor(void);
 void* Load_Alloc_Data(FileClass& file);
+void CCDebugString(char const* string);
 
 namespace MixFileClass {
 void const* Retrieve(const char* filename);

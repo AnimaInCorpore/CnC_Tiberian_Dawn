@@ -31,6 +31,12 @@ FileClass::FileClass(const char* filename) : Filename(filename ? filename : ""),
 
 FileClass::~FileClass() { Close(); }
 
+void CCDebugString(char const* string) {
+    if (!string) return;
+    std::fputs(string, stderr);
+    std::fflush(stderr);
+}
+
 bool FileClass::Is_Available() {
     if (Handle) return true;
     Handle = Try_Open_File(Filename);

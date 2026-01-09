@@ -22,6 +22,7 @@
 - UI gadget shims: until the full gadget/control stack is ported, lightweight placeholders may live in standalone headers like `src/list.h` to satisfy compilation of dependent modules (e.g., `src/cheklist.cpp`); migrate to real `src/list.h`/`src/list.cpp` when the original implementation is ported.
 - As individual modules get ported, migrate their module-specific stub implementations out of `src/legacy_compat.cpp` into the corresponding `src/<module>.cpp` to keep the compatibility layer small and reduce churn.
 - C++98 quirks: avoid defaulted special members and enum post-increment; iterate enums via int index and cast back. Prefer `snprintf` over `sprintf` to satisfy modern toolchains.
+- Debug logging: stub `CCDebugString` lives in `src/legacy_compat.cpp` and prints to stderr until the original Win32 debug plumbing is ported.
 - When legacy code mutates cached asset pointers on a `const` type reference (e.g., `bullet.ImageData`), prefer `const_cast<void const*&>(...)` over C-style casts to keep intent clear.
 - Tracking: update `PROGRESS.md` when a file builds and runs correctly through the SDL/CMake path.
 - Keep this document updated with new porting conventions or findings as they emerge.
