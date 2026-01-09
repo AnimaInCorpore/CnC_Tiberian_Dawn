@@ -36,7 +36,7 @@ Source inventory:
 - [x] descdlg.cpp
 - [x] dial8.cpp
 - [x] dialog.cpp
-- [ ] display.cpp
+- [x] display.cpp (stub; skeleton header + statics for now)
 - [ ] dpmi.cpp
 - [ ] drive.cpp
 - [ ] edit.cpp

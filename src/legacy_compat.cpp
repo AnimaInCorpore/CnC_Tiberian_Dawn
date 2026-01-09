@@ -47,6 +47,8 @@ FacingType Dir_Facing(DirType) { return FACING_N; }
 
 void Sticky_Process(unsigned) {}
 
+COORDINATE Coord_Add(COORDINATE coord1, COORDINATE coord2) { return coord1 + coord2; }
+
 void Draw_Caption(int, int, int, int) {}
 void Conditional_Hide_Mouse(int, int, int, int) {}
 void Conditional_Show_Mouse(void) {}

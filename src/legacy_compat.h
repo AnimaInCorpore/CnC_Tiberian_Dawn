@@ -68,6 +68,12 @@ enum VolumeConstants {
 #ifndef GREEN
 #define GREEN 2
 #endif
+#ifndef RED
+#define RED 4
+#endif
+#ifndef YELLOW
+#define YELLOW 14
+#endif
 #ifndef GREY
 #define GREY 7
 #endif
@@ -82,6 +88,17 @@ enum VolumeConstants {
 #endif
 #ifndef CC_GREEN_BKGD
 #define CC_GREEN_BKGD 141
+#endif
+
+// Translucent palette table sizes (from legacy DEFINES.H).
+#ifndef MAGIC_COL_COUNT
+#define MAGIC_COL_COUNT 12
+#endif
+#ifndef SHADOW_COL_COUNT
+#define SHADOW_COL_COUNT 4
+#endif
+#ifndef USHADOW_COL_COUNT
+#define USHADOW_COL_COUNT 1
 #endif
 
 // Constants mirrored from the legacy headers.
@@ -322,6 +339,21 @@ private:
     std::vector<T> Data;
 };
 
+class BooleanVectorClass {
+public:
+    BooleanVectorClass() : Flags() {}
+
+    void Resize(int count) { Flags.assign(count > 0 ? static_cast<size_t>(count) : 0u, 0u); }
+
+    unsigned char& operator[](int index) { return Flags[static_cast<size_t>(index)]; }
+    unsigned char const& operator[](int index) const { return Flags[static_cast<size_t>(index)]; }
+
+    bool Is_True(int index) const { return Flags[static_cast<size_t>(index)] != 0u; }
+
+private:
+    std::vector<unsigned char> Flags;
+};
+
 // UI/text rendering shims (no-op until display port lands).
 enum TextPrintConstants {
     TPF_LASTPOINT = 0x0000,
@@ -355,6 +387,14 @@ enum TextColorEnum {
     WHITE = 15,
     TBLACK = 0,
     CC_GREEN = 2
+};
+
+enum MouseType {
+    MOUSE_NORMAL = 0
+};
+
+enum ActionType {
+    ACTION_NONE = 0
 };
 
 typedef struct {
@@ -1455,6 +1495,9 @@ static const DirType DIR_N = 0;
 #ifndef ICON_LEPTON_W
 #define ICON_LEPTON_W 256
 #endif
+#ifndef ICON_LEPTON_H
+#define ICON_LEPTON_H 256
+#endif
 
 #ifndef TICKS_PER_SECOND
 #define TICKS_PER_SECOND 15
@@ -1734,6 +1777,8 @@ private:
 };
 
 extern MapClass Map;
+
+COORDINATE Coord_Add(COORDINATE coord1, COORDINATE coord2);
 
 class TabClass {
 public:
