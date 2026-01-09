@@ -34,7 +34,7 @@ Source inventory:
 - [x] debug.cpp
 - [x] deldlg.cpp (stub; legacy source missing)
 - [x] descdlg.cpp
-- [ ] dial8.cpp
+- [x] dial8.cpp
 - [ ] dialog.cpp
 - [ ] display.cpp
 - [ ] dpmi.cpp

@@ -335,6 +335,7 @@ class GraphicPageClass {
 public:
     void Draw_Rect(int, int, int, int, int) {}
     void Fill_Rect(int, int, int, int, int) {}
+    void Draw_Line(int, int, int, int, int) {}
 };
 
 class GraphicBufferClass : public GraphicPageClass {
@@ -363,7 +364,9 @@ enum WindowIds {
 };
 
 enum WindowBoxStyle {
-    BOXSTYLE_GREEN_BORDER = 1
+    BOXSTYLE_GREEN_BORDER = 1,
+    BOXSTYLE_GREEN_DOWN = 2,
+    BOXSTYLE_GREEN_RAISED = 3
 };
 
 inline void Set_Window(WindowNumberType, int, int, int, int) {}
@@ -373,6 +376,17 @@ inline void Window_Box(WindowNumberType, int) {}
 
 void Dialog_Box(int x, int y, int w, int h);
 void Draw_Caption(int text, int x, int y, int w);
+void Draw_Box(int x, int y, int w, int h, int style, bool filled);
+
+int Get_Mouse_X();
+int Get_Mouse_Y();
+int Desired_Facing8(int center_x, int center_y, int mouse_x, int mouse_y);
+void Sticky_Process(unsigned flags);
+
+enum UiColorConstants {
+    CC_GREEN_SHADOW = 0,
+    CC_LIGHT_GREEN = 0
+};
 
 int String_Pixel_Width(char const* text);
 extern int FontHeight;
@@ -468,6 +482,8 @@ enum FacingType {
     FACING_COUNT,
     FACING_FIRST = 0
 };
+
+FacingType Dir_Facing(DirType dir);
 
 enum ArmorType {
     ARMOR_NONE,

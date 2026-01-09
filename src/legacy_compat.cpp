@@ -23,6 +23,17 @@ HouseClass* PlayerPtr = NULL;
 void Hide_Mouse() {}
 void Show_Mouse() {}
 
+void Draw_Box(int, int, int, int, int, bool) {}
+
+int Get_Mouse_X() { return 0; }
+int Get_Mouse_Y() { return 0; }
+
+int Desired_Facing8(int, int, int, int) { return 0; }
+
+FacingType Dir_Facing(DirType) { return FACING_N; }
+
+void Sticky_Process(unsigned) {}
+
 void Dialog_Box(int, int, int, int) {}
 void Draw_Caption(int, int, int, int) {}
 
