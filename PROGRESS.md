@@ -12,7 +12,7 @@ Source inventory:
 - [x] bbdata.cpp
 - [x] bdata.cpp
 - [x] building.cpp
-- [ ] bullet.cpp
+- [x] bullet.cpp
 - [ ] cargo.cpp
 - [ ] ccfile.cpp
 - [ ] cdata.cpp

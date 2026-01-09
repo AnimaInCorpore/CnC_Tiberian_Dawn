@@ -45,10 +45,12 @@ enum RTTIType {
     RTTI_ANIM,
     RTTI_BUILDING,
     RTTI_BUILDINGTYPE,
+    RTTI_BULLET,
     RTTI_INFANTRYTYPE,
     RTTI_UNITTYPE,
     RTTI_ABSTRACTTYPE,
     RTTI_ANIMTYPE,
+    RTTI_BULLETTYPE,
 };
 
 enum MarkType {
@@ -272,6 +274,12 @@ enum MPHType {
     MPH_LIGHT_SPEED = 255
 };
 
+typedef enum ImpactType {
+    IMPACT_NONE,   // No movement (of significance) occurred.
+    IMPACT_NORMAL, // Some (non eventful) movement occurred.
+    IMPACT_EDGE    // The edge of the world was reached.
+} ImpactType;
+
 typedef enum BulletType {
     BULLET_NONE = -1,
     BULLET_SNIPER,        // Sniper bullet.
@@ -297,6 +305,84 @@ typedef enum BulletType {
     BULLET_COUNT,
     BULLET_FIRST = 0
 } BulletType;
+
+class FacingClass {
+public:
+    FacingClass() : CurrentFacing(0), DesiredFacing(0) {}
+    explicit FacingClass(DirType dir) : CurrentFacing(dir), DesiredFacing(dir) {}
+
+    operator DirType(void) const { return CurrentFacing; }
+    DirType Current(void) const { return CurrentFacing; }
+    DirType Desired(void) const { return DesiredFacing; }
+
+    int Set_Desired(DirType facing) {
+        DesiredFacing = facing;
+        return 0;
+    }
+    int Set_Current(DirType facing) {
+        CurrentFacing = facing;
+        return 0;
+    }
+    void Set(DirType facing) {
+        Set_Current(facing);
+        Set_Desired(facing);
+    }
+
+    DirType Get(void) const { return CurrentFacing; }
+    int Is_Rotating(void) const { return DesiredFacing != CurrentFacing; }
+    int Difference(void) const { return static_cast<signed char>(DesiredFacing - CurrentFacing); }
+    int Difference(DirType facing) const { return static_cast<signed char>(facing - CurrentFacing); }
+
+    int Rotation_Adjust(int) { return 0; }
+
+private:
+    DirType CurrentFacing;
+    DirType DesiredFacing;
+};
+
+class FlyClass {
+public:
+    FlyClass() : SpeedAccum(0), SpeedAdd(MPH_IMMOBILE) {}
+
+    void Fly_Speed(int, MPHType maximum) { SpeedAdd = maximum; }
+    ImpactType Physics(COORDINATE&, DirType) { return IMPACT_NONE; }
+    MPHType Get_Speed(void) const { return SpeedAdd; }
+
+    void Code_Pointers(void) {}
+    void Decode_Pointers(void) {}
+
+private:
+    unsigned SpeedAccum;
+    MPHType SpeedAdd;
+};
+
+class FileClass;
+
+class FuseClass {
+public:
+    FuseClass() : Timer(0), Arming(0), HeadTo(0), Proximity(0) {}
+
+    void Arm_Fuse(COORDINATE, COORDINATE target, int time = 0xFF, int arming = 0) {
+        HeadTo = target;
+        Timer = static_cast<unsigned char>(time);
+        Arming = static_cast<unsigned char>(arming);
+        Proximity = 0;
+    }
+    bool Fuse_Checkup(COORDINATE) { return false; }
+    void Fuse_Write(FileClass&) {}
+    void Fuse_Read(FileClass&) {}
+    COORDINATE Fuse_Target(void) { return HeadTo; }
+
+    void Code_Pointers(void) {}
+    void Decode_Pointers(void) {}
+
+    unsigned char Timer;
+
+private:
+    unsigned char Arming;
+    COORDINATE HeadTo;
+    short Proximity;
+};
 
 typedef enum WarheadType {
     WARHEAD_NONE = -1,
