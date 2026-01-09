@@ -66,9 +66,6 @@ char const* Text_String(int text_id) {
 
 void Fancy_Text_Print(char const*, int, int, int, int, TextPrintType) {}
 
-void Call_Back() {}
-bool Main_Loop() { return false; }
-
 namespace {
 std::FILE* Try_Open_File_Mode(const std::string& name, const char* mode) {
     if (name.empty()) return NULL;

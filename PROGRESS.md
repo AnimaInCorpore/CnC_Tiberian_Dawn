@@ -24,7 +24,7 @@ Source inventory:
 - [x] combuf.cpp
 - [x] confdlg.cpp
 - [x] connect.cpp
-- [ ] conquer.cpp
+- [x] conquer.cpp
 - [ ] const.cpp
 - [ ] control.cpp
 - [ ] coord.cpp
