@@ -6,7 +6,7 @@ Source inventory:
 - [x] abstract.cpp
 - [x] adata.cpp
 - [x] aircraft.cpp
-- [ ] anim.cpp
+- [x] anim.cpp
 - [ ] audio.cpp
 - [ ] base.cpp
 - [ ] bbdata.cpp

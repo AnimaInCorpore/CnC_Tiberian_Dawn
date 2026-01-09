@@ -40,10 +40,29 @@ enum RTTIType {
     RTTI_NONE = 0,
     RTTI_AIRCRAFT,
     RTTI_AIRCRAFTTYPE,
+    RTTI_ANIM,
     RTTI_BUILDING,
     RTTI_BUILDINGTYPE,
     RTTI_ABSTRACTTYPE,
     RTTI_ANIMTYPE,
+};
+
+enum MarkType {
+    MARK_UP,
+    MARK_DOWN,
+    MARK_CHANGE,
+    MARK_OVERLAP_DOWN,
+    MARK_OVERLAP_UP,
+};
+
+enum LayerType {
+    LAYER_NONE = -1,
+    LAYER_GROUND,
+    LAYER_AIR,
+    LAYER_TOP,
+
+    LAYER_COUNT,
+    LAYER_FIRST = 0
 };
 
 enum MissionType {
