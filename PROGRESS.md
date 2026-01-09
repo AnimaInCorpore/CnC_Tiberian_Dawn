@@ -8,7 +8,7 @@ Source inventory:
 - [x] aircraft.cpp
 - [x] anim.cpp
 - [x] audio.cpp
-- [ ] base.cpp
+- [x] base.cpp
 - [ ] bbdata.cpp
 - [ ] bdata.cpp
 - [ ] building.cpp

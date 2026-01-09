@@ -11,6 +11,7 @@
 #include <cstring>
 #include <strings.h>
 #include <string>
+#include <vector>
 
 // Basic legacy-sized types used throughout the original codebase.
 typedef int CELL;
@@ -108,6 +109,105 @@ enum HousesType {
     HOUSE_MULTI6,
     HOUSE_COUNT,
     HOUSE_FIRST = HOUSE_GOOD
+};
+
+typedef enum StructType {
+    STRUCT_NONE = -1,
+    STRUCT_WEAP,
+    STRUCT_GTOWER,
+    STRUCT_ATOWER,
+    STRUCT_OBELISK,
+    STRUCT_RADAR,
+    STRUCT_TURRET,
+    STRUCT_CONST,
+    STRUCT_REFINERY,
+    STRUCT_STORAGE,
+    STRUCT_HELIPAD,
+    STRUCT_SAM,
+    STRUCT_AIRSTRIP,
+    STRUCT_POWER,
+    STRUCT_ADVANCED_POWER,
+    STRUCT_HOSPITAL,
+    STRUCT_BARRACKS,
+    STRUCT_TANKER,
+    STRUCT_REPAIR,
+    STRUCT_BIO_LAB,
+    STRUCT_HAND,
+    STRUCT_TEMPLE,
+    STRUCT_EYE,
+    STRUCT_MISSION,
+
+    STRUCT_V01,
+    STRUCT_V02,
+    STRUCT_V03,
+    STRUCT_V04,
+    STRUCT_V05,
+    STRUCT_V06,
+    STRUCT_V07,
+    STRUCT_V08,
+    STRUCT_V09,
+    STRUCT_V10,
+    STRUCT_V11,
+    STRUCT_V12,
+    STRUCT_V13,
+    STRUCT_V14,
+    STRUCT_V15,
+    STRUCT_V16,
+    STRUCT_V17,
+    STRUCT_V18,
+    STRUCT_PUMP,
+    STRUCT_V20,
+    STRUCT_V21,
+    STRUCT_V22,
+    STRUCT_V23,
+    STRUCT_V24,
+    STRUCT_V25,
+    STRUCT_V26,
+    STRUCT_V27,
+    STRUCT_V28,
+    STRUCT_V29,
+    STRUCT_V30,
+    STRUCT_V31,
+    STRUCT_V32,
+    STRUCT_V33,
+    STRUCT_V34,
+    STRUCT_V35,
+    STRUCT_V36,
+    STRUCT_V37,
+#ifdef OBSOLETE
+    STRUCT_ROAD,
+#endif
+    STRUCT_SANDBAG_WALL,
+    STRUCT_CYCLONE_WALL,
+    STRUCT_BRICK_WALL,
+    STRUCT_BARBWIRE_WALL,
+    STRUCT_WOOD_WALL,
+
+    STRUCT_COUNT,
+    STRUCT_FIRST = 0
+} StructType;
+
+inline StructType operator++(StructType& value, int) {
+    int next = static_cast<int>(value) + 1;
+    if (next >= static_cast<int>(STRUCT_COUNT)) return value;
+    value = static_cast<StructType>(next);
+    return value;
+}
+
+template <typename T>
+class DynamicVectorClass {
+public:
+    DynamicVectorClass() : Data() {}
+
+    int Count() const { return static_cast<int>(Data.size()); }
+    void Clear() { Data.clear(); }
+    void Add(T const& value) { Data.push_back(value); }
+
+    T& operator[](int index) { return Data[static_cast<size_t>(index)]; }
+    T const& operator[](int index) const { return Data[static_cast<size_t>(index)]; }
+
+private:
+    std::vector<T> Data;
 };
 
 #define HOUSEF_GOOD (1 << HOUSE_GOOD)
@@ -505,6 +605,7 @@ public:
     AbstractClass() : Coord(0), IsActive(0) {}
     virtual ~AbstractClass() {}
 
+    virtual RTTIType What_Am_I(void) const { return RTTI_NONE; }
     virtual HousesType Owner(void) const { return HOUSE_NONE; }
 
     virtual COORDINATE Center_Coord(void) const { return Coord; }
@@ -553,6 +654,15 @@ class HouseTypeClass {
 public:
     explicit HouseTypeClass(HousesType house = HOUSE_NONE) : House(house) {}
     HousesType House;
+
+    static HousesType From_Name(char const* name) {
+        if (!name) return HOUSE_NONE;
+        if (!strcasecmp(name, "GoodGuy")) return HOUSE_GOOD;
+        if (!strcasecmp(name, "BadGuy")) return HOUSE_BAD;
+        if (!strcasecmp(name, "Neutral")) return HOUSE_NEUTRAL;
+        if (!strcasecmp(name, "Japan")) return HOUSE_JP;
+        return HOUSE_NONE;
+    }
 };
 
 class HouseClass {
@@ -581,10 +691,15 @@ public:
 
 class BuildingTypeClass {
 public:
-    BuildingTypeClass() : ToBuild(RTTI_NONE) {}
+    BuildingTypeClass() : IniName(), Type(STRUCT_NONE), ToBuild(RTTI_NONE) {}
     int Width() const { return 0; }
     int Height() const { return 0; }
+    char IniName[9];
+    StructType Type;
     RTTIType ToBuild;
+
+    static StructType From_Name(char const* name);
+    static BuildingTypeClass const& As_Reference(StructType type);
 };
 
 class BuildingClass : public ObjectClass {
@@ -619,6 +734,7 @@ public:
     virtual bool Is_Available();
     virtual long Size();
     virtual long Read(void* buffer, long length);
+    virtual long Write(void const* buffer, long length);
     virtual void Close();
 
 protected:
@@ -630,6 +746,41 @@ class RawFileClass : public FileClass {
 public:
     explicit RawFileClass(const char* filename) : FileClass(filename) {}
 };
+
+int WWGetPrivateProfileInt(char const* section, char const* key, int default_value, char const* buffer);
+int WWGetPrivateProfileString(char const* section,
+                              char const* key,
+                              char const* default_value,
+                              char* output,
+                              int output_len,
+                              char const* buffer);
+bool WWWritePrivateProfileString(char const* section, char const* key, char const* value, char* buffer);
+bool WWWritePrivateProfileInt(char const* section, char const* key, int value, char* buffer);
+
+class MapCellClass {
+public:
+    MapCellClass() : Overlapper(), Building(NULL) {
+        Overlapper[0] = NULL;
+        Overlapper[1] = NULL;
+        Overlapper[2] = NULL;
+    }
+
+    ObjectClass* Cell_Building() { return Building; }
+
+    ObjectClass* Overlapper[3];
+    ObjectClass* Building;
+};
+
+class MapClass {
+public:
+    MapClass() : Dummy() {}
+    MapCellClass& operator[](CELL) { return Dummy; }
+
+private:
+    MapCellClass Dummy;
+};
+
+extern MapClass Map;
 
 class ObjectTypeClass : public AbstractTypeClass {
 public:
