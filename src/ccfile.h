@@ -1,6 +1,6 @@
 #pragma once
 
-#include "legacy_compat.h"
+#include "cdfile.h"
 
 #include <cerrno>
 
@@ -34,4 +34,3 @@ private:
     CCFileClass const operator=(CCFileClass const&);
     CCFileClass(CCFileClass const&);
 };
-

@@ -16,7 +16,7 @@ Source inventory:
 - [x] cargo.cpp
 - [x] ccfile.cpp
 - [x] cdata.cpp
-- [ ] cdfile.cpp
+- [x] cdfile.cpp
 - [ ] cell.cpp
 - [ ] cheklist.cpp
 - [ ] colrlist.cpp

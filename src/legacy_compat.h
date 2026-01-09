@@ -1315,17 +1315,6 @@ public:
     }
 };
 
-class CDFileClass : public RawFileClass {
-public:
-    explicit CDFileClass(char const* filename) : RawFileClass(filename), IsDisabled(false) {}
-    CDFileClass() : RawFileClass(), IsDisabled(false) {}
-
-    void Searching(int on) { IsDisabled = !on; }
-
-private:
-    bool IsDisabled;
-};
-
 int WWGetPrivateProfileInt(char const* section, char const* key, int default_value, char const* buffer);
 int WWGetPrivateProfileString(char const* section,
                               char const* key,
