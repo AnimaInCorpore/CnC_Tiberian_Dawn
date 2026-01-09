@@ -12,5 +12,6 @@
 - When porting a legacy class that previously lived as a placeholder in `src/legacy_compat.h`, move it into a dedicated `src/<name>.h`/`src/<name>.cpp` pair and remove the placeholder to avoid diverging definitions.
 - Loading shim: `FileClass`/`RawFileClass` in `legacy_compat` open from `CD/` by default and `Load_Alloc_Data` mirrors the original helper—reuse these when porting animation/type data that pulls raw assets.
 - C++98 quirks: avoid defaulted special members and enum post-increment; iterate enums via int index and cast back. Prefer `snprintf` over `sprintf` to satisfy modern toolchains.
+- When legacy code mutates cached asset pointers on a `const` type reference (e.g., `bullet.ImageData`), prefer `const_cast<void const*&>(...)` over C-style casts to keep intent clear.
 - Tracking: update `PROGRESS.md` when a file builds and runs correctly through the SDL/CMake path.
 - Keep this document updated with new porting conventions or findings as they emerge.

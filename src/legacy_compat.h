@@ -270,6 +270,50 @@ enum MPHType {
     MPH_LIGHT_SPEED = 255
 };
 
+typedef enum BulletType {
+    BULLET_NONE = -1,
+    BULLET_SNIPER,        // Sniper bullet.
+    BULLET_BULLET,        // Small arms
+    BULLET_APDS,          // Armor piercing projectile.
+    BULLET_HE,            // High explosive shell.
+    BULLET_SSM,           // Surface to surface small missile type.
+    BULLET_SSM2,          // MLRS missile.
+    BULLET_SAM,           // Fast homing anti-aircraft missile.
+    BULLET_TOW,           // TOW anti-vehicle short range missile.
+    BULLET_FLAME,         // Flame thrower flame.
+    BULLET_CHEMSPRAY,     // Chemical weapon spray.
+    BULLET_NAPALM,        // Napalm bomblet.
+    BULLET_GRENADE,       // Hand tossed grenade.
+    BULLET_LASER,         // Laser beam from obelisk
+    BULLET_NUKE_UP,       // Nuclear Missile on its way down
+    BULLET_NUKE_DOWN,     // Nuclear Missile on its way up
+    BULLET_HONEST_JOHN,   // SSM with napalm warhead.
+    BULLET_SPREADFIRE,    // Chain gun bullets.
+    BULLET_HEADBUTT,      // Stegosaurus, Triceratops head butt
+    BULLET_TREXBITE,      // Tyrannosaurus Rex's bite - especially bad for infantry
+
+    BULLET_COUNT,
+    BULLET_FIRST = 0
+} BulletType;
+
+typedef enum WarheadType {
+    WARHEAD_NONE = -1,
+    WARHEAD_SA,             // Small arms -- good against infantry.
+    WARHEAD_HE,             // High explosive -- good against buildings & infantry.
+    WARHEAD_AP,             // Amor piercing -- good against armor.
+    WARHEAD_FIRE,           // Incendiary -- Good against flammables.
+    WARHEAD_LASER,          // Light Amplification of Stimulated Emission of Radiation.
+    WARHEAD_PB,             // Particle beam (neutron beam).
+    WARHEAD_FIST,           // punching in hand-to-hand combat
+    WARHEAD_FOOT,           // kicking in hand-to-hand combat
+    WARHEAD_HOLLOW_POINT,   // Sniper bullet type.
+    WARHEAD_SPORE,          // Spores from blossom tree - affect infantry only
+    WARHEAD_HEADBUTT,       // Other dinosaurs butt into people
+    WARHEAD_FEEDME,         // T-Rex eats people, hurts vehicles/buildings
+
+    WARHEAD_COUNT
+} WarheadType;
+
 enum WeaponType {
     WEAPON_NONE = -1,
     WEAPON_RIFLE,
@@ -882,6 +926,58 @@ public:
 
 private:
     static AnimTypeClass const* const Pointers[ANIM_COUNT];
+};
+
+class BulletTypeClass : public ObjectTypeClass {
+public:
+    BulletTypeClass(BulletType type,
+                    char const* ininame,
+                    bool is_high,
+                    bool is_homing,
+                    bool is_arcing,
+                    bool is_dropping,
+                    bool is_invisible,
+                    bool is_proximity_armed,
+                    bool is_flame_equipped,
+                    bool is_fueled,
+                    bool is_faceless,
+                    bool is_inaccurate,
+                    bool is_translucent,
+                    bool is_antiaircraft,
+                    int arming,
+                    int range,
+                    MPHType maxspeed,
+                    unsigned rot,
+                    WarheadType warhead,
+                    AnimType explosion);
+
+    static BulletTypeClass const& As_Reference(BulletType type) { return *Pointers[static_cast<int>(type)]; }
+    static void One_Time(void);
+
+    BulletType Type;
+    WarheadType Warhead;
+    AnimType Explosion;
+
+    MPHType MaxSpeed;
+    unsigned ROT;
+    int Arming;
+    int Range;
+
+    unsigned IsHigh : 1;
+    unsigned IsHoming : 1;
+    unsigned IsArcing : 1;
+    unsigned IsDropping : 1;
+    unsigned IsInvisible : 1;
+    unsigned IsProximityArmed : 1;
+    unsigned IsFlameEquipped : 1;
+    unsigned IsFueled : 1;
+    unsigned IsFaceless : 1;
+    unsigned IsInaccurate : 1;
+    unsigned IsTranslucent : 1;
+    unsigned IsAntiAircraft : 1;
+
+private:
+    static BulletTypeClass const* const Pointers[BULLET_COUNT];
 };
 
 class TechnoTypeClass : public AbstractTypeClass {

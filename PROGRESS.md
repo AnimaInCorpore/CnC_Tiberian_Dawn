@@ -9,7 +9,7 @@ Source inventory:
 - [x] anim.cpp
 - [x] audio.cpp
 - [x] base.cpp
-- [ ] bbdata.cpp
+- [x] bbdata.cpp
 - [ ] bdata.cpp
 - [ ] building.cpp
 - [ ] bullet.cpp
