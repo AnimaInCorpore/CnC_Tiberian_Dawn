@@ -7,6 +7,8 @@
 void const* ObjectTypeClass::SelectShapes = NULL;
 void const* ObjectTypeClass::PipShapes = NULL;
 
+VoxType SpeakQueue = VOX_NONE;
+
 namespace {
 std::FILE* Try_Open_File(const std::string& name) {
     if (name.empty()) return NULL;

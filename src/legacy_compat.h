@@ -16,6 +16,7 @@
 typedef int CELL;
 typedef int COORDINATE;
 typedef int DirType;
+typedef int VolType;
 typedef int WindowNumberType;
 typedef int TARGET;
 
@@ -453,8 +454,16 @@ enum VocType {
     VOC_XPLOBIG7,
     VOC_XPLODE,
     VOC_XPLOS,
-    VOC_XPLOSML2
+    VOC_XPLOSML2,
+    VOC_COUNT
 };
+
+enum VoxType {
+    VOX_NONE = -1,
+    VOX_COUNT = 0
+};
+
+extern VoxType SpeakQueue;
 
 struct TheaterDataType {
     char Name[16];
