@@ -296,10 +296,6 @@ DirType Direction(COORDINATE coord1, COORDINATE coord2) {
 
 int Distance(COORDINATE coord1, COORDINATE coord2) { return std::abs(coord2 - coord1); }
 
-int Fixed_To_Cardinal(int value, int percent_fixed) {
-    return (value * percent_fixed) / 256;
-}
-
 int Get_Resolution_Factor(void) {
     return 0;
 }

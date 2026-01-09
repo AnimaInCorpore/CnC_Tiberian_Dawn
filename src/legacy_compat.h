@@ -2033,6 +2033,7 @@ inline unsigned char const* Get_Icon_Set_Map(void const*) {
 
 inline void Register_Icon_Set(void*, bool) {}
 
+int Cardinal_To_Fixed(int base, int cardinal);
 int Fixed_To_Cardinal(int value, int percent_fixed);
 int Get_Resolution_Factor(void);
 void* Load_Alloc_Data(FileClass& file);

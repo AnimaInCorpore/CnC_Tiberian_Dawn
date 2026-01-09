@@ -28,7 +28,7 @@ Source inventory:
 - [x] const.cpp
 - [x] control.cpp
 - [x] coord.cpp
-- [ ] coorda.asm
+- [x] coorda.asm
 - [ ] credits.cpp
 - [ ] crew.cpp
 - [ ] debug.cpp
