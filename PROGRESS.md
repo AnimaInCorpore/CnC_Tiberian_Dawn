@@ -10,7 +10,7 @@ Source inventory:
 - [x] audio.cpp
 - [x] base.cpp
 - [x] bbdata.cpp
-- [ ] bdata.cpp
+- [x] bdata.cpp
 - [ ] building.cpp
 - [ ] bullet.cpp
 - [ ] cargo.cpp

@@ -45,6 +45,8 @@ enum RTTIType {
     RTTI_ANIM,
     RTTI_BUILDING,
     RTTI_BUILDINGTYPE,
+    RTTI_INFANTRYTYPE,
+    RTTI_UNITTYPE,
     RTTI_ABSTRACTTYPE,
     RTTI_ANIMTYPE,
 };
@@ -622,16 +624,123 @@ enum TextId {
     TXT_A10 = 96,
     TXT_C17 = 97,
     TXT_HELI = 108,
-    TXT_ORCA = 109
+    TXT_ORCA = 109,
+
+    // Building text ids referenced by bdata.cpp (values are placeholders).
+    TXT_WEAPON_FACTORY,
+    TXT_GUARD_TOWER,
+    TXT_AGUARD_TOWER,
+    TXT_OBELISK,
+    TXT_TURRET,
+    TXT_CONST_YARD,
+    TXT_REFINERY,
+    TXT_STORAGE,
+    TXT_HELIPAD,
+    TXT_COMMAND,
+    TXT_SAM,
+    TXT_AIRSTRIP,
+    TXT_POWER,
+    TXT_ADVANCED_POWER,
+    TXT_HOSPITAL,
+    TXT_BIO_LAB,
+    TXT_BARRACKS,
+    TXT_HAND,
+    TXT_TANKER,
+    TXT_FIX_IT,
+    TXT_TEMPLE,
+    TXT_EYE,
+    TXT_MISSION,
+    TXT_PUMP,
+    TXT_ROAD,
+
+    TXT_CIV1,
+    TXT_CIV2,
+    TXT_CIV3,
+    TXT_CIV4,
+    TXT_CIV5,
+    TXT_CIV6,
+    TXT_CIV7,
+    TXT_CIV8,
+    TXT_CIV9,
+    TXT_CIV10,
+    TXT_CIV11,
+    TXT_CIV12,
+    TXT_CIV13,
+    TXT_CIV14,
+    TXT_CIV15,
+    TXT_CIV16,
+    TXT_CIV17,
+    TXT_CIV18,
+    TXT_CIV20,
+    TXT_CIV21,
+    TXT_CIV22,
+    TXT_CIV23,
+    TXT_CIV24,
+    TXT_CIV25,
+    TXT_CIV26,
+    TXT_CIV27,
+    TXT_CIV28,
+    TXT_CIV29,
+    TXT_CIV30,
+    TXT_CIV31,
+    TXT_CIV32,
+    TXT_CIV33,
+    TXT_CIV34,
+    TXT_CIV35,
+    TXT_CIV36,
+    TXT_CIV37,
+    TXT_CIVMISS,
+
+    TXT_SANDBAG_WALL,
+    TXT_CYCLONE_WALL,
+    TXT_BRICK_WALL,
+    TXT_BARBWIRE_WALL,
+    TXT_WOOD_WALL,
+
+    TXT_PRISON,
+    TXT_CIVILIAN_BUILDING
 };
 
 // Placeholder structure for INI prerequisites.
 enum StructureFlag {
     STRUCTF_NONE = 0,
-    STRUCTF_HELIPAD = 1 << 0
+    STRUCTF_POWER = 1 << 0,
+    STRUCTF_REFINERY = 1 << 1,
+    STRUCTF_BARRACKS = 1 << 2,
+    STRUCTF_RADAR = 1 << 3,
+    STRUCTF_HOSPITAL = 1 << 4,
+    STRUCTF_HELIPAD = 1 << 5
 };
 
 class BuildingClass;
+
+// Minimal direction constants used by early ports.
+static const DirType DIR_N = 0;
+
+// Coordinate packing helpers used by data tables.
+#ifndef XYP_COORD
+#define XYP_COORD(x, y) (static_cast<COORDINATE>((static_cast<unsigned>(x) & 0xFFFFu) | ((static_cast<unsigned>(y) & 0xFFFFu) << 16)))
+#endif
+
+// Pixel metrics used by building data tables.
+#ifndef CELL_PIXEL_W
+#define CELL_PIXEL_W 24
+#endif
+#ifndef CELL_PIXEL_H
+#define CELL_PIXEL_H 24
+#endif
+#ifndef ICON_PIXEL_W
+#define ICON_PIXEL_W 24
+#endif
+#ifndef ICON_PIXEL_H
+#define ICON_PIXEL_H 24
+#endif
+
+#ifndef TICKS_PER_SECOND
+#define TICKS_PER_SECOND 15
+#endif
+
+static const int OBELISK_ANIMATION_RATE = 3;
 
 inline CELL Coord_Cell(COORDINATE coord) { return static_cast<CELL>(coord); }
 inline int Coord_X(COORDINATE coord) { return static_cast<short>(coord & 0xFFFF); }
@@ -643,6 +752,8 @@ DirType Direction(COORDINATE coord1, COORDINATE coord2);
 int Distance(COORDINATE coord1, COORDINATE coord2);
 COORDINATE As_Coord(TARGET target);
 BuildingClass* As_Building(TARGET target);
+
+inline COORDINATE Cell_Coord(CELL cell) { return static_cast<COORDINATE>(cell); }
 
 class AbstractClass {
 public:
@@ -711,9 +822,17 @@ public:
 
 class HouseClass {
 public:
+    struct TypeRef : public HouseTypeClass {
+        explicit TypeRef(HousesType house = HOUSE_NONE) : HouseTypeClass(house) {}
+
+        HouseTypeClass* operator->() { return this; }
+        HouseTypeClass const* operator->() const { return this; }
+    };
+
     explicit HouseClass(HousesType house = HOUSE_NONE) : Class(house) {}
 
     bool Can_Build(AircraftType, int) const { return true; }
+    bool Can_Build(StructType, int) const { return true; }
     const unsigned char* Remap_Table(bool = false, bool = false) const { return NULL; }
 
     static HouseClass* As_Pointer(HousesType house) {
@@ -730,31 +849,18 @@ public:
         return &houses[index];
     }
 
-    HouseTypeClass Class;
+    TypeRef Class;
 };
 
-class BuildingTypeClass {
-public:
-    BuildingTypeClass() : IniName(), Type(STRUCT_NONE), ToBuild(RTTI_NONE) {}
-    int Width() const { return 0; }
-    int Height() const { return 0; }
-    char IniName[9];
-    StructType Type;
-    RTTIType ToBuild;
-
-    static StructType From_Name(char const* name);
-    static BuildingTypeClass const& As_Reference(StructType type);
-};
+class BuildingTypeClass;
 
 class BuildingClass : public ObjectClass {
 public:
-    BuildingClass()
-        : IsInLimbo(false),
-          House(NULL),
-          Mission(MISSION_NONE),
-          ActLike(0),
-          Class(NULL),
-          IsLeader(false) {}
+    BuildingClass();
+    BuildingClass(StructType type, HousesType owner);
+
+    bool Unlimbo(COORDINATE, DirType) { return true; }
+    bool In_Radio_Contact() const { return false; }
 
     bool IsInLimbo;
     HouseClass* House;
@@ -810,6 +916,7 @@ public:
     }
 
     ObjectClass* Cell_Building() { return Building; }
+    bool Is_Generally_Clear() const { return true; }
 
     ObjectClass* Overlapper[3];
     ObjectClass* Building;
@@ -819,6 +926,7 @@ class MapClass {
 public:
     MapClass() : Dummy() {}
     MapCellClass& operator[](CELL) { return Dummy; }
+    bool In_Radar(CELL) const { return true; }
 
 private:
     MapCellClass Dummy;
@@ -1022,6 +1130,7 @@ public:
           Primary(primary),
           Secondary(secondary),
           Cost(cost),
+          IsNominal(is_nominal),
           IsTransporter(is_transporter),
           IsTwoShooter(is_twoshooter),
           IsBuildable(is_buildable),
@@ -1053,6 +1162,9 @@ public:
     virtual ~TechnoTypeClass() {}
 
     virtual int Max_Passengers() const { return 0; }
+    virtual int Full_Name(void) const { return AbstractTypeClass::Full_Name(); }
+    virtual int Raw_Cost(void) const { return Cost; }
+    virtual int Cost_Of(void) const { return Cost; }
 
     void const* CameoData;
     void const* ImageData;
@@ -1060,6 +1172,7 @@ public:
     WeaponType Primary;
     WeaponType Secondary;
     int Cost;
+    bool IsNominal;
     bool IsTransporter;
     bool IsTwoShooter;
     bool IsBuildable;
@@ -1077,6 +1190,50 @@ public:
 };
 
 class AircraftClass;
+template <typename T>
+inline T Bound(T value, T low, T high) {
+    if (value < low) return low;
+    if (value > high) return high;
+    return value;
+}
+
+inline int Bound(unsigned value, int low, int high) {
+    return Bound(static_cast<int>(value), low, high);
+}
+
+#ifndef MAX
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#endif
+
+static const int REPAIR_PERCENT = 102;
+static const int REPAIR_STEP = 2;
+
+struct SpecialClass {
+    bool IsRoad;
+    bool IsNamed;
+    bool IsSeparate;
+    SpecialClass() : IsRoad(false), IsNamed(false), IsSeparate(false) {}
+};
+
+extern SpecialClass Special;
+extern int Scenario;
+extern bool Debug_Map;
+
+int Get_Build_Frame_Count(void const*);
+
+class UnitTypeClass {
+public:
+    explicit UnitTypeClass(int cost = 0) : Cost(cost) {}
+    int Cost;
+    static UnitTypeClass const& As_Reference(int) {
+        static UnitTypeClass dummy(0);
+        return dummy;
+    }
+};
+
+static const int UNIT_HARVESTER = 0;
+
+#include "buildingtype.h"
 
 class AircraftTypeClass : public TechnoTypeClass {
 public:

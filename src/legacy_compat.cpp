@@ -80,6 +80,34 @@ void* Load_Alloc_Data(FileClass& file) {
 
 BuildingCollection Buildings;
 MapClass Map;
+SpecialClass Special;
+int Scenario = 0;
+bool Debug_Map = false;
+
+namespace {
+static short const SmudgeEmptyList[] = {REFRESH_EOL};
+}  // namespace
+
+SmudgeTypeClass const& SmudgeTypeClass::As_Reference(SmudgeType) {
+    static SmudgeTypeClass dummy;
+    return dummy;
+}
+
+short const* SmudgeTypeClass::Occupy_List() const { return SmudgeEmptyList; }
+short const* SmudgeTypeClass::Overlap_List() const { return SmudgeEmptyList; }
+
+int Get_Build_Frame_Count(void const*) { return 0; }
+
+BuildingClass::BuildingClass()
+    : IsInLimbo(false), House(NULL), Mission(MISSION_NONE), ActLike(0), Class(NULL), IsLeader(false) {}
+
+BuildingClass::BuildingClass(StructType, HousesType owner)
+    : IsInLimbo(false),
+      House(HouseClass::As_Pointer(owner)),
+      Mission(MISSION_NONE),
+      ActLike(0),
+      Class(NULL),
+      IsLeader(false) {}
 
 namespace {
 struct IniCursor {
@@ -192,31 +220,6 @@ int WWGetPrivateProfileString(char const* section,
 
 bool WWWritePrivateProfileString(char const*, char const*, char const*, char*) { return true; }
 bool WWWritePrivateProfileInt(char const*, char const*, int, char*) { return true; }
-
-StructType BuildingTypeClass::From_Name(char const* name) {
-    if (!name) return STRUCT_NONE;
-    // Placeholder: real mapping will come from the building type database.
-    (void)name;
-    return STRUCT_NONE;
-}
-
-BuildingTypeClass const& BuildingTypeClass::As_Reference(StructType type) {
-    static BuildingTypeClass refs[STRUCT_COUNT + 1];
-    static bool initialized = false;
-    static BuildingTypeClass none;
-
-    if (!initialized) {
-        for (int i = 0; i < STRUCT_COUNT + 1; ++i) {
-            refs[i] = BuildingTypeClass();
-            refs[i].IniName[0] = '\0';
-            refs[i].Type = static_cast<StructType>(i);
-        }
-        initialized = true;
-    }
-
-    if (type < STRUCT_FIRST || type >= STRUCT_COUNT) return none;
-    return refs[static_cast<int>(type)];
-}
 
 TheaterDataType Theaters[THEATER_COUNT] = {
     {"DESERT", "DESERT", "DES"},
