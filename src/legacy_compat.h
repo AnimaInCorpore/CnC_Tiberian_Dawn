@@ -736,6 +736,12 @@ inline TemplateType operator++(TemplateType& value, int) {
     return value;
 }
 
+typedef enum OverlayType {
+    OVERLAY_NONE = -1,
+    OVERLAY_GENERIC = 0,
+    OVERLAY_COUNT
+} OverlayType;
+
 enum AnimType {
     ANIM_NONE = -1,
     ANIM_FBALL1 = 0,

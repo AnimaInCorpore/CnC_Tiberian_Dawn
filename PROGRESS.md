@@ -17,7 +17,7 @@ Source inventory:
 - [x] ccfile.cpp
 - [x] cdata.cpp
 - [x] cdfile.cpp
-- [ ] cell.cpp
+- [x] cell.cpp
 - [ ] cheklist.cpp
 - [ ] colrlist.cpp
 - [ ] combat.cpp
