@@ -21,5 +21,6 @@
 - Maintain `PROGRESS.md` as a checkbox list of source files being ported; mark entries `[x]` once they build and run correctly via the CMake + SDL 1.2 path.
 - Ported sources should be added to `src/` using the same lowercase filenames as in the legacy makefile (e.g., `conquer.cpp`), and the CMake build currently produces a `cnc_td` executable.
 - Follow `PORTING_RULES.md` for all porting work; keep it updated as new conventions or findings arise.
+- After each port, consolidate `PORTING_RULES.md` by merging or deduplicating overlapping rules where possible.
 - Treat adding new findings to `PORTING_RULES.md` as mandatory whenever you discover generally important portability conventions (e.g., Watcom quirks to g++ fixes, reusable shims).
 - Port each source by compiling under the target C++ standard, fix incompatibilities with minimal localized changes, and record recurring patterns or shims in `PORTING_RULES.md`.
