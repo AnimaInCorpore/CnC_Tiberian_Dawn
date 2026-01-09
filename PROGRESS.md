@@ -30,7 +30,7 @@ Source inventory:
 - [x] coord.cpp
 - [x] coorda.asm
 - [x] credits.cpp
-- [ ] crew.cpp
+- [x] crew.cpp
 - [ ] debug.cpp
 - [ ] deldlg.cpp
 - [ ] descdlg.cpp

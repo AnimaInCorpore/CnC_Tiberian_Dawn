@@ -30,5 +30,4 @@
 - Shift safety: when ported code shifts by a value read from legacy byte tables (e.g., warhead `SpreadFactor`), clamp the shift to a sane range to avoid undefined behavior on modern compilers.
 - Debug logging: stub `CCDebugString` lives in `src/legacy_compat.cpp` and prints to stderr until the original Win32 debug plumbing is ported.
 - When legacy code mutates cached asset pointers on a `const` type reference (e.g., `bullet.ImageData`), prefer `const_cast<void const*&>(...)` over C-style casts to keep intent clear.
-- Tracking: update `PROGRESS.md` when a file builds and runs correctly through the SDL/CMake path.
-- Keep this document updated with new porting conventions or findings as they emerge.
+- Tracking: update `PROGRESS.md` when a file builds and runs correctly through the SDL/CMake path, and keep this document updated with new porting conventions or findings as they emerge.
