@@ -30,7 +30,13 @@ public:
 
     virtual ~GadgetClass() {}
 
-    void Add_Tail(GadgetClass& gadget) { Tail = &gadget; }
+    void Add_Tail(GadgetClass& gadget) {
+        GadgetClass* current = this;
+        while (current->Tail) {
+            current = current->Tail;
+        }
+        current->Tail = &gadget;
+    }
 
     virtual KeyNumType Input(void) { return KN_NONE; }
 
@@ -52,17 +58,17 @@ public:
         return 0;
     }
 
+    int X;
+    int Y;
+    int Width;
+    int Height;
+
 protected:
     virtual int Action(unsigned flags, KeyNumType& key) {
         (void)flags;
         (void)key;
         return 0;
     }
-
-    int X;
-    int Y;
-    int Width;
-    int Height;
     GadgetClass* Tail;
 
     unsigned IsSticky : 1;
@@ -101,4 +107,34 @@ private:
     TextPrintType TextFlags;
     bool IsOn;
     bool NeedsRedraw;
+};
+
+class EditClass : public GadgetClass {
+public:
+    EditClass(int id, char* buffer, int max_length, TextPrintType flags, int x, int y, int w)
+        : GadgetClass(x, y, w, FontHeight + FontYSpacing + 2, 0u, false),
+          Id(id),
+          Buffer(buffer),
+          MaxLength(max_length),
+          TextFlags(flags),
+          HasFocus(false) {}
+
+    void Set_Focus() { HasFocus = true; }
+
+    KeyNumType Input(void) { return KN_NONE; }
+
+    void Draw_All(bool forced = true) {
+        (void)forced;
+        (void)Id;
+        (void)Buffer;
+        (void)MaxLength;
+        (void)TextFlags;
+    }
+
+private:
+    int Id;
+    char* Buffer;
+    int MaxLength;
+    TextPrintType TextFlags;
+    bool HasFocus;
 };

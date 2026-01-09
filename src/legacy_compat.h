@@ -6,6 +6,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cctype>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -356,6 +357,19 @@ inline void Set_Logic_Page(GraphicPageClass& page) { LogicPage = &page; }
 
 void Hide_Mouse();
 void Show_Mouse();
+
+enum WindowIds {
+    WINDOW_EDITOR = 1
+};
+
+enum WindowBoxStyle {
+    BOXSTYLE_GREEN_BORDER = 1
+};
+
+inline void Set_Window(WindowNumberType, int, int, int, int) {}
+inline void Window_Hide_Mouse(WindowNumberType) { Hide_Mouse(); }
+inline void Window_Show_Mouse() { Show_Mouse(); }
+inline void Window_Box(WindowNumberType, int) {}
 
 void Dialog_Box(int x, int y, int w, int h);
 void Draw_Caption(int text, int x, int y, int w);
@@ -1251,6 +1265,9 @@ enum TextId {
     TXT_TEMPLE,
     TXT_EYE,
     TXT_MISSION,
+    TXT_MISSION_DESCRIPTION,
+    TXT_OK,
+    TXT_CANCEL,
     TXT_PUMP,
     TXT_ROAD,
     TXT_CLEAR,
@@ -2037,6 +2054,24 @@ private:
 
 // Compatibility helpers.
 inline int stricmp(const char* a, const char* b) { return ::strcasecmp(a, b); }
+
+inline void strtrim(char* text) {
+    if (!text) return;
+
+    size_t length = std::strlen(text);
+    while (length > 0 && std::isspace(static_cast<unsigned char>(text[length - 1]))) {
+        --length;
+    }
+    text[length] = '\0';
+
+    size_t start = 0;
+    while (text[start] && std::isspace(static_cast<unsigned char>(text[start]))) {
+        ++start;
+    }
+    if (start > 0) {
+        std::memmove(text, text + start, std::strlen(text + start) + 1);
+    }
+}
 
 inline void _makepath(char* path, const char*, const char* dir, const char* fname, const char* ext) {
     if (!path) return;

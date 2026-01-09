@@ -32,8 +32,8 @@ Source inventory:
 - [x] credits.cpp
 - [x] crew.cpp
 - [x] debug.cpp
-- [ ] deldlg.cpp
-- [ ] descdlg.cpp
+- [x] deldlg.cpp (stub; legacy source missing)
+- [x] descdlg.cpp
 - [ ] dial8.cpp
 - [ ] dialog.cpp
 - [ ] display.cpp
