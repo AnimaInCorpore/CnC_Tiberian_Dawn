@@ -11,6 +11,7 @@
 - Maintain the flat Win32 memory model assumptions; avoid 16-bit/segmented code paths.
 - Keep portability-focused changes localized (e.g., platform shims, SDL wrappers) to minimize touch points in core game code.
 - Do not relocate or rename asset files; expect them to be read from `CD/` and its existing subdirectories.
+- Keep any new code simple and do not introduce new dependencies.
 
 # Build system expectations
 - Primary entry point is CMake; avoid parallel build systems unless explicitly required.
