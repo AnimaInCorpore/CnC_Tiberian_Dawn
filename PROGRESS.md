@@ -2,8 +2,8 @@
 Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat model). Use `[x]` when a file is fully ported and tested under the compatibility shims.
 
 Source inventory:
-- [ ] aadata.cpp
-- [ ] abstract.cpp
+- [x] aadata.cpp
+- [x] abstract.cpp
 - [ ] adata.cpp
 - [ ] aircraft.cpp
 - [ ] anim.cpp

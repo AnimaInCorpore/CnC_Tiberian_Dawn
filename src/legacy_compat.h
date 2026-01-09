@@ -15,7 +15,6 @@
 typedef int CELL;
 typedef int COORDINATE;
 typedef int DirType;
-typedef int FacingType;
 typedef int WindowNumberType;
 typedef int TARGET;
 
@@ -42,6 +41,7 @@ enum RTTIType {
     RTTI_AIRCRAFTTYPE,
     RTTI_BUILDING,
     RTTI_BUILDINGTYPE,
+    RTTI_ABSTRACTTYPE,
 };
 
 enum MissionType {
@@ -98,6 +98,30 @@ enum HousesType {
 #define HOUSEF_MULTI4 (1 << HOUSE_MULTI4)
 #define HOUSEF_MULTI5 (1 << HOUSE_MULTI5)
 #define HOUSEF_MULTI6 (1 << HOUSE_MULTI6)
+
+enum MoveType {
+    MOVE_OK,
+    MOVE_CLOAK,
+    MOVE_MOVING_BLOCK,
+    MOVE_DESTROYABLE,
+    MOVE_TEMP,
+    MOVE_NO,
+    MOVE_COUNT
+};
+
+enum FacingType {
+    FACING_NONE = -1,
+    FACING_N,
+    FACING_NE,
+    FACING_E,
+    FACING_SE,
+    FACING_S,
+    FACING_SW,
+    FACING_W,
+    FACING_NW,
+    FACING_COUNT,
+    FACING_FIRST = 0
+};
 
 enum ArmorType {
     ARMOR_NONE,
@@ -202,7 +226,64 @@ enum StructureFlag {
     STRUCTF_HELIPAD = 1 << 0
 };
 
-class ObjectClass {
+class BuildingClass;
+
+inline CELL Coord_Cell(COORDINATE coord) { return static_cast<CELL>(coord); }
+inline int Coord_X(COORDINATE coord) { return static_cast<short>(coord & 0xFFFF); }
+inline int Coord_Y(COORDINATE coord) { return static_cast<short>((coord >> 16) & 0xFFFF); }
+inline CELL Coord_XCell(COORDINATE coord) { return static_cast<CELL>((coord >> 8) & 0xFF); }
+inline CELL Coord_YCell(COORDINATE coord) { return static_cast<CELL>((coord >> 24) & 0xFF); }
+
+DirType Direction(COORDINATE coord1, COORDINATE coord2);
+int Distance(COORDINATE coord1, COORDINATE coord2);
+COORDINATE As_Coord(TARGET target);
+BuildingClass* As_Building(TARGET target);
+
+class AbstractClass {
+public:
+    AbstractClass() : Coord(0), IsActive(0) {}
+    virtual ~AbstractClass() {}
+
+    virtual HousesType Owner(void) const { return HOUSE_NONE; }
+
+    virtual COORDINATE Center_Coord(void) const { return Coord; }
+    virtual COORDINATE Target_Coord(void) const { return Coord; }
+
+    DirType Direction(AbstractClass const* object) const {
+        return ::Direction(Center_Coord(), object ? object->Target_Coord() : Center_Coord());
+    }
+    DirType Direction(TARGET target) const { return ::Direction(Center_Coord(), ::As_Coord(target)); }
+    int Distance(TARGET target) const;
+    int Distance(AbstractClass const* object) const {
+        return ::Distance(Center_Coord(), object ? object->Target_Coord() : Center_Coord());
+    }
+
+    virtual MoveType Can_Enter_Cell(CELL, FacingType = FACING_NONE) const { return MOVE_OK; }
+
+    COORDINATE Coord;
+    unsigned IsActive : 1;
+};
+
+class AbstractTypeClass {
+public:
+    AbstractTypeClass() : IniName(), Name(0) {}
+    AbstractTypeClass(int name, char const* ini);
+    virtual ~AbstractTypeClass() {}
+
+    virtual RTTIType What_Am_I(void) const;
+    virtual COORDINATE Coord_Fixup(COORDINATE coord) const;
+    virtual int Full_Name(void) const;
+    void Set_Name(char const* buf) const {
+        std::strncpy((char*)IniName, buf, sizeof(IniName));
+        ((char&)IniName[sizeof(IniName) - 1]) = '\0';
+    }
+    virtual unsigned short Get_Ownable(void) const;
+
+    char IniName[9];
+    int Name;
+};
+
+class ObjectClass : public AbstractClass {
 public:
     virtual ~ObjectClass() {}
 };
@@ -240,6 +321,8 @@ public:
 class BuildingTypeClass {
 public:
     BuildingTypeClass() : ToBuild(RTTI_NONE) {}
+    int Width() const { return 0; }
+    int Height() const { return 0; }
     RTTIType ToBuild;
 };
 
@@ -267,7 +350,7 @@ public:
     BuildingClass* Ptr(int) const { return NULL; }
 };
 
-class TechnoTypeClass {
+class TechnoTypeClass : public AbstractTypeClass {
 public:
     TechnoTypeClass(int name,
                     const char* ininame,
@@ -302,7 +385,7 @@ public:
                     WeaponType primary,
                     WeaponType secondary,
                     ArmorType armor)
-        : IniName(ininame),
+        : AbstractTypeClass(name, ininame),
           CameoData(NULL),
           ImageData(NULL),
           MaxStrength(strength),
@@ -323,7 +406,6 @@ public:
           SightRange(sightrange),
           Reward(reward),
           Scenario(scenario) {
-        (void)name;
         (void)is_scanner;
         (void)is_nominal;
         (void)is_flammable;
@@ -335,13 +417,13 @@ public:
         (void)is_immune;
         (void)is_turret_equipped;
         (void)is_leader;
+        (void)armor;
     }
 
     virtual ~TechnoTypeClass() {}
 
     virtual int Max_Passengers() const { return 0; }
 
-    const char* IniName;
     void const* CameoData;
     void const* ImageData;
     unsigned short MaxStrength;
