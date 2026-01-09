@@ -884,13 +884,6 @@ private:
     static AircraftTypeClass const* const Pointers[AIRCRAFT_COUNT];
 };
 
-class AircraftClass : public ObjectClass {
-public:
-    AircraftClass(AircraftType classid, HousesType house) : Type(classid), House(house) {}
-    AircraftType Type;
-    HousesType House;
-};
-
 // Compatibility helpers.
 inline int stricmp(const char* a, const char* b) { return ::strcasecmp(a, b); }
 

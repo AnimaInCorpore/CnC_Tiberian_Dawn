@@ -1,4 +1,5 @@
 #include "legacy_compat.h"
+#include "aircraft.h"
 
 #include <cstdio>
 
