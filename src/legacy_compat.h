@@ -269,14 +269,17 @@ private:
 // Minimal UI/text rendering shims (no-op until display port lands).
 enum TextPrintFlagsEnum {
     TPF_6PT_GRAD = 1u << 0,
-    TPF_BRIGHT_COLOR = 1u << 1
+    TPF_BRIGHT_COLOR = 1u << 1,
+    TPF_NOSHADOW = 1u << 2,
+    TPF_USE_GRAD_PAL = 1u << 3
 };
 
 enum TextColorEnum {
     BLACK = 0,
     LTGREY = 7,
     WHITE = 15,
-    TBLACK = 0
+    TBLACK = 0,
+    CC_GREEN = 2
 };
 
 class GraphicPageClass {
@@ -285,7 +288,47 @@ public:
     void Fill_Rect(int, int, int, int, int) {}
 };
 
+class GraphicBufferClass : public GraphicPageClass {
+public:
+    GraphicBufferClass() : Width(320), Height(200) {}
+    GraphicBufferClass(int width, int height) : Width(width), Height(height) {}
+
+    int Get_Width() const { return Width; }
+    int Get_Height() const { return Height; }
+
+private:
+    int Width;
+    int Height;
+};
+
 extern GraphicPageClass* LogicPage;
+extern GraphicBufferClass SeenBuff;
+
+inline void Set_Logic_Page(GraphicPageClass& page) { LogicPage = &page; }
+
+void Hide_Mouse();
+void Show_Mouse();
+
+void Dialog_Box(int x, int y, int w, int h);
+void Draw_Caption(int text, int x, int y, int w);
+
+int String_Pixel_Width(char const* text);
+extern int FontHeight;
+extern int FontYSpacing;
+
+void Format_Window_String(char* text, int max_width, int& out_width, int& out_height);
+
+char const* Text_String(int text_id);
+
+void Fancy_Text_Print(char const* text,
+                      int x,
+                      int y,
+                      int fore,
+                      int back,
+                      TextPrintType flags);
+inline void Fancy_Text_Print(int text_id, int x, int y, int fore, int back, TextPrintType flags) {
+    Fancy_Text_Print(Text_String(text_id), x, y, fore, back, flags);
+}
 
 void Conquer_Clip_Text_Print(char const* text,
                              int x,
@@ -295,6 +338,38 @@ void Conquer_Clip_Text_Print(char const* text,
                              TextPrintType flags,
                              int width,
                              int const* tabs);
+
+typedef int KeyNumType;
+enum KeyNumConstants {
+    KN_NONE = 0,
+    KN_ESC = 27,
+    KN_RETURN = 13,
+    KN_LEFT = 1000,
+    KN_RIGHT = 1001,
+    KN_BUTTON = 1u << 15
+};
+
+enum GameType {
+    GAME_NORMAL = 0,
+    GAME_OTHER = 1
+};
+
+extern GameType GameToPlay;
+void Call_Back();
+bool Main_Loop();
+
+struct SurfaceManager {
+    bool SurfacesRestored;
+};
+
+extern SurfaceManager AllSurfaces;
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
 
 #define HOUSEF_GOOD (1 << HOUSE_GOOD)
 #define HOUSEF_BAD (1 << HOUSE_BAD)
@@ -1150,7 +1225,11 @@ enum TextId {
     TXT_WOOD_WALL,
 
     TXT_PRISON,
-    TXT_CIVILIAN_BUILDING
+    TXT_CIVILIAN_BUILDING,
+
+    TXT_CONFIRMATION,
+    TXT_YES,
+    TXT_NO
 };
 
 // Placeholder structure for INI prerequisites.

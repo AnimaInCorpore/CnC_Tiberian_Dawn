@@ -22,7 +22,7 @@ Source inventory:
 - [x] colrlist.cpp
 - [x] combat.cpp
 - [x] combuf.cpp
-- [ ] confdlg.cpp
+- [x] confdlg.cpp
 - [ ] connect.cpp
 - [ ] conquer.cpp
 - [ ] const.cpp

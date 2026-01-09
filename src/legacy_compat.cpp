@@ -9,8 +9,65 @@
 void const* ObjectTypeClass::SelectShapes = NULL;
 void const* ObjectTypeClass::PipShapes = NULL;
 GraphicPageClass* LogicPage = NULL;
+GraphicBufferClass SeenBuff;
+
+SurfaceManager AllSurfaces = {false};
+GameType GameToPlay = GAME_NORMAL;
+
+int FontHeight = 8;
+int FontYSpacing = 1;
 
 VoxType SpeakQueue = VOX_NONE;
+
+void Hide_Mouse() {}
+void Show_Mouse() {}
+
+void Dialog_Box(int, int, int, int) {}
+void Draw_Caption(int, int, int, int) {}
+
+int String_Pixel_Width(char const* text) {
+    if (!text) return 0;
+    return static_cast<int>(std::strlen(text)) * 6;
+}
+
+void Format_Window_String(char* text, int max_width, int& out_width, int& out_height) {
+    if (!text) {
+        out_width = 0;
+        out_height = 0;
+        return;
+    }
+
+    int pixel_width = String_Pixel_Width(text);
+    if (max_width <= 0) max_width = pixel_width;
+    if (pixel_width <= max_width) {
+        out_width = pixel_width;
+        out_height = FontHeight + FontYSpacing;
+        return;
+    }
+
+    int lines = (pixel_width + max_width - 1) / max_width;
+    out_width = max_width;
+    out_height = lines * (FontHeight + FontYSpacing);
+}
+
+char const* Text_String(int text_id) {
+    switch (text_id) {
+        case TXT_YES:
+            return "Yes";
+        case TXT_NO:
+            return "No";
+        case TXT_CONFIRMATION:
+            return "Confirmation";
+        case TXT_NONE:
+        default:
+            return "";
+    }
+}
+
+void Fancy_Text_Print(char const*, int, int, int, int, TextPrintType) {}
+
+void Call_Back() {}
+bool Main_Loop() { return false; }
 
 namespace {
 std::FILE* Try_Open_File_Mode(const std::string& name, const char* mode) {
