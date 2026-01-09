@@ -13,6 +13,27 @@
 #include <string>
 #include <vector>
 
+// Legacy typedefs/macros used by older sources.
+#ifndef __cdecl
+#define __cdecl
+#endif
+
+typedef void VOID;
+typedef unsigned long ULONG;
+typedef long LONG;
+
+#ifndef WW_ERROR
+#define WW_ERROR (-1)
+#endif
+
+#ifndef READ
+#define READ 1
+#endif
+
+#ifndef WRITE
+#define WRITE 2
+#endif
+
 // Basic legacy-sized types used throughout the original codebase.
 typedef int CELL;
 typedef int COORDINATE;
@@ -992,6 +1013,55 @@ protected:
 class RawFileClass : public FileClass {
 public:
     explicit RawFileClass(const char* filename) : FileClass(filename) {}
+    RawFileClass() : FileClass(NULL) {}
+
+    virtual char const* Set_Name(char const* filename) {
+        Filename = filename ? filename : "";
+        Close();
+        return Filename.empty() ? NULL : Filename.c_str();
+    }
+
+    char const* File_Name() const { return Filename.empty() ? NULL : Filename.c_str(); }
+
+    virtual int Open(int rights = READ) {
+        if (rights & WRITE) {
+            Close();
+            if (Filename.empty()) return false;
+            Handle = std::fopen(Filename.c_str(), "wb");
+            return Handle != NULL;
+        }
+        return FileClass::Is_Available() ? true : false;
+    }
+
+    virtual int Open(char const* filename, int rights = READ) {
+        Set_Name(filename);
+        return Open(rights);
+    }
+
+    virtual int Is_Open() const { return Handle != NULL; }
+
+    virtual int Is_Available(int forced = false) {
+        (void)forced;
+        return FileClass::Is_Available() ? true : false;
+    }
+
+    virtual long Seek(long pos, int dir = SEEK_CUR) {
+        if (!Is_Open() && !Open(READ)) return 0;
+        if (!Handle) return 0;
+        if (std::fseek(Handle, pos, dir) != 0) return 0;
+        return std::ftell(Handle);
+    }
+};
+
+class CDFileClass : public RawFileClass {
+public:
+    explicit CDFileClass(char const* filename) : RawFileClass(filename), IsDisabled(false) {}
+    CDFileClass() : RawFileClass(), IsDisabled(false) {}
+
+    void Searching(int on) { IsDisabled = !on; }
+
+private:
+    bool IsDisabled;
 };
 
 int WWGetPrivateProfileInt(char const* section, char const* key, int default_value, char const* buffer);
@@ -1430,6 +1500,11 @@ void* Load_Alloc_Data(FileClass& file);
 
 namespace MixFileClass {
 void const* Retrieve(const char* filename);
+bool Offset(char const* filename,
+            void** realptr = 0,
+            char const** mix_filename = 0,
+            long* offset = 0,
+            long* size = 0);
 }
 
 extern BuildingCollection Buildings;

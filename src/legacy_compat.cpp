@@ -242,4 +242,13 @@ void const* Retrieve(const char* filename) {
     (void)filename;
     return NULL;
 }
+
+bool Offset(char const* filename, void** realptr, char const** mix_filename, long* offset, long* size) {
+    (void)filename;
+    if (realptr) *realptr = NULL;
+    if (mix_filename) *mix_filename = NULL;
+    if (offset) *offset = 0;
+    if (size) *size = 0;
+    return false;
+}
 }  // namespace MixFileClass

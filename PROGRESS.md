@@ -14,7 +14,7 @@ Source inventory:
 - [x] building.cpp
 - [x] bullet.cpp
 - [x] cargo.cpp
-- [ ] ccfile.cpp
+- [x] ccfile.cpp
 - [ ] cdata.cpp
 - [ ] cdfile.cpp
 - [ ] cell.cpp
