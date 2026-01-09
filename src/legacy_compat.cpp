@@ -96,19 +96,6 @@ SmudgeTypeClass const& SmudgeTypeClass::As_Reference(SmudgeType) {
 short const* SmudgeTypeClass::Occupy_List() const { return SmudgeEmptyList; }
 short const* SmudgeTypeClass::Overlap_List() const { return SmudgeEmptyList; }
 
-int Get_Build_Frame_Count(void const*) { return 0; }
-
-BuildingClass::BuildingClass()
-    : IsInLimbo(false), House(NULL), Mission(MISSION_NONE), ActLike(0), Class(NULL), IsLeader(false) {}
-
-BuildingClass::BuildingClass(StructType, HousesType owner)
-    : IsInLimbo(false),
-      House(HouseClass::As_Pointer(owner)),
-      Mission(MISSION_NONE),
-      ActLike(0),
-      Class(NULL),
-      IsLeader(false) {}
-
 namespace {
 struct IniCursor {
     char const* Ptr;
