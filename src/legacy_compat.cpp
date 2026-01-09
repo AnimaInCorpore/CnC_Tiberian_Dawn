@@ -6,6 +6,7 @@
 
 void const* ObjectTypeClass::SelectShapes = NULL;
 void const* ObjectTypeClass::PipShapes = NULL;
+GraphicPageClass* LogicPage = NULL;
 
 VoxType SpeakQueue = VOX_NONE;
 
@@ -252,3 +253,21 @@ bool Offset(char const* filename, void** realptr, char const** mix_filename, lon
     return false;
 }
 }  // namespace MixFileClass
+
+void Conquer_Clip_Text_Print(char const* text,
+                             int x,
+                             int y,
+                             int fore,
+                             int back,
+                             TextPrintType flags,
+                             int width,
+                             int const* tabs) {
+    (void)text;
+    (void)x;
+    (void)y;
+    (void)fore;
+    (void)back;
+    (void)flags;
+    (void)width;
+    (void)tabs;
+}

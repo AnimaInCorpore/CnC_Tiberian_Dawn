@@ -4,7 +4,6 @@
 
 #include <cstdlib>
 
-typedef unsigned int TextPrintType;
 typedef int KeyNumType;
 
 enum {
@@ -20,6 +19,8 @@ public:
           Width(w),
           Height(h),
           TextFlags(flags),
+          Tabs(NULL),
+          LineHeight(10),
           UpShape(up),
           DownShape(down),
           SelectedIndex(0) {}
@@ -45,6 +46,21 @@ public:
         return List.Count() - 1;
     }
 
+    int Add_Item(int text) {
+        char buffer[32];
+        std::snprintf(buffer, sizeof(buffer), "%d", text);
+        buffer[sizeof(buffer) - 1] = '\0';
+        return Add_Item(buffer);
+    }
+
+    virtual void Remove_Item(char const* text) {
+        int index = ID(text);
+        if (index < 0) return;
+        std::free(List[index]);
+        List.Delete(index);
+        if (SelectedIndex >= List.Count()) SelectedIndex = 0;
+    }
+
     void Clear() {
         for (int i = 0; i < List.Count(); ++i) {
             std::free(List[i]);
@@ -54,11 +70,22 @@ public:
     }
 
 protected:
+    int ID(char const* text) const {
+        if (!text) return -1;
+        for (int i = 0; i < List.Count(); ++i) {
+            if (List[i] && std::strcmp(List[i], text) == 0) return i;
+        }
+        return -1;
+    }
+
     virtual int Action(unsigned, KeyNumType&) { return 0; }
 
 protected:
     DynamicVectorClass<char*> List;
     int SelectedIndex;
+    TextPrintType TextFlags;
+    int const* Tabs;
+    int LineHeight;
 
 private:
     static char* Duplicate_(char const* text) {
@@ -75,8 +102,6 @@ private:
     int Y;
     int Width;
     int Height;
-    TextPrintType TextFlags;
     void const* UpShape;
     void const* DownShape;
 };
-

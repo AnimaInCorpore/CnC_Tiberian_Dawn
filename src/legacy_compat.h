@@ -21,6 +21,7 @@
 typedef void VOID;
 typedef unsigned long ULONG;
 typedef long LONG;
+typedef unsigned int TextPrintType;
 
 #ifndef WW_ERROR
 #define WW_ERROR (-1)
@@ -239,6 +240,10 @@ public:
     int Count() const { return static_cast<int>(Data.size()); }
     void Clear() { Data.clear(); }
     void Add(T const& value) { Data.push_back(value); }
+    void Delete(int index) {
+        if (index < 0 || index >= Count()) return;
+        Data.erase(Data.begin() + static_cast<typename std::vector<T>::difference_type>(index));
+    }
 
     T& operator[](int index) { return Data[static_cast<size_t>(index)]; }
     T const& operator[](int index) const { return Data[static_cast<size_t>(index)]; }
@@ -246,6 +251,36 @@ public:
 private:
     std::vector<T> Data;
 };
+
+// Minimal UI/text rendering shims (no-op until display port lands).
+enum TextPrintFlagsEnum {
+    TPF_6PT_GRAD = 1u << 0,
+    TPF_BRIGHT_COLOR = 1u << 1
+};
+
+enum TextColorEnum {
+    BLACK = 0,
+    LTGREY = 7,
+    WHITE = 15,
+    TBLACK = 0
+};
+
+class GraphicPageClass {
+public:
+    void Draw_Rect(int, int, int, int, int) {}
+    void Fill_Rect(int, int, int, int, int) {}
+};
+
+extern GraphicPageClass* LogicPage;
+
+void Conquer_Clip_Text_Print(char const* text,
+                             int x,
+                             int y,
+                             int fore,
+                             int back,
+                             TextPrintType flags,
+                             int width,
+                             int const* tabs);
 
 #define HOUSEF_GOOD (1 << HOUSE_GOOD)
 #define HOUSEF_BAD (1 << HOUSE_BAD)
