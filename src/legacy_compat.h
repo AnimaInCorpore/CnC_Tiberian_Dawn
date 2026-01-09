@@ -888,7 +888,18 @@ public:
 
 class ObjectClass : public AbstractClass {
 public:
+    ObjectClass() : Next(NULL) {}
     virtual ~ObjectClass() {}
+
+    ObjectClass* Next;
+};
+
+class FootClass : public ObjectClass {
+public:
+    virtual ~FootClass() {}
+
+    virtual void Limbo() {}
+    virtual TARGET As_Target() const { return 0; }
 };
 
 class HouseTypeClass {
