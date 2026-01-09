@@ -136,6 +136,18 @@ enum HousesType {
     HOUSE_FIRST = HOUSE_GOOD
 };
 
+typedef enum LandType {
+    LAND_CLEAR,     // "Clear" terrain.
+    LAND_ROAD,      // Road terrain.
+    LAND_WATER,     // Water.
+    LAND_ROCK,      // Impassable rock.
+    LAND_WALL,      // Wall (blocks movement).
+    LAND_TIBERIUM,  // Tiberium field.
+    LAND_BEACH,     // Beach terrain.
+
+    LAND_COUNT
+} LandType;
+
 typedef enum StructType {
     STRUCT_NONE = -1,
     STRUCT_WEAP,
@@ -480,6 +492,250 @@ enum TheaterType {
     THEATER_FIRST = 0
 };
 
+#define THEATERF_DESERT (1 << THEATER_DESERT)
+#define THEATERF_JUNGLE (1 << THEATER_JUNGLE)
+#define THEATERF_TEMPERATE (1 << THEATER_TEMPERATE)
+#define THEATERF_WINTER (1 << THEATER_WINTER)
+
+typedef enum TemplateType {
+    TEMPLATE_CLEAR1,
+    TEMPLATE_WATER, // This must be the first non-clear template.
+    TEMPLATE_WATER2,
+    TEMPLATE_SHORE1,
+    TEMPLATE_SHORE2,
+    TEMPLATE_SHORE3,
+    TEMPLATE_SHORE4,
+    TEMPLATE_SHORE5,
+    TEMPLATE_SHORE11,
+    TEMPLATE_SHORE12,
+    TEMPLATE_SHORE13,
+    TEMPLATE_SHORE14,
+    TEMPLATE_SHORE15,
+    TEMPLATE_SLOPE1,
+    TEMPLATE_SLOPE2,
+    TEMPLATE_SLOPE3,
+    TEMPLATE_SLOPE4,
+    TEMPLATE_SLOPE5,
+    TEMPLATE_SLOPE6,
+    TEMPLATE_SLOPE7,
+    TEMPLATE_SLOPE8,
+    TEMPLATE_SLOPE9,
+    TEMPLATE_SLOPE10,
+    TEMPLATE_SLOPE11,
+    TEMPLATE_SLOPE12,
+    TEMPLATE_SLOPE13,
+    TEMPLATE_SLOPE14,
+    TEMPLATE_SLOPE15,
+    TEMPLATE_SLOPE16,
+    TEMPLATE_SLOPE17,
+    TEMPLATE_SLOPE18,
+    TEMPLATE_SLOPE19,
+    TEMPLATE_SLOPE20,
+    TEMPLATE_SLOPE21,
+    TEMPLATE_SLOPE22,
+    TEMPLATE_SLOPE23,
+    TEMPLATE_SLOPE24,
+    TEMPLATE_SLOPE25,
+    TEMPLATE_SLOPE26,
+    TEMPLATE_SLOPE27,
+    TEMPLATE_SLOPE28,
+    TEMPLATE_SLOPE29,
+    TEMPLATE_SLOPE30,
+    TEMPLATE_SLOPE31,
+    TEMPLATE_SLOPE32,
+    TEMPLATE_SLOPE33,
+    TEMPLATE_SLOPE34,
+    TEMPLATE_SLOPE35,
+    TEMPLATE_SLOPE36,
+    TEMPLATE_SLOPE37,
+    TEMPLATE_SLOPE38,
+    TEMPLATE_SHORE32,
+    TEMPLATE_SHORE33,
+    TEMPLATE_SHORE20,
+    TEMPLATE_SHORE21,
+    TEMPLATE_SHORE22,
+    TEMPLATE_SHORE23,
+    TEMPLATE_BRUSH1,
+    TEMPLATE_BRUSH2,
+    TEMPLATE_BRUSH3,
+    TEMPLATE_BRUSH4,
+    TEMPLATE_BRUSH5,
+    TEMPLATE_BRUSH6,
+    TEMPLATE_BRUSH7,
+    TEMPLATE_BRUSH8,
+    TEMPLATE_BRUSH9,
+    TEMPLATE_BRUSH10,
+    TEMPLATE_PATCH1,
+    TEMPLATE_PATCH2,
+    TEMPLATE_PATCH3,
+    TEMPLATE_PATCH4,
+    TEMPLATE_PATCH5,
+    TEMPLATE_PATCH6,
+    TEMPLATE_PATCH7,
+    TEMPLATE_PATCH8,
+    TEMPLATE_SHORE16,
+    TEMPLATE_SHORE17,
+    TEMPLATE_SHORE18,
+    TEMPLATE_SHORE19,
+    TEMPLATE_PATCH13,
+    TEMPLATE_PATCH14,
+    TEMPLATE_PATCH15,
+    TEMPLATE_BOULDER1,
+    TEMPLATE_BOULDER2,
+    TEMPLATE_BOULDER3,
+    TEMPLATE_BOULDER4,
+    TEMPLATE_BOULDER5,
+    TEMPLATE_BOULDER6,
+    TEMPLATE_SHORE6,
+    TEMPLATE_SHORE7,
+    TEMPLATE_SHORE8,
+    TEMPLATE_SHORE9,
+    TEMPLATE_SHORE10,
+
+    TEMPLATE_ROAD1,
+    TEMPLATE_ROAD2,
+    TEMPLATE_ROAD3,
+    TEMPLATE_ROAD4,
+    TEMPLATE_ROAD5,
+    TEMPLATE_ROAD6,
+    TEMPLATE_ROAD7,
+    TEMPLATE_ROAD8,
+    TEMPLATE_ROAD9,
+    TEMPLATE_ROAD10,
+    TEMPLATE_ROAD11,
+    TEMPLATE_ROAD12,
+    TEMPLATE_ROAD13,
+    TEMPLATE_ROAD14,
+    TEMPLATE_ROAD15,
+    TEMPLATE_ROAD16,
+    TEMPLATE_ROAD17,
+    TEMPLATE_ROAD18,
+    TEMPLATE_ROAD19,
+    TEMPLATE_ROAD20,
+    TEMPLATE_ROAD21,
+    TEMPLATE_ROAD22,
+    TEMPLATE_ROAD23,
+    TEMPLATE_ROAD24,
+    TEMPLATE_ROAD25,
+    TEMPLATE_ROAD26,
+    TEMPLATE_ROAD27,
+    TEMPLATE_ROAD28,
+    TEMPLATE_ROAD29,
+    TEMPLATE_ROAD30,
+    TEMPLATE_ROAD31,
+    TEMPLATE_ROAD32,
+    TEMPLATE_ROAD33,
+    TEMPLATE_ROAD34,
+    TEMPLATE_ROAD35,
+    TEMPLATE_ROAD36,
+    TEMPLATE_ROAD37,
+    TEMPLATE_ROAD38,
+    TEMPLATE_ROAD39,
+    TEMPLATE_ROAD40,
+    TEMPLATE_ROAD41,
+    TEMPLATE_ROAD42,
+    TEMPLATE_ROAD43,
+
+    TEMPLATE_RIVER1,
+    TEMPLATE_RIVER2,
+    TEMPLATE_RIVER3,
+    TEMPLATE_RIVER4,
+    TEMPLATE_RIVER5,
+    TEMPLATE_RIVER6,
+    TEMPLATE_RIVER7,
+    TEMPLATE_RIVER8,
+    TEMPLATE_RIVER9,
+    TEMPLATE_RIVER10,
+    TEMPLATE_RIVER11,
+    TEMPLATE_RIVER12,
+    TEMPLATE_RIVER13,
+
+    TEMPLATE_RIVER14,
+    TEMPLATE_RIVER15,
+    TEMPLATE_RIVER16,
+    TEMPLATE_RIVER17,
+    TEMPLATE_RIVER18,
+    TEMPLATE_RIVER19,
+    TEMPLATE_RIVER20,
+    TEMPLATE_RIVER21,
+    TEMPLATE_RIVER22,
+    TEMPLATE_RIVER23,
+    TEMPLATE_RIVER24,
+    TEMPLATE_RIVER25,
+    TEMPLATE_FORD1,
+    TEMPLATE_FORD2,
+    TEMPLATE_FALLS1,
+    TEMPLATE_FALLS2,
+
+    TEMPLATE_BRIDGE1,
+    TEMPLATE_BRIDGE1D,
+    TEMPLATE_BRIDGE2,
+    TEMPLATE_BRIDGE2D,
+    TEMPLATE_BRIDGE3,
+    TEMPLATE_BRIDGE3D,
+    TEMPLATE_BRIDGE4,
+    TEMPLATE_BRIDGE4D,
+
+    TEMPLATE_SHORE24,
+    TEMPLATE_SHORE25,
+    TEMPLATE_SHORE26,
+    TEMPLATE_SHORE27,
+    TEMPLATE_SHORE28,
+    TEMPLATE_SHORE29,
+    TEMPLATE_SHORE30,
+    TEMPLATE_SHORE31,
+
+    TEMPLATE_PATCH16,
+    TEMPLATE_PATCH17,
+    TEMPLATE_PATCH18,
+    TEMPLATE_PATCH19,
+    TEMPLATE_PATCH20,
+
+    TEMPLATE_SHORE34,
+    TEMPLATE_SHORE35,
+    TEMPLATE_SHORE36,
+    TEMPLATE_SHORE37,
+    TEMPLATE_SHORE38,
+    TEMPLATE_SHORE39,
+    TEMPLATE_SHORE40,
+    TEMPLATE_SHORE41,
+    TEMPLATE_SHORE42,
+    TEMPLATE_SHORE43,
+    TEMPLATE_SHORE44,
+    TEMPLATE_SHORE45,
+
+    TEMPLATE_SHORE46,
+    TEMPLATE_SHORE47,
+    TEMPLATE_SHORE48,
+    TEMPLATE_SHORE49,
+    TEMPLATE_SHORE50,
+    TEMPLATE_SHORE51,
+    TEMPLATE_SHORE52,
+    TEMPLATE_SHORE53,
+    TEMPLATE_SHORE54,
+    TEMPLATE_SHORE55,
+    TEMPLATE_SHORE56,
+    TEMPLATE_SHORE57,
+    TEMPLATE_SHORE58,
+    TEMPLATE_SHORE59,
+    TEMPLATE_SHORE60,
+    TEMPLATE_SHORE61,
+
+    TEMPLATE_SHORE62,
+    TEMPLATE_SHORE63,
+
+    TEMPLATE_COUNT,
+    TEMPLATE_NONE = 255,
+    TEMPLATE_FIRST = 0
+} TemplateType;
+
+inline TemplateType operator++(TemplateType& value, int) {
+    int next = static_cast<int>(value) + 1;
+    if (next >= static_cast<int>(TEMPLATE_COUNT)) return value;
+    value = static_cast<TemplateType>(next);
+    return value;
+}
+
 enum AnimType {
     ANIM_NONE = -1,
     ANIM_FBALL1 = 0,
@@ -759,6 +1015,12 @@ enum TextId {
     TXT_MISSION,
     TXT_PUMP,
     TXT_ROAD,
+    TXT_CLEAR,
+    TXT_WATER,
+    TXT_SLOPE,
+    TXT_BRUSH,
+    TXT_PATCH,
+    TXT_RIVER,
 
     TXT_CIV1,
     TXT_CIV2,
@@ -1131,6 +1393,8 @@ public:
 
     virtual ~ObjectTypeClass() {}
 
+    void const* Get_Image_Data(void) const { return ImageData; }
+
     bool IsCrushable;
     bool IsStealthy;
     bool IsSelectable;
@@ -1146,6 +1410,15 @@ public:
 
     static void const* SelectShapes;
     static void const* PipShapes;
+};
+
+class TemplateClass : public ObjectClass {
+public:
+    TemplateClass() : Type(TEMPLATE_NONE), Cell(-1) {}
+    TemplateClass(TemplateType type, CELL cell = -1) : Type(type), Cell(cell) {}
+
+    TemplateType Type;
+    CELL Cell;
 };
 
 class AnimTypeClass : public ObjectTypeClass {
@@ -1493,6 +1766,27 @@ inline void _makepath(char* path, const char*, const char* dir, const char* fnam
     const char* extension = ext ? ext : "";
     std::snprintf(path, _MAX_FNAME + _MAX_EXT, "%s%s%s", directory, filename, extension);
 }
+
+inline void Mem_Copy(void const* source, void* dest, int bytes) {
+    if (!dest || bytes <= 0) return;
+    if (!source) {
+        std::memset(dest, 0, static_cast<size_t>(bytes));
+        return;
+    }
+    std::memcpy(dest, source, static_cast<size_t>(bytes));
+}
+
+inline unsigned char const* Get_Icon_Set_Map(void const*) {
+    static unsigned char empty_map[13 * 8];
+    static bool initialized = false;
+    if (!initialized) {
+        std::memset(empty_map, 0xFF, sizeof(empty_map));
+        initialized = true;
+    }
+    return empty_map;
+}
+
+inline void Register_Icon_Set(void*, bool) {}
 
 int Fixed_To_Cardinal(int value, int percent_fixed);
 int Get_Resolution_Factor(void);
