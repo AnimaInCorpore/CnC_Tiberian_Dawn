@@ -850,6 +850,13 @@ enum TheaterType {
     THEATER_FIRST = 0
 };
 
+enum UnitType {
+    UNIT_HARVESTER = 0,
+    UNIT_COUNT,
+    UNIT_NONE = -1,
+    UNIT_FIRST = 0
+};
+
 #define THEATERF_DESERT (1 << THEATER_DESERT)
 #define THEATERF_JUNGLE (1 << THEATER_JUNGLE)
 #define THEATERF_TEMPERATE (1 << THEATER_TEMPERATE)
@@ -2090,15 +2097,19 @@ int Get_Build_Frame_Count(void const*);
 
 class UnitTypeClass {
 public:
-    explicit UnitTypeClass(int cost = 0) : Cost(cost) {}
+    enum {
+        STEP_COUNT = 5
+    };
+
+    explicit UnitTypeClass(UnitType type = UNIT_NONE, int cost = 0) : Type(type), Cost(cost) {}
+    UnitType Type;
     int Cost;
-    static UnitTypeClass const& As_Reference(int) {
-        static UnitTypeClass dummy(0);
+    static UnitTypeClass const& As_Reference(UnitType type) {
+        static UnitTypeClass dummy(UNIT_HARVESTER, 0);
+        dummy.Type = type;
         return dummy;
     }
 };
-
-static const int UNIT_HARVESTER = 0;
 
 #include "buildingtype.h"
 

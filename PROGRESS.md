@@ -38,7 +38,7 @@ Source inventory:
 - [x] dialog.cpp
 - [x] display.cpp (stub; skeleton header + statics for now)
 - [x] dpmi.cpp
-- [ ] drive.cpp
+- [x] drive.cpp (stub; DriveClass logic pending)
 - [ ] edit.cpp
 - [ ] event.cpp
 - [ ] facing.cpp
