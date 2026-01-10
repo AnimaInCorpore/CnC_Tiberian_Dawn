@@ -56,7 +56,8 @@
 - Mouse/facing: UI widgets (e.g., the facing dial) expect `Get_Mouse_X/Y` and `Desired_Facing8`; keep these stubbed until the input/geometry stack is ported. `Dir_Facing`/`Facing_Dir`/`Facing_To_32` are pure bit/lookup conversions and can be implemented directly (see `src/legacy_compat.h`).
 - UI focus/keyboard: keep `GadgetClass::{Set_Focus,Has_Focus,Clear_Focus}` and `KeyASCIIType`/`Keyboard::To_ASCII`/`WWKEY_*_BIT` flags available for legacy UI input filters (e.g., `edit.cpp`).
 - UI gadget placeholders: until the full gadget/control stack is ported, lightweight placeholders may live in standalone headers like `src/list.h` and `src/gadget.h` (e.g., checklist/config UI); migrate to real `src/<name>.h`/`src/<name>.cpp` implementations as their legacy counterparts are ported.
-- Gadget chaining/layout: legacy UI code mutates `GadgetClass` geometry fields directly (`X`, `Y`, `Width`, `Height`) and calls `Add_Tail` repeatedly on the same head; keep fields accessible and ensure `Add_Tail` appends rather than replacing the chain.
+- Gadget chaining/layout: legacy UI code mutates `GadgetClass` geometry fields directly (`X`, `Y`, `Width`, `Height`) and calls `Add_Tail` repeatedly on the same head; keep fields accessible and keep the portable build’s semantics as `head.Add_Tail(child)` (append-to-tail).
+- Gadget list lifetime: many dialogs build gadget chains from stack objects; avoid `delete`-based list helpers in the portable `GadgetClass` until gadget allocation patterns are clarified (`GadgetClass::Delete_List` currently detaches only).
 
 ## Data/layout correctness and UB avoidance
 

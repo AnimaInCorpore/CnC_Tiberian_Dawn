@@ -23,50 +23,49 @@ public:
           Y(y),
           Width(w),
           Height(h),
-          Tail(NULL),
+          Next(NULL),
+          Prev(NULL),
           IsSticky(sticky ? 1u : 0u),
           IsDisabled(0u),
+          IsToRepaint(1u),
           Flags(flags) {}
 
-    virtual ~GadgetClass() {}
+    GadgetClass()
+        : X(0),
+          Y(0),
+          Width(0),
+          Height(0),
+          Next(NULL),
+          Prev(NULL),
+          IsSticky(0u),
+          IsDisabled(0u),
+          IsToRepaint(1u),
+          Flags(0u) {}
 
-    bool Has_Focus() const { return Focus_Gadget() == this; }
+    virtual ~GadgetClass() { Clear_Focus(); }
 
-    void Set_Focus() { Focus_Gadget() = this; }
+    virtual KeyNumType Input(void);
+    virtual void Draw_All(bool forced = true);
+    virtual void Delete_List(void);
+    virtual ControlClass* Extract_Gadget(unsigned id);
+    virtual void Flag_List_To_Redraw(void) { LastList = 0; }
+    virtual GadgetClass* Remove(void);
+    virtual GadgetClass* Get_Next(void) const { return Next; }
+    virtual GadgetClass* Get_Prev(void) const { return Prev; }
 
-    void Clear_Focus() {
-        if (Has_Focus()) {
-            Focus_Gadget() = NULL;
-        }
-    }
-
-    void Add_Tail(GadgetClass& gadget) {
-        GadgetClass* current = this;
-        while (current->Tail) {
-            current = current->Tail;
-        }
-        current->Tail = &gadget;
-    }
-
-    virtual KeyNumType Input(void) { return KN_NONE; }
-
-    virtual void Draw_All(bool forced = true) {
-        Draw_Me(forced ? 1 : 0);
-        if (Tail) {
-            Tail->Draw_All(forced);
-        }
-    }
-
-    virtual void Flag_To_Redraw(void) {}
-
-    virtual void Peer_To_Peer(unsigned, KeyNumType&, ControlClass&) {}
-
+    virtual void Disable(void);
+    virtual void Enable(void);
     virtual unsigned Get_ID(void) const { return 0; }
+    virtual void Flag_To_Redraw(void);
+    virtual void Peer_To_Peer(unsigned, KeyNumType&, ControlClass&) {}
+    virtual void Set_Focus(void);
+    virtual void Clear_Focus(void);
+    virtual bool Has_Focus(void);
+    virtual int Is_List_To_Redraw(void);
 
-    virtual int Draw_Me(int forced = false) {
-        (void)forced;
-        return 0;
-    }
+    virtual int Draw_Me(int forced = false);
+
+    void Add_Tail(GadgetClass& gadget);
 
     int X;
     int Y;
@@ -74,22 +73,29 @@ public:
     int Height;
 
 protected:
+    virtual void Sticky_Process(unsigned flags);
     virtual int Action(unsigned flags, KeyNumType& key) {
-        (void)flags;
-        (void)key;
+        if (flags) {
+            IsToRepaint = 1u;
+            Sticky_Process(flags);
+            return 1;
+        }
         return 0;
     }
-    GadgetClass* Tail;
+
+protected:
+    GadgetClass* Next;
+    GadgetClass* Prev;
 
     unsigned IsSticky : 1;
     unsigned IsDisabled : 1;
+    unsigned IsToRepaint : 1;
     unsigned Flags;
 
 private:
-    static GadgetClass*& Focus_Gadget() {
-        static GadgetClass* gadget = NULL;
-        return gadget;
-    }
+    static GadgetClass* StuckOn;
+    static GadgetClass* LastList;
+    static GadgetClass* Focused;
 };
 
 class TextButtonClass : public GadgetClass {
