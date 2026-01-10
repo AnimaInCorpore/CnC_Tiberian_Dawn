@@ -15,6 +15,9 @@ GraphicBufferClass SeenBuff;
 SurfaceManager AllSurfaces = {false};
 GameType GameToPlay = GAME_NORMAL;
 bool InMainLoop = false;
+bool GameActive = false;
+bool Debug_Instant_Build = false;
+int ScenarioInit = 0;
 
 int FontHeight = 8;
 int FontXSpacing = 1;

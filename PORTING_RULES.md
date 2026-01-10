@@ -12,6 +12,9 @@
 ## Compatibility layer strategy (`src/legacy_compat.*`)
 
 - Keep `src/legacy_compat.h`/`src/legacy_compat.cpp` as the staging area for shared typedefs/enums, RTTI values, globals, and small helpers needed by early ports (e.g., `_makepath`, `stricmp`, theater data, placeholder `MixFileClass::Retrieve`, basic `TechnoTypeClass`/`House`/`Building` scaffolds, `VOL_*` constants, `SpeakQueue`, `*_COUNT` sentinels).
+- Legacy macro expectations: define both `MAX(a,b)` and `MIN(a,b)` in `src/legacy_compat.h` (many modules assume both exist).
+- Type creation seam: keep `TechnoTypeClass::Create_One_Of(...)` returning `ObjectClass*` in the shim layer so derived `*TypeClass` overrides that return `ObjectClass*` remain covariant in C++98.
+- Timer constants: when a port references `TICKS_PER_MINUTE`, define it in `src/legacy_compat.h` in terms of `TICKS_PER_SECOND` (avoid sprinkling per-file copies).
 - When a legacy module includes `function.h`, keep the include and provide a thin `src/function.h` wrapper that pulls in `src/legacy_compat.h` (and any standard headers needed) rather than rewriting include lists.
 - If a port needs shared legacy enums/structs (e.g., `LayerType`, `MarkType`, new `RTTI_*` values) and the original header isn’t ported yet, add a minimal equivalent to `src/legacy_compat.h` and keep usage localized.
 - Header hygiene: when adding shim types that reference other shim types (e.g., `FileClass`), add forward declarations first to avoid include-order fragility.

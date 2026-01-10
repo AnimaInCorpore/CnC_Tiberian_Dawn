@@ -42,7 +42,7 @@ Source inventory:
 - [x] edit.cpp
 - [x] event.cpp (Execute stub; event plumbing pending)
 - [x] facing.cpp
-- [ ] factory.cpp
+- [x] factory.cpp (production logic; uses House/Techno shims for now)
 - [ ] findpath.cpp
 - [ ] flasher.cpp
 - [ ] fly.cpp

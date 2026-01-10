@@ -135,6 +135,10 @@ enum VolumeConstants {
 #define _MAX_EXT 256
 #endif
 
+#ifndef FACTORY_MAX
+#define FACTORY_MAX 20
+#endif
+
 enum RTTIType {
     RTTI_NONE = 0,
     RTTI_AIRCRAFT,
@@ -143,7 +147,9 @@ enum RTTIType {
     RTTI_BUILDING,
     RTTI_BUILDINGTYPE,
     RTTI_BULLET,
+    RTTI_INFANTRY,
     RTTI_INFANTRYTYPE,
+    RTTI_UNIT,
     RTTI_UNITTYPE,
     RTTI_ABSTRACTTYPE,
     RTTI_ANIMTYPE,
@@ -244,6 +250,13 @@ enum SourceType {
     SOURCE_OCEAN,
     SOURCE_COUNT
 };
+
+typedef enum SpecialWeaponType {
+    SPC_NONE,
+    SPC_ION_CANNON,
+    SPC_NUCLEAR_BOMB,
+    SPC_AIR_STRIKE
+} SpecialWeaponType;
 
 typedef enum StructType {
     STRUCT_NONE = -1,
@@ -1510,6 +1523,10 @@ static const DirType DIR_N = 0;
 #define TICKS_PER_SECOND 15
 #endif
 
+#ifndef TICKS_PER_MINUTE
+#define TICKS_PER_MINUTE (TICKS_PER_SECOND * 60)
+#endif
+
 static const int OBELISK_ANIMATION_RATE = 3;
 
 inline CELL Coord_Cell(COORDINATE coord) { return static_cast<CELL>(coord); }
@@ -1614,9 +1631,19 @@ public:
     virtual TARGET As_Target() const { return 0; }
 };
 
+class HouseClass;
+class TechnoTypeClass;
+
 class TechnoClass : public ObjectClass {
 public:
+    TechnoClass() : House(NULL), PurchasePrice(0), Type(NULL) {}
     virtual ~TechnoClass() {}
+
+    TechnoTypeClass const& Class_Of() const;
+
+    HouseClass* House;
+    int PurchasePrice;
+    TechnoTypeClass const* Type;
 };
 
 class HouseTypeClass {
@@ -1643,9 +1670,30 @@ public:
         HouseTypeClass const* operator->() const { return this; }
     };
 
-    explicit HouseClass(HousesType house = HOUSE_NONE) : Class(house) {}
+    explicit HouseClass(HousesType house = HOUSE_NONE)
+        : Class(house),
+          Money(0),
+          IsHuman(false),
+          AircraftFactories(1),
+          InfantryFactories(1),
+          UnitFactories(1),
+          BuildingFactories(1),
+          PowerFraction(0x0100) {}
 
-    long Available_Money(void) const { return 0; }
+    long Available_Money(void) const { return Money; }
+    void Spend_Money(long amount) {
+        if (amount <= 0) return;
+        if (Money > amount) {
+            Money -= amount;
+        } else {
+            Money = 0;
+        }
+    }
+    void Refund_Money(long amount) {
+        if (amount <= 0) return;
+        Money += amount;
+    }
+    int Power_Fraction(void) const { return PowerFraction; }
 
     bool Can_Build(AircraftType, int) const { return true; }
     bool Can_Build(StructType, int) const { return true; }
@@ -1666,10 +1714,20 @@ public:
     }
 
     TypeRef Class;
+    long Money;
+    bool IsHuman;
+    int AircraftFactories;
+    int InfantryFactories;
+    int UnitFactories;
+    int BuildingFactories;
+    int PowerFraction;
 };
 
 extern HouseClass* PlayerPtr;
 extern unsigned Frame;
+extern bool GameActive;
+extern bool Debug_Instant_Build;
+extern int ScenarioInit;
 
 class BuildingTypeClass;
 
@@ -2035,6 +2093,8 @@ public:
     virtual int Full_Name(void) const { return AbstractTypeClass::Full_Name(); }
     virtual int Raw_Cost(void) const { return Cost; }
     virtual int Cost_Of(void) const { return Cost; }
+    virtual int Time_To_Build(HousesType) const { return TICKS_PER_MINUTE; }
+    virtual ObjectClass* Create_One_Of(HouseClass* house) const;
 
     void const* CameoData;
     void const* ImageData;
@@ -2059,6 +2119,52 @@ public:
     int Scenario;
 };
 
+inline ObjectClass* TechnoTypeClass::Create_One_Of(HouseClass* house) const {
+    TechnoClass* obj = new TechnoClass();
+    obj->House = house;
+    obj->PurchasePrice = 0;
+    obj->Type = this;
+    return obj;
+}
+
+inline TechnoTypeClass const& TechnoClass::Class_Of() const {
+    if (Type) return *Type;
+    static TechnoTypeClass dummy(0,
+                                "DUMMY",
+                                0,
+                                0,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                false,
+                                0,
+                                0,
+                                MPH_IMMOBILE,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                WEAPON_NONE,
+                                WEAPON_NONE,
+                                ARMOR_NONE);
+    return dummy;
+}
+
 class AircraftClass;
 template <typename T>
 inline T Bound(T value, T low, T high) {
@@ -2073,6 +2179,10 @@ inline int Bound(unsigned value, int low, int high) {
 
 #ifndef MAX
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef MIN
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
 #ifndef ABS
