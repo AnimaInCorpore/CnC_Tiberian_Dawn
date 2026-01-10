@@ -41,7 +41,7 @@ Source inventory:
 - [x] drive.cpp (stub; DriveClass logic pending)
 - [x] edit.cpp
 - [x] event.cpp (Execute stub; event plumbing pending)
-- [ ] facing.cpp
+- [x] facing.cpp
 - [ ] factory.cpp
 - [ ] findpath.cpp
 - [ ] flasher.cpp

@@ -45,8 +45,6 @@ int Get_Mouse_Y() { return 0; }
 
 int Desired_Facing8(int, int, int, int) { return 0; }
 
-FacingType Dir_Facing(DirType) { return FACING_N; }
-
 void Sticky_Process(unsigned) {}
 
 COORDINATE Coord_Add(COORDINATE coord1, COORDINATE coord2) { return coord1 + coord2; }

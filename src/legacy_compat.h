@@ -622,7 +622,9 @@ enum FacingType {
     FACING_FIRST = 0
 };
 
-FacingType Dir_Facing(DirType dir);
+inline FacingType Dir_Facing(DirType dir) {
+    return static_cast<FacingType>((static_cast<unsigned char>(dir + 0x10)) >> 5);
+}
 
 enum ArmorType {
     ARMOR_NONE,
@@ -680,40 +682,6 @@ typedef enum BulletType {
     BULLET_COUNT,
     BULLET_FIRST = 0
 } BulletType;
-
-class FacingClass {
-public:
-    FacingClass() : CurrentFacing(0), DesiredFacing(0) {}
-    explicit FacingClass(DirType dir) : CurrentFacing(dir), DesiredFacing(dir) {}
-
-    operator DirType(void) const { return CurrentFacing; }
-    DirType Current(void) const { return CurrentFacing; }
-    DirType Desired(void) const { return DesiredFacing; }
-
-    int Set_Desired(DirType facing) {
-        DesiredFacing = facing;
-        return 0;
-    }
-    int Set_Current(DirType facing) {
-        CurrentFacing = facing;
-        return 0;
-    }
-    void Set(DirType facing) {
-        Set_Current(facing);
-        Set_Desired(facing);
-    }
-
-    DirType Get(void) const { return CurrentFacing; }
-    int Is_Rotating(void) const { return DesiredFacing != CurrentFacing; }
-    int Difference(void) const { return static_cast<signed char>(DesiredFacing - CurrentFacing); }
-    int Difference(DirType facing) const { return static_cast<signed char>(facing - CurrentFacing); }
-
-    int Rotation_Adjust(int) { return 0; }
-
-private:
-    DirType CurrentFacing;
-    DirType DesiredFacing;
-};
 
 class FlyClass {
 public:
@@ -835,6 +803,9 @@ extern CELL const AdjacentCell[FACING_COUNT];
 extern COORDINATE const AdjacentCoord[FACING_COUNT];
 extern unsigned char const Facing8[256];
 extern unsigned char const Facing32[256];
+
+inline DirType Facing_Dir(FacingType facing) { return static_cast<DirType>(static_cast<int>(facing) << 5); }
+inline int Facing_To_32(DirType facing) { return Facing32[static_cast<unsigned char>(facing)]; }
 
 struct GroundType {
     int RadarColor;

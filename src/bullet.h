@@ -1,6 +1,7 @@
 #pragma once
 
 #include "legacy_compat.h"
+#include "facing.h"
 
 class TechnoClass;
 
@@ -48,4 +49,3 @@ private:
     TARGET TarCom;
     unsigned IsLocked : 1;
 };
-
