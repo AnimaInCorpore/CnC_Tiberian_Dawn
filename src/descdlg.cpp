@@ -40,6 +40,7 @@
 #include "descdlg.h"
 
 #include "control.h"
+#include "edit.h"
 #include "legacy_compat.h"
 
 /***********************************************************************************************

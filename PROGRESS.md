@@ -39,7 +39,7 @@ Source inventory:
 - [x] display.cpp (stub; skeleton header + statics for now)
 - [x] dpmi.cpp
 - [x] drive.cpp (stub; DriveClass logic pending)
-- [ ] edit.cpp
+- [x] edit.cpp
 - [ ] event.cpp
 - [ ] facing.cpp
 - [ ] factory.cpp

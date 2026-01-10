@@ -521,18 +521,38 @@ void Conquer_Clip_Text_Print(char const* text,
                              unsigned back,
                              TextPrintType flags,
                              unsigned width,
-                             int const* tabs);
+                             int const* tabs = 0);
 
 void CC_Texture_Fill(void const* shapefile, int shapenum, int xpos, int ypos, int width, int height);
 
 typedef int KeyNumType;
 enum KeyNumConstants {
     KN_NONE = 0,
+    KN_BACKSPACE = 8,
     KN_ESC = 27,
     KN_RETURN = 13,
     KN_LEFT = 1000,
     KN_RIGHT = 1001,
     KN_BUTTON = 1u << 15
+};
+
+typedef int KeyASCIIType;
+enum KeyAsciiConstants {
+    KA_BACKSPACE = 8,
+    KA_RETURN = 13
+};
+
+enum WWKeyBitConstants {
+    WWKEY_VK_BIT = 0x0100,
+    WWKEY_RLS_BIT = 0x0200,
+    WWKEY_SHIFT_BIT = 0x0400,
+    WWKEY_CTRL_BIT = 0x0800,
+    WWKEY_ALT_BIT = 0x1000
+};
+
+class Keyboard {
+public:
+    static KeyASCIIType To_ASCII(KeyNumType key) { return (KeyASCIIType)(key & 0x00ff); }
 };
 
 enum GameType {
