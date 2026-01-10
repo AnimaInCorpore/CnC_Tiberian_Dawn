@@ -20,6 +20,7 @@
 ## Stubs, feature gates, and build stability
 
 - If a `.cpp` is missing from the repo snapshot or can’t compile yet due to unported dependencies, add a stub translation unit under `src/` (include `src/legacy_compat.h` or the module’s new header) so CMake builds stay stable; annotate `PROGRESS.md` and replace the stub with the real code once dependencies land.
+- For large modules that pull in still-missing subsystems (e.g., Win32 serial/modem + multiplayer globals in `nulldlg.cpp`), keep a stub `.cpp` in `src/` and introduce only the minimal shared header surface (e.g., `src/wincomm.h` with `SerialSettingsType` and related constants) to avoid exploding the compatibility layer prematurely.
 - If a legacy module is compiled only under a flag (e.g., `CHEAT_KEYS`) but its symbols are referenced elsewhere, provide no-op stubs so default builds link; replace with real behavior once dependencies land.
 - As individual modules get ported, migrate module-specific stub logic out of `src/legacy_compat.cpp` into the corresponding `src/<module>.cpp` to keep the compatibility layer small and avoid accidental divergence.
 
@@ -75,4 +76,5 @@
 ## Diagnostics and tracking
 
 - Debug logging: stub `CCDebugString` prints to stderr until the original Win32 debug plumbing is ported.
+- Encoding: some legacy sources may contain non-UTF-8 bytes; if tooling can’t patch/read the copied `src/*.cpp`, convert to UTF-8 (e.g., via `iconv`) or replace with a UTF-8 stub until the real port is ready.
 - Tracking: update `PROGRESS.md` when a file builds and runs correctly through the CMake + SDL 1.2 path, and add new portability conventions here as they emerge (dedupe when possible).

@@ -98,7 +98,7 @@ Source inventory:
 - [ ] netdlg.cpp
 - [ ] noseqcon.cpp
 - [ ] nullconn.cpp
-- [ ] nulldlg.cpp
+- [x] nulldlg.cpp (stub; Win32 serial/modem stack + multiplayer globals not ported yet)
 - [ ] nullmgr.cpp
 - [ ] object.cpp
 - [ ] odata.cpp
