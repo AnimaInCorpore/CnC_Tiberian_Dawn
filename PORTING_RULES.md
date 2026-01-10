@@ -1,45 +1,76 @@
 # Porting rules
 
-- Target build: CMake + g++/C++98 (use `-std=gnu++98` if needed) producing the `cnc_td` binary.
-- Source layout: place ported sources in `src/` with original lowercase filenames from the legacy makefile (e.g., `conquer.cpp`).
-- Platform shims: replace/encapsulate Windows/DirectX calls with SDL 1.2 equivalents for rendering, input, audio/music, and networking; preserve original behavior.
-- Assets: expect game data under `CD/` and its existing subfolders; do not relocate or rename assets.
+## Goals and constraints
+
+- Target build: CMake + g++ in C++98 mode (`-std=gnu++98` if needed) producing the `cnc_td` binary.
+- Source layout: place ported sources in `src/` using the legacy makefile’s lowercase filenames (e.g., `conquer.cpp`).
+- Assets: load directly from `CD/` and its existing subfolders; do not relocate or rename assets.
+- Platform/behavior: replace/encapsulate Win32/DirectX with SDL 1.2 equivalents (rendering, input, audio/music, networking) while preserving legacy behavior.
 - Memory model: keep flat Win32 assumptions; avoid 16-bit/segmented constructs.
-- Change scope: prefer minimal, localized shims over broad refactors; keep data layouts intact.
-- Legacy umbrella headers: when a ported module includes `function.h`, keep the include and provide a thin `src/function.h` wrapper that pulls in `src/legacy_compat.h` (and any standard headers needed) rather than rewriting every include.
-- Compatibility scaffolding: early ports can lean on `src/legacy_compat.h`/`legacy_compat.cpp` for placeholder enums, RTTI, globals, and helpers (e.g., `_makepath`, `stricmp`, stub `MixFileClass::Retrieve`, theater data, basic TechnoTypeClass/House/Building scaffolds, audio placeholders like `VolType`/`VoxType` and `VOL_*` constants, `SpeakQueue`, and `*_COUNT` enum sentinels). Replace these placeholders with real implementations as the surrounding systems get ported.
-- Feature-gated code: if a legacy module is compiled only under a flag (e.g., `CHEAT_KEYS`) but its symbols may be referenced elsewhere, provide no-op stubs in the port so default builds link; replace with the real implementation once its dependencies land.
-- Missing or dependency-blocked legacy sources: if a `.cpp` is absent from the repository snapshot or can’t be compiled yet due to unported dependencies, add a stub translation unit under `src/` (include `src/legacy_compat.h` or the module’s new header) and annotate `PROGRESS.md` so the CMake build remains stable; replace with the real implementation once dependencies land.
+- Change scope: prefer thin compatibility layers and localized fixes over broad refactors; keep data layouts intact.
+
+## Compatibility layer strategy (`src/legacy_compat.*`)
+
+- Keep `src/legacy_compat.h`/`src/legacy_compat.cpp` as the staging area for shared typedefs/enums, RTTI values, globals, and small helpers needed by early ports (e.g., `_makepath`, `stricmp`, theater data, placeholder `MixFileClass::Retrieve`, basic `TechnoTypeClass`/`House`/`Building` scaffolds, `VOL_*` constants, `SpeakQueue`, `*_COUNT` sentinels).
+- When a legacy module includes `function.h`, keep the include and provide a thin `src/function.h` wrapper that pulls in `src/legacy_compat.h` (and any standard headers needed) rather than rewriting include lists.
+- If a port needs shared legacy enums/structs (e.g., `LayerType`, `MarkType`, new `RTTI_*` values) and the original header isn’t ported yet, add a minimal equivalent to `src/legacy_compat.h` and keep usage localized.
+- Header hygiene: when adding shim types that reference other shim types (e.g., `FileClass`), add forward declarations first to avoid include-order fragility.
+- De-stubbing rule: when a real implementation lands for a class/function that previously existed as a placeholder in `src/legacy_compat.*` (or in catch-all headers like `src/gadget.h`), move it into dedicated `src/<name>.h`/`src/<name>.cpp`, remove the placeholder, and (if it reduces churn) have `src/legacy_compat.h` include the new header.
+
+## Stubs, feature gates, and build stability
+
+- If a `.cpp` is missing from the repo snapshot or can’t compile yet due to unported dependencies, add a stub translation unit under `src/` (include `src/legacy_compat.h` or the module’s new header) so CMake builds stay stable; annotate `PROGRESS.md` and replace the stub with the real code once dependencies land.
+- If a legacy module is compiled only under a flag (e.g., `CHEAT_KEYS`) but its symbols are referenced elsewhere, provide no-op stubs so default builds link; replace with real behavior once dependencies land.
+- As individual modules get ported, migrate module-specific stub logic out of `src/legacy_compat.cpp` into the corresponding `src/<module>.cpp` to keep the compatibility layer small and avoid accidental divergence.
+
+## Types, headers, and legacy call sites
+
 - Legacy typedefs: keep `COORDINATE` wide (legacy headers use `unsigned long`) so call sites can disambiguate overloads like `Sound_Effect(voc, volume)` vs `Sound_Effect(voc, coord)` without refactoring.
-- INI helpers: legacy `WWGetPrivateProfileInt`/`WWGetPrivateProfileString` are implemented as a minimal in-memory INI parser in `src/legacy_compat.cpp`; `WWWritePrivateProfile*` are currently no-ops and should be replaced when save/INI writing is ported.
-- If a port needs shared legacy enums/structs (e.g., `LayerType`, `MarkType`, new `RTTI_*` values) and the original header isn't ported yet, add a minimal equivalent to `src/legacy_compat.h` and keep the usage localized.
-- When porting a header that includes other unported headers, prefer forward declarations + `src/legacy_compat.h` for shared typedefs/enums (e.g., `OverlayType`, `SmudgeType`) to keep include-order churn low.
-- Object lists: legacy code frequently chains objects via `ObjectClass::Next` (and cargo/passenger holds via `FootClass`); prefer adding the minimal fields/methods to `src/legacy_compat.h` rather than rewriting call sites.
-- Map/cell shim: `Map` is a `MapClass` that returns a `CellClass&` so legacy `Map[cell]....` call sites compile; `Map.Flag_To_Redraw(...)` is stubbed; ensure `CellClass` is a complete type at call sites (include `src/cell.h` as needed).
-- Header ordering: when adding shim types to `src/legacy_compat.h` that reference other shim types (e.g., `FileClass`), add forward declarations to avoid include-order fragility.
-- When porting a legacy class that previously lived as a placeholder in `src/legacy_compat.h`, move it into a dedicated `src/<name>.h`/`src/<name>.cpp` pair and remove the placeholder to avoid diverging definitions; if most ports include `src/legacy_compat.h`, it’s OK for `src/legacy_compat.h` to `#include` the new header to minimize churn.
-- Some legacy code mixes `house->Class.House` and `house->Class->House`; prefer a small proxy wrapper in the compatibility layer so both access patterns compile without touching legacy call sites.
-- Loading shim: `FileClass`/`RawFileClass` in `legacy_compat` open from `CD/` by default and `Load_Alloc_Data` mirrors the original helper—reuse these when porting animation/type data that pulls raw assets.
-- Icon set helpers: early ports may rely on stub `Get_Icon_Set_Map`/`Register_Icon_Set` in `src/legacy_compat.h`; keep these NULL-safe so `Occupy_List`/rendering helpers don't crash before the real icon-set parser/cache is ported.
-- File I/O shims: `CDFileClass` (`src/cdfile.cpp`) implements DOS-style semicolon search paths (including `?:\\`), normalizes `\\` to `/`, and seeds default search roots under `CD/TIBERIAN_DAWN/` so legacy asset opens can find files in the preserved `CD/` tree; `MixFileClass::Offset` is still a stub and `CCFileClass` falls back to direct disk access until the mixfile system is ported.
-- UI draw/text shims: `Draw_Box`/`Window_Box`/`Fancy_Text_Print`/`Conquer_Clip_Text_Print` are ported in `src/dialog.cpp`, but the underlying `GraphicPageClass` methods are still no-ops until the real display layer is ported; keep UI widgets NULL-safe when calling into these.
+- When porting a header that included other unported headers, prefer forward declarations plus `src/legacy_compat.h` for shared typedefs/enums (e.g., `OverlayType`, `SmudgeType`) to keep include-order churn low.
+- Object lists: legacy code frequently chains objects via `ObjectClass::Next` (and cargo/passenger holds via `FootClass`); prefer adding the minimal fields/methods to the shim layer rather than rewriting call sites.
+- Map/cell shim: `Map` is a `MapClass` returning `CellClass&` so legacy `Map[cell]....` call sites compile; `Map.Flag_To_Redraw(...)` is stubbed; ensure `CellClass` is complete at call sites (include `src/cell.h` when needed).
+- Mixed access patterns: some legacy code mixes `house->Class.House` and `house->Class->House`; prefer a small proxy wrapper in the shim layer so both compile without touching call sites.
+
+## Filesystem and asset loading
+
+- Loading helpers: reuse `FileClass`/`RawFileClass` and `Load_Alloc_Data` when porting animation/type data that pulls raw assets; these shims should open from `CD/` by default.
+- Icon set helpers: early ports may rely on stub `Get_Icon_Set_Map`/`Register_Icon_Set`; keep these NULL-safe so `Occupy_List`/rendering helpers don’t crash before the real icon-set parser/cache is ported.
+- File I/O shims: `CDFileClass` (`src/cdfile.cpp`) implements DOS-style semicolon search paths (including `?:\\`), normalizes `\\` to `/`, and seeds default roots under `CD/TIBERIAN_DAWN/`; `MixFileClass::Offset` is still a stub and `CCFileClass` falls back to direct disk access until mixfiles are ported.
+- INI helpers: `WWGetPrivateProfileInt`/`WWGetPrivateProfileString` are implemented as a minimal in-memory INI reader in `src/legacy_compat.cpp`; `WWWritePrivateProfile*` are no-op “success” stubs and should be replaced when save/INI writing is ported.
+
+## UI and widget shims
+
+- UI draw/text: `Draw_Box`/`Window_Box`/`Fancy_Text_Print`/`Conquer_Clip_Text_Print` live in `src/dialog.cpp`, but `GraphicPageClass` work is still stubbed until the display layer is real; keep UI code NULL-safe when calling into graphics helpers.
 - Default-arg compatibility: expose legacy-style defaults in declarations where practical (e.g., `Conquer_Clip_Text_Print(..., tabs=0)`) to avoid churn across call sites.
-- Cell redraw flags: `DisplayClass` uses a bit array for per-cell redraw; use the `BooleanVectorClass` shim in `src/legacy_compat.h` (`Resize`, `Is_True`, `operator[]` assignment) rather than rewriting call sites.
-- Palette morph table sizes: keep `MAGIC_COL_COUNT`/`SHADOW_COL_COUNT`/`USHADOW_COL_COUNT` defined (from legacy `DEFINES.H`) in `src/legacy_compat.h` so static translucent/shadow tables have stable sizes during the port.
+- Cell redraw flags: `DisplayClass` uses a bit array for per-cell redraw; use the `BooleanVectorClass` shim (`Resize`, `Is_True`, `operator[]` assignment) rather than rewriting call sites.
+- Mouse/facing: UI widgets (e.g., the facing dial) expect `Get_Mouse_X/Y`, `Desired_Facing8`, and `Dir_Facing`; keep these stubbed until the input/geometry stack is ported.
+- UI focus/keyboard: keep `GadgetClass::{Set_Focus,Has_Focus,Clear_Focus}` and `KeyASCIIType`/`Keyboard::To_ASCII`/`WWKEY_*_BIT` flags available for legacy UI input filters (e.g., `edit.cpp`).
+- UI gadget placeholders: until the full gadget/control stack is ported, lightweight placeholders may live in standalone headers like `src/list.h` and `src/gadget.h` (e.g., checklist/config UI); migrate to real `src/<name>.h`/`src/<name>.cpp` implementations as their legacy counterparts are ported.
+- Gadget chaining/layout: legacy UI code mutates `GadgetClass` geometry fields directly (`X`, `Y`, `Width`, `Height`) and calls `Add_Tail` repeatedly on the same head; keep fields accessible and ensure `Add_Tail` appends rather than replacing the chain.
+
+## Data/layout correctness and UB avoidance
+
+- Palette morph table sizes: keep `MAGIC_COL_COUNT`/`SHADOW_COL_COUNT`/`USHADOW_COL_COUNT` defined (from legacy `DEFINES.H`) so static translucent/shadow tables keep stable sizes during the port.
 - Null text vs. text IDs: legacy code sometimes passes `TXT_NONE` where a `char const*` “no text” pointer is expected; if `TXT_*` are enums in the shim layer, use an explicit null pointer (`(char const*)0`) at the call site.
-- Mouse/facing shims: UI widgets such as the facing dial expect `Get_Mouse_X/Y`, `Desired_Facing8`, and `Dir_Facing`; these are stubbed in `src/legacy_compat.*` until the input/geometry stack is ported.
-- UI focus/keyboard shims: implement `GadgetClass::{Set_Focus,Has_Focus,Clear_Focus}` (currently header-local static), and define `KeyASCIIType`, `Keyboard::To_ASCII`, and `WWKEY_*_BIT` flags in `src/legacy_compat.h` for legacy UI input filters (e.g., `edit.cpp`).
-- UI gadget shims: until the full gadget/control stack is ported, lightweight placeholders may live in standalone headers like `src/list.h` and `src/gadget.h` (e.g., `src/cheklist.cpp`, `src/confdlg.cpp`); migrate to real `src/list.h`/`src/list.cpp`/etc. when the original implementations are ported.
-- Gadget chaining/layout: legacy UI code commonly mutates `GadgetClass` geometry fields directly (`X`, `Y`, `Width`, `Height`) and calls `Add_Tail` multiple times on the same head; keep these fields accessible and ensure `Add_Tail` appends rather than replacing the chain.
-- When porting a previously stubbed UI gadget class (e.g., `ControlClass`), move it out of `src/gadget.h` into a dedicated `src/<name>.h`/`src/<name>.cpp` and update includes at call sites to avoid duplicate/conflicting class definitions.
-- As individual modules get ported, migrate their module-specific stub implementations out of `src/legacy_compat.cpp` into the corresponding `src/<module>.cpp` to keep the compatibility layer small and reduce churn (e.g., `Call_Back`/`Main_Loop` live in `src/conquer.cpp`).
-- C++98 quirks: avoid defaulted special members and enum post-increment; iterate enums via int index and cast back. Prefer `snprintf` over `sprintf` to satisfy modern toolchains. Use `const char*` for string literals, and don’t qualify static member declarations inside class bodies (write `static T Member;`, not `static T Class::Member;`).
-- Enum declarations: avoid forward-declaring enums (some C++98 toolchains reject it); place function declarations after the enum definition or use integral types at the seam.
-- Watcom `#pragma aux` / inline asm: replace with portable C/C++ helpers that emulate 16-bit register behavior (cast/mask through `int16_t`) and avoid relying on implementation-defined signed right shifts by using explicit floor division when needed.
-- DOS/DPMI helpers: `DOSSegmentClass`/`output()` are DOS-only; in the portable build, keep the interface but implement `DOSSegmentClass` as a heap-backed byte buffer and make `output()` a no-op.
-- Fixed-point helpers: `Cardinal_To_Fixed`/`Fixed_To_Cardinal` are ported from `COORDA.ASM` as `src/coorda.cpp`; preserve the legacy rounding (`+0x80` before `>>8`) and saturation to `0xFFFF` rather than using a naive `value * fixed / 256`.
 - Data-table structs: if legacy code uses brace initializers for global tables (e.g., `Warheads`, `Weapons`), keep the corresponding shim structs as simple aggregates (no user-defined constructors) so C++98 aggregate initialization works.
-- Shift safety: when ported code shifts by a value read from legacy byte tables (e.g., warhead `SpreadFactor`), clamp the shift to a sane range to avoid undefined behavior on modern compilers.
-- Debug logging: stub `CCDebugString` lives in `src/legacy_compat.cpp` and prints to stderr until the original Win32 debug plumbing is ported.
-- When legacy code mutates cached asset pointers on a `const` type reference (e.g., `bullet.ImageData`), prefer `const_cast<void const*&>(...)` over C-style casts to keep intent clear.
-- Tracking: update `PROGRESS.md` when a file builds and runs correctly through the SDL/CMake path, and keep this document updated with new porting conventions or findings as they emerge.
+- Shift safety: when shifting by a value read from legacy byte tables (e.g., warhead `SpreadFactor`), clamp the shift to a sane range to avoid UB on modern compilers.
+- Const asset caches: when legacy code mutates cached asset pointers on a `const` reference (e.g., `bullet.ImageData`), prefer `const_cast<void const*&>(...)` over C-style casts.
+
+## C++98 portability notes
+
+- C++98 quirks: avoid defaulted special members and enum post-increment; iterate enums via an `int` index and cast back.
+- Prefer bounded formatting: use `snprintf`/`vsnprintf` over `sprintf` when touching formatting code; don’t assume `std::snprintf` exists on every older libstdc++ (fall back to `::snprintf` if needed).
+- Avoid C++11-only library dependencies in new code (headers like `<cstdint>`, language features like `nullptr`, etc.); prefer C89/C99 headers such as `<stdint.h>` or shim typedefs where needed.
+- Use `const char*` for string literals, and don’t qualify static member declarations inside class bodies (write `static T Member;`, not `static T Class::Member;`).
+- Enum declarations: avoid forward-declaring enums (some C++98 toolchains reject it); place function declarations after the enum definition or use integral types at the seam.
+
+## Legacy Watcom/DOS pieces
+
+- Watcom `#pragma aux` / inline asm: replace with portable helpers that emulate 16-bit register behavior (cast/mask through `int16_t`) and avoid implementation-defined signed right shifts by using explicit floor division when needed.
+- DOS/DPMI helpers: `DOSSegmentClass`/`output()` are DOS-only; in the portable build keep the interface, implement `DOSSegmentClass` as a heap-backed byte buffer, and make `output()` a no-op.
+- Fixed-point helpers: `Cardinal_To_Fixed`/`Fixed_To_Cardinal` are ported from `COORDA.ASM` as `src/coorda.cpp`; preserve legacy rounding (`+0x80` before `>>8`) and saturation to `0xFFFF`.
+
+## Diagnostics and tracking
+
+- Debug logging: stub `CCDebugString` prints to stderr until the original Win32 debug plumbing is ported.
+- Tracking: update `PROGRESS.md` when a file builds and runs correctly through the CMake + SDL 1.2 path, and add new portability conventions here as they emerge (dedupe when possible).
