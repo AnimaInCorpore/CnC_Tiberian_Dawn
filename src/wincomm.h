@@ -37,6 +37,15 @@ typedef enum DetectPortType {
     PORT_IRQ_INUSE
 } DetectPortType;
 
+typedef enum DialStatusType {
+    DIAL_CONNECTED = 0,
+    DIAL_NO_CARRIER,
+    DIAL_BUSY,
+    DIAL_ERROR,
+    DIAL_NO_DIAL_TONE,
+    DIAL_CANCELED
+} DialStatusType;
+
 typedef enum DialMethodType {
     DIAL_TOUCH_TONE = 0,
     DIAL_PULSE,
@@ -57,4 +66,3 @@ typedef struct {
     bool HardwareFlowControl;
     char ModemName[MODEM_NAME_MAX];
 } SerialSettingsType;
-

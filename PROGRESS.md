@@ -99,7 +99,7 @@ Source inventory:
 - [ ] noseqcon.cpp
 - [ ] nullconn.cpp
 - [x] nulldlg.cpp (stub; Win32 serial/modem stack + multiplayer globals not ported yet)
-- [ ] nullmgr.cpp
+- [x] nullmgr.cpp (stub; legacy Win32/Greenleaf serial/modem backend not ported yet)
 - [ ] object.cpp
 - [ ] odata.cpp
 - [ ] options.cpp
