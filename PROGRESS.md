@@ -44,7 +44,7 @@ Source inventory:
 - [x] facing.cpp
 - [x] factory.cpp (production logic; uses House/Techno shims for now)
 - [x] findpath.cpp (stub; requires FootClass movement state + map passability + debug surfaces)
-- [ ] flasher.cpp
+- [x] flasher.cpp
 - [ ] fly.cpp
 - [ ] foot.cpp
 - [ ] fuse.cpp
