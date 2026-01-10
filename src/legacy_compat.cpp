@@ -4,6 +4,7 @@
 
 #include <cstdlib>
 #include <cstdio>
+#include <climits>
 #include <string>
 
 void const* ObjectTypeClass::SelectShapes = NULL;
@@ -34,6 +35,7 @@ int WindowList[256][4];
 
 VoxType SpeakQueue = VOX_NONE;
 HouseClass* PlayerPtr = NULL;
+unsigned Frame = 0;
 
 void Hide_Mouse() {}
 void Show_Mouse() {}
@@ -313,7 +315,11 @@ DirType Direction(COORDINATE coord1, COORDINATE coord2) {
     return FACING_NONE;
 }
 
-int Distance(COORDINATE coord1, COORDINATE coord2) { return std::abs(coord2 - coord1); }
+int Distance(COORDINATE coord1, COORDINATE coord2) {
+    COORDINATE diff = (coord2 > coord1) ? (coord2 - coord1) : (coord1 - coord2);
+    if (diff > static_cast<COORDINATE>(INT_MAX)) return INT_MAX;
+    return static_cast<int>(diff);
+}
 
 int Get_Resolution_Factor(void) {
     return 0;

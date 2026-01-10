@@ -37,12 +37,21 @@ typedef unsigned int TextPrintType;
 #endif
 
 // Basic legacy-sized types used throughout the original codebase.
-typedef int CELL;
-typedef long COORDINATE;
+typedef signed short CELL;
+typedef unsigned long COORDINATE;
 typedef int DirType;
 typedef int VolType;
 typedef int WindowNumberType;
-typedef int TARGET;
+typedef unsigned short TARGET;
+
+#ifndef TARGET_NONE
+#define TARGET_NONE ((TARGET)0)
+#endif
+
+// Legacy helper used throughout the original codebase: size of a field/member.
+#ifndef size_of
+#define size_of(type, member) (sizeof(((type*)0)->member))
+#endif
 
 // Constants mirrored from DEFINES.H for legacy volume scales.
 enum VolumeConstants {
@@ -1689,6 +1698,7 @@ public:
 };
 
 extern HouseClass* PlayerPtr;
+extern unsigned Frame;
 
 class BuildingTypeClass;
 
@@ -2106,7 +2116,7 @@ struct SpecialClass {
     bool IsNamed;
     bool IsSeparate;
     bool IsInert;
-    SpecialClass() : IsRoad(false), IsNamed(false), IsSeparate(false), IsInert(false) {}
+    bool IsVisibleTarget;
 };
 
 extern SpecialClass Special;

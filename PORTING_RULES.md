@@ -26,6 +26,8 @@
 ## Types, headers, and legacy call sites
 
 - Legacy typedefs: keep `COORDINATE` wide (legacy headers use `unsigned long`) so call sites can disambiguate overloads like `Sound_Effect(voc, volume)` vs `Sound_Effect(voc, coord)` without refactoring.
+- Match legacy scalar widths for overload sets and packed data: keep `CELL` as `signed short` and `TARGET` as `unsigned short` (per `DEFINES.H`) so legacy overloads/constructors remain valid (e.g., `EventClass(EventType,int)` vs `EventClass(EventType,TARGET)`), and to preserve on-the-wire/event-queue layouts.
+- Union/POD rule: structs stored inside a `union` (e.g., `SpecialClass` inside `EventClass::Data`) must remain POD in C++98 — avoid user-provided constructors/destructors; rely on zero-init for globals and explicit initialization when needed.
 - When porting a header that included other unported headers, prefer forward declarations plus `src/legacy_compat.h` for shared typedefs/enums (e.g., `OverlayType`, `SmudgeType`) to keep include-order churn low.
 - Object lists: legacy code frequently chains objects via `ObjectClass::Next` (and cargo/passenger holds via `FootClass`); prefer adding the minimal fields/methods to the shim layer rather than rewriting call sites.
 - Map/cell shim: `Map` is a `MapClass` returning `CellClass&` so legacy `Map[cell]....` call sites compile; `Map.Flag_To_Redraw(...)` is stubbed; ensure `CellClass` is complete at call sites (include `src/cell.h` when needed).

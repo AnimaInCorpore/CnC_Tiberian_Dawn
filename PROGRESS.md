@@ -40,7 +40,7 @@ Source inventory:
 - [x] dpmi.cpp
 - [x] drive.cpp (stub; DriveClass logic pending)
 - [x] edit.cpp
-- [ ] event.cpp
+- [x] event.cpp (Execute stub; event plumbing pending)
 - [ ] facing.cpp
 - [ ] factory.cpp
 - [ ] findpath.cpp
