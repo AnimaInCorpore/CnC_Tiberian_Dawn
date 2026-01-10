@@ -696,22 +696,6 @@ typedef enum BulletType {
     BULLET_FIRST = 0
 } BulletType;
 
-class FlyClass {
-public:
-    FlyClass() : SpeedAccum(0), SpeedAdd(MPH_IMMOBILE) {}
-
-    void Fly_Speed(int, MPHType maximum) { SpeedAdd = maximum; }
-    ImpactType Physics(COORDINATE&, DirType) { return IMPACT_NONE; }
-    MPHType Get_Speed(void) const { return SpeedAdd; }
-
-    void Code_Pointers(void) {}
-    void Decode_Pointers(void) {}
-
-private:
-    unsigned SpeedAccum;
-    MPHType SpeedAdd;
-};
-
 class FileClass;
 
 class FuseClass {

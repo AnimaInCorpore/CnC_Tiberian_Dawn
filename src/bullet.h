@@ -1,6 +1,7 @@
 #pragma once
 
 #include "legacy_compat.h"
+#include "fly.h"
 #include "facing.h"
 
 class TechnoClass;
