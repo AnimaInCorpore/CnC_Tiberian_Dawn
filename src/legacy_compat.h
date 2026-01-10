@@ -698,32 +698,6 @@ typedef enum BulletType {
 
 class FileClass;
 
-class FuseClass {
-public:
-    FuseClass() : Timer(0), Arming(0), HeadTo(0), Proximity(0) {}
-
-    void Arm_Fuse(COORDINATE, COORDINATE target, int time = 0xFF, int arming = 0) {
-        HeadTo = target;
-        Timer = static_cast<unsigned char>(time);
-        Arming = static_cast<unsigned char>(arming);
-        Proximity = 0;
-    }
-    bool Fuse_Checkup(COORDINATE) { return false; }
-    void Fuse_Write(FileClass&) {}
-    void Fuse_Read(FileClass&) {}
-    COORDINATE Fuse_Target(void) { return HeadTo; }
-
-    void Code_Pointers(void) {}
-    void Decode_Pointers(void) {}
-
-    unsigned char Timer;
-
-private:
-    unsigned char Arming;
-    COORDINATE HeadTo;
-    short Proximity;
-};
-
 typedef enum WarheadType {
     WARHEAD_NONE = -1,
     WARHEAD_SA,             // Small arms -- good against infantry.

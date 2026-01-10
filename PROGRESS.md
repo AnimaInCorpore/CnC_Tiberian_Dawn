@@ -47,7 +47,7 @@ Source inventory:
 - [x] flasher.cpp
 - [x] fly.cpp
 - [x] foot.cpp (stub; `FootClass`/movement stack still lives in `src/legacy_compat.h` until Techno/Map/mission systems are ported)
-- [ ] fuse.cpp
+- [x] fuse.cpp
 - [ ] gadget.cpp
 - [ ] gamedlg.cpp
 - [ ] gauge.cpp

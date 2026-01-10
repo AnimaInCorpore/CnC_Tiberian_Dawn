@@ -1,6 +1,7 @@
 #pragma once
 
 #include "legacy_compat.h"
+#include "fuse.h"
 #include "fly.h"
 #include "facing.h"
 
