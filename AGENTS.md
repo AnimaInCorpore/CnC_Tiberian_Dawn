@@ -24,3 +24,10 @@
 - After each port, consolidate `PORTING_RULES.md` by merging or deduplicating overlapping rules where possible.
 - Treat adding new findings to `PORTING_RULES.md` as mandatory whenever you discover generally important portability conventions (e.g., Watcom quirks to g++ fixes, reusable shims).
 - Port each source by compiling under the target C++ standard, fix incompatibilities with minimal localized changes, and record recurring patterns or shims in `PORTING_RULES.md`.
+
+# PORTING_RULES.md maintenance
+- Keep `PORTING_RULES.md` organized and concise; avoid scattered or duplicated rules.
+- Consolidate related rules into logical sections (e.g., stub lifecycle, include strategy, C++98 checklist) rather than appending ad-hoc bullets.
+- Periodically review for redundancy: merge overlapping rules, remove obsolete guidance, and keep examples minimal.
+- Fix any discrepancies between documented rules and actual code practice immediately — the document must reflect the true state of the port.
+- When a rule becomes obsolete (e.g., a subsystem is fully ported), remove or archive it promptly to prevent confusion.

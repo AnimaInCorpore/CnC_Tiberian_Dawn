@@ -1,6 +1,15 @@
 # Porting progress
 Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat model). Use `[x]` when a file is fully ported and tested under the compatibility shims.
 
+## Pending: PORTING_RULES.md consolidation
+The following structural issues need to be addressed in `PORTING_RULES.md`:
+- **Stub rules scattered** — consolidate into a single "Stub lifecycle" section (creation → placement → replacement)
+- **UI/widget rules overlap** — split into graphics/rendering, input, and gadget/control subsections
+- **Type width rules duplicated** — merge `COORDINATE`/`CELL`/`TARGET` guidance into one rule
+- **Include/header strategy fragmented** — unify related bullets into a decision-tree section
+- **Redundant module-specific stub bullets** — generalize with a sub-list of examples
+- **C++98 notes verbose** — condense into a checklist format
+
 Source inventory:
 - [x] aadata.cpp
 - [x] abstract.cpp
