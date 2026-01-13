@@ -62,6 +62,8 @@
 - UI gadget placeholders: until the full gadget/control stack is ported, lightweight placeholders may live in standalone headers like `src/list.h` and `src/gadget.h` (e.g., checklist/config UI); migrate to real `src/<name>.h`/`src/<name>.cpp` implementations as their legacy counterparts are ported.
 - Gadget chaining/layout: legacy UI code mutates `GadgetClass` geometry fields directly (`X`, `Y`, `Width`, `Height`) and calls `Add_Tail` repeatedly on the same head; keep fields accessible and keep the portable build’s semantics as `head.Add_Tail(child)` (append-to-tail).
 - Gadget list lifetime: many dialogs build gadget chains from stack objects; avoid `delete`-based list helpers in the portable `GadgetClass` until gadget allocation patterns are clarified (`GadgetClass::Delete_List` currently detaches only).
+- WWLIB containers: provide a minimal `VectorClass<T>` shim in `src/legacy_compat.h` (std::vector-backed) so legacy classes can keep inheriting from it while the real container stack is unported.
+- Graphics buffers: add no-op `Clear()` to the `GraphicPageClass` shim so ports can keep calling `page.Clear()` without pulling in the full renderer yet.
 
 ## Data/layout correctness and UB avoidance
 

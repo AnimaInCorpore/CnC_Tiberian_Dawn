@@ -367,6 +367,27 @@ private:
     std::vector<T> Data;
 };
 
+/*
+** Legacy `VectorClass<T>` is used pervasively across the original codebase.
+** Keep a minimal, std::vector-backed implementation so modules can inherit
+** from it without pulling in the full WWLIB container stack yet.
+*/
+template <typename T>
+class VectorClass {
+public:
+    VectorClass() : Data() {}
+
+    int Count() const { return static_cast<int>(Data.size()); }
+    void Clear() { Data.clear(); }
+    void Resize(int count) { Data.resize(count > 0 ? static_cast<size_t>(count) : 0u); }
+
+    T& operator[](int index) { return Data[static_cast<size_t>(index)]; }
+    T const& operator[](int index) const { return Data[static_cast<size_t>(index)]; }
+
+private:
+    std::vector<T> Data;
+};
+
 class BooleanVectorClass {
 public:
     BooleanVectorClass() : Flags() {}
@@ -456,6 +477,7 @@ public:
     void Draw_Line(int, int, int, int, int) {}
     void Put_Pixel(int, int, int) {}
     void Print(char const*, int, int, int, int) {}
+    void Clear() {}
 };
 
 class GraphicBufferClass : public GraphicPageClass {

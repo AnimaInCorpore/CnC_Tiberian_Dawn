@@ -53,7 +53,7 @@ Source inventory:
 - [x] gauge.cpp
 - [x] globals.cpp (shim; moved early global state out of `legacy_compat.cpp`)
 - [x] goptions.cpp (stub; depends on `options.cpp` + load/save/sound/video dialog stack)
-- [ ] gscreen.cpp
+- [x] gscreen.cpp (stub; gadget routing + redraw flags, no SDL blitting yet)
 - [ ] hdata.cpp
 - [ ] heap.cpp
 - [ ] help.cpp
