@@ -51,7 +51,7 @@ Source inventory:
 - [x] gadget.cpp (port; list/focus/redraw behavior, input dispatch still stubbed)
 - [x] gamedlg.cpp (stub; depends on Options + slider/gauge UI stack)
 - [x] gauge.cpp
-- [ ] globals.cpp
+- [x] globals.cpp (shim; moved early global state out of `legacy_compat.cpp`)
 - [ ] goptions.cpp
 - [ ] gscreen.cpp
 - [ ] hdata.cpp

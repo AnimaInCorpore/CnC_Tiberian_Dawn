@@ -20,6 +20,7 @@
 - Header hygiene: when adding shim types that reference other shim types (e.g., `FileClass`), add forward declarations first to avoid include-order fragility.
 - De-stubbing rule: when a real implementation lands for a class/function that previously existed as a placeholder in `src/legacy_compat.*` (or in catch-all headers like `src/gadget.h`), move it into dedicated `src/<name>.h`/`src/<name>.cpp`, remove the placeholder, and (if it reduces churn) have `src/legacy_compat.h` include the new header.
 - Keep call sites honest: once a stub is removed from `src/legacy_compat.h`, include the new dedicated header explicitly where needed (e.g., `FuseClass` is now in `src/fuse.h`/`src/fuse.cpp`).
+- Globals: when a stub global in `src/legacy_compat.cpp` becomes shared game state, move the definition into `src/globals.cpp` and keep only the `extern` declaration in headers (typically `src/legacy_compat.h`) to avoid duplicate definitions.
 
 ## Stubs, feature gates, and build stability
 
