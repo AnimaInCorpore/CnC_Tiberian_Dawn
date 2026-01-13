@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <algorithm>
 #include <strings.h>
 #include <string>
 #include <vector>
@@ -366,10 +367,32 @@ public:
 
     int Count() const { return static_cast<int>(Data.size()); }
     void Clear() { Data.clear(); }
-    void Add(T const& value) { Data.push_back(value); }
-    void Delete(int index) {
-        if (index < 0 || index >= Count()) return;
+    int Resize(int count)
+    {
+        if (count <= 0) return true;
+        Data.reserve(static_cast<size_t>(count));
+        return true;
+    }
+    int Add(T const& value)
+    {
+        Data.push_back(value);
+        return true;
+    }
+    void Delete_All(void) { Data.clear(); }
+    int Delete(T const& value)
+    {
+        for (typename std::vector<T>::iterator it = Data.begin(); it != Data.end(); ++it) {
+            if (*it == value) {
+                Data.erase(it);
+                return true;
+            }
+        }
+        return false;
+    }
+    int Delete(int index) {
+        if (index < 0 || index >= Count()) return false;
         Data.erase(Data.begin() + static_cast<typename std::vector<T>::difference_type>(index));
+        return true;
     }
 
     T& operator[](int index) { return Data[static_cast<size_t>(index)]; }
@@ -404,7 +427,23 @@ class BooleanVectorClass {
 public:
     BooleanVectorClass() : Flags() {}
 
-    void Resize(int count) { Flags.assign(count > 0 ? static_cast<size_t>(count) : 0u, 0u); }
+    int Resize(int count)
+    {
+        Flags.assign(count > 0 ? static_cast<size_t>(count) : 0u, 0u);
+        return true;
+    }
+
+    void Clear(void) { Flags.clear(); }
+    void Reset(void) { std::fill(Flags.begin(), Flags.end(), 0u); }
+    void Set(void) { std::fill(Flags.begin(), Flags.end(), 1u); }
+
+    int First_False(void) const
+    {
+        for (size_t i = 0; i < Flags.size(); ++i) {
+            if (Flags[i] == 0u) return static_cast<int>(i);
+        }
+        return -1;
+    }
 
     unsigned char& operator[](int index) { return Flags[static_cast<size_t>(index)]; }
     unsigned char const& operator[](int index) const { return Flags[static_cast<size_t>(index)]; }

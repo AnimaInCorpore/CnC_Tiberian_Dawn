@@ -55,7 +55,7 @@ Source inventory:
 - [x] goptions.cpp (stub; depends on `options.cpp` + load/save/sound/video dialog stack)
 - [x] gscreen.cpp (stub; gadget routing + redraw flags, no SDL blitting yet)
 - [x] hdata.cpp
-- [ ] heap.cpp
+- [x] heap.cpp
 - [ ] help.cpp
 - [ ] house.cpp
 - [ ] idata.cpp

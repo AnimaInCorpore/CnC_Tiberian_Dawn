@@ -77,6 +77,7 @@
 ## C++98 portability notes
 
 - C++98 quirks: avoid defaulted special members and enum post-increment; iterate enums via an `int` index and cast back.
+- Legacy inline methods: Watcom-era headers sometimes define `int` functions that don’t `return` a value; make the return explicit to avoid UB and modern compiler diagnostics.
 - Prefer bounded formatting: use `snprintf`/`vsnprintf` over `sprintf` when touching formatting code; don’t assume `std::snprintf` exists on every older libstdc++ (fall back to `::snprintf` if needed).
 - Avoid C++11-only library dependencies in new code (headers like `<cstdint>`, language features like `nullptr`, etc.); prefer C89/C99 headers such as `<stdint.h>` or shim typedefs where needed.
 - Use `const char*` for string literals, and don’t qualify static member declarations inside class bodies (write `static T Member;`, not `static T Class::Member;`).
