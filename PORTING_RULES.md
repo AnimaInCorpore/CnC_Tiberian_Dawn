@@ -25,6 +25,7 @@
 ## Stubs, feature gates, and build stability
 
 - If a `.cpp` is missing from the repo snapshot or can’t compile yet due to unported dependencies, add a stub translation unit under `src/` (include `src/legacy_compat.h` or the module’s new header) so CMake builds stay stable; annotate `PROGRESS.md` and replace the stub with the real code once dependencies land.
+- If an unported header is needed only for type completeness (e.g., a base class for inheritance), prefer a minimal dedicated stub header under `src/` (same lowercase name) rather than inflating `src/legacy_compat.h`; replace it when the real header is ported.
 - For UI dialogs that depend on still-unported option state or widget implementations (e.g., `OptionsClass`, `GaugeClass`/`SliderClass`), prefer a small stub `Process()` implementation over adding premature placeholders to the compatibility layer.
 - For movement-heavy modules that depend on unported runtime state or debug drawing surfaces (e.g., `foot.cpp` / `findpath.cpp` needing `FootClass` internals, `Map` pixel conversion, or `SeenBuff`), keep a stub `.cpp` until the required subsystems are in place rather than expanding the compatibility layer with ad-hoc placeholders.
 - For large modules that pull in still-missing subsystems (e.g., Win32 serial/modem + multiplayer globals in `nulldlg.cpp`), keep a stub `.cpp` in `src/` and introduce only the minimal shared header surface (e.g., `src/wincomm.h` with `SerialSettingsType` and related constants) to avoid exploding the compatibility layer prematurely.

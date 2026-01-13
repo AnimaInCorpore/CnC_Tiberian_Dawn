@@ -52,7 +52,7 @@ Source inventory:
 - [x] gamedlg.cpp (stub; depends on Options + slider/gauge UI stack)
 - [x] gauge.cpp
 - [x] globals.cpp (shim; moved early global state out of `legacy_compat.cpp`)
-- [ ] goptions.cpp
+- [x] goptions.cpp (stub; depends on `options.cpp` + load/save/sound/video dialog stack)
 - [ ] gscreen.cpp
 - [ ] hdata.cpp
 - [ ] heap.cpp
