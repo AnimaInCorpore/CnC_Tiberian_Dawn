@@ -49,7 +49,7 @@ Source inventory:
 - [x] foot.cpp (stub; `FootClass`/movement stack still lives in `src/legacy_compat.h` until Techno/Map/mission systems are ported)
 - [x] fuse.cpp
 - [x] gadget.cpp (port; list/focus/redraw behavior, input dispatch still stubbed)
-- [ ] gamedlg.cpp
+- [x] gamedlg.cpp (stub; depends on Options + slider/gauge UI stack)
 - [ ] gauge.cpp
 - [ ] globals.cpp
 - [ ] goptions.cpp
