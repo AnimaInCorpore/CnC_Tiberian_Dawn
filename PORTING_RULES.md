@@ -53,6 +53,10 @@
 - [ ] Static members: Define outside class without `static` keyword (e.g., `Type Class::Member;`).
 - [ ] Iteration: Cast enum indices to `int` for loops.
 
+## Stubs & Inheritance
+- **Abstract Classes**: Ensure stub classes implement pure virtual methods from base classes (usually with empty bodies) to avoid "abstract class" instantiation errors.
+- **Hierarchy**: Reconstruct required inheritance chains via dedicated stub headers (e.g., `sidebar.h` -> `power.h` -> `radar.h`).
+
 ## UI & Input Subsystems
 
 ### Graphics & Rendering

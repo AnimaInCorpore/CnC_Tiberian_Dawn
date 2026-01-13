@@ -3,6 +3,7 @@
 #include "gadget.h"
 #include "layer.h"
 #include "legacy_compat.h"
+#include "map.h"
 
 #ifndef CELL_LEPTON_W
 #define CELL_LEPTON_W ICON_LEPTON_W

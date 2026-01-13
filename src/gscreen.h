@@ -55,10 +55,10 @@ public:
     /*
     ** Changes the mouse shape as indicated.
     */
-    virtual void Set_Default_Mouse(MouseType mouse, bool wwsmall) = 0;
-    virtual bool Override_Mouse_Shape(MouseType mouse, bool wwsmall) = 0;
-    virtual void Revert_Mouse_Shape(void) = 0;
-    virtual void Mouse_Small(bool wwsmall) = 0;
+    virtual void Set_Default_Mouse(MouseType mouse, bool wwsmall) {}
+    virtual bool Override_Mouse_Shape(MouseType mouse, bool wwsmall) { return false; }
+    virtual void Revert_Mouse_Shape(void) {}
+    virtual void Mouse_Small(bool wwsmall) {}
 
     /*
     ** File I/O.

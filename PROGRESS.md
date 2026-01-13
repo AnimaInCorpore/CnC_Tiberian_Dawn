@@ -47,7 +47,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] gscreen.cpp (stub; gadget routing + redraw flags, no SDL blitting yet)
 - [x] hdata.cpp
 - [x] heap.cpp
-- [ ] help.cpp
+- [x] help.cpp
 - [ ] house.cpp
 - [ ] idata.cpp
 - [ ] infantry.cpp
@@ -118,7 +118,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [ ] startup.cpp
 - [ ] stuff.cpp
 - [ ] support.asm
-- [ ] tab.cpp
+- [x] tab.cpp
 - [ ] tarcom.cpp
 - [ ] target.cpp
 - [ ] tdata.cpp

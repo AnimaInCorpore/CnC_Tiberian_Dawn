@@ -1,4 +1,5 @@
 #include "credits.h"
+#include "tab.h"
 
 #include "audio.h"
 #include "legacy_compat.h"

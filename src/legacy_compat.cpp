@@ -56,7 +56,6 @@ char const* Text_String(int text_id) {
 
 void CC_Texture_Fill(void const*, int, int, int, int, int) {}
 
-void TabClass::Draw_Credits_Tab() {}
 
 void CCDebugString(char const* string) {
     if (!string) return;

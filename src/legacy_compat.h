@@ -529,6 +529,8 @@ public:
     void Put_Pixel(int, int, int) {}
     void Print(char const*, int, int, int, int) {}
     void Clear() {}
+    bool Lock() { return true; }
+    void Unlock() {}
 };
 
 class GraphicBufferClass : public GraphicPageClass {
@@ -1557,6 +1559,21 @@ static const DirType DIR_N = 0;
 #ifndef ICON_LEPTON_W
 #define ICON_LEPTON_W 256
 #endif
+
+#ifndef ICON_PIXEL_W
+#define ICON_PIXEL_W 24
+#endif
+
+#ifndef ICON_PIXEL_H
+#define ICON_PIXEL_H 24
+#endif
+
+#ifndef ICON_LEPTON_H
+#define ICON_LEPTON_H 256
+#endif
+
+inline int Lepton_To_Pixel(int lepton) { return ((lepton * ICON_PIXEL_W) + (ICON_LEPTON_W / 2)) / ICON_LEPTON_W; }
+inline int Pixel_To_Lepton(int pixel) { return ((pixel * ICON_LEPTON_W) + (ICON_PIXEL_W / 2)) / ICON_PIXEL_W; }
 #ifndef ICON_LEPTON_H
 #define ICON_LEPTON_H 256
 #endif
@@ -1659,7 +1676,7 @@ public:
         return RESULT_NONE;
     }
 
-    virtual int Sort_Y() const { return 0; }
+    virtual COORDINATE Sort_Y() const { return 0; }
     virtual bool operator<(ObjectClass const&) const { return false; }
 
     ObjectClass* Next;
@@ -1864,10 +1881,6 @@ extern MapClass Map;
 COORDINATE Coord_Add(COORDINATE coord1, COORDINATE coord2);
 
 
-class TabClass {
-public:
-    static void Draw_Credits_Tab();
-};
 
 class ObjectTypeClass : public AbstractTypeClass {
 public:
