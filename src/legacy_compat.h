@@ -98,6 +98,12 @@ enum VolumeConstants {
 #ifndef CC_GREEN_BKGD
 #define CC_GREEN_BKGD 141
 #endif
+#ifndef CC_BRIGHT_GREEN
+#define CC_BRIGHT_GREEN 167
+#endif
+#ifndef PINK
+#define PINK 13
+#endif
 
 // Translucent palette table sizes (from legacy DEFINES.H).
 #ifndef MAGIC_COL_COUNT

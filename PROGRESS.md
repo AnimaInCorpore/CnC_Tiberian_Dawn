@@ -50,7 +50,7 @@ Source inventory:
 - [x] fuse.cpp
 - [x] gadget.cpp (port; list/focus/redraw behavior, input dispatch still stubbed)
 - [x] gamedlg.cpp (stub; depends on Options + slider/gauge UI stack)
-- [ ] gauge.cpp
+- [x] gauge.cpp
 - [ ] globals.cpp
 - [ ] goptions.cpp
 - [ ] gscreen.cpp

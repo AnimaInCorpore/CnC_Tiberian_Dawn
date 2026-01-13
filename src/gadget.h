@@ -87,13 +87,18 @@ protected:
     GadgetClass* Next;
     GadgetClass* Prev;
 
+    /*
+    ** Legacy UI gadgets (notably sliders/gauges) check the current sticky gadget
+    ** while dragging; keep this available to derived classes.
+    */
+    static GadgetClass* StuckOn;
+
     unsigned IsSticky : 1;
     unsigned IsDisabled : 1;
     unsigned IsToRepaint : 1;
     unsigned Flags;
 
 private:
-    static GadgetClass* StuckOn;
     static GadgetClass* LastList;
     static GadgetClass* Focused;
 };
