@@ -1659,6 +1659,9 @@ public:
         return RESULT_NONE;
     }
 
+    virtual int Sort_Y() const { return 0; }
+    virtual bool operator<(ObjectClass const&) const { return false; }
+
     ObjectClass* Next;
     bool IsDown;
     bool IsInLimbo;
@@ -1836,64 +1839,7 @@ public:
     BuildingClass* Ptr(int) const { return NULL; }
 };
 
-class FileClass {
-public:
-    explicit FileClass(const char* filename);
-    virtual ~FileClass();
-
-    virtual bool Is_Available();
-    virtual long Size();
-    virtual long Read(void* buffer, long length);
-    virtual long Write(void const* buffer, long length);
-    virtual void Close();
-
-protected:
-    std::string Filename;
-    std::FILE* Handle;
-};
-
-class RawFileClass : public FileClass {
-public:
-    explicit RawFileClass(const char* filename) : FileClass(filename) {}
-    RawFileClass() : FileClass(NULL) {}
-
-    virtual char const* Set_Name(char const* filename) {
-        Filename = filename ? filename : "";
-        Close();
-        return Filename.empty() ? NULL : Filename.c_str();
-    }
-
-    char const* File_Name() const { return Filename.empty() ? NULL : Filename.c_str(); }
-
-    virtual int Open(int rights = READ) {
-        if (rights & WRITE) {
-            Close();
-            if (Filename.empty()) return false;
-            Handle = std::fopen(Filename.c_str(), "wb");
-            return Handle != NULL;
-        }
-        return FileClass::Is_Available() ? true : false;
-    }
-
-    virtual int Open(char const* filename, int rights = READ) {
-        Set_Name(filename);
-        return Open(rights);
-    }
-
-    virtual int Is_Open() const { return Handle != NULL; }
-
-    virtual int Is_Available(int forced = false) {
-        (void)forced;
-        return FileClass::Is_Available() ? true : false;
-    }
-
-    virtual long Seek(long pos, int dir = SEEK_CUR) {
-        if (!Is_Open() && !Open(READ)) return 0;
-        if (!Handle) return 0;
-        if (std::fseek(Handle, pos, dir) != 0) return 0;
-        return std::ftell(Handle);
-    }
-};
+#include "file.h"
 
 int WWGetPrivateProfileInt(char const* section, char const* key, int default_value, char const* buffer);
 int WWGetPrivateProfileString(char const* section,
@@ -1907,28 +1853,16 @@ bool WWWritePrivateProfileInt(char const* section, char const* key, int value, c
 
 class MapCellClass {
 public:
-    // Placeholder retained for historical reasons; superseded by CellClass-backed MapClass.
+    // Superseded by CellClass-backed MapClass.
 };
 
-class CellClass;
-
-class MapClass {
-public:
-    MapClass();
-    ~MapClass();
-
-    CellClass& operator[](CELL cell);
-    CellClass const& operator[](CELL cell) const;
-    bool In_Radar(CELL) const { return true; }
-    void Flag_To_Redraw(bool) {}
-
-private:
-    CellClass* Dummy;
-};
+// Forward declaration, use map.h for full definition.
+class MapClass;
 
 extern MapClass Map;
 
 COORDINATE Coord_Add(COORDINATE coord1, COORDINATE coord2);
+
 
 class TabClass {
 public:
