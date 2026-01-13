@@ -48,6 +48,18 @@ typedef unsigned short TARGET;
 #define TARGET_NONE ((TARGET)0)
 #endif
 
+typedef int PlayerColorType;
+
+enum PlayerColorConstants {
+    REMAP_NONE = 0,
+    REMAP_YELLOW,
+    REMAP_RED,
+    REMAP_BLUE,
+    REMAP_AQUA,
+    REMAP_ORANGE,
+    REMAP_GREEN
+};
+
 // Legacy helper used throughout the original codebase: size of a field/member.
 #ifndef size_of
 #define size_of(type, member) (sizeof(((type*)0)->member))
@@ -1458,7 +1470,12 @@ enum TextId {
 
     TXT_CONFIRMATION,
     TXT_YES,
-    TXT_NO
+    TXT_NO,
+
+    TXT_GDI,
+    TXT_NOD,
+    TXT_CIVILIAN,
+    TXT_JP
 };
 
 // Placeholder structure for INI prerequisites.
@@ -1634,17 +1651,59 @@ public:
 
 class HouseTypeClass {
 public:
-    explicit HouseTypeClass(HousesType house = HOUSE_NONE) : House(house) {}
-    HousesType House;
-
-    static HousesType From_Name(char const* name) {
-        if (!name) return HOUSE_NONE;
-        if (!strcasecmp(name, "GoodGuy")) return HOUSE_GOOD;
-        if (!strcasecmp(name, "BadGuy")) return HOUSE_BAD;
-        if (!strcasecmp(name, "Neutral")) return HOUSE_NEUTRAL;
-        if (!strcasecmp(name, "Japan")) return HOUSE_JP;
-        return HOUSE_NONE;
+    HouseTypeClass()
+        : RemapTable(NULL),
+          RemapColor(REMAP_NONE),
+          House(HOUSE_NONE),
+          IniName(NULL),
+          FullName(0),
+          Lemon(0),
+          Color(0),
+          BrightColor(0),
+          Prefix('\0') {
+        Suffix[0] = '\0';
     }
+
+    explicit HouseTypeClass(HousesType house)
+        : RemapTable(NULL),
+          RemapColor(REMAP_NONE),
+          House(house),
+          IniName(NULL),
+          FullName(0),
+          Lemon(0),
+          Color(0),
+          BrightColor(0),
+          Prefix('\0') {
+        Suffix[0] = '\0';
+    }
+
+    HouseTypeClass(HousesType house,
+                   char const* ini,
+                   int fullname,
+                   char const* ext,
+                   int lemon,
+                   int color,
+                   int bright_color,
+                   PlayerColorType remapcolor,
+                   unsigned char const* remap,
+                   char prefix);
+
+    static void One_Time(void);
+    static HousesType From_Name(char const* name);
+    static HouseTypeClass const& As_Reference(HousesType house);
+
+    static HouseTypeClass const* const Pointers[HOUSE_COUNT];
+
+    unsigned char const* RemapTable;
+    PlayerColorType RemapColor;
+    HousesType House;
+    char const* IniName;
+    int FullName;
+    char Suffix[4];
+    int Lemon;
+    int Color;
+    int BrightColor;
+    char Prefix;
 };
 
 class HouseClass {
@@ -2184,9 +2243,11 @@ struct SpecialClass {
     bool IsSeparate;
     bool IsInert;
     bool IsVisibleTarget;
+    bool IsJurassic;
 };
 
 extern SpecialClass Special;
+extern bool AreThingiesEnabled;
 extern int Scenario;
 extern bool Debug_Map;
 

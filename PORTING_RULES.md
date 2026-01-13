@@ -72,6 +72,7 @@
 - Data-table structs: if legacy code uses brace initializers for global tables (e.g., `Warheads`, `Weapons`), keep the corresponding shim structs as simple aggregates (no user-defined constructors) so C++98 aggregate initialization works.
 - Shift safety: when shifting by a value read from legacy byte tables (e.g., warhead `SpreadFactor`), clamp the shift to a sane range to avoid UB on modern compilers.
 - Const asset caches: when legacy code mutates cached asset pointers on a `const` reference (e.g., `bullet.ImageData`), prefer `const_cast<void const*&>(...)` over C-style casts.
+- Mutable data tables: if legacy code “patches” a `static const` table during a one-time init (typically via a cast), make the table object non-const and keep external references `const*` to avoid UB.
 
 ## C++98 portability notes
 

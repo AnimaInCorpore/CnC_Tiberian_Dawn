@@ -35,6 +35,6 @@ unsigned Frame = 0;
 BuildingCollection Buildings;
 MapClass Map;
 SpecialClass Special;
+bool AreThingiesEnabled = false;
 int Scenario = 0;
 bool Debug_Map = false;
-
