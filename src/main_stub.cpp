@@ -1,6 +1,9 @@
-#include <iostream>
+#include <cstdlib>
 
-int main() {
-    std::cerr << "cnc_td stub build; replace main_stub.cpp with the ported entry point.\n";
-    return 0;
+/* Forward declaration of the original ported entry routine. */
+void Main_Game(int argc, char* argv[]);
+
+int main(int argc, char** argv) {
+    Main_Game(argc, argv);
+    return EXIT_SUCCESS;
 }
