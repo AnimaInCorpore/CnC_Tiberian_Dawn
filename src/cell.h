@@ -110,8 +110,6 @@ public:
     int Validate(void) const;
 
 private:
-    CellClass(CellClass const&);
-
     LandType Land;
 };
 

@@ -51,6 +51,16 @@ typedef unsigned short TARGET;
 
 typedef int PlayerColorType;
 
+// Helper coordinate functions used by legacy map routines
+#ifndef CELL_HELPERS_DEFINED
+#define CELL_HELPERS_DEFINED
+#ifndef MAP_CELL_W
+#define MAP_CELL_W 64
+#endif
+inline int Cell_X(CELL cell) { return static_cast<int>(cell % MAP_CELL_W); }
+inline int Cell_Y(CELL cell) { return static_cast<int>(cell / MAP_CELL_W); }
+#endif
+
 enum PlayerColorConstants {
     REMAP_NONE = 0,
     REMAP_YELLOW,
@@ -1765,6 +1775,11 @@ public:
     char Prefix;
 };
 
+// HouseClass shim: provide a lightweight in-header definition for modules
+// that need it during early porting. When compiling the original
+// HOUSE.CPP implementation we define `REAL_HOUSE_IMPL` to avoid a
+// duplicate definition here.
+#ifndef REAL_HOUSE_IMPL
 class HouseClass {
 public:
     struct TypeRef : public HouseTypeClass {
@@ -1826,6 +1841,11 @@ public:
     int BuildingFactories;
     int PowerFraction;
 };
+#else
+// When compiling the real HOUSE.CPP implementation, pull in the original
+// header so the class declaration and related types are available.
+#include "../HOUSE.H"
+#endif
 
 extern HouseClass* PlayerPtr;
 extern unsigned Frame;

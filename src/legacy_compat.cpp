@@ -10,6 +10,12 @@
 void const* ObjectTypeClass::SelectShapes = NULL;
 void const* ObjectTypeClass::PipShapes = NULL;
 
+// Minimal globals to satisfy legacy references until full implementations
+// are ported.
+#include "map_fwd.h"
+
+DynamicVectorClass<TriggerClass*> CellTriggers;
+
 void Hide_Mouse() {}
 void Show_Mouse() {}
 
@@ -63,18 +69,9 @@ void CCDebugString(char const* string) {
     std::fflush(stderr);
 }
 
-/*
-MapClass::MapClass() : Dummy(NULL) {
-    static CellClass dummy;
-    Dummy = &dummy;
-}
+CellClass& MapClass::operator[](CELL) { static CellClass dummy; return dummy; }
 
-MapClass::~MapClass() {}
-
-CellClass& MapClass::operator[](CELL) { return *Dummy; }
-
-CellClass const& MapClass::operator[](CELL) const { return *Dummy; }
-*/
+CellClass const& MapClass::operator[](CELL) const { static CellClass dummy; return dummy; }
 
 namespace {
 static short const SmudgeEmptyList[] = {REFRESH_EOL};
