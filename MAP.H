@@ -87,6 +87,12 @@ class MapClass: public GScreenClass
 		virtual void Decode_Pointers(void);
 
 		/*
+		**	Array-like access to cells (legacy compatibility)
+		*/
+		CellClass & operator[](CELL cell);
+		CellClass const & operator[](CELL cell) const;
+
+		/*
 		** Debug routine
 		*/
 		int Validate(void);

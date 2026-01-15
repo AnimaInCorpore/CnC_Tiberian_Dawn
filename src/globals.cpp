@@ -1,4 +1,5 @@
 #include "function.h"
+#include "map.h"
 
 GraphicPageClass* LogicPage = NULL;
 GraphicBufferClass SeenBuff;

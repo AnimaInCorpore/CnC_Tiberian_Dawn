@@ -1,4 +1,5 @@
 #include "cell.h"
+#include "map_fwd.h"
 #include "legacy_compat.h"
 
 int Modify_Damage(int damage, WarheadType warhead, ArmorType armor, int distance) {

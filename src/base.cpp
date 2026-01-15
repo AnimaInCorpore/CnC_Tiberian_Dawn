@@ -1,4 +1,5 @@
 #include "base.h"
+#include "map_fwd.h"
 
 #include <cstdio>
 #include <cstdlib>

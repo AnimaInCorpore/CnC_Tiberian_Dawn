@@ -59,6 +59,7 @@
 #include "legacy_compat.h"
 
 #define	MCW	MAP_CELL_W
+#include "map_fwd.h"
 
 #define XYCELL(x,y)	(y*MAP_CELL_W+x)
 static short const ExitPyle[] = {
