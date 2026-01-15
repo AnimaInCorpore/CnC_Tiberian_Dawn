@@ -1,6 +1,22 @@
 #include "cell.h"
+#include "map.h"
 
 #include <cstring>
+#include <cstdlib>
+
+static COORDINATE Make_Spot_From_Base(unsigned base, int spot)
+{
+    unsigned v = base;
+    switch (spot) {
+    case 0: v |= 0x00800080u; break; // center
+    case 1: v |= 0x00400040u; break; // NW
+    case 2: v |= 0x004000C0u; break; // NE
+    case 3: v |= 0x00C00040u; break; // SW
+    case 4: v |= 0x00C000C0u; break; // SE
+    default: v |= 0x00800080u; break;
+    }
+    return static_cast<COORDINATE>(v);
+}
 
 CellClass::CellClass(void)
     : IsPlot(0),
@@ -30,16 +46,46 @@ CellClass::CellClass(void)
 ObjectClass* CellClass::Cell_Occupier(void) const { return OccupierPtr; }
 
 int CellClass::Spot_Index(COORDINATE coord) {
-    (void)coord;
-    return 0;
+    int lx = Coord_XLepton(coord);
+    int ly = Coord_YLepton(coord);
+
+    // center tolerance area -> center
+    const int center = 128;
+    const int tol = 64;
+    if (std::abs(lx - center) <= tol && std::abs(ly - center) <= tol) return 0; // Center
+
+    // Quadrants: NW, NE, SW, SE
+    if (lx < center && ly < center) return 1; // NW
+    if (lx >= center && ly < center) return 2; // NE
+    if (lx < center && ly >= center) return 3; // SW
+    return 4; // SE
 }
 
 COORDINATE CellClass::Closest_Free_Spot(COORDINATE coord, bool any) const {
-    (void)any;
+    // Normalize base cell (clear lepton bytes)
+    unsigned base = static_cast<unsigned>(coord) & 0xFF00FF00u;
+
+    // Helper to construct a coordinate for a spot index
+    int start = Spot_Index(coord);
+    if (start < 0) start = 0;
+
+    // Check requested spot first
+    if (Is_Spot_Free(start)) return Make_Spot_From_Base(base, start);
+
+    // If any free spot is acceptable, try center then corners
+    const int order[] = {0, 1, 2, 3, 4};
+    for (int i = 0; i < 5; ++i) {
+        if (Is_Spot_Free(order[i])) return Make_Spot_From_Base(base, order[i]);
+    }
+
+    // Fallback to original coordinate
     return coord;
 }
 
-bool CellClass::Is_Generally_Clear(void) const { return true; }
+bool CellClass::Is_Generally_Clear(void) const { 
+    if (OccupierPtr) return false;
+    if (Overlapper[0] || Overlapper[1] || Overlapper[2]) return false;
+    return true; }
 
 TARGET CellClass::As_Target(void) const { return static_cast<TARGET>(Cell_Number()); }
 
@@ -51,18 +97,27 @@ BuildingClass* CellClass::Cell_Building(void) const {
 }
 
 CellClass const& CellClass::Adjacent_Cell(FacingType face) const {
-    (void)face;
-    return *this;
+    if (face == FACING_NONE) return *this;
+
+    CELL num = Cell_Number();
+    if ((unsigned)num >= (unsigned)MAP_CELL_TOTAL) return *this;
+
+    CELL offset = AdjacentCell[face];
+    int target = static_cast<int>(num) + static_cast<int>(offset);
+    if (target < 0 || target >= MAP_CELL_TOTAL) return *this;
+
+    return Map[target];
 }
 
 COORDINATE CellClass::Cell_Coord(void) const { return ::Cell_Coord(Cell_Number()); }
 
 int CellClass::Cell_Color(bool override) const {
     (void)override;
+    if (Land >= 0 && Land < LAND_COUNT) return Ground[Land].RadarColor;
     return 0;
 }
 
-CELL CellClass::Cell_Number(void) const { return 0; }
+CELL CellClass::Cell_Number(void) const { return static_cast<CELL>(Map.ID(this)); }
 
 ObjectClass* CellClass::Cell_Find_Object(RTTIType rtti) const {
     ObjectClass* object = OccupierPtr;
@@ -89,18 +144,52 @@ ObjectClass* CellClass::Cell_Object(int x, int y) const {
 TechnoClass* CellClass::Cell_Techno(int x, int y) const {
     (void)x;
     (void)y;
+    ObjectClass* object = OccupierPtr;
+    while (object) {
+        RTTIType r = object->What_Am_I();
+        if (r == RTTI_UNIT || r == RTTI_INFANTRY || r == RTTI_AIRCRAFT) return static_cast<TechnoClass*>(object);
+        object = object->Next;
+    }
+    for (int i = 0; i < 3; ++i) {
+        object = Overlapper[i];
+        while (object) {
+            RTTIType r = object->What_Am_I();
+            if (r == RTTI_UNIT || r == RTTI_INFANTRY || r == RTTI_AIRCRAFT) return static_cast<TechnoClass*>(object);
+            object = object->Next;
+        }
+    }
     return NULL;
 }
 
-TerrainClass* CellClass::Cell_Terrain(void) const { return NULL; }
+TerrainClass* CellClass::Cell_Terrain(void) const {
+    // Terrain RTTI isn't available in the lightweight shim; return NULL for now.
+    (void)0;
+    return NULL;
+}
 
-UnitClass* CellClass::Cell_Unit(void) const { return NULL; }
+UnitClass* CellClass::Cell_Unit(void) const {
+    ObjectClass* obj = Cell_Find_Object(RTTI_UNIT);
+    return obj ? reinterpret_cast<UnitClass*>(obj) : NULL;
+}
 
-InfantryClass* CellClass::Cell_Infantry(void) const { return NULL; }
+InfantryClass* CellClass::Cell_Infantry(void) const {
+    ObjectClass* obj = Cell_Find_Object(RTTI_INFANTRY);
+    return obj ? reinterpret_cast<InfantryClass*>(obj) : NULL;
+}
 
-TriggerClass* CellClass::Get_Trigger(void) const { return NULL; }
+TriggerClass* CellClass::Get_Trigger(void) const {
+    int num = Cell_Number();
+    if (num < 0 || num >= MAP_CELL_TOTAL) return NULL;
+    extern DynamicVectorClass<TriggerClass*> CellTriggers;
+    if (CellTriggers.Count() <= num) return NULL;
+    return CellTriggers[num];
+}
 
-int CellClass::Clear_Icon(void) const { return 0; }
+int CellClass::Clear_Icon(void) const {
+    Validate();
+    CELL cell = Cell_Number();
+    return ((cell & 0x03) | ((cell >> 4) & 0x0C));
+}
 
 bool CellClass::Goodie_Check(FootClass* object) {
     (void)object;

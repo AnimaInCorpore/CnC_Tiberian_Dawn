@@ -100,6 +100,18 @@ void MapClass::Set_Map_Dimensions(int x, int y, int w, int h) {
     MapCellHeight = h;
 }
 
+int MapClass::ID(void const* pointer) const {
+    if (!pointer) return -1;
+    if (Count() <= 0) return -1;
+
+    // Address of first element
+    const CellClass* base = &(*this)[0];
+    const CellClass* ptr = static_cast<const CellClass*>(pointer);
+    ptrdiff_t idx = ptr - base;
+    if (idx < 0 || idx >= Count()) return -1;
+    return static_cast<int>(idx);
+}
+
 // Stubs for logic not yet fully portable or dependent on complex systems
 ObjectClass* MapClass::Close_Object(COORDINATE coord) const { return NULL; }
 int MapClass::Cell_Region(CELL cell) { return 0; }

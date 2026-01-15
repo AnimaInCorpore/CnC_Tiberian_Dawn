@@ -43,6 +43,10 @@ public:
     virtual void Logic(void);
     virtual void Set_Map_Dimensions(int x, int y, int w, int h);
 
+    // Return the index (CELL) for a pointer into the internal cell array,
+    // or -1 if the pointer is not inside the managed buffer.
+    int ID(void const* pointer) const;
+
     /*
     **	File I/O.
     */
