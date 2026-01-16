@@ -7,7 +7,7 @@
 
 #include <cstddef>
 #include <cctype>
-#include <cstdint>
+#include <stdint.h>
 #include <cstdio>
 #include <cstring>
 #include <algorithm>
