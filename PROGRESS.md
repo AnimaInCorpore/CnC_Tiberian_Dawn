@@ -102,7 +102,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [ ] radar.cpp
 - [ ] radio.cpp
 - [ ] rand.cpp
-- [ ] rawfile.cpp
+- [x] rawfile.cpp
 - [ ] reinf.cpp
 - [ ] savedlg.cpp
 - [ ] saveload.cpp

@@ -1789,6 +1789,7 @@ public:
 };
 
 #include "file.h"
+#include "rawfile.h"
 
 int WWGetPrivateProfileInt(char const* section, char const* key, int default_value, char const* buffer);
 int WWGetPrivateProfileString(char const* section,
