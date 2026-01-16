@@ -13,6 +13,7 @@
 
 ### 1. Creation & Placement
 - **Missing/Broken Source**: If a file is missing or won't compile, add a stub `.cpp` in `src/` which includes `src/legacy_compat.h`. Ensure the CMake build remains stable.
+- **Deferred I/O Modules**: If headers reference save/load methods as "implemented in ioobj.cpp", add `src/ioobj.cpp` stubs for those methods until `saveload.cpp` and pointer coding tables are ported.
 - **Type Completeness**: Use `src/legacy_compat.h` for shared typedefs, enums, globals, and RTTI values.
 - **Stub Headers**: If a header is needed for inheritance but unported, create a minimal dedicated stub header (e.g., `src/house.h`) rather than cluttering `legacy_compat.h`.
 - **Large Subsystems**: For complex missing dependencies (e.g., networking, `foot.cpp` requiring `FootClass`), keep a stub `.cpp` and a minimal shared header to avoid premature compatibility layer bloat.

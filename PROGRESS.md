@@ -55,7 +55,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] init.cpp (stub; portable init/menu/CLI pending)
 - [x] intro.cpp (stub; VQA/WSA intro playback + side selection UI pending)
 - [x] iomap.cpp (shim; MapClass pointer coding/decoding wired to CellClass)
-- [ ] ioobj.cpp
+- [x] ioobj.cpp (stub; save/load backend not ported yet)
 - [ ] ipx.cpp
 - [ ] ipxaddr.cpp
 - [ ] ipxconn.cpp
