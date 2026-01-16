@@ -64,6 +64,7 @@
 
 ### Graphics & Rendering
 - **Shims**: `Draw_Box` and `Window_Box` implemented in `src/dialog.cpp`.
+- **Caption/Textures**: Implement `Draw_Caption` and provide a usable `CC_Texture_Fill` fallback (solid/dither) so dialog UIs are readable before full SHP blitting lands.
 - **Buffers**: `SeenBuff` is a 640x400 8-bit `GraphicBufferClass` backed by a software pixel buffer.
 - **Present**: `Call_Back()`/`Main_Loop()` copy `SeenBuff` into the SDL 1.2 screen surface (8-bpp) and flip.
 - **Redraw Flags**: Use `BooleanVectorClass` shim for `DisplayClass` bit arrays.
@@ -73,7 +74,7 @@
 ### Input & Geometry
 - **Mouse**: `Get_Mouse_X/Y` returns SDL mouse coordinates from `SDL_Platform_Pump_Events`.
 - **Keys**: Minimal key queue is provided by `SDL_Platform_Pop_Key()` (Esc/Return/Left/Right only, expand as needed).
-- **Facing**: `Desired_Facing8` is still stubbed.
+- **Facing**: Implement `Desired_Facing8` early (8-way from screen-space vector) since UI widgets (e.g., dials) depend on it.
 - **Calculations**: `Dir_Facing`, `Facing_Dir`, `Facing_To_32` are fully implemented bit/lookup conversions.
 - **Keyboard**: Keep `KeyASCIIType` and `WWKEY` flags available.
 

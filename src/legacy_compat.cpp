@@ -91,15 +91,48 @@ void Show_Mouse() { SDL_ShowCursor(SDL_ENABLE); }
 int Get_Mouse_X() { return SDL_Platform_Mouse_X(); }
 int Get_Mouse_Y() { return SDL_Platform_Mouse_Y(); }
 
-int Desired_Facing8(int, int, int, int) { return 0; }
+int Desired_Facing8(int center_x, int center_y, int mouse_x, int mouse_y)
+{
+    const int dx = mouse_x - center_x;
+    const int dy = mouse_y - center_y;
+    if (dx == 0 && dy == 0) return FACING_NONE;
+
+    // Screen coordinates: +y is down. Map to 8-way facing.
+    // Angle 0 points east, then clockwise.
+    double angle = std::atan2((double)dy, (double)dx);  // [-pi, pi]
+    const double pi = 3.14159265358979323846;
+    if (angle < 0.0) angle += 2.0 * pi;
+    int octant = (int)((angle / (2.0 * pi)) * 8.0 + 0.5) & 7;
+    static const int facing_map[8] = {FACING_E, FACING_SE, FACING_S, FACING_SW, FACING_W, FACING_NW, FACING_N, FACING_NE};
+    return facing_map[octant];
+}
 
 void Sticky_Process(unsigned) {}
 
 COORDINATE Coord_Add(COORDINATE coord1, COORDINATE coord2) { return coord1 + coord2; }
 
-void Draw_Caption(int, int, int, int) {}
-void Conditional_Hide_Mouse(int, int, int, int) {}
-void Conditional_Show_Mouse(void) {}
+namespace {
+static bool g_mouse_hidden_conditionally = false;
+}
+
+void Conditional_Hide_Mouse(int x, int y, int w, int h)
+{
+    const int mx = Get_Mouse_X();
+    const int my = Get_Mouse_Y();
+    const bool inside = (mx >= x && my >= y && mx < x + w && my < y + h);
+    if (inside && !g_mouse_hidden_conditionally) {
+        Hide_Mouse();
+        g_mouse_hidden_conditionally = true;
+    }
+}
+
+void Conditional_Show_Mouse(void)
+{
+    if (g_mouse_hidden_conditionally) {
+        Show_Mouse();
+        g_mouse_hidden_conditionally = false;
+    }
+}
 
 int String_Pixel_Width(char const* text) {
     if (!text) return 0;
@@ -129,7 +162,39 @@ char const* Text_String(int text_id) {
     }
 }
 
-void CC_Texture_Fill(void const*, int, int, int, int, int) {}
+void Draw_Caption(int text, int x, int y, int w)
+{
+    if (!LogicPage) return;
+    const int factor = (SeenBuff.Get_Width() == 320) ? 1 : 2;
+    const int caption_h = (FontHeight + FontYSpacing + 6) * factor;
+
+    LogicPage->Fill_Rect(x + 2, y + 2, w - 4, caption_h - 4, CC_GREEN_BKGD);
+    LogicPage->Draw_Rect(x + 1, y + 1, w - 2, caption_h - 2, 14);
+    LogicPage->Draw_Rect(x, y, w, caption_h, 13);
+
+    char const* caption = Text_String(text);
+    if (!caption) caption = "";
+    const int text_w = String_Pixel_Width(caption);
+    const int text_x = x + (w - text_w) / 2;
+    const int text_y = y + 3 * factor;
+    LogicPage->Print(caption, text_x, text_y, WHITE, TBLACK);
+}
+
+void CC_Texture_Fill(void const* shapefile, int shapenum, int xpos, int ypos, int width, int height)
+{
+    (void)shapefile;
+    (void)shapenum;
+    if (!LogicPage) return;
+
+    LogicPage->Fill_Rect(xpos, ypos, width, height, CC_GREEN_BKGD);
+
+    // Simple dither overlay to avoid a flat fill until SHP texture decoding lands.
+    for (int y = ypos; y < ypos + height; ++y) {
+        for (int x = xpos + ((y & 1) ? 1 : 0); x < xpos + width; x += 2) {
+            LogicPage->Put_Pixel(x, y, 12);
+        }
+    }
+}
 
 
 void CCDebugString(char const* string) {

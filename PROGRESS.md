@@ -23,39 +23,39 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] credits.cpp
 - [x] crew.cpp
 - [x] debug.cpp
-- [x] deldlg.cpp (stub; legacy source missing)
+- [ ] deldlg.cpp (stub; legacy source missing)
 - [x] descdlg.cpp
 - [x] dial8.cpp
 - [x] dialog.cpp
-- [x] display.cpp (stub; skeleton header + statics for now)
+- [ ] display.cpp (stub; skeleton header + statics for now)
 - [x] dpmi.cpp
-- [x] drive.cpp (stub; DriveClass logic pending)
+- [ ] drive.cpp (stub; DriveClass logic pending)
 - [x] edit.cpp
-- [x] event.cpp (Execute stub; event plumbing pending)
+- [ ] event.cpp (Execute stub; event plumbing pending)
 - [x] facing.cpp
 - [x] factory.cpp (production logic; uses House/Techno shims for now)
-- [x] findpath.cpp (stub; requires FootClass movement state + map passability + debug surfaces)
+- [ ] findpath.cpp (stub; requires FootClass movement state + map passability + debug surfaces)
 - [x] flasher.cpp
 - [x] fly.cpp
-- [x] foot.cpp (stub; `FootClass`/movement stack still lives in `src/legacy_compat.h` until Techno/Map/mission systems are ported)
+- [ ] foot.cpp (stub; `FootClass`/movement stack still lives in `src/legacy_compat.h` until Techno/Map/mission systems are ported)
 - [x] fuse.cpp
 - [x] gadget.cpp (port; list/focus/redraw behavior, input dispatch still stubbed)
-- [x] gamedlg.cpp (stub; depends on Options + slider/gauge UI stack)
+- [ ] gamedlg.cpp (stub; depends on Options + slider/gauge UI stack)
 - [x] gauge.cpp
 - [x] globals.cpp (shim; moved early global state out of `legacy_compat.cpp`)
-- [x] goptions.cpp (stub; depends on `options.cpp` + load/save/sound/video dialog stack)
-- [x] gscreen.cpp (stub; gadget routing + redraw flags, no SDL blitting yet)
+- [ ] goptions.cpp (stub; depends on `options.cpp` + load/save/sound/video dialog stack)
+- [ ] gscreen.cpp (stub; gadget routing + redraw flags, no SDL blitting yet)
 - [x] hdata.cpp
 - [x] heap.cpp
 - [x] help.cpp
 - [x] house.cpp (shim; moved HouseClass/HouseTypeClass out of `legacy_compat.h`)
-- [x] idata.cpp (stub; InfantryTypeClass tables pending)
-- [x] infantry.cpp (stub; full infantry runtime depends on TYPE/Techno/Map stack)
-- [x] ini.cpp (stub; scenario parsing pending)
-- [x] init.cpp (stub; portable init/menu/CLI pending)
-- [x] intro.cpp (stub; VQA/WSA intro playback + side selection UI pending)
+- [ ] idata.cpp (stub; InfantryTypeClass tables pending)
+- [ ] infantry.cpp (stub; full infantry runtime depends on TYPE/Techno/Map stack)
+- [ ] ini.cpp (stub; scenario parsing pending)
+- [ ] init.cpp (stub; portable init/menu/CLI pending)
+- [ ] intro.cpp (stub; VQA/WSA intro playback + side selection UI pending)
 - [x] iomap.cpp (shim; MapClass pointer coding/decoding wired to CellClass)
-- [x] ioobj.cpp (stub; save/load backend not ported yet)
+- [ ] ioobj.cpp (stub; save/load backend not ported yet)
 - [ ] ipx.cpp
 - [ ] ipxaddr.cpp
 - [ ] ipxconn.cpp
@@ -71,7 +71,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [ ] list.cpp
 - [ ] loaddlg.cpp
 - [ ] logic.cpp
-- [x] map.cpp (ported; MapClass skeleton, stubs for Logic/Sight/IO)
+- [ ] map.cpp (ported; MapClass skeleton, stubs for Logic/Sight/IO)
 - [ ] mapeddlg.cpp
 
 - [ ] mapedit.cpp
@@ -90,8 +90,8 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [ ] netdlg.cpp
 - [ ] noseqcon.cpp
 - [ ] nullconn.cpp
-- [x] nulldlg.cpp (stub; Win32 serial/modem stack + multiplayer globals not ported yet)
-- [x] nullmgr.cpp (stub; legacy Win32/Greenleaf serial/modem backend not ported yet)
+- [ ] nulldlg.cpp (stub; Win32 serial/modem stack + multiplayer globals not ported yet)
+- [ ] nullmgr.cpp (stub; legacy Win32/Greenleaf serial/modem backend not ported yet)
 - [ ] object.cpp
 - [ ] odata.cpp
 - [ ] options.cpp
