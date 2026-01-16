@@ -48,7 +48,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] hdata.cpp
 - [x] heap.cpp
 - [x] help.cpp
-- [ ] house.cpp
+- [x] house.cpp (shim; moved HouseClass/HouseTypeClass out of `legacy_compat.h`)
 - [ ] idata.cpp
 - [ ] infantry.cpp
 - [ ] ini.cpp

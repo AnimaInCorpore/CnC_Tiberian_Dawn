@@ -21,6 +21,7 @@
 - **Partial implementations**: Implement minimal `Process()` or no-op returns for UI dialogs/widgets dependent on unported state.
 - **Feature Gates**: Provide no-op stubs for symbols guarded by flags like `CHEAT_KEYS` so default builds link.
 - **Globals**: If a stub global becomes shared state, move its definition to `src/globals.cpp` and keep an `extern` declaration in `src/legacy_compat.h`.
+- **Shim Extraction**: When a compatibility shim grows beyond a few helpers (e.g., a whole class), move it into `src/<module>.h/.cpp` and include it from `src/legacy_compat.h` to avoid header bloat and ODR risks.
 
 ### 3. Replacement (De-stubbing)
 - **Migration**: When a real implementation lands, move code from `src/legacy_compat.*` to its dedicated `src/<name>.cpp/.h`.
