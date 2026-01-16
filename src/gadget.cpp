@@ -21,6 +21,8 @@
 #include "gadget.h"
 
 #include "control.h"
+#include "function.h"
+#include "sdl_platform.h"
 
 GadgetClass* GadgetClass::StuckOn = 0;
 GadgetClass* GadgetClass::LastList = 0;
@@ -174,4 +176,38 @@ ControlClass* GadgetClass::Extract_Gadget(unsigned id) {
         gadget = gadget->Next;
     }
     return 0;
+}
+
+KeyNumType TextButtonClass::Input()
+{
+    int key = SDL_Platform_Pop_Key();
+    if (key) return (KeyNumType)key;
+
+    if (!SDL_Platform_Mouse_Left_Pressed()) return KN_NONE;
+
+    const int mx = Get_Mouse_X();
+    const int my = Get_Mouse_Y();
+    if (mx >= X && mx < (X + Width) && my >= Y && my < (Y + Height)) {
+        return (KeyNumType)(Id | KN_BUTTON);
+    }
+    return KN_NONE;
+}
+
+void TextButtonClass::Draw_All(bool forced)
+{
+    if (!forced && !NeedsRedraw) return;
+    NeedsRedraw = false;
+
+    const int fill = IsOn ? CC_BRIGHT_GREEN : CC_GREEN_BKGD;
+    const int border = CC_BRIGHT_GREEN;
+    if (LogicPage) {
+        LogicPage->Fill_Rect(X, Y, Width, Height, fill);
+        LogicPage->Draw_Rect(X, Y, Width, Height, border);
+    }
+
+    char const* label = Text_String(Text);
+    int text_w = String_Pixel_Width(label);
+    int tx = X + (Width - text_w) / 2;
+    int ty = Y + 2;
+    Fancy_Text_Print(label, (unsigned)tx, (unsigned)ty, CC_GREEN, TBLACK, TextFlags);
 }

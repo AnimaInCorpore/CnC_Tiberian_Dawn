@@ -14,3 +14,10 @@ void SDL_Platform_Present();
 unsigned long SDL_Platform_Ticks();
 void SDL_Platform_Delay(unsigned long ms);
 
+// Optional helpers used by the shim UI/graphics layer.
+SDL_Surface* SDL_Platform_Screen();
+int SDL_Platform_Mouse_X();
+int SDL_Platform_Mouse_Y();
+bool SDL_Platform_Mouse_Left_Pressed();
+bool SDL_Platform_Mouse_Left_Released();
+int SDL_Platform_Pop_Key();

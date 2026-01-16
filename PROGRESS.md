@@ -15,7 +15,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] combuf.cpp
 - [x] confdlg.cpp
 - [x] connect.cpp
-- [x] conquer.cpp (stub; legacy startup/main loop not wired yet)
+- [x] conquer.cpp (shim; SDL `Call_Back`/`Main_Loop` now pumps events + presents `SeenBuff`, legacy startup/main loop still pending)
 - [x] const.cpp
 - [x] control.cpp
 - [x] coord.cpp

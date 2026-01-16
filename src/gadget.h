@@ -117,16 +117,8 @@ public:
     void Turn_Off() { IsOn = false; }
     void Flag_To_Redraw() { NeedsRedraw = true; }
 
-    KeyNumType Input() { return KN_NONE; }
-
-    void Draw_All(bool forced = true) {
-        (void)forced;
-        NeedsRedraw = false;
-        (void)Id;
-        (void)Text;
-        (void)TextFlags;
-        (void)IsOn;
-    }
+    KeyNumType Input();
+    void Draw_All(bool forced = true);
 
 private:
     int Id;

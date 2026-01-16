@@ -2,7 +2,7 @@
 #include "map.h"
 
 GraphicPageClass* LogicPage = NULL;
-GraphicBufferClass SeenBuff;
+GraphicBufferClass SeenBuff(640, 400);
 
 SurfaceManager AllSurfaces = {false};
 

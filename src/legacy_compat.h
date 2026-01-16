@@ -564,14 +564,17 @@ typedef enum BoxStyleEnum {
 
 class GraphicPageClass {
 public:
-    void Draw_Rect(int, int, int, int, int) {}
-    void Fill_Rect(int, int, int, int, int) {}
-    void Draw_Line(int, int, int, int, int) {}
-    void Put_Pixel(int, int, int) {}
-    void Print(char const*, int, int, int, int) {}
-    void Clear() {}
-    bool Lock() { return true; }
-    void Unlock() {}
+    GraphicPageClass();
+    virtual ~GraphicPageClass();
+
+    virtual void Draw_Rect(int x, int y, int w, int h, int color);
+    virtual void Fill_Rect(int x, int y, int w, int h, int color);
+    virtual void Draw_Line(int x1, int y1, int x2, int y2, int color);
+    virtual void Put_Pixel(int x, int y, int color);
+    virtual void Print(char const* text, int x, int y, int fore, int back);
+    virtual void Clear();
+    virtual bool Lock();
+    virtual void Unlock();
 };
 
 class GraphicBufferClass : public GraphicPageClass {
@@ -582,9 +585,14 @@ public:
     int Get_Width() const { return Width; }
     int Get_Height() const { return Height; }
 
+    unsigned char* Data();
+    unsigned char const* Data() const;
+    int Pitch() const;
+
 private:
     int Width;
     int Height;
+    std::vector<unsigned char> Pixels;
 };
 
 extern GraphicPageClass* LogicPage;

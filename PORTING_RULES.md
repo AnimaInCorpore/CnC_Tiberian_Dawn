@@ -64,13 +64,16 @@
 
 ### Graphics & Rendering
 - **Shims**: `Draw_Box` and `Window_Box` implemented in `src/dialog.cpp`.
-- **Buffers**: `GraphicPageClass::Clear()` is currently a no-op.
+- **Buffers**: `SeenBuff` is a 640x400 8-bit `GraphicBufferClass` backed by a software pixel buffer.
+- **Present**: `Call_Back()`/`Main_Loop()` copy `SeenBuff` into the SDL 1.2 screen surface (8-bpp) and flip.
 - **Redraw Flags**: Use `BooleanVectorClass` shim for `DisplayClass` bit arrays.
 - **SDL Headers**: Prefer `#include <SDL.h>` (works with Homebrew/macOS and most SDL 1.2 installs); avoid hard-coding `SDL/SDL.h`.
 - **SDL Linking**: Use `find_package(SDL)` when available; fall back to `pkg-config` (`sdl`) in CMake.
 
 ### Input & Geometry
-- **Stubs**: `Get_Mouse_X/Y` and `Desired_Facing8` are stubbed.
+- **Mouse**: `Get_Mouse_X/Y` returns SDL mouse coordinates from `SDL_Platform_Pump_Events`.
+- **Keys**: Minimal key queue is provided by `SDL_Platform_Pop_Key()` (Esc/Return/Left/Right only, expand as needed).
+- **Facing**: `Desired_Facing8` is still stubbed.
 - **Calculations**: `Dir_Facing`, `Facing_Dir`, `Facing_To_32` are fully implemented bit/lookup conversions.
 - **Keyboard**: Keep `KeyASCIIType` and `WWKEY` flags available.
 
