@@ -53,7 +53,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] infantry.cpp (stub; full infantry runtime depends on TYPE/Techno/Map stack)
 - [x] ini.cpp (stub; scenario parsing pending)
 - [x] init.cpp (stub; portable init/menu/CLI pending)
-- [ ] intro.cpp
+- [x] intro.cpp (stub; VQA/WSA intro playback + side selection UI pending)
 - [ ] iomap.cpp
 - [ ] ioobj.cpp
 - [ ] ipx.cpp
