@@ -22,3 +22,16 @@ endif()
 add_executable(cnc_td ${CNC_TD_SOURCES})
 
 target_include_directories(cnc_td PRIVATE src)
+
+# SDL 1.2 (portable replacement for Win32/DirectX services).
+# Prefer CMake's FindSDL module when available; fall back to pkg-config.
+find_package(SDL QUIET)
+if(SDL_FOUND)
+    target_include_directories(cnc_td PRIVATE ${SDL_INCLUDE_DIR})
+    target_link_libraries(cnc_td PRIVATE ${SDL_LIBRARY})
+else()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(SDL12 REQUIRED sdl)
+    target_include_directories(cnc_td PRIVATE ${SDL12_INCLUDE_DIRS})
+    target_link_libraries(cnc_td PRIVATE ${SDL12_LIBRARIES})
+endif()

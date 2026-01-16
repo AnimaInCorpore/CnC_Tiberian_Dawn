@@ -66,6 +66,8 @@
 - **Shims**: `Draw_Box` and `Window_Box` implemented in `src/dialog.cpp`.
 - **Buffers**: `GraphicPageClass::Clear()` is currently a no-op.
 - **Redraw Flags**: Use `BooleanVectorClass` shim for `DisplayClass` bit arrays.
+- **SDL Headers**: Prefer `#include <SDL.h>` (works with Homebrew/macOS and most SDL 1.2 installs); avoid hard-coding `SDL/SDL.h`.
+- **SDL Linking**: Use `find_package(SDL)` when available; fall back to `pkg-config` (`sdl`) in CMake.
 
 ### Input & Geometry
 - **Stubs**: `Get_Mouse_X/Y` and `Desired_Facing8` are stubbed.
