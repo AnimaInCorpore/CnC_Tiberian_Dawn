@@ -3,6 +3,7 @@
 
 #include "sdl_platform.h"
 #include "confdlg.h"
+#include "legacy_compat.h"
 
 #include <SDL.h>
 
@@ -32,7 +33,9 @@ void Main_Game(int argc, char* argv[])
 
     Set_Logic_Page(SeenBuff);
     ConfirmationClass confirm;
-    (void)confirm.Process("SDL UI shim is live. Press Yes/No, Esc, or close the window.");
+    void const* mouse_shp = MixFileClass::Retrieve("MOUSE.SHP");
+    (void)confirm.Process(mouse_shp ? "SDL UI shim is live (MIX assets OK). Press Yes/No, Esc, or close the window."
+                                    : "SDL UI shim is live (MIX assets missing). Press Yes/No, Esc, or close the window.");
 
     SDL_Platform_Shutdown();
 }
