@@ -51,7 +51,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] house.cpp (shim; moved HouseClass/HouseTypeClass out of `legacy_compat.h`)
 - [x] idata.cpp (stub; InfantryTypeClass tables pending)
 - [x] infantry.cpp (stub; full infantry runtime depends on TYPE/Techno/Map stack)
-- [ ] ini.cpp
+- [x] ini.cpp (stub; scenario parsing pending)
 - [ ] init.cpp
 - [ ] intro.cpp
 - [ ] iomap.cpp

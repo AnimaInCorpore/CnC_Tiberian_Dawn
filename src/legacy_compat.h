@@ -237,6 +237,37 @@ enum MissionType {
     MISSION_FIRST = 0
 };
 
+// Scenario INI naming parameters (mirrors legacy DEFINES.H).
+enum ScenarioPlayerType {
+    SCEN_PLAYER_NONE = -1,
+    SCEN_PLAYER_GDI,
+    SCEN_PLAYER_NOD,
+    SCEN_PLAYER_JP,
+    SCEN_PLAYER_2PLAYER,
+    SCEN_PLAYER_MPLAYER,
+    SCEN_PLAYER_COUNT,
+    SCEN_PLAYER_FIRST = 0,
+};
+
+enum ScenarioDirType {
+    SCEN_DIR_NONE = -1,
+    SCEN_DIR_EAST,
+    SCEN_DIR_WEST,
+    SCEN_DIR_COUNT,
+    SCEN_DIR_FIRST = 0,
+};
+
+enum ScenarioVarType {
+    SCEN_VAR_NONE = -1,
+    SCEN_VAR_A,
+    SCEN_VAR_B,
+    SCEN_VAR_C,
+    SCEN_VAR_D,
+    SCEN_VAR_COUNT, // comes before the Lose value!
+    SCEN_VAR_LOSE,
+    SCEN_VAR_FIRST = 0,
+};
+
 enum HousesType {
     HOUSE_NONE = -1,
     HOUSE_GOOD,
