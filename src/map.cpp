@@ -188,6 +188,4 @@ bool MapClass::Write_Binary(char const* root) { return false; }
 bool MapClass::Place_Random_Crate(void) { return false; }
 long MapClass::Overpass(void) { return 0; }
 void MapClass::Logic(void) {}
-void MapClass::Code_Pointers(void) {}
-void MapClass::Decode_Pointers(void) {}
 int MapClass::Validate(void) { return 1; }

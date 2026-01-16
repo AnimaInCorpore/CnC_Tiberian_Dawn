@@ -32,6 +32,7 @@
 - **Wrapper Headers**: When a module includes `function.h`, provide a `src/function.h` wrapper that pulls in `src/legacy_compat.h` and standard headers.
 - **Forward Declarations**: Prefer forward declarations over includes when defining shim types to avoid circular dependencies.
 - **Covariant Returns**: Keep `TechnoTypeClass::Create_One_Of(...)` returning `ObjectClass*` in shims so derived overrides remain covariant.
+- **Overlay Modules**: Legacy overlay `.cpp` files (e.g., `iomap.cpp`) may define methods now living in other ported modules; avoid duplicate definitions and keep the overlay file as a thin dispatcher into the new implementation where possible.
 
 ## Data Types, Memory & Layout
 - **Legacy Widths**:
