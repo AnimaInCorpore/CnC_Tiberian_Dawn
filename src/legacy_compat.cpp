@@ -323,7 +323,7 @@ int WWGetPrivateProfileString(char const* section,
         value = default_value ? default_value : "";
     }
 
-    std::snprintf(output, static_cast<size_t>(output_len), "%s", value.c_str());
+    ::snprintf(output, static_cast<size_t>(output_len), "%s", value.c_str());
     output[output_len - 1] = '\0';
     return static_cast<int>(std::strlen(output));
 }

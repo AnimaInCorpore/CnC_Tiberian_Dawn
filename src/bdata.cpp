@@ -4134,9 +4134,9 @@ void BuildingTypeClass::One_Time(void)
 		*/
 		if (building.IsBuildable) {
 			if ( Get_Resolution_Factor() ) {
-				std::snprintf(buffer, sizeof(buffer), "%sICNH", building.IniName);
+				::snprintf(buffer, sizeof(buffer), "%sICNH", building.IniName);
 			} else {
-				std::snprintf(buffer, sizeof(buffer), "%sICON", building.IniName);
+				::snprintf(buffer, sizeof(buffer), "%sICON", building.IniName);
 			}
 			_makepath(fullname, NULL, NULL, buffer, ".SHP");
 			((void const *&)building.CameoData) = MixFileClass::Retrieve(fullname);
@@ -4145,7 +4145,7 @@ void BuildingTypeClass::One_Time(void)
 		/*
 		**	Fetch the construction animation for this building.
 		*/
-		std::snprintf(buffer, sizeof(buffer), "%sMAKE", building.IniName);
+		::snprintf(buffer, sizeof(buffer), "%sMAKE", building.IniName);
 		_makepath(fullname, NULL, NULL, buffer, ".SHP");
 		void const * dataptr = MixFileClass::Retrieve(fullname);
 		((void const *&)building.BuildupData) = dataptr;
@@ -4507,7 +4507,7 @@ void BuildingTypeClass::Init(TheaterType theater)
 
 				((void const *&)classptr->CameoData) = NULL;
 
-				std::snprintf(buffer, sizeof(buffer), "%.4sICNH", classptr->IniName);
+				::snprintf(buffer, sizeof(buffer), "%.4sICNH", classptr->IniName);
 				_makepath (fullname, NULL, NULL, buffer, Theaters[theater].Suffix);
 				cameo_ptr = MixFileClass::Retrieve(fullname);
 				if (cameo_ptr){

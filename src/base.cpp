@@ -25,7 +25,7 @@ void BaseClass::Read_INI(char* buffer) {
 
     int count = WWGetPrivateProfileInt(INI_Name(), "Count", 0, buffer);
     for (int i = 0; i < count; i++) {
-        std::snprintf(uname, sizeof(uname), "%03d", i);
+        ::snprintf(uname, sizeof(uname), "%03d", i);
         WWGetPrivateProfileString(INI_Name(), uname, NULL, buf, sizeof(buf) - 1, buffer);
 
         node.Type = BuildingTypeClass::From_Name(::strtok(buf, ","));
@@ -43,8 +43,8 @@ void BaseClass::Write_INI(char* buffer) {
     WWWritePrivateProfileInt(INI_Name(), "Count", Nodes.Count(), buffer);
 
     for (int i = 0; i < Nodes.Count(); i++) {
-        std::snprintf(uname, sizeof(uname), "%03d", i);
-        std::snprintf(buf,
+        ::snprintf(uname, sizeof(uname), "%03d", i);
+        ::snprintf(buf,
                       sizeof(buf),
                       "%s,%ld",
                       BuildingTypeClass::As_Reference(Nodes[i].Type).IniName,

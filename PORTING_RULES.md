@@ -3,6 +3,7 @@
 ## Goals and constraints
 - **Target**: CMake + g++ in C++98 mode (`-std=gnu++98`), producing `cnc_td`.
 - **Source layout**: Ported sources go to `src/` with lowercase legacy filenames.
+- **Progress**: Keep `PROGRESS.md` in sync with what exists in `src/` (annotate `(stub)`/`(shim)` so checkmarks remain meaningful).
 - **Assets**: Load directly from `CD/` (maintain original structure).
 - **Platform**: Replace Win32/DirectX with SDL 1.2 (rendering, input, audio, network).
 - **Memory**: Keep Win32 flat model; avoid 16-bit/segmented code.
@@ -53,7 +54,7 @@
 - [ ] No defaulted functions (`= default`).
 - [ ] Enums: Do not forward declare. Definition must precede usage.
 - [ ] Legacy functions: Ensure `int` functions explicitly `return` a value (Watcom implicit return is UB).
-- [ ] Strings: Use `snprintf` (or `::snprintf` fallback). Use `const char*` for literals.
+- [ ] Strings: Use `::snprintf` (avoid `std::snprintf`, not guaranteed in C++98). Use `const char*` for literals.
 - [ ] Static members: Define outside class without `static` keyword (e.g., `Type Class::Member;`).
 - [ ] Iteration: Cast enum indices to `int` for loops.
 

@@ -1,9 +1,17 @@
 # Porting progress
-Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat model). Use `[x]` when a file is fully ported and tested under the compatibility shims.
+Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat model). Use `[x]` when a file builds/links in `cnc_td` and is smoke-tested under the compatibility shims (keep `(stub)`/`(shim)` notes for incomplete behavior).
 
+- [x] aadata.cpp
+- [x] abstract.cpp
+- [x] adata.cpp
+- [x] aircraft.cpp (stub; AircraftClass skeleton)
+- [x] anim.cpp (stub; AnimClass placeholder)
+- [x] audio.cpp (stub; Sound_Effect/Speak no-op)
+- [x] base.cpp
+- [x] bbdata.cpp
 - [x] bdata.cpp
-- [x] building.cpp
-- [x] bullet.cpp
+- [x] building.cpp (stub; BuildingClass skeleton)
+- [x] bullet.cpp (stub; BulletClass placeholder)
 - [x] cargo.cpp
 - [x] ccfile.cpp
 - [x] cdata.cpp
@@ -19,7 +27,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] const.cpp
 - [x] control.cpp
 - [x] coord.cpp
-- [x] coorda.asm
+- [x] coorda.asm (ported as coorda.cpp replacement)
 - [x] credits.cpp
 - [x] crew.cpp
 - [x] debug.cpp
@@ -34,6 +42,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [ ] event.cpp (Execute stub; event plumbing pending)
 - [x] facing.cpp
 - [x] factory.cpp (production logic; uses House/Techno shims for now)
+- [x] file.cpp (shim; portable FileClass + CD/ fallback)
 - [ ] findpath.cpp (stub; requires FootClass movement state + map passability + debug surfaces)
 - [x] flasher.cpp
 - [x] fly.cpp
@@ -65,12 +74,15 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [ ] ipxreal.asm
 - [ ] jshell.cpp
 - [ ] keyfbuff.asm
-- [x] keyframe.cpp
+- [ ] keyframe.cpp (pending; legacy `KEYFRAME.CPP` not yet in `src/`)
 - [x] layer.cpp (ported; using DynamicVectorClass shim)
+- [x] legacy_compat.cpp (shim; central compatibility layer, gradually extracted into dedicated modules)
 - [ ] link.cpp
 - [ ] list.cpp
 - [ ] loaddlg.cpp
 - [ ] logic.cpp
+- [x] main_game_shim.cpp (shim; temporary SDL harness while legacy startup/UI stack is porting)
+- [x] main_stub.cpp (shim; entry point)
 - [ ] map.cpp (ported; MapClass skeleton, stubs for Logic/Sight/IO)
 - [ ] mapeddlg.cpp
 
@@ -115,6 +127,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [ ] slider.cpp
 - [ ] smudge.cpp
 - [ ] sounddlg.cpp
+- [x] sdl_platform.cpp (shim; SDL 1.2 platform wrapper)
 - [ ] startup.cpp
 - [ ] stuff.cpp
 - [ ] support.asm

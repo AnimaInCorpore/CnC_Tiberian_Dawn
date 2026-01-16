@@ -48,7 +48,7 @@ public:
 
     int Add_Item(int text) {
         char buffer[32];
-        std::snprintf(buffer, sizeof(buffer), "%d", text);
+        ::snprintf(buffer, sizeof(buffer), "%d", text);
         buffer[sizeof(buffer) - 1] = '\0';
         return Add_Item(buffer);
     }

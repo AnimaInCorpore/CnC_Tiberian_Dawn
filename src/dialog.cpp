@@ -726,7 +726,7 @@ void Conquer_Clip_Text_Print(char const *text, unsigned x, unsigned y, unsigned 
 	char buffer[512];
 
 	if (text) {
-		std::snprintf(buffer, sizeof(buffer), "%s", text);
+		::snprintf(buffer, sizeof(buffer), "%s", text);
 
 		/*
 		**	Set the font and spacing characteristics according to the flag

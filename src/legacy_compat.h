@@ -2297,7 +2297,7 @@ inline void _makepath(char* path, const char*, const char* dir, const char* fnam
     const char* directory = dir ? dir : "";
     const char* filename = fname ? fname : "";
     const char* extension = ext ? ext : "";
-    std::snprintf(path, _MAX_FNAME + _MAX_EXT, "%s%s%s", directory, filename, extension);
+    ::snprintf(path, _MAX_FNAME + _MAX_EXT, "%s%s%s", directory, filename, extension);
 }
 
 inline void Mem_Copy(void const* source, void* dest, int bytes) {

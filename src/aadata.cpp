@@ -306,9 +306,9 @@ void AircraftTypeClass::One_Time(void) {
         AircraftTypeClass const& uclass = As_Reference(static_cast<AircraftType>(idx));
 
         if (Get_Resolution_Factor()) {
-            std::snprintf(buffer, sizeof(buffer), "%sICNH", uclass.IniName);
+            ::snprintf(buffer, sizeof(buffer), "%sICNH", uclass.IniName);
         } else {
-            std::snprintf(buffer, sizeof(buffer), "%sICON", uclass.IniName);
+            ::snprintf(buffer, sizeof(buffer), "%sICON", uclass.IniName);
         }
         _makepath(fullname, NULL, NULL, buffer, ".SHP");
         ((void const*&)uclass.CameoData) = MixFileClass::Retrieve(fullname);
@@ -382,7 +382,7 @@ void AircraftTypeClass::Init(TheaterType theater) {
 
                 ((void const*&)uclass.CameoData) = NULL;
 
-                std::snprintf(buffer, sizeof(buffer), "%.4sICNH", uclass.IniName);
+                ::snprintf(buffer, sizeof(buffer), "%.4sICNH", uclass.IniName);
                 _makepath(fullname, NULL, NULL, buffer, Theaters[theater].Suffix);
                 void const* cameo_ptr = MixFileClass::Retrieve(fullname);
                 if (cameo_ptr) {
