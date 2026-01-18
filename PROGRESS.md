@@ -39,7 +39,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] dpmi.cpp
 - [x] drive.cpp (stub; smooth-turn track tables ported, movement logic pending)
 - [x] edit.cpp
-- [ ] event.cpp (Execute stub; event plumbing pending)
+- [x] event.cpp (partial Execute; updates `Special` + handles `EXIT`, full event plumbing pending)
 - [x] facing.cpp
 - [x] factory.cpp (production logic; uses House/Techno shims for now)
 - [x] file.cpp (shim; portable FileClass + CD/ fallback)

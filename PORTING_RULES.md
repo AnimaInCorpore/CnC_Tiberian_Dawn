@@ -45,6 +45,7 @@
     - `CELL` must be `signed short`.
     - `TARGET` must be `unsigned short`.
     - *Rationale*: Preserves legacy overload resolution (e.g., `Sound_Effect`) and event/network structure layouts.
+- **Event `ID` bitfield**: When legacy code assigns `ID = Houses.ID(PlayerPtr);`, use `ID = (PlayerPtr ? (unsigned)PlayerPtr->Class->House : 0u) & 0x0Fu;` to keep values within the 4-bit `EventClass::ID` field and avoid depending on the unported `Houses` manager.
 - **`DirType` values**: Keep direction constants consistent with legacy `DEFINES.H` (8-way is `(n<<5)` on a 0–255 circle; include special `DIR_SW_X1`/`DIR_SW_X2` used by harvester/refinery tracks).
 - **Unions & POD**: Structs inside unions (e.g., `EventClass::Data`) must remain POD (no user constructors/destructors).
 - **Aggregate Initialization**: Keep shim structs for global tables as simple aggregates.

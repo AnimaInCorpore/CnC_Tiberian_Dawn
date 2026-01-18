@@ -1,4 +1,6 @@
+#include "function.h"
 #include "event.h"
+#include "map.h"
 
 static unsigned Event_Player_ID()
 {
@@ -178,7 +180,19 @@ EventClass::EventClass(EventType type, int id, CELL cell)
 
 void EventClass::Execute(void)
 {
-    // Stub: full event execution requires the object, UI, and networking stacks.
+    switch (Type) {
+        case SPECIAL:
+            Special = Data.Options.Data;
+            Map.Flag_To_Redraw(false);
+            break;
+
+        case EXIT:
+            GameActive = false;
+            break;
+
+        default:
+            break;
+    }
+
     IsExecuted = 1;
 }
-
