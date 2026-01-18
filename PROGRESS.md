@@ -151,3 +151,4 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [ ] unit.cpp
 - [ ] vector.cpp
 - [ ] visudlg.cpp
+- [x] wwgfx.cpp (shim; 8-bit software surfaces + viewports)
