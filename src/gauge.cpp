@@ -90,7 +90,7 @@ int GaugeClass::Value_To_Pixel(int value)
 int GaugeClass::Draw_Me(int forced)
 {
     if (ControlClass::Draw_Me(forced)) {
-        if (LogicPage == &SeenBuff) {
+        if (LogicPage == &HidPage || LogicPage == &SeenBuff) {
             Conditional_Hide_Mouse(X, Y, X + Width, Y + Height);
         }
 
@@ -108,7 +108,7 @@ int GaugeClass::Draw_Me(int forced)
 
         if (HasThumb) Draw_Thumb();
 
-        if (LogicPage == &SeenBuff) {
+        if (LogicPage == &HidPage || LogicPage == &SeenBuff) {
             Conditional_Show_Mouse();
         }
         return (true);
@@ -201,7 +201,7 @@ int TriColorGaugeClass::Set_Yellow_Limit(int value)
 int TriColorGaugeClass::Draw_Me(int forced)
 {
     if (ControlClass::Draw_Me(forced)) {
-        if (LogicPage == &SeenBuff) {
+        if (LogicPage == &HidPage || LogicPage == &SeenBuff) {
             Conditional_Hide_Mouse(X, Y, X + Width, Y + Height);
         }
 
@@ -239,11 +239,10 @@ int TriColorGaugeClass::Draw_Me(int forced)
 
         if (HasThumb) Draw_Thumb();
 
-        if (LogicPage == &SeenBuff) {
+        if (LogicPage == &HidPage || LogicPage == &SeenBuff) {
             Conditional_Show_Mouse();
         }
         return (true);
     }
     return (false);
 }
-

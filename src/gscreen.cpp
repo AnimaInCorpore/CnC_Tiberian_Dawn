@@ -109,9 +109,12 @@ void GScreenClass::Render(void) {
     IsToRedraw = 0u;
 }
 
-void GScreenClass::Blit_Display(void) {}
+void GScreenClass::Blit_Display(void)
+{
+    // Portable build: emulate the C&C95 hidden->seen blit in software.
+    HidPage.Blit(SeenBuff);
+}
 
 void GScreenClass::Code_Pointers(void) {}
 
 void GScreenClass::Decode_Pointers(void) {}
-

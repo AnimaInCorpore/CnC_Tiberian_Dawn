@@ -117,7 +117,7 @@ int Dial8Class::Action(unsigned flags, KeyNumType& key)
 int Dial8Class::Draw_Me(int forced)
 {
     if (ControlClass::Draw_Me(forced)) {
-        if (LogicPage == &SeenBuff) {
+        if (LogicPage == &HidPage || LogicPage == &SeenBuff) {
             Hide_Mouse();
         }
 
@@ -133,7 +133,7 @@ int Dial8Class::Draw_Me(int forced)
                              CC_GREEN_SHADOW);
         LogicPage->Draw_Line(FaceX, FaceY, FaceLine[Facing][0], FaceLine[Facing][1], CC_LIGHT_GREEN);
 
-        if (LogicPage == &SeenBuff) {
+        if (LogicPage == &HidPage || LogicPage == &SeenBuff) {
             Show_Mouse();
         }
 

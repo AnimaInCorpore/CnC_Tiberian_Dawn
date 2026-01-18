@@ -51,7 +51,7 @@ bool ConfirmationClass::Process(char const* string) {
     int x = (320 * factor - width) / 2;
     int y = (200 * factor - height) / 2;
 
-    Set_Logic_Page(SeenBuff);
+    Set_Logic_Page(HidPage);
 
     bheight = FontHeight + FontYSpacing + 2;
     bwidth = MAX((String_Pixel_Width(Text_String(TXT_YES)) + 8), 30);

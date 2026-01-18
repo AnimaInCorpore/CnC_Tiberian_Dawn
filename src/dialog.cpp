@@ -270,7 +270,7 @@ void Window_Box(WindowNumberType window, BoxStyleEnum style)
 	**	If it is to be rendered to the seenpage, then
 	**	hide the mouse.
 	*/
-	if (LogicPage == (&SeenBuff)) Conditional_Hide_Mouse(x,y,x+w,y+h);
+	if (LogicPage == &HidPage || LogicPage == &SeenBuff) Conditional_Hide_Mouse(x, y, x + w, y + h);
 
 	Draw_Box(x, y, w, h, style, true);
 	border = _border[style][1];
@@ -285,7 +285,7 @@ void Window_Box(WindowNumberType window, BoxStyleEnum style)
 	/*
 	**	Restore the mouse if it has been hidden and return.
 	*/
-	if (LogicPage == &SeenBuff) Conditional_Show_Mouse();
+	if (LogicPage == &HidPage || LogicPage == &SeenBuff) Conditional_Show_Mouse();
 }
 
 

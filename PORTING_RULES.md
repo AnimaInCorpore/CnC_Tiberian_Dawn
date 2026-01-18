@@ -67,8 +67,10 @@
 ### Graphics & Rendering
 - **Shims**: `Draw_Box` and `Window_Box` implemented in `src/dialog.cpp`.
 - **Caption/Textures**: Implement `Draw_Caption` and provide a usable `CC_Texture_Fill` fallback (solid/dither) so dialog UIs are readable before full SHP blitting lands.
-- **Buffers**: `SeenBuff` is a 640x400 8-bit `GraphicBufferClass` backed by a software pixel buffer.
-- **Present**: Use `SDL_Platform_Present_Indexed8(...)` to copy `SeenBuff` into the SDL 1.2 screen surface (8-bpp) and flip. `Call_Back()`/`Main_Loop()` should pump events + present (do not clear `SeenBuff`).
+- **Pages/Viewports**: Implement `GraphicBufferClass` + `GraphicViewPortClass` in `src/wwgfx.h` and `src/wwgfx.cpp` as 8-bit software surfaces (emulating the C&C95 DirectDraw-era API).
+- **Buffers**: Use `HiddenPage` (back buffer) + `VisiblePage` (front buffer) with `HidPage`/`SeenBuff` viewports attached at 640x400.
+- **Rect Semantics**: `Fill_Rect`/`Draw_Rect` take inclusive coordinates `(x1, y1, x2, y2)` (legacy call sites often pass `x+w-1`, `y+h-1`).
+- **Present**: `Call_Back()`/`Main_Loop()` should pump events, blit `HidPage` -> `SeenBuff`, then `SDL_Platform_Present_Indexed8(SeenBuff.Data(), ...)` (do not clear pages during present).
 - **Redraw Flags**: Use `BooleanVectorClass` shim for `DisplayClass` bit arrays.
 - **SDL Headers**: Prefer `#include <SDL.h>` (works with Homebrew/macOS and most SDL 1.2 installs); avoid hard-coding `SDL/SDL.h`.
 - **SDL Linking**: Use `find_package(SDL)` when available; fall back to `pkg-config` (`sdl`) in CMake.

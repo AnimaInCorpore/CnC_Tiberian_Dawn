@@ -212,8 +212,8 @@ int TextButtonClass::Draw_Me(int forced)
     const int fill = IsOn ? CC_BRIGHT_GREEN : CC_GREEN_BKGD;
     const int border = CC_BRIGHT_GREEN;
     if (LogicPage) {
-        LogicPage->Fill_Rect(X, Y, Width, Height, fill);
-        LogicPage->Draw_Rect(X, Y, Width, Height, border);
+        LogicPage->Fill_Rect(X, Y, X + Width - 1, Y + Height - 1, fill);
+        LogicPage->Draw_Rect(X, Y, X + Width - 1, Y + Height - 1, border);
     }
 
     char const* label = Text_String(Text);

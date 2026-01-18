@@ -13,7 +13,7 @@ enum MenuButtonId {
 
 int Main_Menu(unsigned long timeout)
 {
-    Set_Logic_Page(SeenBuff);
+    Set_Logic_Page(HidPage);
 
     const int screen_w = SeenBuff.Get_Width();
     const int screen_h = SeenBuff.Get_Height();
@@ -128,10 +128,10 @@ int Main_Menu(unsigned long timeout)
             display = false;
         }
 
+        HidPage.Blit(SeenBuff);
         SDL_Platform_Present_Indexed8(SeenBuff.Data(), screen_w, screen_h, SeenBuff.Pitch());
         SDL_Platform_Delay(16);
     }
 
     return retval;
 }
-

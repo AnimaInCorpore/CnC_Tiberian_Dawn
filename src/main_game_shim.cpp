@@ -32,7 +32,7 @@ void Main_Game(int argc, char* argv[])
         SDL_SetPalette(screen, SDL_LOGPAL | SDL_PHYSPAL, pal, 0, 256);
     }
 
-    Set_Logic_Page(SeenBuff);
+    Set_Logic_Page(HidPage);
     for (;;) {
         int choice = Main_Menu(0);
         if (choice < 0 || choice == 3) break;

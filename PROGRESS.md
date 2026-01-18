@@ -23,7 +23,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] combuf.cpp
 - [x] confdlg.cpp
 - [x] connect.cpp
-- [x] conquer.cpp (shim; SDL `Call_Back`/`Main_Loop` now pumps events + presents `SeenBuff`, legacy startup/main loop still pending)
+- [x] conquer.cpp (shim; SDL `Call_Back`/`Main_Loop` now pumps events + blits `HidPage` -> `SeenBuff` + presents, legacy startup/main loop still pending)
 - [x] const.cpp
 - [x] control.cpp
 - [x] coord.cpp
@@ -53,7 +53,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] gauge.cpp
 - [x] globals.cpp (shim; moved early global state out of `legacy_compat.cpp`)
 - [ ] goptions.cpp (stub; depends on `options.cpp` + load/save/sound/video dialog stack)
-- [ ] gscreen.cpp (stub; gadget routing + redraw flags, no SDL blitting yet)
+- [x] gscreen.cpp (shim; gadget routing + redraw flags + `Blit_Display` copies `HidPage` -> `SeenBuff`)
 - [x] hdata.cpp
 - [x] heap.cpp
 - [x] help.cpp

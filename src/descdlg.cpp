@@ -61,7 +61,7 @@ void DescriptionClass::Process(char* string)
     -----------------------------------------------------------------
     */
     Set_Window(WINDOW_EDITOR, OPTION_X, OPTION_Y, OPTION_WIDTH, OPTION_HEIGHT);
-    Set_Logic_Page(SeenBuff);
+    Set_Logic_Page(HidPage);
 
     /*
     -----------------------------------------------------------------------

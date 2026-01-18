@@ -176,7 +176,7 @@ int EditClass::Draw_Me(int forced)
 		/*
 		**	Hide the mouse.
 		*/
-		if (LogicPage == &SeenBuff) {
+		if (LogicPage == &HidPage || LogicPage == &SeenBuff) {
 			Conditional_Hide_Mouse(X, Y, X+Width, Y+Height);
 		}
 
@@ -193,7 +193,7 @@ int EditClass::Draw_Me(int forced)
 		/*
 		**	Display the mouse.
 		*/
-		if (LogicPage == &SeenBuff) {
+		if (LogicPage == &HidPage || LogicPage == &SeenBuff) {
 			Conditional_Show_Mouse();
 		}
 

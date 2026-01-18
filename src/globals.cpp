@@ -1,8 +1,13 @@
 #include "function.h"
 #include "map.h"
 
-GraphicPageClass* LogicPage = NULL;
-GraphicBufferClass SeenBuff(640, 400);
+GraphicViewPortClass* LogicPage = NULL;
+
+GraphicBufferClass VisiblePage(640, 400, NULL, 0);
+GraphicBufferClass HiddenPage(640, 400, NULL, 0);
+GraphicViewPortClass SeenBuff(&VisiblePage, 0, 0, 640, 400);
+GraphicViewPortClass HidPage(&HiddenPage, 0, 0, 640, 400);
+GraphicBufferClass SysMemPage(320, 200, NULL, 0);
 
 SurfaceManager AllSurfaces = {false};
 

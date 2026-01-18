@@ -5,76 +5,13 @@
 
 #include <cstdlib>
 #include <cstdio>
+#include <cmath>
 #include <climits>
 #include <string>
 #include <vector>
 #include <SDL.h>
 
-namespace {
-static unsigned char const Font8x8[128][8] = {
-    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0}, {24,60,60,24,24,0,24,0}, {102,102,36,0,0,0,0,0},
-    {54,54,127,54,127,54,54,0}, {24,62,96,60,6,124,24,0}, {0,99,102,12,24,51,99,0},
-    {28,54,28,59,102,102,59,0}, {12,12,24,0,0,0,0,0}, {6,12,24,24,24,12,6,0},
-    {48,24,12,12,12,24,48,0}, {0,102,60,255,60,102,0,0}, {0,24,24,126,24,24,0,0},
-    {0,0,0,0,0,12,12,24}, {0,0,0,126,0,0,0,0}, {0,0,0,0,0,24,24,0},
-    {3,6,12,24,48,96,192,0}, {62,99,103,111,123,115,62,0}, {24,56,24,24,24,24,126,0},
-    {62,99,3,6,24,48,127,0}, {62,99,3,30,3,99,62,0}, {6,14,30,54,127,6,6,0},
-    {127,96,124,3,3,99,62,0}, {30,48,96,124,99,99,62,0}, {127,99,6,12,24,24,24,0},
-    {62,99,99,62,99,99,62,0}, {62,99,99,63,3,6,60,0}, {0,24,24,0,0,24,24,0},
-    {0,24,24,0,0,24,24,48}, {6,12,24,48,24,12,6,0}, {0,0,126,0,126,0,0,0},
-    {48,24,12,6,12,24,48,0}, {62,99,6,12,24,0,24,0},
-    {62,99,123,123,123,96,62,0},
-    {24,60,102,102,126,102,102,0}, {124,102,102,124,102,102,124,0}, {62,99,96,96,96,99,62,0},
-    {124,102,99,99,99,102,124,0}, {127,96,96,124,96,96,127,0}, {127,96,96,124,96,96,96,0},
-    {62,99,96,96,111,99,62,0}, {99,99,99,127,99,99,99,0}, {126,24,24,24,24,24,126,0},
-    {31,6,6,6,6,102,60,0}, {99,102,108,120,108,102,99,0}, {96,96,96,96,96,96,127,0},
-    {99,119,127,107,99,99,99,0}, {99,115,123,111,103,99,99,0}, {62,99,99,99,99,99,62,0},
-    {124,102,102,124,96,96,96,0}, {62,99,99,99,107,102,59,0}, {124,102,102,124,108,102,99,0},
-    {62,99,96,62,3,99,62,0}, {255,24,24,24,24,24,24,0}, {99,99,99,99,99,99,62,0},
-    {99,99,99,99,99,54,28,0}, {99,99,99,107,127,119,99,0}, {99,99,54,28,54,99,99,0},
-    {102,102,102,60,24,24,24,0}, {127,3,6,12,24,48,127,0},
-    {30,24,24,24,24,24,30,0}, {192,96,48,24,12,6,3,0}, {30,6,6,6,6,6,30,0},
-    {8,28,54,99,0,0,0,0}, {0,0,0,0,0,0,0,255}, {24,24,12,0,0,0,0,0},
-    {0,0,60,6,62,102,59,0}, {96,96,124,102,102,102,124,0}, {0,0,62,99,96,99,62,0},
-    {3,3,63,99,99,99,63,0}, {0,0,62,99,127,96,62,0}, {14,27,24,124,24,24,24,0},
-    {0,0,63,99,99,63,3,62}, {96,96,124,102,102,102,102,0}, {24,0,56,24,24,24,60,0},
-    {6,0,6,6,6,6,102,60}, {96,96,102,108,120,108,102,0}, {56,24,24,24,24,24,60,0},
-    {0,0,118,127,107,99,99,0}, {0,0,124,102,102,102,102,0}, {0,0,62,99,99,99,62,0},
-    {0,0,124,102,102,124,96,96}, {0,0,63,99,99,63,3,3}, {0,0,109,118,96,96,96,0},
-    {0,0,63,96,62,3,126,0}, {24,24,126,24,24,27,14,0}, {0,0,102,102,102,102,59,0},
-    {0,0,102,102,102,60,24,0}, {0,0,99,99,107,127,54,0}, {0,0,99,54,28,54,99,0},
-    {0,0,102,102,102,62,6,124}, {0,0,127,6,24,96,127,0},
-    {14,24,24,112,24,24,14,0}, {24,24,24,0,24,24,24,0}, {112,24,24,14,24,24,112,0},
-    {50,76,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}
-};
-
-static void Put_Pixel_Buffer(unsigned char* dst, int width, int height, int pitch, int x, int y, unsigned char color)
-{
-    if (!dst) return;
-    if (x < 0 || y < 0 || x >= width || y >= height) return;
-    dst[y * pitch + x] = color;
-}
-
-static void Draw_Char_8x8(unsigned char* dst, int width, int height, int pitch, int x, int y, unsigned char fore, unsigned char back, unsigned char c)
-{
-    if (!dst) return;
-    for (int row = 0; row < 8; ++row) {
-        unsigned char bits = Font8x8[c][row];
-        for (int col = 0; col < 8; ++col) {
-            unsigned char color = (bits & (1u << (7 - col))) ? fore : back;
-            Put_Pixel_Buffer(dst, width, height, pitch, x + col, y + row, color);
-        }
-    }
-}
-}  // namespace
+ 
 
 void const* ObjectTypeClass::SelectShapes = NULL;
 void const* ObjectTypeClass::PipShapes = NULL;
@@ -119,7 +56,8 @@ void Conditional_Hide_Mouse(int x, int y, int w, int h)
 {
     const int mx = Get_Mouse_X();
     const int my = Get_Mouse_Y();
-    const bool inside = (mx >= x && my >= y && mx < x + w && my < y + h);
+    if (w <= x || h <= y) return;
+    const bool inside = (mx >= x && my >= y && mx < w && my < h);
     if (inside && !g_mouse_hidden_conditionally) {
         Hide_Mouse();
         g_mouse_hidden_conditionally = true;
@@ -182,9 +120,9 @@ void Draw_Caption(int text, int x, int y, int w)
     const int factor = (SeenBuff.Get_Width() == 320) ? 1 : 2;
     const int caption_h = (FontHeight + FontYSpacing + 6) * factor;
 
-    LogicPage->Fill_Rect(x + 2, y + 2, w - 4, caption_h - 4, CC_GREEN_BKGD);
-    LogicPage->Draw_Rect(x + 1, y + 1, w - 2, caption_h - 2, 14);
-    LogicPage->Draw_Rect(x, y, w, caption_h, 13);
+    LogicPage->Fill_Rect(x + 2, y + 2, x + w - 3, y + caption_h - 3, CC_GREEN_BKGD);
+    LogicPage->Draw_Rect(x + 1, y + 1, x + w - 2, y + caption_h - 2, 14);
+    LogicPage->Draw_Rect(x, y, x + w - 1, y + caption_h - 1, 13);
 
     char const* caption = Text_String(text);
     if (!caption) caption = "";
@@ -199,8 +137,9 @@ void CC_Texture_Fill(void const* shapefile, int shapenum, int xpos, int ypos, in
     (void)shapefile;
     (void)shapenum;
     if (!LogicPage) return;
+    if (width <= 0 || height <= 0) return;
 
-    LogicPage->Fill_Rect(xpos, ypos, width, height, CC_GREEN_BKGD);
+    LogicPage->Fill_Rect(xpos, ypos, xpos + width - 1, ypos + height - 1, CC_GREEN_BKGD);
 
     // Simple dither overlay to avoid a flat fill until SHP texture decoding lands.
     for (int y = ypos; y < ypos + height; ++y) {
@@ -366,124 +305,3 @@ int Distance(COORDINATE coord1, COORDINATE coord2) {
 int Get_Resolution_Factor(void) {
     return 0;
 }
-
-GraphicPageClass::GraphicPageClass() {}
-GraphicPageClass::~GraphicPageClass() {}
-void GraphicPageClass::Draw_Rect(int x, int y, int w, int h, int color)
-{
-    Fill_Rect(x, y, w, 1, color);
-    Fill_Rect(x, y + h - 1, w, 1, color);
-    Fill_Rect(x, y, 1, h, color);
-    Fill_Rect(x + w - 1, y, 1, h, color);
-}
-
-void GraphicPageClass::Fill_Rect(int x, int y, int w, int h, int color)
-{
-    GraphicBufferClass* buffer = dynamic_cast<GraphicBufferClass*>(this);
-    if (!buffer) return;
-    unsigned char* dst = buffer->Data();
-    int pitch = buffer->Pitch();
-    int width = buffer->Get_Width();
-    int height = buffer->Get_Height();
-    if (!dst) return;
-
-    if (w <= 0 || h <= 0) return;
-    if (x < 0) { w += x; x = 0; }
-    if (y < 0) { h += y; y = 0; }
-    if (x + w > width) w = width - x;
-    if (y + h > height) h = height - y;
-    if (w <= 0 || h <= 0) return;
-
-    unsigned char c = (unsigned char)(color & 0xff);
-    for (int row = 0; row < h; ++row) {
-        std::memset(dst + (y + row) * pitch + x, c, (size_t)w);
-    }
-}
-
-void GraphicPageClass::Draw_Line(int x1, int y1, int x2, int y2, int color)
-{
-    GraphicBufferClass* buffer = dynamic_cast<GraphicBufferClass*>(this);
-    if (!buffer) return;
-    unsigned char* dst = buffer->Data();
-    int pitch = buffer->Pitch();
-    int width = buffer->Get_Width();
-    int height = buffer->Get_Height();
-    unsigned char c = (unsigned char)(color & 0xff);
-
-    int dx = (x2 > x1) ? (x2 - x1) : (x1 - x2);
-    int sx = (x1 < x2) ? 1 : -1;
-    int dy = (y2 > y1) ? (y2 - y1) : (y1 - y2);
-    int sy = (y1 < y2) ? 1 : -1;
-    int err = (dx > dy ? dx : -dy) / 2;
-
-    for (;;) {
-        Put_Pixel_Buffer(dst, width, height, pitch, x1, y1, c);
-        if (x1 == x2 && y1 == y2) break;
-        int e2 = err;
-        if (e2 > -dx) { err -= dy; x1 += sx; }
-        if (e2 < dy) { err += dx; y1 += sy; }
-    }
-}
-
-void GraphicPageClass::Put_Pixel(int x, int y, int color)
-{
-    GraphicBufferClass* buffer = dynamic_cast<GraphicBufferClass*>(this);
-    if (!buffer) return;
-    Put_Pixel_Buffer(buffer->Data(), buffer->Get_Width(), buffer->Get_Height(), buffer->Pitch(), x, y,
-                     (unsigned char)(color & 0xff));
-}
-
-void GraphicPageClass::Print(char const* text, int x, int y, int fore, int back)
-{
-    GraphicBufferClass* buffer = dynamic_cast<GraphicBufferClass*>(this);
-    if (!buffer) return;
-    if (!text) return;
-
-    unsigned char* dst = buffer->Data();
-    int pitch = buffer->Pitch();
-    int width = buffer->Get_Width();
-    int height = buffer->Get_Height();
-
-    unsigned char f = (unsigned char)(fore & 0xff);
-    unsigned char b = (unsigned char)(back & 0xff);
-
-    int cursor_x = x;
-    for (char const* p = text; *p; ++p) {
-        if (*p == '\r' || *p == '\n') {
-            cursor_x = x;
-            y += 8 + FontYSpacing;
-            continue;
-        }
-        unsigned char ch = (unsigned char)*p;
-        Draw_Char_8x8(dst, width, height, pitch, cursor_x, y, f, b, ch);
-        cursor_x += 8 + FontXSpacing;
-    }
-}
-
-void GraphicPageClass::Clear()
-{
-    GraphicBufferClass* buffer = dynamic_cast<GraphicBufferClass*>(this);
-    if (!buffer) return;
-    unsigned char* dst = buffer->Data();
-    if (!dst) return;
-    std::memset(dst, 0, (size_t)buffer->Pitch() * (size_t)buffer->Get_Height());
-}
-
-bool GraphicPageClass::Lock() { return true; }
-void GraphicPageClass::Unlock() {}
-
-unsigned char* GraphicBufferClass::Data()
-{
-    if (Pixels.empty()) {
-        Pixels.resize((size_t)Pitch() * (size_t)Height);
-        std::memset(&Pixels[0], 0, Pixels.size());
-    }
-    return Pixels.empty() ? 0 : &Pixels[0];
-}
-
-unsigned char const* GraphicBufferClass::Data() const
-{
-    return Pixels.empty() ? 0 : &Pixels[0];
-}
-
-int GraphicBufferClass::Pitch() const { return Width; }

@@ -15,6 +15,8 @@
 #include <string>
 #include <vector>
 
+#include "wwgfx.h"
+
 // Legacy typedefs/macros used by older sources.
 #ifndef __cdecl
 #define __cdecl
@@ -562,43 +564,11 @@ typedef enum BoxStyleEnum {
     BOXSTYLE_COUNT
 } BoxStyleEnum;
 
-class GraphicPageClass {
-public:
-    GraphicPageClass();
-    virtual ~GraphicPageClass();
-
-    virtual void Draw_Rect(int x, int y, int w, int h, int color);
-    virtual void Fill_Rect(int x, int y, int w, int h, int color);
-    virtual void Draw_Line(int x1, int y1, int x2, int y2, int color);
-    virtual void Put_Pixel(int x, int y, int color);
-    virtual void Print(char const* text, int x, int y, int fore, int back);
-    virtual void Clear();
-    virtual bool Lock();
-    virtual void Unlock();
-};
-
-class GraphicBufferClass : public GraphicPageClass {
-public:
-    GraphicBufferClass() : Width(320), Height(200) {}
-    GraphicBufferClass(int width, int height) : Width(width), Height(height) {}
-
-    int Get_Width() const { return Width; }
-    int Get_Height() const { return Height; }
-
-    unsigned char* Data();
-    unsigned char const* Data() const;
-    int Pitch() const;
-
-private:
-    int Width;
-    int Height;
-    std::vector<unsigned char> Pixels;
-};
-
-extern GraphicPageClass* LogicPage;
-extern GraphicBufferClass SeenBuff;
-
-inline void Set_Logic_Page(GraphicPageClass& page) { LogicPage = &page; }
+extern GraphicBufferClass VisiblePage;
+extern GraphicBufferClass HiddenPage;
+extern GraphicViewPortClass SeenBuff;
+extern GraphicViewPortClass HidPage;
+extern GraphicBufferClass SysMemPage;
 
 void Hide_Mouse();
 void Show_Mouse();
