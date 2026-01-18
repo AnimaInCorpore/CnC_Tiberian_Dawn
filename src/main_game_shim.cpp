@@ -4,6 +4,7 @@
 #include "sdl_platform.h"
 #include "confdlg.h"
 #include "legacy_compat.h"
+#include "menus.h"
 
 #include <SDL.h>
 
@@ -32,10 +33,25 @@ void Main_Game(int argc, char* argv[])
     }
 
     Set_Logic_Page(SeenBuff);
-    ConfirmationClass confirm;
-    void const* mouse_shp = MixFileClass::Retrieve("MOUSE.SHP");
-    (void)confirm.Process(mouse_shp ? "SDL UI shim is live (MIX assets OK). Press Yes/No, Esc, or close the window."
-                                    : "SDL UI shim is live (MIX assets missing). Press Yes/No, Esc, or close the window.");
+    for (;;) {
+        int choice = Main_Menu(0);
+        if (choice < 0 || choice == 3) break;
+
+        ConfirmationClass confirm;
+        switch (choice) {
+            case 0:
+                (void)confirm.Process("New game is not ported yet.");
+                break;
+            case 1:
+                (void)confirm.Process("Load mission is not ported yet.");
+                break;
+            case 2:
+                (void)confirm.Process("Options are not ported yet.");
+                break;
+            default:
+                break;
+        }
+    }
 
     SDL_Platform_Shutdown();
 }

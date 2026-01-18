@@ -63,19 +63,12 @@ bool ConfirmationClass::Process(char const* string) {
                           x + width - (bwidth + 10 * factor),
                           y + height - (bheight + 5 * factor), bwidth);
 
-    nobtn.Add_Tail(yesbtn);
+    yesbtn.Add_Tail(nobtn);
 
     curbutton = 1;
     buttons[0] = &yesbtn;
     buttons[1] = &nobtn;
     buttons[curbutton]->Turn_On();
-
-    GadgetClass dialog(x, y, width, height, GadgetClass::LEFTPRESS);
-    dialog.Add_Tail(yesbtn);
-
-    ControlClass background(BUTTON_NO, 0, 0, SeenBuff.Get_Width(), SeenBuff.Get_Height(),
-                            GadgetClass::LEFTPRESS | GadgetClass::RIGHTPRESS);
-    background.Add_Tail(yesbtn);
 
     bool display = true;
     bool process = true;

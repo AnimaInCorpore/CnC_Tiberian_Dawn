@@ -154,6 +154,20 @@ char const* Text_String(int text_id) {
             return "Yes";
         case TXT_NO:
             return "No";
+        case TXT_OK:
+            return "OK";
+        case TXT_CANCEL:
+            return "Cancel";
+        case TXT_START_NEW_GAME:
+            return "Start New Game";
+        case TXT_LOAD_MISSION:
+            return "Load Mission";
+        case TXT_OPTIONS:
+            return "Options";
+        case TXT_EXIT_GAME:
+            return "Exit Game";
+        case TXT_INTRO:
+            return "Intro & Sneak Peek";
         case TXT_CONFIRMATION:
             return "Confirmation";
         case TXT_NONE:

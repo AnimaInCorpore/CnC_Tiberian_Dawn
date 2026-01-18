@@ -187,16 +187,27 @@ KeyNumType TextButtonClass::Input()
 
     const int mx = Get_Mouse_X();
     const int my = Get_Mouse_Y();
-    if (mx >= X && mx < (X + Width) && my >= Y && my < (Y + Height)) {
-        return (KeyNumType)(Id | KN_BUTTON);
+
+    for (GadgetClass* gadget = this; gadget; gadget = gadget->Get_Next()) {
+        TextButtonClass* button = dynamic_cast<TextButtonClass*>(gadget);
+        if (!button) continue;
+        if (mx >= button->X && mx < (button->X + button->Width) && my >= button->Y && my < (button->Y + button->Height)) {
+            return (KeyNumType)(button->Id | KN_BUTTON);
+        }
     }
     return KN_NONE;
 }
 
 void TextButtonClass::Draw_All(bool forced)
 {
-    if (!forced && !NeedsRedraw) return;
+    GadgetClass::Draw_All(forced);
+}
+
+int TextButtonClass::Draw_Me(int forced)
+{
+    if (!forced && !NeedsRedraw && !IsToRepaint) return 0;
     NeedsRedraw = false;
+    IsToRepaint = 0u;
 
     const int fill = IsOn ? CC_BRIGHT_GREEN : CC_GREEN_BKGD;
     const int border = CC_BRIGHT_GREEN;
@@ -210,4 +221,6 @@ void TextButtonClass::Draw_All(bool forced)
     int tx = X + (Width - text_w) / 2;
     int ty = Y + 2;
     Fancy_Text_Print(label, (unsigned)tx, (unsigned)ty, CC_GREEN, TBLACK, TextFlags);
+
+    return 1;
 }

@@ -685,6 +685,8 @@ enum KeyNumConstants {
     KN_RETURN = 13,
     KN_LEFT = 1000,
     KN_RIGHT = 1001,
+    KN_UP = 1002,
+    KN_DOWN = 1003,
     KN_BUTTON = 1u << 15
 };
 
@@ -1469,6 +1471,15 @@ struct TheaterDataType {
 // Legacy text identifiers used by the type constructors.
 enum TextId {
     TXT_NONE = 0,
+    TXT_YES = 18,
+    TXT_NO = 19,
+    TXT_START_NEW_GAME = 25,
+    TXT_INTRO = 26,
+    TXT_CANCEL = 27,
+    TXT_OK = 37,
+    TXT_LOAD_MISSION = 53,
+    TXT_EXIT_GAME = 64,
+    TXT_OPTIONS = 65,
     TXT_TRANS = 95,
     TXT_A10 = 96,
     TXT_C17 = 97,
@@ -1500,8 +1511,6 @@ enum TextId {
     TXT_EYE,
     TXT_MISSION,
     TXT_MISSION_DESCRIPTION,
-    TXT_OK,
-    TXT_CANCEL,
     TXT_PUMP,
     TXT_ROAD,
     TXT_CLEAR,
@@ -1558,9 +1567,7 @@ enum TextId {
     TXT_PRISON,
     TXT_CIVILIAN_BUILDING,
 
-    TXT_CONFIRMATION,
-    TXT_YES,
-    TXT_NO,
+    TXT_CONFIRMATION = 215,
 
     TXT_GDI,
     TXT_NOD,

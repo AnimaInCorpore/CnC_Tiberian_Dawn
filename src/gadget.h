@@ -113,12 +113,13 @@ public:
           IsOn(false),
           NeedsRedraw(true) {}
 
-    void Turn_On() { IsOn = true; }
-    void Turn_Off() { IsOn = false; }
-    void Flag_To_Redraw() { NeedsRedraw = true; }
+    void Turn_On() { IsOn = true; Flag_To_Redraw(); }
+    void Turn_Off() { IsOn = false; Flag_To_Redraw(); }
+    void Flag_To_Redraw() { NeedsRedraw = true; IsToRepaint = 1u; }
 
-    KeyNumType Input();
-    void Draw_All(bool forced = true);
+    virtual KeyNumType Input();
+    virtual void Draw_All(bool forced = true);
+    virtual int Draw_Me(int forced = false);
 
 private:
     int Id;

@@ -68,14 +68,14 @@
 - **Shims**: `Draw_Box` and `Window_Box` implemented in `src/dialog.cpp`.
 - **Caption/Textures**: Implement `Draw_Caption` and provide a usable `CC_Texture_Fill` fallback (solid/dither) so dialog UIs are readable before full SHP blitting lands.
 - **Buffers**: `SeenBuff` is a 640x400 8-bit `GraphicBufferClass` backed by a software pixel buffer.
-- **Present**: `Call_Back()`/`Main_Loop()` copy `SeenBuff` into the SDL 1.2 screen surface (8-bpp) and flip.
+- **Present**: Use `SDL_Platform_Present_Indexed8(...)` to copy `SeenBuff` into the SDL 1.2 screen surface (8-bpp) and flip. `Call_Back()`/`Main_Loop()` should pump events + present (do not clear `SeenBuff`).
 - **Redraw Flags**: Use `BooleanVectorClass` shim for `DisplayClass` bit arrays.
 - **SDL Headers**: Prefer `#include <SDL.h>` (works with Homebrew/macOS and most SDL 1.2 installs); avoid hard-coding `SDL/SDL.h`.
 - **SDL Linking**: Use `find_package(SDL)` when available; fall back to `pkg-config` (`sdl`) in CMake.
 
 ### Input & Geometry
 - **Mouse**: `Get_Mouse_X/Y` returns SDL mouse coordinates from `SDL_Platform_Pump_Events`.
-- **Keys**: Minimal key queue is provided by `SDL_Platform_Pop_Key()` (Esc/Return/Left/Right only, expand as needed).
+- **Keys**: Minimal key queue is provided by `SDL_Platform_Pop_Key()` (Esc/Return/Up/Down/Left/Right only, expand as needed).
 - **Facing**: Implement `Desired_Facing8` early (8-way from screen-space vector) since UI widgets (e.g., dials) depend on it.
 - **Calculations**: `Dir_Facing`, `Facing_Dir`, `Facing_To_32` are fully implemented bit/lookup conversions.
 - **Keyboard**: Keep `KeyASCIIType` and `WWKEY` flags available.
@@ -83,6 +83,7 @@
 ### Gadgets & Controls
 - **Layout**: Legacy code mutates fields (`X`, `Y`, `Width`) directly. Mirror this access.
 - **Chaining**: Use `head.Add_Tail(child)` semantics.
+- **Buttons**: `TextButtonClass` supports chained `Draw_All()` and hit-testing via `Input()` when called on the list head.
 - **Lifetime**: Many gadgets are stack-allocated. Avoid `delete` in list helpers.
 - **Focus**: Maintain `Set_Focus`/`Has_Focus` shims.
 

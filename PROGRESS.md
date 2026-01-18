@@ -91,7 +91,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [ ] mapedsel.cpp
 - [ ] mapedtm.cpp
 - [ ] mapsel.cpp
-- [ ] menus.cpp
+- [x] menus.cpp (shim; SDL main menu loop with Start/Load/Options/Exit)
 - [ ] mission.cpp
 - [x] mixfile.cpp (portable MIX archive index + lazy `Retrieve`/`Offset` scanning `CD/` for `.MIX`)
 - [ ] monoc.cpp

@@ -2,6 +2,8 @@
 
 #include <SDL.h>
 
+#include <cstring>
+
 static SDL_Surface* g_screen = 0;
 static int g_mouse_x = 0;
 static int g_mouse_y = 0;
@@ -87,6 +89,8 @@ bool SDL_Platform_Pump_Events(bool& should_quit)
                     case SDLK_RETURN: key = 13; break;
                     case SDLK_LEFT: key = 1000; break;
                     case SDLK_RIGHT: key = 1001; break;
+                    case SDLK_UP: key = 1002; break;
+                    case SDLK_DOWN: key = 1003; break;
                     default:
                         break;
                 }
@@ -110,6 +114,33 @@ void SDL_Platform_Present()
 {
     if (!g_screen) return;
     SDL_Flip(g_screen);
+}
+
+void SDL_Platform_Present_Indexed8(unsigned char const* src, int width, int height, int pitch)
+{
+    if (!g_screen) return;
+    if (!src) {
+        SDL_Platform_Present();
+        return;
+    }
+
+    SDL_Surface* screen = g_screen;
+    if (SDL_MUSTLOCK(screen)) {
+        if (SDL_LockSurface(screen) != 0) return;
+    }
+
+    if (screen->pixels) {
+        unsigned char* dst = (unsigned char*)screen->pixels;
+        const int copy_w = (width < screen->w) ? width : screen->w;
+        const int copy_h = (height < screen->h) ? height : screen->h;
+        const int dst_pitch = screen->pitch;
+        for (int y = 0; y < copy_h; ++y) {
+            std::memcpy(dst + y * dst_pitch, src + y * pitch, (size_t)copy_w);
+        }
+    }
+
+    if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
+    SDL_Platform_Present();
 }
 
 unsigned long SDL_Platform_Ticks()
