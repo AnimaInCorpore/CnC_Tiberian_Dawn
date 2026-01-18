@@ -1724,12 +1724,26 @@ public:
     bool IsToDamage;
 };
 
+struct PathType;
+
 class FootClass : public ObjectClass {
 public:
     virtual ~FootClass() {}
 
     virtual void Limbo() {}
     virtual TARGET As_Target() const { return 0; }
+
+    PathType* Find_Path(CELL dest, FacingType* final_moves, int maxlen, MoveType threshhold);
+    int Optimize_Moves(PathType* path, MoveType threshhold);
+    bool Follow_Edge(CELL start,
+                     CELL target,
+                     PathType* path,
+                     FacingType search,
+                     FacingType olddir,
+                     int threat,
+                     int threat_stage,
+                     int max_cells,
+                     MoveType threshhold);
 };
 
 class HouseClass;

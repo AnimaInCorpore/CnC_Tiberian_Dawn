@@ -43,7 +43,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] facing.cpp
 - [x] factory.cpp (production logic; uses House/Techno shims for now)
 - [x] file.cpp (shim; portable FileClass + CD/ fallback)
-- [ ] findpath.cpp (stub; requires FootClass movement state + map passability + debug surfaces)
+- [x] findpath.cpp (stub; straight-line `Can_Enter_Cell` path list, full LOS/edge-following pending)
 - [x] flasher.cpp
 - [x] fly.cpp
 - [ ] foot.cpp (stub; `FootClass`/movement stack still lives in `src/legacy_compat.h` until Techno/Map/mission systems are ported)
