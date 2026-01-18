@@ -31,7 +31,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] credits.cpp
 - [x] crew.cpp
 - [x] debug.cpp
-- [ ] deldlg.cpp (stub; legacy source missing)
+- [x] deldlg.cpp (stub; legacy source missing)
 - [x] descdlg.cpp
 - [x] dial8.cpp
 - [x] dialog.cpp
