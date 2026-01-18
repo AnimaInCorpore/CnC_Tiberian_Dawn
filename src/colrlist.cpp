@@ -1,5 +1,7 @@
 #include "colrlist.h"
 
+#include <cstring>
+
 ColorListClass::ColorListClass(int id, int x, int y, int w, int h, TextPrintType flags, void const* up, void const* down)
     : ListClass(id, x, y, w, h, flags, up, down), Style(SELECT_HIGHLIGHT), SelectColor(-1) {}
 
@@ -16,7 +18,17 @@ int ColorListClass::Add_Item(int text, char color) {
 }
 
 void ColorListClass::Remove_Item(char const* text) {
-    int index = ID(text);
+    int index = -1;
+    if (text) {
+        for (int i = 0; i < List.Count(); ++i) {
+            if (!List[i]) continue;
+            if (std::strcmp(List[i], text) == 0) {
+                index = i;
+                break;
+            }
+        }
+    }
+
     if (index != -1) {
         Colors.Delete(index);
         ListClass::Remove_Item(text);
@@ -82,4 +94,3 @@ void ColorListClass::Draw_Entry(int index, int x, int y, int width, int selected
             break;
     }
 }
-

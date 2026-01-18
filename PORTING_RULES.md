@@ -30,6 +30,7 @@
 - **Returns**: Ensure non-void functions explicitly `return` a value (Watcom implicit returns are UB).
 - **Static members**: Define outside the class without repeating `static` (e.g., `Type Class::Member;`).
 - **Iteration**: Cast enum indices to `int` in loops when needed.
+- **Out-of-class defs**: Remove stray `virtual` on method definitions (Watcom accepted it; g++ rejects it).
 - **Compiler pragmas**: Remove or guard Watcom-specific pragmas (e.g., `#ifdef __WATCOMC__`).
 
 ## Data, layout, and “don’t break networking/saves” rules
@@ -53,7 +54,7 @@
 - **Redraw flags**: Use the `BooleanVectorClass` shim for `DisplayClass` bit arrays.
 - **SDL headers**: Prefer `#include <SDL.h>`; avoid hard-coding `SDL/SDL.h`.
 - **SDL linking**: Use `find_package(SDL)` when available; fall back to `pkg-config` (`sdl`) in CMake.
-- **Input**: `SDL_Platform_Pump_Events` maintains cached mouse state; `SDL_Platform_Pop_Key()` is a minimal key queue (Esc/Return/Up/Down/Left/Right).
+- **Input**: `SDL_Platform_Pump_Events` maintains cached mouse position + left/right pressed/released/down (and click coordinates); `SDL_Platform_Pop_Key()` queues Esc/Return/Backspace/arrows + basic ASCII (key repeat enabled).
 - **Geometry helpers**: Implement `Desired_Facing8` early; keep `Dir_Facing`, `Facing_Dir`, `Facing_To_32` conversions correct.
 
 ## UI controls (gadget stack expectations)
@@ -61,6 +62,8 @@
 - **List semantics**: Use `head.Add_Tail(child)` and allow `Draw_All()` / `Input()` on the list head.
 - **Lifetime**: Many gadgets are stack-allocated; avoid `delete` in list helpers.
 - **Focus**: Maintain `Set_Focus` / `Has_Focus` behavior.
+- **Gadget input**: `GadgetClass::Input()` now dispatches via `SDL_Platform_*`; ensure `SDL_Platform_Pump_Events` runs before gadget input each tick.
+- **List entries**: `ListClass` stores heap-copied, writable strings; `Remove_Item` matches by string contents (not pointer identity).
 
 ## Filesystem and asset loading
 - **DOS-ish paths**: `CDFileClass` handles `\\` and `;` lists. Default search roots probe `CD/TIBERIAN_DAWN/CD{2,1,3}/`, then `CD/TIBERIAN_DAWN/`, then `CD/`.

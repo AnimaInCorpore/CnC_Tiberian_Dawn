@@ -28,6 +28,18 @@ GadgetClass* GadgetClass::StuckOn = 0;
 GadgetClass* GadgetClass::LastList = 0;
 GadgetClass* GadgetClass::Focused = 0;
 
+int GadgetClass::Clicked_On(KeyNumType& key, unsigned flags, int mousex, int mousey)
+{
+    flags &= Flags;
+
+    if (this == StuckOn || (flags & KEYBOARD) ||
+        (flags && (unsigned)(mousex - X) < (unsigned)Width && (unsigned)(mousey - Y) < (unsigned)Height)) {
+        return Action(flags, key);
+    }
+
+    return 0;
+}
+
 void GadgetClass::Add_Tail(GadgetClass& gadget) {
     GadgetClass* current = this;
     while (current->Next) {
@@ -150,6 +162,10 @@ int GadgetClass::Is_List_To_Redraw(void) {
 }
 
 KeyNumType GadgetClass::Input(void) {
+    int mousex;
+    int mousey;
+    KeyNumType key = KN_NONE;
+    unsigned flags = 0;
     bool forced = false;
 
     if (LastList != this) {
@@ -159,13 +175,74 @@ KeyNumType GadgetClass::Input(void) {
         Focused = 0;
     }
 
-    /*
-    ** The legacy input system (Keyboard::Check/Get/Down and mouse queue state) is not wired up
-    ** in the portable build yet. For now, keep gadget input as a safe no-op that still drives
-    ** forced redraw behavior when the gadget list changes.
-    */
-    Draw_All(forced);
-    return KN_NONE;
+    key = (KeyNumType)SDL_Platform_Pop_Key();
+
+    const bool mouse_event = SDL_Platform_Mouse_Left_Pressed() || SDL_Platform_Mouse_Right_Pressed() ||
+                             SDL_Platform_Mouse_Left_Released() || SDL_Platform_Mouse_Right_Released();
+    if (mouse_event) {
+        mousex = SDL_Platform_Mouse_Event_X();
+        mousey = SDL_Platform_Mouse_Event_Y();
+    } else {
+        mousex = Get_Mouse_X();
+        mousey = Get_Mouse_Y();
+    }
+
+    if (mouse_event) {
+        if (SDL_Platform_Mouse_Left_Pressed()) flags |= LEFTPRESS;
+        if (SDL_Platform_Mouse_Right_Pressed()) flags |= RIGHTPRESS;
+        if (SDL_Platform_Mouse_Left_Released()) flags |= LEFTRELEASE;
+        if (SDL_Platform_Mouse_Right_Released()) flags |= RIGHTRELEASE;
+    }
+
+    if (key) {
+        flags |= KEYBOARD;
+    }
+
+    if (!key && !mouse_event) {
+        if (SDL_Platform_Mouse_Left_Down()) {
+            flags |= LEFTHELD;
+        } else {
+            flags |= LEFTUP;
+        }
+
+        if (SDL_Platform_Mouse_Right_Down()) {
+            flags |= RIGHTHELD;
+        } else {
+            flags |= RIGHTUP;
+        }
+    }
+
+    if (StuckOn) {
+        StuckOn->Draw_Me(false);
+        StuckOn->Clicked_On(key, flags, mousex, mousey);
+        if (StuckOn) {
+            StuckOn->Draw_Me(false);
+        }
+    } else {
+        if (Focused && (flags & KEYBOARD)) {
+            Focused->Draw_Me(false);
+            Focused->Clicked_On(key, flags, mousex, mousey);
+            if (Focused) {
+                Focused->Draw_Me(false);
+            }
+        } else {
+            GadgetClass* next_button = this;
+            while (next_button) {
+                next_button->Draw_Me(forced ? 1 : 0);
+
+                if (!next_button->IsDisabled) {
+                    if (next_button->Clicked_On(key, flags, mousex, mousey)) {
+                        next_button->Draw_Me(false);
+                        break;
+                    }
+                }
+
+                next_button = next_button->Get_Next();
+            }
+        }
+    }
+
+    return key;
 }
 
 ControlClass* GadgetClass::Extract_Gadget(unsigned id) {
@@ -176,51 +253,4 @@ ControlClass* GadgetClass::Extract_Gadget(unsigned id) {
         gadget = gadget->Next;
     }
     return 0;
-}
-
-KeyNumType TextButtonClass::Input()
-{
-    int key = SDL_Platform_Pop_Key();
-    if (key) return (KeyNumType)key;
-
-    if (!SDL_Platform_Mouse_Left_Pressed()) return KN_NONE;
-
-    const int mx = Get_Mouse_X();
-    const int my = Get_Mouse_Y();
-
-    for (GadgetClass* gadget = this; gadget; gadget = gadget->Get_Next()) {
-        TextButtonClass* button = dynamic_cast<TextButtonClass*>(gadget);
-        if (!button) continue;
-        if (mx >= button->X && mx < (button->X + button->Width) && my >= button->Y && my < (button->Y + button->Height)) {
-            return (KeyNumType)(button->Id | KN_BUTTON);
-        }
-    }
-    return KN_NONE;
-}
-
-void TextButtonClass::Draw_All(bool forced)
-{
-    GadgetClass::Draw_All(forced);
-}
-
-int TextButtonClass::Draw_Me(int forced)
-{
-    if (!forced && !NeedsRedraw && !IsToRepaint) return 0;
-    NeedsRedraw = false;
-    IsToRepaint = 0u;
-
-    const int fill = IsOn ? CC_BRIGHT_GREEN : CC_GREEN_BKGD;
-    const int border = CC_BRIGHT_GREEN;
-    if (LogicPage) {
-        LogicPage->Fill_Rect(X, Y, X + Width - 1, Y + Height - 1, fill);
-        LogicPage->Draw_Rect(X, Y, X + Width - 1, Y + Height - 1, border);
-    }
-
-    char const* label = Text_String(Text);
-    int text_w = String_Pixel_Width(label);
-    int tx = X + (Width - text_w) / 2;
-    int ty = Y + 2;
-    Fancy_Text_Print(label, (unsigned)tx, (unsigned)ty, CC_GREEN, TBLACK, TextFlags);
-
-    return 1;
 }

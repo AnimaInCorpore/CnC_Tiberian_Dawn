@@ -1,7 +1,7 @@
 #include "menus.h"
 
 #include "function.h"
-#include "gadget.h"
+#include "textbtn.h"
 #include "sdl_platform.h"
 
 enum MenuButtonId {

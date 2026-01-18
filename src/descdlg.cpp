@@ -42,6 +42,7 @@
 #include "control.h"
 #include "edit.h"
 #include "legacy_compat.h"
+#include "textbtn.h"
 
 /***********************************************************************************************
  * DescriptionClass::Process -- Handles all the options graphic interface.                     *

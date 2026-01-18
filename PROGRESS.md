@@ -17,6 +17,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] cdata.cpp
 - [x] cdfile.cpp
 - [x] cell.cpp
+- [x] checkbox.cpp
 - [x] cheklist.cpp
 - [x] colrlist.cpp
 - [x] combat.cpp
@@ -48,7 +49,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] fly.cpp
 - [ ] foot.cpp (stub; `FootClass`/movement stack still lives in `src/legacy_compat.h` until Techno/Map/mission systems are ported)
 - [x] fuse.cpp
-- [x] gadget.cpp (port; list/focus/redraw behavior, input dispatch still stubbed)
+- [x] gadget.cpp (port; list/focus/redraw + SDL-backed input dispatch)
 - [ ] gamedlg.cpp (stub; depends on Options + slider/gauge UI stack)
 - [x] gauge.cpp
 - [x] globals.cpp (shim; moved early global state out of `legacy_compat.cpp`)
@@ -78,7 +79,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] layer.cpp (ported; using DynamicVectorClass shim)
 - [x] legacy_compat.cpp (shim; central compatibility layer, gradually extracted into dedicated modules)
 - [ ] link.cpp
-- [ ] list.cpp
+- [x] list.cpp (port; listbox + scrollbar via `slider`/`shapebtn` shims)
 - [ ] loaddlg.cpp
 - [ ] logic.cpp
 - [x] main_game_shim.cpp (shim; temporary SDL harness while legacy startup/UI stack is porting)
@@ -122,9 +123,9 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [ ] score.cpp
 - [ ] scroll.cpp
 - [ ] sdata.cpp
-- [ ] shapebtn.cpp
+- [x] shapebtn.cpp (shim; draws via `Draw_Box` until SHP blitting is ported)
 - [ ] sidebar.cpp
-- [ ] slider.cpp
+- [x] slider.cpp (port; list-scroll and thumb logic; +/- buttons optional)
 - [ ] smudge.cpp
 - [ ] sounddlg.cpp
 - [x] sdl_platform.cpp (shim; SDL 1.2 platform wrapper)
@@ -140,12 +141,12 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [ ] techno.cpp
 - [ ] template.cpp
 - [ ] terrain.cpp
-- [ ] textbtn.cpp
+- [x] textbtn.cpp (port; legacy `TextButtonClass` on toggle stack)
 - [ ] theme.cpp
-- [ ] toggle.cpp
+- [x] toggle.cpp
 - [ ] trigger.cpp
 - [ ] turret.cpp
-- [ ] txtlabel.cpp
+- [x] txtlabel.cpp
 - [ ] txtprnt.asm
 - [ ] udata.cpp
 - [ ] unit.cpp

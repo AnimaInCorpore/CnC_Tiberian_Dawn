@@ -19,6 +19,7 @@
 #include "confdlg.h"
 
 #include "legacy_compat.h"
+#include "textbtn.h"
 
 bool ConfirmationClass::Process(int text) { return Process(Text_String(text)); }
 

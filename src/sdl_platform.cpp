@@ -7,11 +7,73 @@
 static SDL_Surface* g_screen = 0;
 static int g_mouse_x = 0;
 static int g_mouse_y = 0;
+static int g_mouse_event_x = 0;
+static int g_mouse_event_y = 0;
 static bool g_left_pressed = false;
 static bool g_left_released = false;
+static bool g_left_down = false;
+static bool g_right_pressed = false;
+static bool g_right_released = false;
+static bool g_right_down = false;
 static int g_key_queue[32];
 static int g_key_head = 0;
 static int g_key_tail = 0;
+
+static int Map_Key(SDL_keysym const& keysym)
+{
+    const SDLKey sym = keysym.sym;
+    const SDLMod mod = keysym.mod;
+    const bool shift = (mod & (KMOD_LSHIFT | KMOD_RSHIFT)) != 0;
+    const bool caps = (mod & KMOD_CAPS) != 0;
+
+    switch (sym) {
+        case SDLK_ESCAPE: return 27;
+        case SDLK_RETURN: return 13;
+        case SDLK_KP_ENTER: return 13;
+        case SDLK_BACKSPACE: return 8;
+        case SDLK_LEFT: return 1000;
+        case SDLK_RIGHT: return 1001;
+        case SDLK_UP: return 1002;
+        case SDLK_DOWN: return 1003;
+        default:
+            break;
+    }
+
+    if (sym == SDLK_SPACE) return ' ';
+
+    if (sym >= SDLK_a && sym <= SDLK_z) {
+        const bool upper = shift ^ caps;
+        return (upper ? ('A' + (sym - SDLK_a)) : ('a' + (sym - SDLK_a)));
+    }
+
+    if (sym >= SDLK_0 && sym <= SDLK_9) {
+        static const char shifted[10] = { ')', '!', '@', '#', '$', '%', '^', '&', '*', '(' };
+        if (shift) return shifted[sym - SDLK_0];
+        return '0' + (sym - SDLK_0);
+    }
+
+    if (sym >= SDLK_KP0 && sym <= SDLK_KP9) {
+        return '0' + (sym - SDLK_KP0);
+    }
+
+    switch (sym) {
+        case SDLK_MINUS: return shift ? '_' : '-';
+        case SDLK_EQUALS: return shift ? '+' : '=';
+        case SDLK_LEFTBRACKET: return shift ? '{' : '[';
+        case SDLK_RIGHTBRACKET: return shift ? '}' : ']';
+        case SDLK_BACKSLASH: return shift ? '|' : '\\';
+        case SDLK_SEMICOLON: return shift ? ':' : ';';
+        case SDLK_QUOTE: return shift ? '"' : '\'';
+        case SDLK_COMMA: return shift ? '<' : ',';
+        case SDLK_PERIOD: return shift ? '>' : '.';
+        case SDLK_SLASH: return shift ? '?' : '/';
+        case SDLK_BACKQUOTE: return shift ? '~' : '`';
+        default:
+            break;
+    }
+
+    return 0;
+}
 
 static void Push_Key(int key)
 {
@@ -47,6 +109,8 @@ bool SDL_Platform_Init(int width, int height, bool fullscreen)
         return false;
     }
 
+    SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+
     SDL_WM_SetCaption("cnc_td (SDL 1.2)", 0);
     return true;
 }
@@ -61,6 +125,8 @@ bool SDL_Platform_Pump_Events(bool& should_quit)
 {
     g_left_pressed = false;
     g_left_released = false;
+    g_right_pressed = false;
+    g_right_released = false;
 
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -74,26 +140,42 @@ bool SDL_Platform_Pump_Events(bool& should_quit)
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 if (event.button.button == SDL_BUTTON_LEFT) {
+                    g_left_down = true;
                     g_left_pressed = true;
+                    g_mouse_x = event.button.x;
+                    g_mouse_y = event.button.y;
+                    g_mouse_event_x = event.button.x;
+                    g_mouse_event_y = event.button.y;
+                }
+                if (event.button.button == SDL_BUTTON_RIGHT) {
+                    g_right_down = true;
+                    g_right_pressed = true;
+                    g_mouse_x = event.button.x;
+                    g_mouse_y = event.button.y;
+                    g_mouse_event_x = event.button.x;
+                    g_mouse_event_y = event.button.y;
                 }
                 break;
             case SDL_MOUSEBUTTONUP:
                 if (event.button.button == SDL_BUTTON_LEFT) {
+                    g_left_down = false;
                     g_left_released = true;
+                    g_mouse_x = event.button.x;
+                    g_mouse_y = event.button.y;
+                    g_mouse_event_x = event.button.x;
+                    g_mouse_event_y = event.button.y;
+                }
+                if (event.button.button == SDL_BUTTON_RIGHT) {
+                    g_right_down = false;
+                    g_right_released = true;
+                    g_mouse_x = event.button.x;
+                    g_mouse_y = event.button.y;
+                    g_mouse_event_x = event.button.x;
+                    g_mouse_event_y = event.button.y;
                 }
                 break;
             case SDL_KEYDOWN: {
-                int key = 0;
-                switch (event.key.keysym.sym) {
-                    case SDLK_ESCAPE: key = 27; break;
-                    case SDLK_RETURN: key = 13; break;
-                    case SDLK_LEFT: key = 1000; break;
-                    case SDLK_RIGHT: key = 1001; break;
-                    case SDLK_UP: key = 1002; break;
-                    case SDLK_DOWN: key = 1003; break;
-                    default:
-                        break;
-                }
+                int key = Map_Key(event.key.keysym);
                 if (key) Push_Key(key);
             } break;
             default:
@@ -156,6 +238,12 @@ void SDL_Platform_Delay(unsigned long ms)
 SDL_Surface* SDL_Platform_Screen() { return g_screen; }
 int SDL_Platform_Mouse_X() { return g_mouse_x; }
 int SDL_Platform_Mouse_Y() { return g_mouse_y; }
+int SDL_Platform_Mouse_Event_X() { return g_mouse_event_x; }
+int SDL_Platform_Mouse_Event_Y() { return g_mouse_event_y; }
 bool SDL_Platform_Mouse_Left_Pressed() { return g_left_pressed; }
 bool SDL_Platform_Mouse_Left_Released() { return g_left_released; }
+bool SDL_Platform_Mouse_Left_Down() { return g_left_down; }
+bool SDL_Platform_Mouse_Right_Pressed() { return g_right_pressed; }
+bool SDL_Platform_Mouse_Right_Released() { return g_right_released; }
+bool SDL_Platform_Mouse_Right_Down() { return g_right_down; }
 int SDL_Platform_Pop_Key() { return Pop_Key(); }

@@ -99,32 +99,8 @@ protected:
     unsigned Flags;
 
 private:
+    int Clicked_On(KeyNumType& key, unsigned flags, int mousex, int mousey);
+
     static GadgetClass* LastList;
     static GadgetClass* Focused;
-};
-
-class TextButtonClass : public GadgetClass {
-public:
-    TextButtonClass(int id, int text, TextPrintType flags, int x, int y, int w)
-        : GadgetClass(x, y, w, FontHeight + FontYSpacing + 2, 0u, false),
-          Id(id),
-          Text(text),
-          TextFlags(flags),
-          IsOn(false),
-          NeedsRedraw(true) {}
-
-    void Turn_On() { IsOn = true; Flag_To_Redraw(); }
-    void Turn_Off() { IsOn = false; Flag_To_Redraw(); }
-    void Flag_To_Redraw() { NeedsRedraw = true; IsToRepaint = 1u; }
-
-    virtual KeyNumType Input();
-    virtual void Draw_All(bool forced = true);
-    virtual int Draw_Me(int forced = false);
-
-private:
-    int Id;
-    int Text;
-    TextPrintType TextFlags;
-    bool IsOn;
-    bool NeedsRedraw;
 };
