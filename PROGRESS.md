@@ -35,7 +35,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] descdlg.cpp
 - [x] dial8.cpp
 - [x] dialog.cpp
-- [ ] display.cpp (stub; skeleton header + statics for now)
+- [x] display.cpp (port; view dimensions + placement cursor marking + deterministic palette table init)
 - [x] dpmi.cpp
 - [ ] drive.cpp (stub; DriveClass logic pending)
 - [x] edit.cpp

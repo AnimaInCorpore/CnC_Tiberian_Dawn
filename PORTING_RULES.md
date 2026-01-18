@@ -67,6 +67,7 @@
 - **Rect Semantics**: `Fill_Rect`/`Draw_Rect` take inclusive coordinates `(x1, y1, x2, y2)` (legacy call sites often pass `x+w-1`, `y+h-1`).
 - **Present**: `Call_Back()`/`Main_Loop()` should pump events, blit `HidPage` -> `SeenBuff`, then `SDL_Platform_Present_Indexed8(SeenBuff.Data(), ...)` (do not clear pages during present).
 - **Redraw Flags**: Use `BooleanVectorClass` shim for `DisplayClass` bit arrays.
+- **Palette Tables**: Until palette builders (`Build_Translucent_Table`, fading table generation) are ported, initialize `DisplayClass` tables (`Fading*`, `RemapTables`, `TranslucentTable`, `ShadowTrans`, etc.) to identity mappings in `DisplayClass::One_Time()` to avoid uninitialized reads.
 - **SDL Headers**: Prefer `#include <SDL.h>` (works with Homebrew/macOS and most SDL 1.2 installs); avoid hard-coding `SDL/SDL.h`.
 - **SDL Linking**: Use `find_package(SDL)` when available; fall back to `pkg-config` (`sdl`) in CMake.
 

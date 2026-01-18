@@ -56,9 +56,9 @@ public:
     virtual void Read_INI(char* buffer) { (void)buffer; }
     void Write_INI(char* buffer) { (void)buffer; }
 
-    virtual void One_Time(void) {}
-    virtual void Init_Clear(void) {}
-    virtual void Init_IO(void) {}
+    virtual void One_Time(void);
+    virtual void Init_Clear(void);
+    virtual void Init_IO(void);
     virtual void Init_Theater(TheaterType theater) { (void)theater; }
 
     virtual void AI(KeyNumType& input, int x, int y) {
@@ -98,32 +98,14 @@ public:
         (void)list;
     }
 
-    virtual void Set_View_Dimensions(int x, int y, int width = -1, int height = -1) {
-        (void)x;
-        (void)y;
-        (void)width;
-        (void)height;
-    }
+    virtual void Set_View_Dimensions(int x, int y, int width = -1, int height = -1);
 
     virtual void Put_Place_Back(TechnoClass*) {}
 
-    void Cursor_Mark(CELL pos, bool on) {
-        (void)pos;
-        (void)on;
-    }
-
-    void Set_Cursor_Shape(short const* list) { CursorSize = list; }
-
-    CELL Set_Cursor_Pos(CELL pos = -1) {
-        (void)pos;
-        return ZoneCell;
-    }
-
-    void Get_Occupy_Dimensions(int& w, int& h, short const* list) {
-        (void)list;
-        w = 0;
-        h = 0;
-    }
+    void Cursor_Mark(CELL pos, bool on);
+    void Set_Cursor_Shape(short const* list);
+    CELL Set_Cursor_Pos(CELL pos = -1);
+    void Get_Occupy_Dimensions(int& w, int& h, short const* list);
 
     virtual void Set_Tactical_Position(COORDINATE coord) { TacticalCoord = coord; }
     void Refresh_Band(void) {}
