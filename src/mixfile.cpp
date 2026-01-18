@@ -22,7 +22,9 @@ struct MixEntry {
 
 struct MixArchive {
     std::string path;
-    std::vector<MixEntry> entries;
+    std::vector<MixEntry> entries_in_order;
+    std::vector<MixEntry> entries_by_crc;
+    std::vector<std::string> names_in_order;  // Uppercase; optional (XCC database).
 };
 
 struct MixEntryLessByCRC {
@@ -32,6 +34,15 @@ struct MixEntryLessByCRC {
 static bool g_scanned = false;
 static std::vector<MixArchive> g_archives;
 static std::map<std::string, void const*> g_cache;
+
+static std::string Normalize_Name(const char* filename) {
+    if (!filename) return std::string();
+    std::string out(filename);
+    for (std::size_t i = 0; i < out.size(); ++i) {
+        out[i] = static_cast<char>(std::toupper(static_cast<unsigned char>(out[i])));
+    }
+    return out;
+}
 
 static unsigned long Calculate_CRC(void const* buffer, int length) {
     unsigned long sum = 0;
@@ -47,14 +58,8 @@ static unsigned long Calculate_CRC(void const* buffer, int length) {
 
 static unsigned long Filename_CRC(char const* filename) {
     if (!filename) return 0;
-    char tmp[260];
-    std::size_t len = std::strlen(filename);
-    if (len >= sizeof(tmp)) len = sizeof(tmp) - 1;
-    for (std::size_t i = 0; i < len; ++i) {
-        tmp[i] = static_cast<char>(std::toupper(static_cast<unsigned char>(filename[i])));
-    }
-    tmp[len] = '\0';
-    return Calculate_CRC(tmp, static_cast<int>(len));
+    std::string upper = Normalize_Name(filename);
+    return Calculate_CRC(upper.c_str(), static_cast<int>(upper.size()));
 }
 
 static bool Read_LE16(std::FILE* fp, unsigned short& out) {
@@ -92,6 +97,49 @@ static bool Is_Directory(std::string const& path) {
     return (st.st_mode & S_IFDIR) != 0;
 }
 
+static std::vector<std::string> Parse_XCC_Names(unsigned char const* data, std::size_t size, std::size_t expected_count) {
+    std::vector<std::string> names;
+    if (!data || size < 8) return names;
+    if (size < 4 || std::memcmp(data, "XCC ", 4) != 0) return names;
+
+    // XCC mix metadata contains a binary header followed by a series of
+    // NUL-terminated filenames (often lowercase). Extract all plausible
+    // ASCII filename strings and accept them when the count matches.
+    for (std::size_t i = 0; i < size; ++i) {
+        unsigned char c = data[i];
+        if (c < 32 || c >= 127) continue;
+
+        std::size_t j = i;
+        while (j < size) {
+            unsigned char cj = data[j];
+            if (cj == 0) break;
+            if (cj < 32 || cj >= 127) {
+                j = size;
+                break;
+            }
+            ++j;
+        }
+        if (j >= size || data[j] != 0) continue;
+
+        std::size_t len = j - i;
+        if (len < 5 || len >= 64) continue;
+        bool has_dot = false;
+        for (std::size_t k = i; k < j; ++k) {
+            if (data[k] == '.') has_dot = true;
+        }
+        if (!has_dot) continue;
+
+        std::string s(reinterpret_cast<char const*>(data + i), len);
+        names.push_back(Normalize_Name(s.c_str()));
+        i = j;
+    }
+
+    if (expected_count && names.size() != expected_count) {
+        names.clear();
+    }
+    return names;
+}
+
 static void Scan_Directory(std::string const& dir, int depth_remaining) {
     DIR* dp = opendir(dir.c_str());
     if (!dp) return;
@@ -124,28 +172,52 @@ static void Scan_Directory(std::string const& dir, int depth_remaining) {
 
         MixArchive archive;
         archive.path = path;
-        archive.entries.reserve(count);
+        archive.entries_in_order.reserve(count);
 
         for (unsigned short i = 0; i < count; ++i) {
             unsigned long crc = 0;
             unsigned long off = 0;
             unsigned long size = 0;
             if (!Read_LE32(fp, crc) || !Read_LE32(fp, off) || !Read_LE32(fp, size)) {
-                archive.entries.clear();
+                archive.entries_in_order.clear();
                 break;
             }
             MixEntry entry;
             entry.crc = crc;
             entry.offset = static_cast<long>(off);
             entry.size = static_cast<long>(size);
-            archive.entries.push_back(entry);
+            archive.entries_in_order.push_back(entry);
+        }
+
+        long header_size = 2 + 4 + static_cast<long>(count) * 12;
+        if (!archive.entries_in_order.empty()) {
+            // Optional: XCC-generated MIX files include an extra entry with
+            // the original filenames, allowing name-based lookups without
+            // relying on the legacy CRC algorithm.
+            for (std::size_t i = 0; i < archive.entries_in_order.size(); ++i) {
+                long abs_off = header_size + archive.entries_in_order[i].offset;
+                long size = archive.entries_in_order[i].size;
+                if (size <= 0 || size > 2048) continue;
+                if (std::fseek(fp, abs_off, SEEK_SET) != 0) continue;
+                unsigned char sig[4];
+                if (std::fread(sig, 1, 4, fp) != 4) continue;
+                if (std::memcmp(sig, "XCC ", 4) != 0) continue;
+
+                std::vector<unsigned char> buf(static_cast<std::size_t>(size));
+                std::fseek(fp, abs_off, SEEK_SET);
+                if (std::fread(&buf[0], 1, static_cast<std::size_t>(size), fp) != static_cast<std::size_t>(size)) break;
+
+                archive.names_in_order = Parse_XCC_Names(&buf[0], buf.size(), archive.entries_in_order.size());
+                break;
+            }
         }
 
         std::fclose(fp);
 
-        if (archive.entries.empty()) continue;
+        if (archive.entries_in_order.empty()) continue;
 
-        std::sort(archive.entries.begin(), archive.entries.end(), MixEntryLessByCRC());
+        archive.entries_by_crc = archive.entries_in_order;
+        std::sort(archive.entries_by_crc.begin(), archive.entries_by_crc.end(), MixEntryLessByCRC());
 
         g_archives.push_back(archive);
     }
@@ -164,24 +236,24 @@ static bool Find_In_Archive(MixArchive const& archive,
                             unsigned long crc,
                             long& out_absolute_offset,
                             long& out_size) {
-    if (archive.entries.empty()) return false;
+    if (archive.entries_by_crc.empty()) return false;
 
     std::size_t lo = 0;
-    std::size_t hi = archive.entries.size();
+    std::size_t hi = archive.entries_by_crc.size();
     while (lo < hi) {
         std::size_t mid = lo + (hi - lo) / 2;
-        unsigned long mid_crc = archive.entries[mid].crc;
+        unsigned long mid_crc = archive.entries_by_crc[mid].crc;
         if (mid_crc < crc) {
             lo = mid + 1;
         } else {
             hi = mid;
         }
     }
-    if (lo >= archive.entries.size() || archive.entries[lo].crc != crc) return false;
+    if (lo >= archive.entries_by_crc.size() || archive.entries_by_crc[lo].crc != crc) return false;
 
-    long header_size = 2 + 4 + static_cast<long>(archive.entries.size()) * 12;
-    out_absolute_offset = header_size + archive.entries[lo].offset;
-    out_size = archive.entries[lo].size;
+    long header_size = 2 + 4 + static_cast<long>(archive.entries_by_crc.size()) * 12;
+    out_absolute_offset = header_size + archive.entries_by_crc[lo].offset;
+    out_size = archive.entries_by_crc[lo].size;
     return true;
 }
 
@@ -193,7 +265,8 @@ void const* Retrieve(const char* filename) {
     if (!filename) return 0;
     Ensure_Scanned();
 
-    std::map<std::string, void const*>::const_iterator cached = g_cache.find(filename);
+    std::string normalized = Normalize_Name(filename);
+    std::map<std::string, void const*>::const_iterator cached = g_cache.find(normalized);
     if (cached != g_cache.end()) return cached->second;
 
     void* realptr = 0;
@@ -224,7 +297,7 @@ void const* Retrieve(const char* filename) {
     }
     std::fclose(fp);
 
-    g_cache[filename] = buffer;
+    g_cache[normalized] = buffer;
     return buffer;
 }
 
@@ -237,13 +310,31 @@ bool Offset(char const* filename, void** realptr, char const** mix_filename, lon
     if (offset) *offset = 0;
     if (size) *size = 0;
 
-    std::map<std::string, void const*>::const_iterator cached = g_cache.find(filename);
+    std::string normalized = Normalize_Name(filename);
+
+    std::map<std::string, void const*>::const_iterator cached = g_cache.find(normalized);
     if (cached != g_cache.end()) {
         if (realptr) *realptr = const_cast<void*>(cached->second);
         return true;
     }
 
-    unsigned long crc = Filename_CRC(filename);
+    // Prefer filename tables embedded by XCC tools when present.
+    for (std::size_t i = 0; i < g_archives.size(); ++i) {
+        MixArchive const& archive = g_archives[i];
+        if (archive.names_in_order.size() != archive.entries_in_order.size()) continue;
+        for (std::size_t j = 0; j < archive.names_in_order.size(); ++j) {
+            if (archive.names_in_order[j] != normalized) continue;
+            long header_size = 2 + 4 + static_cast<long>(archive.entries_in_order.size()) * 12;
+            long abs_off = header_size + archive.entries_in_order[j].offset;
+            long file_size = archive.entries_in_order[j].size;
+            if (mix_filename) *mix_filename = archive.path.c_str();
+            if (offset) *offset = abs_off;
+            if (size) *size = file_size;
+            return true;
+        }
+    }
+
+    unsigned long crc = Filename_CRC(normalized.c_str());
     for (std::size_t i = 0; i < g_archives.size(); ++i) {
         long abs_off = 0;
         long file_size = 0;

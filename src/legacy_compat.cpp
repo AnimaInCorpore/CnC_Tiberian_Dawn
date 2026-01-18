@@ -1,6 +1,7 @@
 #include "legacy_compat.h"
 
 #include "cell.h"
+#include "ccfile.h"
 #include "sdl_platform.h"
 
 #include <cstdlib>
@@ -86,7 +87,68 @@ void Set_Font(void const*) {}
 
 void Set_Font_Palette(unsigned char const[16]) {}
 
+namespace {
+static bool g_text_loaded = false;
+static std::vector<std::string> g_text_strings;
+
+static void Ensure_Text_Loaded() {
+    if (g_text_loaded) return;
+    g_text_loaded = true;
+
+    CCFileClass file("CONQUER.ENG");
+    if (!file.Is_Available()) return;
+
+    long size = file.Size();
+    if (size <= 0) return;
+    std::vector<unsigned char> buffer(static_cast<std::size_t>(size));
+    if (file.Read(&buffer[0], size) != size) return;
+
+    if (buffer.size() < 4) return;
+    unsigned int first_offset = static_cast<unsigned int>(buffer[0]) |
+                                (static_cast<unsigned int>(buffer[1]) << 8);
+    if (first_offset < 4 || (first_offset & 1U) != 0U) return;
+
+    std::size_t offset_count = static_cast<std::size_t>(first_offset / 2U);
+    if (offset_count < 2) return;
+    if (first_offset > buffer.size()) return;
+
+    std::vector<unsigned int> offsets;
+    offsets.reserve(offset_count);
+    for (std::size_t i = 0; i < offset_count; ++i) {
+        std::size_t pos = i * 2;
+        unsigned int off = static_cast<unsigned int>(buffer[pos]) |
+                           (static_cast<unsigned int>(buffer[pos + 1]) << 8);
+        offsets.push_back(off);
+    }
+
+    for (std::size_t i = 0; i + 1 < offsets.size(); ++i) {
+        unsigned int begin = offsets[i];
+        unsigned int end = offsets[i + 1];
+        if (begin > end) return;
+        if (end > buffer.size()) return;
+    }
+
+    g_text_strings.resize(offsets.size() - 1);
+    for (std::size_t i = 0; i + 1 < offsets.size(); ++i) {
+        unsigned int begin = offsets[i];
+        unsigned int end = offsets[i + 1];
+        if (begin >= buffer.size() || begin >= end) {
+            g_text_strings[i].clear();
+            continue;
+        }
+        unsigned int cursor = begin;
+        while (cursor < end && buffer[cursor] != 0) ++cursor;
+        g_text_strings[i].assign(reinterpret_cast<char const*>(&buffer[begin]), cursor - begin);
+    }
+}
+}  // namespace
+
 char const* Text_String(int text_id) {
+    Ensure_Text_Loaded();
+    if (text_id >= 0 && static_cast<std::size_t>(text_id) < g_text_strings.size()) {
+        return g_text_strings[static_cast<std::size_t>(text_id)].c_str();
+    }
+
     switch (text_id) {
         case TXT_YES:
             return "Yes";

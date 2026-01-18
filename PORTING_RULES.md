@@ -90,7 +90,8 @@
 - **INI**: Minimal in-memory reader (`WWGetPrivateProfile...`). Writes are no-op.
 - **Icons**: Stub `Get_Icon_Set_Map` to return NULL safely.
 - **MIX archives**: `MixFileClass::Retrieve`/`Offset` are implemented as a portable loader in `src/mixfile.cpp` that lazily scans `CD/` for `.MIX` files and indexes them (no init-time `new MixFileClass(...)` required yet).
-- **CRC convention**: MIX lookup uses the legacy rotate/add 32-bit CRC used elsewhere in the codebase (see `Add_CRC` / `NullModemConnClass::Compute_CRC` style), computed over the uppercased filename.
+    - Some shipped `.MIX` files (e.g. `CCLOCAL.MIX`, `UPDATE.MIX`, `UPDATA.MIX` in this CD tree) include an embedded XCC name table entry (`"XCC by Olaf van der Spek"`), which can be used for direct name lookups without relying on the legacy filename CRC algorithm.
+    - For mixes without an embedded name table, filename-CRC lookup may still be needed; keep the CRC implementation isolated to `src/mixfile.cpp` so it can be corrected/validated without touching call sites.
 
 ## Legacy Compatibility Shims
 - **Macros**: Define `MAX(a,b)` and `MIN(a,b)` in `src/legacy_compat.h`.

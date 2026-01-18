@@ -2,11 +2,35 @@
 // while the legacy CONQUER.CPP startup and UI stack are being ported.
 
 #include "sdl_platform.h"
+#include "ccfile.h"
 #include "confdlg.h"
 #include "legacy_compat.h"
 #include "menus.h"
 
 #include <SDL.h>
+
+static bool Load_VGA_Palette(const char* filename, SDL_Surface* screen) {
+    if (!screen) return false;
+
+    CCFileClass file(filename);
+    if (!file.Is_Available()) return false;
+
+    unsigned char raw[768];
+    if (file.Read(raw, 768) != 768) return false;
+
+    SDL_Color pal[256];
+    for (int i = 0; i < 256; ++i) {
+        unsigned char r6 = raw[i * 3 + 0];
+        unsigned char g6 = raw[i * 3 + 1];
+        unsigned char b6 = raw[i * 3 + 2];
+        pal[i].r = static_cast<unsigned char>(r6 * 4);
+        pal[i].g = static_cast<unsigned char>(g6 * 4);
+        pal[i].b = static_cast<unsigned char>(b6 * 4);
+    }
+
+    SDL_SetPalette(screen, SDL_LOGPAL | SDL_PHYSPAL, pal, 0, 256);
+    return true;
+}
 
 void Main_Game(int argc, char* argv[])
 {
@@ -16,20 +40,18 @@ void Main_Game(int argc, char* argv[])
     }
 
     SDL_Surface* screen = SDL_Platform_Screen();
-    if (screen) {
-        SDL_Color pal[256];
-        for (int i = 0; i < 256; ++i) {
-            pal[i].r = (unsigned char)i;
-            pal[i].g = (unsigned char)i;
-            pal[i].b = (unsigned char)i;
+    if (screen && !Load_VGA_Palette("CCMENU.PAL", screen)) {
+        if (!Load_VGA_Palette("TEMPERAT.PAL", screen)) {
+            // Fallback palette so the harness stays usable even without CD data.
+            SDL_Color pal[256];
+            for (int i = 0; i < 256; ++i) {
+                pal[i].r = (unsigned char)i;
+                pal[i].g = (unsigned char)i;
+                pal[i].b = (unsigned char)i;
+            }
+            pal[0].r = pal[0].g = pal[0].b = 0;
+            SDL_SetPalette(screen, SDL_LOGPAL | SDL_PHYSPAL, pal, 0, 256);
         }
-        pal[0].r = pal[0].g = pal[0].b = 0;
-        pal[2].r = 0; pal[2].g = 180; pal[2].b = 0;
-        pal[7].r = pal[7].g = pal[7].b = 120;
-        pal[15].r = pal[15].g = pal[15].b = 255;
-        pal[141].r = 0; pal[141].g = 80; pal[141].b = 0;
-        pal[167].r = 0; pal[167].g = 255; pal[167].b = 0;
-        SDL_SetPalette(screen, SDL_LOGPAL | SDL_PHYSPAL, pal, 0, 256);
     }
 
     Set_Logic_Page(HidPage);
