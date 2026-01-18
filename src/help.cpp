@@ -105,13 +105,13 @@ void HelpClass::Draw_It(bool forced)
 			Fancy_Text_Print(Text, DrawX, DrawY, Color, TBLACK, TPF_MAP|TPF_NOSHADOW);
 			LogicPage->Draw_Rect(DrawX-1, DrawY-1, DrawX+Width+1, DrawY+FontHeight, Color);
 
-			if (Cost) {
-				char buffer[15];
-				snprintf(buffer, sizeof(buffer), "$%d", Cost);
-				int width = String_Pixel_Width(buffer);
+				if (Cost) {
+					char buffer[15];
+					::snprintf(buffer, sizeof(buffer), "$%d", Cost);
+					int width = String_Pixel_Width(buffer);
 
-				Fancy_Text_Print(buffer, DrawX, DrawY+FontHeight, Color, TBLACK, TPF_MAP|TPF_NOSHADOW);
-				LogicPage->Draw_Rect(DrawX-1, DrawY+FontHeight, DrawX+width+1, DrawY+FontHeight+FontHeight-1, Color);
+					Fancy_Text_Print(buffer, DrawX, DrawY+FontHeight, Color, TBLACK, TPF_MAP|TPF_NOSHADOW);
+					LogicPage->Draw_Rect(DrawX-1, DrawY+FontHeight, DrawX+width+1, DrawY+FontHeight+FontHeight-1, Color);
 				LogicPage->Draw_Line(DrawX, DrawY+FontHeight, DrawX+MIN(width+1, Width) - 1, DrawY+FontHeight, TBLACK);
 			}
 

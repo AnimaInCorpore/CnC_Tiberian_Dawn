@@ -13,25 +13,27 @@
 *Guidance on creating, placing, and removing temporary implementations.*
 
 ### 1. Creation & Placement
-- **Missing/Broken Source**: If a file is missing or won't compile, add a stub `.cpp` in `src/` which includes `src/legacy_compat.h`. Ensure the CMake build remains stable.
+- **Missing/Broken Source**: If a file is missing or won't compile, add a stub `.cpp` in `src/` that includes `function.h` (preferred umbrella) or `legacy_compat.h`. Ensure the CMake build remains stable.
 - **Deferred I/O Modules**: If headers reference save/load methods as "implemented in ioobj.cpp", add `src/ioobj.cpp` stubs for those methods until `saveload.cpp` and pointer coding tables are ported.
-- **Type Completeness**: Use `src/legacy_compat.h` for shared typedefs, enums, globals, and RTTI values.
+- **Type Completeness**: Keep shared typedefs/enums/RTTI/globals in `src/legacy_compat.h` early; extract into owning module headers as subsystems solidify.
 - **Stub Headers**: If a header is needed for inheritance but unported, create a minimal dedicated stub header (e.g., `src/house.h`) rather than cluttering `legacy_compat.h`.
 - **Large Subsystems**: For complex missing dependencies (e.g., networking, `foot.cpp` requiring `FootClass`), keep a stub `.cpp` and a minimal shared header to avoid premature compatibility layer bloat.
 
 ### 2. Implementation Strategy
 - **Partial implementations**: Implement minimal `Process()` or no-op returns for UI dialogs/widgets dependent on unported state.
 - **Feature Gates**: Provide no-op stubs for symbols guarded by flags like `CHEAT_KEYS` so default builds link.
-- **Globals**: If a stub global becomes shared state, move its definition to `src/globals.cpp` and keep an `extern` declaration in `src/legacy_compat.h`.
-- **Shim Extraction**: When a compatibility shim grows beyond a few helpers (e.g., a whole class), move it into `src/<module>.h/.cpp` and include it from `src/legacy_compat.h` to avoid header bloat and ODR risks.
+- **Abstract Classes**: Ensure stub classes implement pure virtual methods from base classes (usually with empty bodies) to avoid "abstract class" instantiation errors.
+- **Hierarchy**: Reconstruct required inheritance chains via dedicated stub headers (e.g., `sidebar.h` -> `power.h` -> `radar.h`).
+- **Globals**: If a stub global becomes shared state, move its definition to `src/globals.cpp` and declare it in the owning header (or temporarily in `src/legacy_compat.h` while call sites are still fluid).
+- **Shim Extraction**: When a compatibility shim grows beyond a few helpers (e.g., a whole class), move it into `src/<module>.h/.cpp` to avoid ODR risks and keep `legacy_compat.*` small.
 
 ### 3. Replacement (De-stubbing)
-- **Migration**: When a real implementation lands, move code from `src/legacy_compat.*` to its dedicated `src/<name>.cpp/.h`.
+- **Migration**: When a real implementation lands, move code out of `src/legacy_compat.*` into its dedicated `src/<name>.cpp/.h`.
 - **Cleanup**: Remove the placeholder from the shim layer.
-- **Include Updates**: Update `src/legacy_compat.h` to include the new header (reduce churn) or update call sites to include the new header explicitly (preferred for clarity).
+- **Include Updates**: During churn-heavy phases, `src/legacy_compat.h` may include the new header; once stable, prefer updating call sites to include the owning header explicitly.
 
 ## Include & Header Strategy
-- **Wrapper Headers**: When a module includes `function.h`, provide a `src/function.h` wrapper that pulls in `src/legacy_compat.h` and standard headers.
+- **Wrapper Headers**: Keep `src/function.h` as the umbrella include for legacy modules (it pulls in `legacy_compat.h` and small standard headers).
 - **Match Legacy Boundaries**: Keep legacy modules as separate `src/<name>.h/.cpp` pairs (e.g., `file.*` vs `rawfile.*`) to avoid “mega-shim” files and make PROGRESS tracking accurate.
 - **Forward Declarations**: Prefer forward declarations over includes when defining shim types to avoid circular dependencies.
 - **Covariant Returns**: Keep `TechnoTypeClass::Create_One_Of(...)` returning `ObjectClass*` in shims so derived overrides remain covariant.
@@ -47,20 +49,13 @@
 - **Aggregate Initialization**: Keep shim structs for global tables as simple aggregates.
 - **Safe Math**: Clamp shifts derived from byte tables. Use `const_cast` cautiously for legacy mutation of const assets (e.g. `bullet.ImageData`).
 
-## C++98 Compatibility Checklist
-- [ ] Build with `-std=gnu++98`.
-- [ ] Use `NULL` instead of `nullptr`.
-- [ ] Use `<stdint.h>` instead of `<cstdint>`.
-- [ ] No defaulted functions (`= default`).
-- [ ] Enums: Do not forward declare. Definition must precede usage.
-- [ ] Legacy functions: Ensure `int` functions explicitly `return` a value (Watcom implicit return is UB).
-- [ ] Strings: Use `::snprintf` (avoid `std::snprintf`, not guaranteed in C++98). Use `const char*` for literals.
-- [ ] Static members: Define outside class without `static` keyword (e.g., `Type Class::Member;`).
-- [ ] Iteration: Cast enum indices to `int` for loops.
-
-## Stubs & Inheritance
-- **Abstract Classes**: Ensure stub classes implement pure virtual methods from base classes (usually with empty bodies) to avoid "abstract class" instantiation errors.
-- **Hierarchy**: Reconstruct required inheritance chains via dedicated stub headers (e.g., `sidebar.h` -> `power.h` -> `radar.h`).
+## C++98 Compatibility Notes
+- **Keywords/headers**: Use `NULL` (not `nullptr`), prefer `<stdint.h>` (not `<cstdint>`), and avoid C++11+ features like `= default`.
+- **Enums**: Do not forward declare. Definition must precede usage.
+- **Returns**: Ensure non-void functions explicitly `return` a value (Watcom implicit returns are UB).
+- **Strings**: Use `::snprintf` (avoid `std::snprintf`, not guaranteed in C++98).
+- **Static members**: Define outside the class without repeating `static` (e.g., `Type Class::Member;`).
+- **Iteration**: Cast enum indices to `int` in loops when needed.
 
 ## UI & Input Subsystems
 
@@ -76,7 +71,7 @@
 - **SDL Linking**: Use `find_package(SDL)` when available; fall back to `pkg-config` (`sdl`) in CMake.
 
 ### Input & Geometry
-- **Mouse**: `Get_Mouse_X/Y` returns SDL mouse coordinates from `SDL_Platform_Pump_Events`.
+- **Mouse**: `SDL_Platform_Pump_Events` updates cached mouse state; `Get_Mouse_X/Y` reads it.
 - **Keys**: Minimal key queue is provided by `SDL_Platform_Pop_Key()` (Esc/Return/Up/Down/Left/Right only, expand as needed).
 - **Facing**: Implement `Desired_Facing8` early (8-way from screen-space vector) since UI widgets (e.g., dials) depend on it.
 - **Calculations**: `Dir_Facing`, `Facing_Dir`, `Facing_To_32` are fully implemented bit/lookup conversions.
@@ -90,7 +85,7 @@
 - **Focus**: Maintain `Set_Focus`/`Has_Focus` shims.
 
 ## Filesystem & Assets
-- **Paths**: `CDFileClass` handles DOS paths (`\`, `;`). Roots default to `CD/TIBERIAN_DAWN/`.
+- **Paths**: `CDFileClass` handles DOS paths (`\`, `;`). Default search roots check `CD/TIBERIAN_DAWN/CD{2,1,3}/`, then `CD/TIBERIAN_DAWN/`, then `CD/`.
 - **Loading**: Use `FileClass`/`RawFileClass` shims.
 - **INI**: Minimal in-memory reader (`WWGetPrivateProfile...`). Writes are no-op.
 - **Icons**: Stub `Get_Icon_Set_Map` to return NULL safely.
