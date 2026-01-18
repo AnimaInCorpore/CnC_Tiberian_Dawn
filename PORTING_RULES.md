@@ -45,6 +45,7 @@
     - `CELL` must be `signed short`.
     - `TARGET` must be `unsigned short`.
     - *Rationale*: Preserves legacy overload resolution (e.g., `Sound_Effect`) and event/network structure layouts.
+- **`DirType` values**: Keep direction constants consistent with legacy `DEFINES.H` (8-way is `(n<<5)` on a 0–255 circle; include special `DIR_SW_X1`/`DIR_SW_X2` used by harvester/refinery tracks).
 - **Unions & POD**: Structs inside unions (e.g., `EventClass::Data`) must remain POD (no user constructors/destructors).
 - **Aggregate Initialization**: Keep shim structs for global tables as simple aggregates.
 - **Safe Math**: Clamp shifts derived from byte tables. Use `const_cast` cautiously for legacy mutation of const assets (e.g. `bullet.ImageData`).
@@ -56,6 +57,7 @@
 - **Strings**: Use `::snprintf` (avoid `std::snprintf`, not guaranteed in C++98).
 - **Static members**: Define outside the class without repeating `static` (e.g., `Type Class::Member;`).
 - **Iteration**: Cast enum indices to `int` in loops when needed.
+- **Watcom pragmas**: Remove or `#ifdef __WATCOMC__`-guard `#pragma warn ...` and similar compiler-specific directives.
 
 ## UI & Input Subsystems
 

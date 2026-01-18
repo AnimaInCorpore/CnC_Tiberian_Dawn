@@ -1559,8 +1559,21 @@ enum StructureFlag {
 class BuildingClass;
 class TechnoClass;
 
-// Minimal direction constants used by early ports.
+// Legacy `DirType` constants (see legacy `DEFINES.H`).
+// Note: `DirType` is currently a typedef in the portable build; keep numeric
+// values identical to legacy for data tables (e.g., `drive.cpp` tracks).
+static const DirType DIR_MIN = 0;
 static const DirType DIR_N = 0;
+static const DirType DIR_NE = (1 << 5);
+static const DirType DIR_E = (2 << 5);
+static const DirType DIR_SE = (3 << 5);
+static const DirType DIR_S = (4 << 5);
+static const DirType DIR_SW = (5 << 5);
+static const DirType DIR_SW_X1 = (5 << 5) - 8;
+static const DirType DIR_SW_X2 = (5 << 5) - 16;
+static const DirType DIR_W = (6 << 5);
+static const DirType DIR_NW = (7 << 5);
+static const DirType DIR_MAX = 254;
 
 // Coordinate packing helpers used by data tables.
 #ifndef XYP_COORD

@@ -37,7 +37,7 @@ Mark source files as they are ported to the CMake + SDL 1.2 stack (Win32/flat mo
 - [x] dialog.cpp
 - [x] display.cpp (port; view dimensions + placement cursor marking + deterministic palette table init)
 - [x] dpmi.cpp
-- [ ] drive.cpp (stub; DriveClass logic pending)
+- [x] drive.cpp (stub; smooth-turn track tables ported, movement logic pending)
 - [x] edit.cpp
 - [ ] event.cpp (Execute stub; event plumbing pending)
 - [x] facing.cpp
