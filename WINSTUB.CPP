@@ -499,7 +499,9 @@ int	DebugColour=1;
 
 
 extern "C" void Set_Palette_Register(int number,int red ,int green ,int blue);
+#ifdef __WATCOMC__
 #pragma off (unreferenced)
+#endif
 void Colour_Debug (int call_number)
 {
 	//#if 0
@@ -516,7 +518,9 @@ void Colour_Debug (int call_number)
 	//#endif
 }
 
+#ifdef __WATCOMC__
 #pragma on (unreferenced)
+#endif
 
 
 

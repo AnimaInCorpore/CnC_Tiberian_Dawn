@@ -530,9 +530,11 @@ void IPXConnClass::Close_Socket(unsigned short socket)
  * HISTORY:                                                                *
  *   12/16/1994 BR : Created.                                              *
  *=========================================================================*/
+#ifdef __WATCOMC__
 #pragma off (unreferenced)
+#endif
 int IPXConnClass::Send_To(char *buf, int buflen, IPXAddressClass *address,
-	NetNodeType immed)
+        NetNodeType immed)
 {
 
 	void *hdr_ptr;
@@ -623,7 +625,9 @@ CCDebugString (tempbuf);
 
 
 }
+#ifdef __WATCOMC__
 #pragma on (unreferenced)
+#endif
 
 /***************************************************************************
  * IPXConnClass::Broadcast -- broadcasts the given packet						*

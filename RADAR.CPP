@@ -1111,7 +1111,9 @@ void RadarClass::Cell_XY_To_Radar_Pixel(int cellx, int celly, int &x, int &y)
  *   05/22/1991 JLB : Created.                                                                 *
  *   11/17/1995 PWG : Created.                                                                 *
  *=============================================================================================*/
+#ifdef __WATCOMC__
 #pragma argsused
+#endif
 void RadarClass::Radar_Cursor(int forced)
 {
 	static 					_last_pos = -1;
